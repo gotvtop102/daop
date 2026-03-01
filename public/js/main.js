@@ -199,27 +199,86 @@
     return `${BASE}/data/batches/batch_${start}_${end}.js`;
   };
 
+  window.DAOP.getTmdbBatchPath = function (id) {
+    if (id == null) return null;
+    const list = window.moviesLight || [];
+    const idStr = String(id);
+    const idx = list.findIndex(function (m) {
+      return String(m.id) === idStr;
+    });
+    if (idx < 0) return null;
+    const BATCH = (window.DAOP && window.DAOP.batchSize) || 120;
+    const start = Math.floor(idx / BATCH) * BATCH;
+    const end = Math.min(start + BATCH, list.length);
+    return `${BASE}/data/batches/tmdb_batch_${start}_${end}.js`;
+  };
+
   /** Load full movie by id (load batch then find) */
   window.DAOP.loadMovieDetail = function (id, callback) {
     const path = window.DAOP.getBatchPath(id);
+    const tmdbPath = (window.DAOP && typeof window.DAOP.getTmdbBatchPath === 'function')
+      ? window.DAOP.getTmdbBatchPath(id)
+      : null;
     if (!path) {
       callback(null);
       return;
     }
-    const script = document.createElement('script');
-    script.src = path;
-    script.onload = function () {
+
+    var done = 0;
+    var failed = false;
+    function finish() {
+      if (failed) return;
+      var need = tmdbPath ? 2 : 1;
+      if (done < need) return;
       const batch = window.moviesBatch || [];
       const idStr = String(id);
       const movie = batch.find(function (m) {
         return String(m.id) === idStr;
       });
-      callback(movie || null);
+      if (!movie) {
+        callback(null);
+        return;
+      }
+      if (tmdbPath) {
+        const tb = window.moviesTmdbBatch || [];
+        const t = tb.find(function (x) { return x && String(x.id) === idStr; });
+        if (t) {
+          if (t.tmdb) movie.tmdb = t.tmdb;
+          if (t.imdb) movie.imdb = t.imdb;
+          if (t.cast) movie.cast = t.cast;
+          if (t.director) movie.director = t.director;
+          if (t.cast_meta) movie.cast_meta = t.cast_meta;
+          if (t.keywords) movie.keywords = t.keywords;
+        }
+      }
+      callback(movie);
+    }
+
+    const script = document.createElement('script');
+    script.src = path;
+    script.onload = function () {
+      done++;
+      finish();
     };
     script.onerror = function () {
+      failed = true;
       callback(null);
     };
     document.head.appendChild(script);
+
+    if (tmdbPath) {
+      const script2 = document.createElement('script');
+      script2.src = tmdbPath;
+      script2.onload = function () {
+        done++;
+        finish();
+      };
+      script2.onerror = function () {
+        done++;
+        finish();
+      };
+      document.head.appendChild(script2);
+    }
   };
 
   window.DAOP.derivePosterFromThumb = function (url) {

@@ -179,6 +179,29 @@ async function loadPreviousBuiltMoviesById() {
   }
 }
 
+async function loadPreviousBuiltTmdbById() {
+  try {
+    const batchDir = path.join(PUBLIC_DATA, 'batches');
+    if (!(await fs.pathExists(batchDir))) return new Map();
+    const byId = new Map();
+    const files = (await fs.readdir(batchDir)).filter((f) => /^tmdb_batch_\d+_\d+\.js$/i.test(f));
+    for (const f of files) {
+      try {
+        const raw = await fs.readFile(path.join(batchDir, f), 'utf8');
+        const batch = parseWindowArray(raw, 'moviesTmdbBatch');
+        for (const bm of batch || []) {
+          const idStr = bm && bm.id != null ? String(bm.id) : '';
+          if (!idStr) continue;
+          byId.set(idStr, bm);
+        }
+      } catch {}
+    }
+    return byId;
+  } catch {
+    return new Map();
+  }
+}
+
 async function loadOphimIndex() {
   const p = path.join(PUBLIC_DATA, 'ophim_index.json');
   try {
@@ -477,12 +500,12 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
       origin_name: (row[idx('origin_name')] || '').toString(),
       slug: baseSlug,
       thumb: (row[idx('thumb_url')] || row[idx('thumb')] || '').toString(),
-      poster: (row[idx('poster_url')] || row[idx('poster')] || row[idx('thumb_url')] || row[idx('thumb')] || '').toString(),
+      poster: '',
       year: (row[idx('year')] || '').toString(),
       type: (row[idx('type')] || 'single').toString(),
       genre,
       country,
-      lang_key: (row[idx('language')] || '').toString(),
+      lang_key: (row[idx('lang_key')] || row[idx('language')] || '').toString(),
       episode_current: (row[idx('episode_current')] || '1').toString(),
       quality,
       modified: (idxModified >= 0 ? sheetModified : new Date().toISOString()),
@@ -815,9 +838,9 @@ function mergeMovies(ophim, custom) {
 
   for (const m of merged) {
     if (m && m.thumb) m.thumb = compactOphimImgUrl(m.thumb);
-    if (m && m.poster) m.poster = compactOphimImgUrl(m.poster);
-    if (!m.poster && m.thumb) m.poster = m.thumb;
     dedupeThumbPoster(m);
+    // Không lưu poster trong output. Poster sẽ được suy ra từ thumb ở frontend / export.
+    if (m) m.poster = '';
   }
   return merged;
 }
@@ -831,7 +854,6 @@ function writeMoviesLight(movies) {
     origin_name: m.origin_name || '',
     slug: m.slug,
     thumb: m.thumb,
-    poster: m.poster,
     year: m.year,
     type: m.type,
     genre: m.genre,
@@ -1175,7 +1197,6 @@ function toLightMovie(m) {
     origin_name: m.origin_name || '',
     slug: m.slug,
     thumb: m.thumb,
-    poster: m.poster,
     year: m.year,
     type: m.type,
     episode_current: m.episode_current,
@@ -1281,10 +1302,34 @@ function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta 
 }
 
 /** 8. Tạo batch files (chỉ ghi lại batch có phim thay đổi dựa trên last_modified) */
-function writeBatches(movies, prevLastModified) {
+function writeBatches(movies, prevLastModified, tmdbById) {
   const sorted = [...movies].sort((a, b) => String(a.id).localeCompare(String(b.id)));
   const batchDir = path.join(PUBLIC_DATA, 'batches');
   fs.ensureDirSync(batchDir);
+
+  const toCoreMovie = (m) => {
+    if (!m) return m;
+    const {
+      tmdb,
+      imdb,
+      cast,
+      director,
+      cast_meta,
+      keywords,
+      tmdb_id,
+      _skip_tmdb,
+      ...rest
+    } = m;
+    return { ...rest, id: String(m.id) };
+  };
+
+  const toTmdbPayload = (idStr) => {
+    if (!tmdbById) return { id: idStr };
+    const v = tmdbById.get(String(idStr));
+    if (!v) return { id: String(idStr) };
+    const out = { ...v, id: String(idStr) };
+    return out;
+  };
 
   const total = sorted.length;
   const changedBatchStarts = new Set();
@@ -1320,18 +1365,28 @@ function writeBatches(movies, prevLastModified) {
   if (!prevLastModified || changedBatchStarts.size === 0) {
     for (let start = 0; start < total; start += BATCH_SIZE) {
       const end = Math.min(start + BATCH_SIZE, total);
-      const batch = sorted.slice(start, end).map((m) => ({ ...m, id: String(m.id) }));
+      const slice = sorted.slice(start, end);
+      const batch = slice.map((m) => toCoreMovie(m));
       const content = `window.moviesBatch = ${JSON.stringify(batch)};`;
       fs.writeFileSync(path.join(batchDir, `batch_${start}_${end}.js`), content, 'utf8');
+
+      const tmdbBatch = slice.map((m) => toTmdbPayload(m && m.id != null ? String(m.id) : ''));
+      const tmdbContent = `window.moviesTmdbBatch = ${JSON.stringify(tmdbBatch)};`;
+      fs.writeFileSync(path.join(batchDir, `tmdb_batch_${start}_${end}.js`), tmdbContent, 'utf8');
     }
     console.log('   Đã ghi lại toàn bộ batch files (lần đầu hoặc không có thông tin last_modified trước đó).');
   } else {
     const sortedStarts = Array.from(changedBatchStarts).sort((a, b) => a - b);
     for (const start of sortedStarts) {
       const end = Math.min(start + BATCH_SIZE, total);
-      const batch = sorted.slice(start, end).map((m) => ({ ...m, id: String(m.id) }));
+      const slice = sorted.slice(start, end);
+      const batch = slice.map((m) => toCoreMovie(m));
       const content = `window.moviesBatch = ${JSON.stringify(batch)};`;
       fs.writeFileSync(path.join(batchDir, `batch_${start}_${end}.js`), content, 'utf8');
+
+      const tmdbBatch = slice.map((m) => toTmdbPayload(m && m.id != null ? String(m.id) : ''));
+      const tmdbContent = `window.moviesTmdbBatch = ${JSON.stringify(tmdbBatch)};`;
+      fs.writeFileSync(path.join(batchDir, `tmdb_batch_${start}_${end}.js`), tmdbContent, 'utf8');
     }
     console.log('   Đã ghi lại', sortedStarts.length, 'batch files có phim mới hoặc thay đổi.');
   }
@@ -1829,6 +1884,7 @@ async function main() {
   }
 
   const prevMoviesById = await loadPreviousBuiltMoviesById();
+  const prevTmdbById = await loadPreviousBuiltTmdbById();
   const prevOphimIndex = await loadOphimIndex();
 
   console.log('1. Fetching OPhim...');
@@ -1842,6 +1898,23 @@ async function main() {
   console.log('3. Enriching TMDB...');
   await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
   await enrichTmdb(custom);
+
+  const tmdbById = new Map(prevTmdbById || []);
+  for (const m of [...(ophim || []), ...(custom || [])]) {
+    const idStr = m && m.id != null ? String(m.id) : '';
+    if (!idStr) continue;
+    if (m.tmdb || m.imdb || (Array.isArray(m.cast) && m.cast.length) || (Array.isArray(m.director) && m.director.length) || (Array.isArray(m.cast_meta) && m.cast_meta.length) || (Array.isArray(m.keywords) && m.keywords.length)) {
+      tmdbById.set(idStr, {
+        id: idStr,
+        tmdb: m.tmdb || null,
+        imdb: m.imdb || null,
+        cast: Array.isArray(m.cast) ? m.cast : [],
+        director: Array.isArray(m.director) ? m.director : [],
+        cast_meta: Array.isArray(m.cast_meta) ? m.cast_meta : [],
+        keywords: Array.isArray(m.keywords) ? m.keywords : [],
+      });
+    }
+  }
 
   const allMovies = mergeMovies(ophim, custom);
   console.log('4. Total movies:', allMovies.length);
@@ -1866,7 +1939,7 @@ async function main() {
   const filters = writeFilters(allMovies, genreNames, countryNames);
   writeCategoryPages(filters);
   writeActors(allMovies);
-  const newLastModified = writeBatches(allMovies, prevLastModified || undefined);
+  const newLastModified = writeBatches(allMovies, prevLastModified || undefined, tmdbById);
 
   console.log('6b. Sync update status back to Google Sheets (NEW -> OK)...');
   await applySheetUpdateStatuses(custom);

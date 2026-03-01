@@ -30,28 +30,53 @@ async function loadLocalMovies() {
   const mlRaw = await fs.readFile(moviesLightPath, 'utf8');
   const light = parseWindowArray(mlRaw, 'moviesLight');
 
-  const batchesDir = path.join(PUBLIC_DATA, 'batches');
+  const batchDir = path.join(PUBLIC_DATA, 'batches');
+  const files = (await fs.readdir(batchDir)).filter((f) => /^batch_\d+_\d+\.js$/i.test(f));
   const moviesById = new Map();
-  if (await fs.pathExists(batchesDir)) {
-    const files = (await fs.readdir(batchesDir)).filter((f) => f.startsWith('batch_') && f.endsWith('.js'));
-    for (const file of files) {
-      const raw = await fs.readFile(path.join(batchesDir, file), 'utf8');
-      try {
-        const batch = parseWindowArray(raw, 'moviesBatch');
-        for (const m of batch || []) {
-          const idStr = String(m.id);
-          moviesById.set(idStr, m);
-        }
-      } catch (e) {
-        console.warn('   Không parse được batch', file, ':', e.message);
+  for (const f of files) {
+    try {
+      const raw = await fs.readFile(path.join(batchDir, f), 'utf8');
+      const batch = parseWindowArray(raw, 'moviesBatch');
+      for (const m of batch || []) {
+        const idStr = String(m.id);
+        moviesById.set(idStr, m);
       }
+    } catch (e) {
+      console.warn('   Skip batch file:', f, e.message);
+    }
+  }
+
+  // TMDB data đã được tách riêng: tmdb_batch_<start>_<end>.js
+  const tmdbFiles = (await fs.readdir(batchDir)).filter((f) => /^tmdb_batch_\d+_\d+\.js$/i.test(f));
+  const tmdbById = new Map();
+  for (const f of tmdbFiles) {
+    try {
+      const raw = await fs.readFile(path.join(batchDir, f), 'utf8');
+      const batch = parseWindowArray(raw, 'moviesTmdbBatch');
+      for (const m of batch || []) {
+        const idStr = m && m.id != null ? String(m.id) : '';
+        if (!idStr) continue;
+        tmdbById.set(idStr, m);
+      }
+    } catch (e) {
+      console.warn('   Skip tmdb batch file:', f, e.message);
     }
   }
 
   const fullMovies = light.map((m) => {
     const idStr = String(m.id);
     const full = moviesById.get(idStr);
-    return full || { ...m, episodes: [] };
+    const base = full || { ...m, episodes: [] };
+    const t = tmdbById.get(idStr);
+    if (t) {
+      if (t.tmdb) base.tmdb = t.tmdb;
+      if (t.imdb) base.imdb = t.imdb;
+      if (t.cast) base.cast = t.cast;
+      if (t.director) base.director = t.director;
+      if (t.cast_meta) base.cast_meta = t.cast_meta;
+      if (t.keywords) base.keywords = t.keywords;
+    }
+    return base;
   });
 
   return fullMovies;
