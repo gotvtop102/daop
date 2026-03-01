@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["yo"] = {"your-letter":{"id":"68de84345c81ed0050c6ce7f","i":135,"title":"Những Lá Thư Của Yeon","origin_name":"Your Letter","slug":"your-letter","thumb":"/uploads/movies/your-letter-thumb.jpg","year":2025,"type":"hoathinh","episode_current":"Hoàn tất (1/1)"}};

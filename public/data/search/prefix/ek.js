@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["ek"] = [{"id":"694389e06c7286f4d1c816c2","title":"Ekis","origin_name":"Ekis","slug":"ekis","thumb":"/uploads/movies/ekis-thumb.jpg","year":2025,"type":"single","episode_current":"Full","_t":"ekis ekis ekis"}];

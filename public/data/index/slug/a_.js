@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["a_"] = {"a-thien":{"id":"69454ed8eea244e3e8a256f2","i":430,"title":"A Thiền","origin_name":"A Chan","slug":"a-thien","thumb":"/uploads/movies/a-thien-thumb.jpg","year":2026,"type":"series","episode_current":"Trailer"}};
