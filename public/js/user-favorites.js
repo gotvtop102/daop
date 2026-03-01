@@ -232,11 +232,6 @@
 
     var base = (window.DAOP && window.DAOP.basePath) || '';
     var slugs = Array.from(us.getFavorites ? us.getFavorites() : []);
-    currentList = slugs
-      .map(function (slug) {
-        return window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(slug) : null;
-      })
-      .filter(Boolean);
 
     if (!slugs.length) {
       if (favEmpty) favEmpty.style.display = '';
@@ -248,19 +243,35 @@
 
     ensureToolbar();
 
-    renderPager(currentList.length);
-
+    // Resolve slugs -> movie light data (async, shard-based).
+    var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
+      ? window.DAOP.getMovieBySlugAsync
+      : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
     var render = window.DAOP && window.DAOP.renderMovieCard;
     if (!render) return;
 
-    var totalPages = Math.max(1, Math.ceil(currentList.length / pageSize));
-    if (currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-    var start = (currentPage - 1) * pageSize;
-    var end = Math.min(currentList.length, start + pageSize);
-    currentList.slice(start, end).forEach(function (m) {
-      favGrid.insertAdjacentHTML('beforeend', render(m, base, { usePoster: usePoster }));
-    });
+    favGrid.innerHTML = '<p>Đang tải...</p>';
+    Promise.all(slugs.map(function (slug) { return getLight(slug); }))
+      .then(function (movies) {
+        currentList = (movies || []).filter(Boolean);
+        renderPager(currentList.length);
+
+        var totalPages = Math.max(1, Math.ceil(currentList.length / pageSize));
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+        var start = (currentPage - 1) * pageSize;
+        var end = Math.min(currentList.length, start + pageSize);
+
+        favGrid.innerHTML = '';
+        currentList.slice(start, end).forEach(function (m) {
+          favGrid.insertAdjacentHTML('beforeend', render(m, base, { usePoster: usePoster }));
+        });
+      })
+      .catch(function () {
+        currentList = [];
+        renderPager(0);
+        favGrid.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+      });
   }
 
   function init() {

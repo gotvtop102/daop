@@ -151,13 +151,14 @@ async function loadPreviousBuiltMoviesById() {
   try {
     const moviesLightPath = path.join(PUBLIC_DATA, 'movies-light.js');
     const batchDir = path.join(PUBLIC_DATA, 'batches');
-    if (!(await fs.pathExists(moviesLightPath))) return new Map();
     if (!(await fs.pathExists(batchDir))) return new Map();
-    const mlRaw = await fs.readFile(moviesLightPath, 'utf8');
-    const light = parseWindowArray(mlRaw, 'moviesLight');
     const byId = new Map();
-    for (const m of light || []) {
-      if (m && m.id != null) byId.set(String(m.id), { ...m, episodes: [] });
+    if (await fs.pathExists(moviesLightPath)) {
+      const mlRaw = await fs.readFile(moviesLightPath, 'utf8');
+      const light = parseWindowArray(mlRaw, 'moviesLight');
+      for (const m of light || []) {
+        if (m && m.id != null) byId.set(String(m.id), { ...m, episodes: [] });
+      }
     }
     const files = (await fs.readdir(batchDir)).filter((f) => /^batch_\d+_\d+\.js$/i.test(f));
     for (const f of files) {
@@ -873,6 +874,230 @@ function writeMoviesLight(movies) {
   fs.writeFileSync(path.join(PUBLIC_DATA, 'movies-light.js'), content, 'utf8');
 }
 
+function normalizeSearchText(s) {
+  if (!s) return '';
+  let t = String(s).toLowerCase();
+  try {
+    if (t.normalize) t = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  } catch {}
+  t = t.replace(/đ/g, 'd');
+  t = t.replace(/[^a-z0-9]+/g, ' ').trim();
+  return t;
+}
+
+function getShardKey2(s) {
+  const t = normalizeSearchText(s);
+  if (!t) return '__';
+  const a = (t[0] || '').toLowerCase();
+  const b = (t[1] || '_').toLowerCase();
+  const ok = (c) => /[a-z0-9]/.test(c);
+  const c1 = ok(a) ? a : '_';
+  const c2 = ok(b) ? b : '_';
+  return `${c1}${c2}`;
+}
+
+function hashStringDjb2(s) {
+  let h = 5381;
+  const str = String(s || '');
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) + h) + str.charCodeAt(i);
+    h |= 0;
+  }
+  return h >>> 0;
+}
+
+function splitObjectBySize(keyToObj, maxBytes, keySelector) {
+  const keys = Object.keys(keyToObj || {});
+  if (!keys.length) return { parts: 1, buckets: [{ ...keyToObj }] };
+
+  const rawLen = Buffer.byteLength(JSON.stringify(keyToObj), 'utf8');
+  if (rawLen <= maxBytes) return { parts: 1, buckets: [{ ...keyToObj }] };
+
+  let parts = 2;
+  while (parts <= 64) {
+    const buckets = Array.from({ length: parts }, () => ({}));
+    for (const k of keys) {
+      const sel = keySelector ? keySelector(k, keyToObj[k]) : k;
+      const idx = hashStringDjb2(sel) % parts;
+      buckets[idx][k] = keyToObj[k];
+    }
+    let ok = true;
+    for (const b of buckets) {
+      const len = Buffer.byteLength(JSON.stringify(b), 'utf8');
+      if (len > maxBytes) { ok = false; break; }
+    }
+    if (ok) return { parts, buckets };
+    parts *= 2;
+  }
+  const buckets = Array.from({ length: 64 }, () => ({}));
+  for (const k of keys) {
+    const sel = keySelector ? keySelector(k, keyToObj[k]) : k;
+    const idx = hashStringDjb2(sel) % 64;
+    buckets[idx][k] = keyToObj[k];
+  }
+  return { parts: 64, buckets };
+}
+
+function splitArrayBySize(arr, maxBytes, keySelector) {
+  const list = Array.isArray(arr) ? arr : [];
+  if (!list.length) return { parts: 1, buckets: [[]] };
+
+  const rawLen = Buffer.byteLength(JSON.stringify(list), 'utf8');
+  if (rawLen <= maxBytes) return { parts: 1, buckets: [list.slice(0)] };
+
+  let parts = 2;
+  while (parts <= 64) {
+    const buckets = Array.from({ length: parts }, () => []);
+    for (const it of list) {
+      const sel = keySelector ? keySelector(it) : (it && (it.slug || it.id) ? String(it.slug || it.id) : '');
+      const idx = hashStringDjb2(sel) % parts;
+      buckets[idx].push(it);
+    }
+    let ok = true;
+    for (const b of buckets) {
+      const len = Buffer.byteLength(JSON.stringify(b), 'utf8');
+      if (len > maxBytes) { ok = false; break; }
+    }
+    if (ok) return { parts, buckets };
+    parts *= 2;
+  }
+  const buckets = Array.from({ length: 64 }, () => []);
+  for (const it of list) {
+    const sel = keySelector ? keySelector(it) : (it && (it.slug || it.id) ? String(it.slug || it.id) : '');
+    const idx = hashStringDjb2(sel) % 64;
+    buckets[idx].push(it);
+  }
+  return { parts: 64, buckets };
+}
+
+function writeIndexAndSearchShards(movies) {
+  const BATCH = 120;
+  const maxBytes = Math.max(50_000, parseInt(process.env.SHARD_MAX_BYTES || '300000', 10) || 300000);
+  const sorted = [...movies].sort((a, b) => String(a.id).localeCompare(String(b.id)));
+
+  const outIndexDir = path.join(PUBLIC_DATA, 'index');
+  const outSlugDir = path.join(outIndexDir, 'slug');
+  const outIdDir = path.join(outIndexDir, 'id');
+  const outSearchDir = path.join(PUBLIC_DATA, 'search');
+  const outPrefixDir = path.join(outSearchDir, 'prefix');
+  fs.ensureDirSync(outSlugDir);
+  fs.ensureDirSync(outIdDir);
+  fs.ensureDirSync(outPrefixDir);
+
+  const slugIndexByShard = new Map();
+  const idIndexByShard = new Map();
+  const searchByShard = new Map();
+
+  for (let i = 0; i < sorted.length; i++) {
+    const m = sorted[i];
+    if (!m) continue;
+    const idStr = m.id != null ? String(m.id) : '';
+    const slugStr = m.slug != null ? String(m.slug) : '';
+    if (!idStr) continue;
+
+    const idShard = getShardKey2(idStr);
+    if (!idIndexByShard.has(idShard)) idIndexByShard.set(idShard, {});
+    idIndexByShard.get(idShard)[idStr] = {
+      i,
+      id: idStr,
+      title: m.title,
+      origin_name: m.origin_name || '',
+      slug: slugStr,
+      thumb: m.thumb,
+      year: m.year,
+      type: m.type,
+      episode_current: m.episode_current,
+      lang_key: m.lang_key,
+      is_4k: m.is_4k,
+      is_exclusive: m.is_exclusive || false,
+      sub_docquyen: m.sub_docquyen,
+      chieurap: m.chieurap,
+    };
+
+    if (slugStr) {
+      const slugShard = getShardKey2(slugStr);
+      if (!slugIndexByShard.has(slugShard)) slugIndexByShard.set(slugShard, {});
+      slugIndexByShard.get(slugShard)[slugStr] = {
+        id: idStr,
+        i,
+        title: m.title,
+        origin_name: m.origin_name || '',
+        slug: slugStr,
+        thumb: m.thumb,
+        year: m.year,
+        type: m.type,
+        episode_current: m.episode_current,
+      };
+    }
+
+    const baseText = normalizeSearchText(`${m.title || ''} ${m.origin_name || ''} ${m.slug || ''}`);
+    const tokens = baseText ? Array.from(new Set(baseText.split(/\s+/).filter(Boolean))) : [];
+    const tokenShardSet = new Set(tokens.map(getShardKey2));
+    if (slugStr) tokenShardSet.add(getShardKey2(slugStr));
+    if (m.title) tokenShardSet.add(getShardKey2(m.title));
+
+    const item = {
+      id: idStr,
+      title: m.title,
+      origin_name: m.origin_name || '',
+      slug: slugStr,
+      thumb: m.thumb,
+      year: m.year,
+      type: m.type,
+      episode_current: m.episode_current,
+      _t: baseText,
+    };
+
+    tokenShardSet.forEach((k) => {
+      if (!searchByShard.has(k)) searchByShard.set(k, []);
+      searchByShard.get(k).push(item);
+    });
+  }
+
+  const meta = { total: sorted.length, batchSize: BATCH };
+  fs.writeFileSync(path.join(outIndexDir, 'meta.json'), JSON.stringify(meta), 'utf8');
+
+  const slugMeta = { maxBytes, parts: {} };
+  for (const [k, map] of slugIndexByShard.entries()) {
+    const spl = splitObjectBySize(map, maxBytes, (slug) => slug);
+    slugMeta.parts[k] = spl.parts;
+    if (spl.parts <= 1) {
+      const content = `window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex[${JSON.stringify(k)}] = ${JSON.stringify(map)};`;
+      fs.writeFileSync(path.join(outSlugDir, `${k}.js`), content, 'utf8');
+      continue;
+    }
+    for (let p = 0; p < spl.buckets.length; p++) {
+      const partObj = spl.buckets[p];
+      if (!partObj || !Object.keys(partObj).length) continue;
+      const content = `window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex[${JSON.stringify(k)}] = window.DAOP.slugIndex[${JSON.stringify(k)}] || {};Object.assign(window.DAOP.slugIndex[${JSON.stringify(k)}], ${JSON.stringify(partObj)});`;
+      fs.writeFileSync(path.join(outSlugDir, `${k}.${p}.js`), content, 'utf8');
+    }
+  }
+  fs.writeFileSync(path.join(outSlugDir, 'meta.json'), JSON.stringify(slugMeta), 'utf8');
+  for (const [k, map] of idIndexByShard.entries()) {
+    const content = `window.DAOP = window.DAOP || {};window.DAOP.idIndex = window.DAOP.idIndex || {};window.DAOP.idIndex[${JSON.stringify(k)}] = ${JSON.stringify(map)};`;
+    fs.writeFileSync(path.join(outIdDir, `${k}.js`), content, 'utf8');
+  }
+
+  const searchMeta = { maxBytes, parts: {} };
+  for (const [k, arr] of searchByShard.entries()) {
+    const spl = splitArrayBySize(arr, maxBytes, (it) => (it && (it.slug || it.id) ? String(it.slug || it.id) : ''));
+    searchMeta.parts[k] = spl.parts;
+    if (spl.parts <= 1) {
+      const content = `window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix[${JSON.stringify(k)}] = ${JSON.stringify(arr)};`;
+      fs.writeFileSync(path.join(outPrefixDir, `${k}.js`), content, 'utf8');
+      continue;
+    }
+    for (let p = 0; p < spl.buckets.length; p++) {
+      const partArr = spl.buckets[p];
+      if (!partArr || !partArr.length) continue;
+      const content = `window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix[${JSON.stringify(k)}] = (window.DAOP.searchPrefix[${JSON.stringify(k)}] || []).concat(${JSON.stringify(partArr)});`;
+      fs.writeFileSync(path.join(outPrefixDir, `${k}.${p}.js`), content, 'utf8');
+    }
+  }
+  fs.writeFileSync(path.join(outPrefixDir, 'meta.json'), JSON.stringify(searchMeta), 'utf8');
+}
+
 /** 5b. Lấy danh sách thể loại (23) + quốc gia (45) từ OPhim API, fallback danh sách tĩnh nếu API lỗi */
 async function fetchOPhimGenresAndCountries() {
   const base = process.env.OPHIM_BASE_URL || 'https://ophim1.com/v1/api';
@@ -913,6 +1138,7 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
   const yearMap = {};
   const typeMap = {};
   const statusMap = {};
+  const langMap = { vietsub: [], thuyetminh: [], longtieng: [], khac: [] };
   const quality4kIds = [];
   const exclusiveIds = [];
   const yearsSet = new Set();
@@ -927,6 +1153,13 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
       if (!statusMap[m.status]) statusMap[m.status] = [];
       statusMap[m.status].push(m.id);
     }
+
+    const lk = (m.lang_key || '').toString().toLowerCase();
+    if (!lk) langMap.khac.push(m.id);
+    else if (lk.includes('vietsub')) langMap.vietsub.push(m.id);
+    else if (lk.includes('thuyết minh') || lk.includes('thuyet minh')) langMap.thuyetminh.push(m.id);
+    else if (lk.includes('lồng tiếng') || lk.includes('long tieng')) langMap.longtieng.push(m.id);
+    else langMap.khac.push(m.id);
     const y = (m.year || '').toString();
     if (y) {
       yearsSet.add(y);
@@ -978,6 +1211,7 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
     yearMap,
     typeMap,
     statusMap,
+    langMap,
     quality4kIds,
     exclusiveIds,
     genreNames,
@@ -986,6 +1220,25 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
   })};`;
   fs.writeFileSync(path.join(PUBLIC_DATA, 'filters.js'), content, 'utf8');
   return { genreMap, countryMap, yearMap, genreNames, countryNames };
+}
+
+function removeMoviesLightScriptFromHtml() {
+  const publicDir = path.join(ROOT, 'public');
+  function walk(dir) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const e of entries) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.isFile() && e.name.endsWith('.html')) {
+        let content = fs.readFileSync(full, 'utf8');
+        const orig = content;
+        content = content.replace(/\s*<script\s+[^>]*src\s*=\s*"[^\"]*\/data\/movies-light\.js"[^>]*><\/script>\s*/gi, '\n');
+        if (content !== orig) fs.writeFileSync(full, content, 'utf8');
+      }
+    }
+  }
+  walk(publicDir);
+  console.log('   Removed movies-light.js script tag from HTML files');
 }
 
 /** 5b. Inject site_name vào tất cả HTML (title, site-logo) để tên web đúng ngay khi load trang */
@@ -1814,6 +2067,9 @@ async function main() {
     injectFooterIntoHtml();
     injectNavIntoHtml();
     injectLoadingScreenIntoHtml();
+    if (process.env.GENERATE_MOVIES_LIGHT !== '1') {
+      try { await fs.remove(path.join(PUBLIC_DATA, 'movies-light.js')); } catch {}
+    }
     const filtersPath = path.join(PUBLIC_DATA, 'filters.js');
     const filterOrderPath = path.join(PUBLIC_DATA, 'config', 'filter-order.json');
     if (await fs.pathExists(filtersPath)) {
@@ -1871,6 +2127,10 @@ async function main() {
   await fs.ensureDir(PUBLIC_DATA);
   await fs.ensureDir(path.join(PUBLIC_DATA, 'config'));
   await fs.ensureDir(path.join(PUBLIC_DATA, 'batches'));
+
+  if (process.env.GENERATE_MOVIES_LIGHT !== '1') {
+    try { await fs.remove(path.join(PUBLIC_DATA, 'movies-light.js')); } catch {}
+  }
 
   // Đọc last_modified của lần build trước (nếu có) để chỉ ghi lại batch thay đổi
   const lastModifiedPath = path.join(PUBLIC_DATA, 'last_modified.json');
@@ -1933,9 +2193,14 @@ async function main() {
   injectNavIntoHtml();
   console.log('5e. Injecting loading screen into HTML files...');
   injectLoadingScreenIntoHtml();
+  console.log('5f. Removing movies-light.js script tags from HTML files...');
+  removeMoviesLightScriptFromHtml();
 
   console.log('6. Writing movies-light.js, filters.js, actors (index + shards), batches...');
-  writeMoviesLight(allMovies);
+  if (process.env.GENERATE_MOVIES_LIGHT === '1') {
+    writeMoviesLight(allMovies);
+  }
+  writeIndexAndSearchShards(allMovies);
   const filters = writeFilters(allMovies, genreNames, countryNames);
   writeCategoryPages(filters);
   writeActors(allMovies);

@@ -962,96 +962,101 @@
   }
 
   function init() {
-    var slug = getSlug();
-    var rootEl = document.getElementById('watch-page');
-    if (!rootEl) return;
+    ensureSiteSettings(function () {
+      var rootEl = document.getElementById('watch-page');
+      if (!rootEl) rootEl = document.body;
 
-    if (!slug) {
-      rootEl.innerHTML = '<p>Không tìm thấy phim.</p>';
-      return;
-    }
+      var slug = getSlug();
+      if (!slug) {
+        rootEl.innerHTML = '<p>Không tìm thấy phim.</p>';
+        return;
+      }
 
-    var light = window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(slug) : null;
-    if (!light) {
-      rootEl.innerHTML = '<p>Không tìm thấy phim.</p>';
-      return;
-    }
+      var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
+        ? window.DAOP.getMovieBySlugAsync
+        : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
+      getLight(slug).then(function (light) {
+        if (!light) {
+          rootEl.innerHTML = '<p>Không tìm thấy phim.</p>';
+          return;
+        }
 
-    document.title = (light.title || slug) + ' | ' + (window.DAOP && window.DAOP.siteName ? window.DAOP.siteName : 'GoTV');
-    var metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) metaDesc.setAttribute('content', (light.description || light.title || '').slice(0, 160));
+        window.DAOP.loadMovieDetail(light.id, function (movie) {
+          if (!movie) {
+            rootEl.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+            return;
+          }
 
-    window.DAOP.loadMovieDetail(light.id, function (movie) {
-      movie = movie || light;
+          var norm = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
+            ? window.DAOP.normalizeImgUrl
+            : function (x) { return x; };
+          var derivedPoster = (!movie.poster && movie.thumb && window.DAOP && typeof window.DAOP.derivePosterFromThumb === 'function')
+            ? window.DAOP.derivePosterFromThumb(movie.thumb)
+            : '';
+          var poster = norm(movie.poster || derivedPoster || movie.thumb || '').replace(/^\/\//, 'https://');
+          var title = (movie.title || '').replace(/</g, '&lt;');
 
-      var norm = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
-        ? window.DAOP.normalizeImgUrl
-        : function (x) { return x; };
-      var derivedPoster = (!movie.poster && movie.thumb && window.DAOP && typeof window.DAOP.derivePosterFromThumb === 'function')
-        ? window.DAOP.derivePosterFromThumb(movie.thumb)
-        : '';
-      var poster = norm(movie.poster || derivedPoster || movie.thumb || '').replace(/^\/\//, 'https://');
-      var title = (movie.title || '').replace(/</g, '&lt;');
+          var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
+          var slugSafe = esc(movie.slug || slug);
 
-      var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
-      var slugSafe = esc(movie.slug || slug);
+          rootEl.innerHTML =
+            '<div class="watch-layout">' +
+            '  <div class="watch-main">' +
+            '    <div class="watch-player-sticky">' +
+            '      <div data-role="player"></div>' +
+            '    </div>' +
+            '    <div class="watch-player-meta" style="margin-top:0.75rem;">' +
+            '      <div class="watch-player-meta-head">' +
+            '        <a class="watch-back-btn" href="/phim/' + esc(movie.slug || slug) + '.html" aria-label="Về trang chi tiết">' +
+            '          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '        </a>' +
+            '        <div class="watch-player-meta-title" style="font-weight:800;">' + title + '</div>' +
+            '        <button type="button" class="md-action-btn watch-pin-btn" id="watch-btn-pin" aria-pressed="false">' + iconSvg('pin') + '<span class="md-action-label">Ghim</span></button>' +
+            '      </div>' +
+            '      <div class="md-actions watch-actions" style="margin-top:0.6rem;">' +
+            '        <button type="button" class="md-action-btn movie-fav-btn" id="watch-btn-favorite" data-movie-slug="' + slugSafe + '" aria-label="Yêu thích" aria-pressed="false">' + iconSvg('heart') + '<span class="md-action-label">Yêu thích</span></button>' +
+            '        <button type="button" class="md-action-btn" id="watch-btn-share">' + iconSvg('share') + '<span class="md-action-label">Chia sẻ</span></button>' +
+            '        <button type="button" class="md-action-btn" id="watch-btn-scroll-comments">' + iconSvg('chat') + '<span class="md-action-label">Bình luận</span></button>' +
+            '        <button type="button" class="md-action-btn" id="watch-btn-scroll-recommend">' + iconSvg('spark') + '<span class="md-action-label">Đề xuất</span></button>' +
+            '      </div>' +
+            '    </div>' +
+            '  </div>' +
+            '  <aside class="watch-sidebar">' +
+            '    <div class="watch-episodes-card">' +
+            '      <div class="watch-episodes-head">' +
+            '        <div class="server-tabs" data-role="server-tabs"></div>' +
+            '        <button type="button" class="watch-episodes-collapse" id="watch-btn-collapse-episodes" aria-label="Thu gọn tập">' + iconSvg('chevDown') + '</button>' +
+            '      </div>' +
+            '      <div class="watch-episodes-controls watch-episodes-controls--single">' +
+            '        <label class="watch-episodes-linktype"><span class="episodes-ui-label">Máy chủ</span><select class="episodes-ui-select" data-role="link-type"></select></label>' +
+            '        <div class="episodes-ui-row watch-episodes-group" data-role="group-row" style="display:none;">' +
+            '          <select id="watch-episodes-group" class="episodes-ui-select" data-role="group" aria-label="Nhóm tập"></select>' +
+            '        </div>' +
+            '      </div>' +
+            '      <div class="episodes-grid" data-role="episodes"></div>' +
+            '    </div>' +
+            '    <section id="watch-comments" class="watch-side-card watch-comments-card">' +
+            '      <div class="watch-side-head">' +
+            '        <div class="watch-side-title">' + iconSvg('chat') + '<span class="watch-side-title-text">Bình luận</span></div>' +
+            '        <button type="button" class="watch-side-back" id="watch-btn-close-comments" aria-label="Đóng">' + iconSvg('close') + '<span class="watch-close-text">Đóng</span></button>' +
+            '      </div>' +
+            '      <div id="twikoo-watch-comments"></div>' +
+            '    </section>' +
+            '  </aside>' +
+            '</div>' +
+            '<section id="watch-recommend" class="md-section watch-recommend-full">' +
+            '  <div class="md-section-head">' +
+            '    <h3 class="md-section-title">' + iconSvg('spark') + '<span class="md-section-title-text">Đề xuất</span></h3>' +
+            '    <div class="grid-toolbar" id="watch-rec-toolbar" aria-label="Tùy chọn hiển thị"></div>' +
+            '  </div>' +
+            '  <div class="movies-grid" id="watch-recommend-grid"></div>' +
+            '</section>';
 
-      rootEl.innerHTML =
-        '<div class="watch-layout">' +
-        '  <div class="watch-main">' +
-        '    <div class="watch-player-sticky">' +
-        '      <div data-role="player"></div>' +
-        '    </div>' +
-        '    <div class="watch-player-meta" style="margin-top:0.75rem;">' +
-        '      <div class="watch-player-meta-head">' +
-        '        <a class="watch-back-btn" href="/phim/' + esc(movie.slug || slug) + '.html" aria-label="Về trang chi tiết">' +
-        '          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        '        </a>' +
-        '        <div class="watch-player-meta-title" style="font-weight:800;">' + title + '</div>' +
-        '        <button type="button" class="md-action-btn watch-pin-btn" id="watch-btn-pin" aria-pressed="false">' + iconSvg('pin') + '<span class="md-action-label">Ghim</span></button>' +
-        '      </div>' +
-        '      <div class="md-actions watch-actions" style="margin-top:0.6rem;">' +
-        '        <button type="button" class="md-action-btn movie-fav-btn" id="watch-btn-favorite" data-movie-slug="' + slugSafe + '" aria-label="Yêu thích" aria-pressed="false">' + iconSvg('heart') + '<span class="md-action-label">Yêu thích</span></button>' +
-        '        <button type="button" class="md-action-btn" id="watch-btn-share">' + iconSvg('share') + '<span class="md-action-label">Chia sẻ</span></button>' +
-        '        <button type="button" class="md-action-btn" id="watch-btn-scroll-comments">' + iconSvg('chat') + '<span class="md-action-label">Bình luận</span></button>' +
-        '        <button type="button" class="md-action-btn" id="watch-btn-scroll-recommend">' + iconSvg('spark') + '<span class="md-action-label">Đề xuất</span></button>' +
-        '      </div>' +
-        '    </div>' +
-        '  </div>' +
-        '  <aside class="watch-sidebar">' +
-        '    <div class="watch-episodes-card">' +
-        '      <div class="watch-episodes-head">' +
-        '        <div class="server-tabs" data-role="server-tabs"></div>' +
-        '        <button type="button" class="watch-episodes-collapse" id="watch-btn-collapse-episodes" aria-label="Thu gọn tập">' + iconSvg('chevDown') + '</button>' +
-        '      </div>' +
-        '      <div class="watch-episodes-controls watch-episodes-controls--single">' +
-        '        <label class="watch-episodes-linktype"><span class="episodes-ui-label">Máy chủ</span><select class="episodes-ui-select" data-role="link-type"></select></label>' +
-        '        <div class="episodes-ui-row watch-episodes-group" data-role="group-row" style="display:none;">' +
-        '          <select id="watch-episodes-group" class="episodes-ui-select" data-role="group" aria-label="Nhóm tập"></select>' +
-        '        </div>' +
-        '      </div>' +
-        '      <div class="episodes-grid" data-role="episodes"></div>' +
-        '    </div>' +
-        '    <section id="watch-comments" class="watch-side-card watch-comments-card">' +
-        '      <div class="watch-side-head">' +
-        '        <div class="watch-side-title">' + iconSvg('chat') + '<span class="watch-side-title-text">Bình luận</span></div>' +
-        '        <button type="button" class="watch-side-back" id="watch-btn-close-comments" aria-label="Đóng">' + iconSvg('close') + '<span class="watch-close-text">Đóng</span></button>' +
-        '      </div>' +
-        '      <div id="twikoo-watch-comments"></div>' +
-        '    </section>' +
-        '  </aside>' +
-        '</div>' +
-        '<section id="watch-recommend" class="md-section watch-recommend-full">' +
-        '  <div class="md-section-head">' +
-        '    <h3 class="md-section-title">' + iconSvg('spark') + '<span class="md-section-title-text">Đề xuất</span></h3>' +
-        '    <div class="grid-toolbar" id="watch-rec-toolbar" aria-label="Tùy chọn hiển thị"></div>' +
-        '  </div>' +
-        '  <div class="movies-grid" id="watch-recommend-grid"></div>' +
-        '</section>';
-
-      var initial = pickInitialEpisode(movie, window.DAOP && window.DAOP.serverSources);
-      initEpisodesUI(movie, rootEl, initial);
-      setupActions(movie, rootEl);
+          var initial = pickInitialEpisode(movie, window.DAOP && window.DAOP.serverSources);
+          initEpisodesUI(movie, rootEl, initial);
+          setupActions(movie, rootEl);
+        });
+      });
     });
   }
 

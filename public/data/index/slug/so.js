@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["so"] = {"soda-master":{"id":"697f03db124287e08252ff23","i":11,"title":"Soda Master","origin_name":"Soda Master","slug":"soda-master","thumb":"/uploads/movies/soda-master-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 5"}};

@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["so"] = [{"id":"697f03db124287e08252ff23","title":"Soda Master","origin_name":"Soda Master","slug":"soda-master","thumb":"/uploads/movies/soda-master-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 5","_t":"soda master soda master soda master"}];

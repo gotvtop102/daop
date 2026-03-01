@@ -184,6 +184,110 @@
     return m;
   };
 
+  function normalizeShardText(s) {
+    if (!s) return '';
+    var t = String(s).toLowerCase();
+    try {
+      if (t.normalize) t = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    } catch (e) {}
+    t = t.replace(/đ/g, 'd');
+    return t;
+  }
+
+  function getShardKey2(s) {
+    var t = normalizeShardText(s);
+    if (!t) return '__';
+    var a = (t[0] || '').toLowerCase();
+    var b = (t[1] || '_').toLowerCase();
+    function ok(c) { return /[a-z0-9]/.test(c); }
+    var c1 = ok(a) ? a : '_';
+    var c2 = ok(b) ? b : '_';
+    return c1 + c2;
+  }
+
+  function loadScriptOnce(url) {
+    return new Promise(function (resolve) {
+      if (!url) return resolve(false);
+      try {
+        window.DAOP = window.DAOP || {};
+        window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+        if (window.DAOP._loadedScripts[url]) return resolve(true);
+        var s = document.createElement('script');
+        s.src = url;
+        s.onload = function () {
+          window.DAOP._loadedScripts[url] = true;
+          resolve(true);
+        };
+        s.onerror = function () { resolve(false); };
+        document.head.appendChild(s);
+      } catch (e) {
+        resolve(false);
+      }
+    });
+  }
+
+  function loadIndexMetaOnce() {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._indexMetaPromise) return window.DAOP._indexMetaPromise;
+    var url = BASE + '/data/index/meta.json';
+    window.DAOP._indexMetaPromise = fetch(url)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+    return window.DAOP._indexMetaPromise;
+  }
+
+  function loadSlugIndexMetaOnce() {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._slugIndexMetaPromise) return window.DAOP._slugIndexMetaPromise;
+    var url = BASE + '/data/index/slug/meta.json';
+    window.DAOP._slugIndexMetaPromise = fetch(url)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+    return window.DAOP._slugIndexMetaPromise;
+  }
+
+  window.DAOP.getMovieBySlugAsync = function (slug) {
+    return Promise.resolve().then(function () {
+      var m0 = window.DAOP.getMovieBySlug(slug);
+      if (m0) return m0;
+      var s = String(slug || '').trim();
+      if (!s) return null;
+      var key = getShardKey2(s);
+      return loadSlugIndexMetaOnce().then(function (meta) {
+        var parts = 1;
+        try {
+          parts = meta && meta.parts && meta.parts[key] ? parseInt(meta.parts[key], 10) : 1;
+          if (!isFinite(parts) || parts < 1) parts = 1;
+        } catch (e0) { parts = 1; }
+
+        var baseUrl = BASE + '/data/index/slug/' + key;
+        var loads;
+        if (parts <= 1) {
+          loads = [loadScriptOnce(baseUrl + '.js')];
+        } else {
+          loads = [];
+          for (var p = 0; p < parts; p++) loads.push(loadScriptOnce(baseUrl + '.' + p + '.js'));
+        }
+        return Promise.all(loads).then(function () {
+          try {
+            var idx = window.DAOP && window.DAOP.slugIndex ? window.DAOP.slugIndex[key] : null;
+            if (!idx) return null;
+            if (idx[s]) return idx[s];
+            var sLow = s.toLowerCase();
+            var ks = Object.keys(idx);
+            for (var i = 0; i < ks.length; i++) {
+              var k2 = ks[i];
+              if ((k2 || '').toLowerCase() === sLow) return idx[k2];
+            }
+            return null;
+          } catch (e1) {
+            return null;
+          }
+        });
+      });
+    });
+  };
+
   /** Get movie index by id for batch path (id so sánh dạng string để tránh lệch kiểu) */
   window.DAOP.getBatchPath = function (id) {
     if (id == null) return null;
@@ -197,6 +301,56 @@
     const start = Math.floor(idx / BATCH) * BATCH;
     const end = Math.min(start + BATCH, list.length);
     return `${BASE}/data/batches/batch_${start}_${end}.js`;
+  };
+
+  window.DAOP.getBatchPathAsync = function (id) {
+    return Promise.resolve().then(function () {
+      var p0 = window.DAOP.getBatchPath(id);
+      if (p0) return p0;
+      if (id == null) return null;
+      var idStr = String(id);
+      var key = getShardKey2(idStr);
+      var url = BASE + '/data/index/id/' + key + '.js';
+      return loadScriptOnce(url).then(function () {
+        try {
+          var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
+          var row = idxMap ? idxMap[idStr] : null;
+          var i = row && typeof row.i === 'number' ? row.i : -1;
+          if (i < 0) return null;
+          var BATCH = (window.DAOP && window.DAOP.batchSize) || 120;
+          var start = Math.floor(i / BATCH) * BATCH;
+          return loadIndexMetaOnce().then(function (meta) {
+            var total = meta && typeof meta.total === 'number' ? meta.total : -1;
+            var end = total > 0 ? Math.min(start + BATCH, total) : (start + BATCH);
+            return BASE + '/data/batches/batch_' + start + '_' + end + '.js';
+          });
+        } catch (e) {
+          return null;
+        }
+      });
+    });
+  };
+
+  window.DAOP.getMovieLightByIdAsync = function (id) {
+    return Promise.resolve().then(function () {
+      if (id == null) return null;
+      var idStr = String(id);
+      if (window.moviesLight && Array.isArray(window.moviesLight) && window.moviesLight.length) {
+        var m0 = window.moviesLight.find(function (m) { return m && String(m.id) === idStr; });
+        if (m0) return m0;
+      }
+      var key = getShardKey2(idStr);
+      var url = BASE + '/data/index/id/' + key + '.js';
+      return loadScriptOnce(url).then(function () {
+        try {
+          var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
+          var row = idxMap ? idxMap[idStr] : null;
+          return row || null;
+        } catch (e) {
+          return null;
+        }
+      });
+    });
   };
 
   window.DAOP.getTmdbBatchPath = function (id) {
@@ -213,72 +367,118 @@
     return `${BASE}/data/batches/tmdb_batch_${start}_${end}.js`;
   };
 
+  window.DAOP.getTmdbBatchPathAsync = function (id) {
+    return Promise.resolve().then(function () {
+      var p0 = window.DAOP.getTmdbBatchPath(id);
+      if (p0) return p0;
+      if (id == null) return null;
+      var idStr = String(id);
+      var key = getShardKey2(idStr);
+      var url = BASE + '/data/index/id/' + key + '.js';
+      return loadScriptOnce(url).then(function () {
+        try {
+          var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
+          var row = idxMap ? idxMap[idStr] : null;
+          var i = row && typeof row.i === 'number' ? row.i : -1;
+          if (i < 0) return null;
+          var BATCH = (window.DAOP && window.DAOP.batchSize) || 120;
+          var start = Math.floor(i / BATCH) * BATCH;
+          return loadIndexMetaOnce().then(function (meta) {
+            var total = meta && typeof meta.total === 'number' ? meta.total : -1;
+            var end = total > 0 ? Math.min(start + BATCH, total) : (start + BATCH);
+            return BASE + '/data/batches/tmdb_batch_' + start + '_' + end + '.js';
+          });
+        } catch (e) {
+          return null;
+        }
+      });
+    });
+  };
+
   /** Load full movie by id (load batch then find) */
   window.DAOP.loadMovieDetail = function (id, callback) {
-    const path = window.DAOP.getBatchPath(id);
-    const tmdbPath = (window.DAOP && typeof window.DAOP.getTmdbBatchPath === 'function')
-      ? window.DAOP.getTmdbBatchPath(id)
-      : null;
-    if (!path) {
-      callback(null);
-      return;
-    }
-
-    var done = 0;
-    var failed = false;
-    function finish() {
-      if (failed) return;
-      var need = tmdbPath ? 2 : 1;
-      if (done < need) return;
-      const batch = window.moviesBatch || [];
-      const idStr = String(id);
-      const movie = batch.find(function (m) {
-        return String(m.id) === idStr;
-      });
-      if (!movie) {
-        callback(null);
-        return;
-      }
-      if (tmdbPath) {
-        const tb = window.moviesTmdbBatch || [];
-        const t = tb.find(function (x) { return x && String(x.id) === idStr; });
-        if (t) {
-          if (t.tmdb) movie.tmdb = t.tmdb;
-          if (t.imdb) movie.imdb = t.imdb;
-          if (t.cast) movie.cast = t.cast;
-          if (t.director) movie.director = t.director;
-          if (t.cast_meta) movie.cast_meta = t.cast_meta;
-          if (t.keywords) movie.keywords = t.keywords;
+    Promise.resolve()
+      .then(function () {
+        if (window.DAOP && typeof window.DAOP.getBatchPathAsync === 'function') return window.DAOP.getBatchPathAsync(id);
+        return window.DAOP.getBatchPath(id);
+      })
+      .then(function (path) {
+        return Promise.resolve()
+          .then(function () {
+            if (window.DAOP && typeof window.DAOP.getTmdbBatchPathAsync === 'function') return window.DAOP.getTmdbBatchPathAsync(id);
+            return (window.DAOP && typeof window.DAOP.getTmdbBatchPath === 'function') ? window.DAOP.getTmdbBatchPath(id) : null;
+          })
+          .then(function (tmdbPath) {
+            return { path: path, tmdbPath: tmdbPath };
+          });
+      })
+      .then(function (p) {
+        var path = p && p.path;
+        var tmdbPath = p && p.tmdbPath;
+        if (!path) {
+          callback(null);
+          return;
         }
-      }
-      callback(movie);
-    }
 
-    const script = document.createElement('script');
-    script.src = path;
-    script.onload = function () {
-      done++;
-      finish();
-    };
-    script.onerror = function () {
-      failed = true;
-      callback(null);
-    };
-    document.head.appendChild(script);
+        var done = 0;
+        var failed = false;
+        function finish() {
+          if (failed) return;
+          var need = tmdbPath ? 2 : 1;
+          if (done < need) return;
+          const batch = window.moviesBatch || [];
+          const idStr = String(id);
+          const movie = batch.find(function (m) {
+            return String(m.id) === idStr;
+          });
+          if (!movie) {
+            callback(null);
+            return;
+          }
+          if (tmdbPath) {
+            const tb = window.moviesTmdbBatch || [];
+            const t = tb.find(function (x) { return x && String(x.id) === idStr; });
+            if (t) {
+              if (t.tmdb) movie.tmdb = t.tmdb;
+              if (t.imdb) movie.imdb = t.imdb;
+              if (t.cast) movie.cast = t.cast;
+              if (t.director) movie.director = t.director;
+              if (t.cast_meta) movie.cast_meta = t.cast_meta;
+              if (t.keywords) movie.keywords = t.keywords;
+            }
+          }
+          callback(movie);
+        }
 
-    if (tmdbPath) {
-      const script2 = document.createElement('script');
-      script2.src = tmdbPath;
-      script2.onload = function () {
-        done++;
-        finish();
-      };
-      script2.onerror = function () {
-        done++;
-        finish();
-      };
-      document.head.appendChild(script2);
-    }
+        const script = document.createElement('script');
+        script.src = path;
+        script.onload = function () {
+          done++;
+          finish();
+        };
+        script.onerror = function () {
+          failed = true;
+          callback(null);
+        };
+        document.head.appendChild(script);
+
+        if (tmdbPath) {
+          const script2 = document.createElement('script');
+          script2.src = tmdbPath;
+          script2.onload = function () {
+            done++;
+            finish();
+          };
+          script2.onerror = function () {
+            done++;
+            finish();
+          };
+          document.head.appendChild(script2);
+        }
+      })
+      .catch(function () {
+        callback(null);
+      });
   };
 
   window.DAOP.derivePosterFromThumb = function (url) {

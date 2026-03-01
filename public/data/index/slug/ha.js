@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ha"] = {"hana-kimi":{"id":"695b55461d0b515454a330c2","i":7,"title":"Hana-Kimi","origin_name":"Hana-Kimi","slug":"hana-kimi","thumb":"/uploads/movies/hana-kimi-thumb.jpg","year":2026,"type":"hoathinh","episode_current":"Hoàn tất (10/10)"}};

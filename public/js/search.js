@@ -34,6 +34,120 @@
     return str.replace(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ]/g, function(c) { return map[c] || c; });
   }
 
+  function normalizeShardText(s) {
+    if (!s) return '';
+    var t = String(s).toLowerCase();
+    try {
+      if (t.normalize) t = t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    } catch (e) {}
+    t = t.replace(/đ/g, 'd');
+    return t;
+  }
+
+  function getShardKey2(s) {
+    var t = normalizeShardText(s);
+    if (!t) return '__';
+    var a = (t[0] || '').toLowerCase();
+    var b = (t[1] || '_').toLowerCase();
+    function ok(c) { return /[a-z0-9]/.test(c); }
+    var c1 = ok(a) ? a : '_';
+    var c2 = ok(b) ? b : '_';
+    return c1 + c2;
+  }
+
+  function loadScriptOnce(url) {
+    return new Promise(function (resolve) {
+      if (!url) return resolve(false);
+      try {
+        window.DAOP = window.DAOP || {};
+        window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+        if (window.DAOP._loadedScripts[url]) return resolve(true);
+        var s = document.createElement('script');
+        s.src = url;
+        s.onload = function () {
+          window.DAOP._loadedScripts[url] = true;
+          resolve(true);
+        };
+        s.onerror = function () { resolve(false); };
+        document.head.appendChild(s);
+      } catch (e) {
+        resolve(false);
+      }
+    });
+  }
+
+  function pickQueryTokens(q) {
+    var t = normalizeShardText(q);
+    if (!t) return [];
+    t = t.replace(/[^a-z0-9]+/g, ' ').trim();
+    if (!t) return [];
+    var parts = t.split(/\s+/).filter(Boolean);
+    // ưu tiên token dài hơn để giảm số item
+    parts.sort(function (a, b) { return (b.length || 0) - (a.length || 0); });
+    return parts.slice(0, 3);
+  }
+
+  function unionUniqueBySlugId(lists, limit) {
+    var out = [];
+    var seen = {};
+    (lists || []).forEach(function (arr) {
+      (arr || []).forEach(function (m) {
+        if (!m) return;
+        var k = (m.slug || m.id) ? String(m.slug || m.id) : '';
+        if (!k || seen[k]) return;
+        seen[k] = true;
+        out.push(m);
+      });
+    });
+    if (limit && out.length > limit) out = out.slice(0, limit);
+    return out;
+  }
+
+  function loadSearchShardByKey(key) {
+    var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
+    window.DAOP = window.DAOP || {};
+    if (!window.DAOP._searchPrefixMetaPromise) {
+      window.DAOP._searchPrefixMetaPromise = fetch(baseUrl + '/data/search/prefix/meta.json')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; });
+    }
+    return window.DAOP._searchPrefixMetaPromise.then(function (meta) {
+      var parts = 1;
+      try {
+        parts = meta && meta.parts && meta.parts[key] ? parseInt(meta.parts[key], 10) : 1;
+        if (!isFinite(parts) || parts < 1) parts = 1;
+      } catch (e0) { parts = 1; }
+
+      var base = baseUrl + '/data/search/prefix/' + key;
+      var loads;
+      if (parts <= 1) {
+        loads = [loadScriptOnce(base + '.js')];
+      } else {
+        loads = [];
+        for (var p = 0; p < parts; p++) loads.push(loadScriptOnce(base + '.' + p + '.js'));
+      }
+      return Promise.all(loads).then(function () {
+        try {
+          return window.DAOP && window.DAOP.searchPrefix ? (window.DAOP.searchPrefix[key] || []) : [];
+        } catch (e1) {
+          return [];
+        }
+      });
+    });
+  }
+
+  function searchContainsOnList(list, qLower) {
+    var q = (qLower || '').trim();
+    if (!q) return [];
+    var qUnsigned = removeVietnameseTones(q);
+    return (list || []).filter(function (m) {
+      var text = ((m._t) || ((m.title || '') + ' ' + (m.origin_name || '') + ' ' + (m.slug || ''))).toLowerCase();
+      if (text.indexOf(q) >= 0) return true;
+      var textU = removeVietnameseTones(text);
+      return textU.indexOf(qUnsigned) >= 0;
+    });
+  }
+
   function loadSettings() {
     return fetch(((window.DAOP && window.DAOP.basePath) || '') + '/data/config/site-settings.json')
       .then(function (r) { return r.json(); })
@@ -107,44 +221,67 @@
       return;
     }
     var qLower = q.toLowerCase();
-    if (!index) index = buildIndex();
-    if (!index) return;
-    var list;
-    if (index.useFlexSearch && index.index) {
-      try {
-        var ids = index.index.search(qLower, 50);
-        if (!Array.isArray(ids)) ids = [];
-        var qUnsigned = removeVietnameseTones(qLower);
-        var idsU = index.indexUnsigned ? index.indexUnsigned.search(qUnsigned, 50) : [];
-        if (!Array.isArray(idsU)) idsU = [];
 
-        var seen = {};
-        var ordered = [];
-        function pushUnique(arr) {
-          arr.forEach(function (i) {
-            if (i == null) return;
-            var k = String(i);
-            if (seen[k]) return;
-            seen[k] = true;
-            ordered.push(i);
-          });
+    // Nếu có moviesLight (dataset nhỏ) thì giữ logic cũ.
+    if (window.moviesLight && Array.isArray(window.moviesLight) && window.moviesLight.length) {
+      if (!index) index = buildIndex();
+      if (!index) return;
+      var list;
+      if (index.useFlexSearch && index.index) {
+        try {
+          var ids = index.index.search(qLower, 50);
+          if (!Array.isArray(ids)) ids = [];
+          var qUnsigned = removeVietnameseTones(qLower);
+          var idsU = index.indexUnsigned ? index.indexUnsigned.search(qUnsigned, 50) : [];
+          if (!Array.isArray(idsU)) idsU = [];
+
+          var seen = {};
+          var ordered = [];
+          function pushUnique(arr) {
+            arr.forEach(function (i) {
+              if (i == null) return;
+              var k = String(i);
+              if (seen[k]) return;
+              seen[k] = true;
+              ordered.push(i);
+            });
+          }
+          pushUnique(ids);
+          pushUnique(idsU);
+
+          ordered = ordered
+            .map(Number)
+            .filter(function (i) { return i >= 0 && i < index.list.length; });
+          list = ordered.map(function (i) { return index.list[i]; }).filter(Boolean);
+          list = list.filter(function (m) { return exactContains(m, qLower); });
+          if (list.length > 50) list = list.slice(0, 50);
+        } catch (e) {
+          list = searchFallback(index.list, qLower);
         }
-        pushUnique(ids);
-        pushUnique(idsU);
-
-        ordered = ordered
-          .map(Number)
-          .filter(function (i) { return i >= 0 && i < index.list.length; });
-        list = ordered.map(function (i) { return index.list[i]; }).filter(Boolean);
-        list = list.filter(function (m) { return exactContains(m, qLower); });
-        if (list.length > 50) list = list.slice(0, 50);
-      } catch (e) {
+      } else {
         list = searchFallback(index.list, qLower);
       }
-    } else {
-      list = searchFallback(index.list, qLower);
+      renderResults(list);
+      return;
     }
-    renderResults(list);
+
+    // Dataset lớn: dùng shard prefix.
+    var tokens = pickQueryTokens(qLower);
+    if (!tokens.length) {
+      renderResults([]);
+      return;
+    }
+    var keys = Array.from(new Set(tokens.map(getShardKey2)));
+    Promise.all(keys.map(loadSearchShardByKey))
+      .then(function (arrs) {
+        var merged = unionUniqueBySlugId(arrs);
+        var filtered = searchContainsOnList(merged, qLower);
+        if (filtered.length > 50) filtered = filtered.slice(0, 50);
+        renderResults(filtered);
+      })
+      .catch(function () {
+        renderResults([]);
+      });
   }
 
   function renderResults(list) {

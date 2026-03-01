@@ -1,6 +1,6 @@
 // PWA Service Worker - cache static assets
 var CACHE = 'daop-v1';
-var urls = ['/', '/css/style.css', '/js/main.js', '/data/movies-light.js', '/data/filters.js', '/manifest.json'];
+var urls = ['/', '/css/style.css', '/js/main.js', '/data/filters.js', '/manifest.json'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(urls); }).then(function () { return self.skipWaiting(); }));
 });

@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["tr"] = {"trong-nhay-mat":{"id":"69a3c8cbccc6cea2687e0152","i":21,"title":"Trong nháy mắt","origin_name":"In the Blink of an Eye","slug":"trong-nhay-mat","thumb":"/uploads/movies/trong-nhay-mat-thumb.jpg","year":2026,"type":"single","episode_current":"Full"}};

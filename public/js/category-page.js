@@ -13,6 +13,8 @@
     this.currentPage = 1;
     this.filters = { year: '', genre: [], country: [], videoType: [], lang: [] };
     this.filteredIds = [];
+    this._lightCache = {};
+    this._renderSeq = 0;
   }
 
   CategoryPage.prototype.init = function () {
@@ -137,12 +139,18 @@
       parent.insertBefore(wrap, container);
       wrap.appendChild(container);
     }
-    var list = window.moviesLight || [];
     var years = [];
-    list.forEach(function (m) {
-      if (!baseSet.has(m.id)) return;
-      if (m.year && years.indexOf(m.year) === -1) years.push(m.year);
-    });
+    try {
+      var ym = (fd && fd.yearMap) ? fd.yearMap : {};
+      var yKeys = Object.keys(ym || {});
+      yKeys.forEach(function (y) {
+        if (!y) return;
+        var arr = ym[y] || [];
+        for (var i = 0; i < arr.length; i++) {
+          if (baseSet.has(arr[i])) { years.push(y); break; }
+        }
+      });
+    } catch (e0) {}
     years.sort(function (a, b) { return Number(b) - Number(a); });
     var genreNames = fd.genreNames || {};
     var genreMap = fd.genreMap || {};
@@ -209,59 +217,53 @@
 
   CategoryPage.prototype.applyFilters = function (baseSet, fd) {
     var self = this;
-    var ids = Array.from(baseSet);
     var f = this.filters;
-    var list = window.moviesLight || [];
-    if (f.year) ids = ids.filter(function (id) {
-      var m = list.find(function (x) { return x.id === id; });
-      return m && String(m.year) === f.year;
-    });
-    if (f.genre && f.genre.length) {
-      ids = ids.filter(function (id) {
-        var m = list.find(function (x) { return x.id === id; });
-        if (!m || !m.genre) return false;
-        return f.genre.some(function (g) {
-          return m.genre.some(function (x) { return (x.slug || x.id) === g; });
-        });
+
+    var baseIds = Array.from(baseSet);
+    var cur = baseIds.slice(0);
+
+    function intersectWithSet(ids, set) {
+      if (!set) return ids;
+      return ids.filter(function (id) { return set.has(id); });
+    }
+
+    function buildUnionSetFromMap(map, keys) {
+      var out = new Set();
+      (keys || []).forEach(function (k) {
+        var arr = map && map[k] ? map[k] : [];
+        (arr || []).forEach(function (id) { out.add(id); });
       });
+      return out;
+    }
+
+    if (f.year) {
+      var yearSet = new Set(((fd && fd.yearMap && fd.yearMap[f.year]) || []).slice(0));
+      cur = intersectWithSet(cur, yearSet);
+    }
+    if (f.genre && f.genre.length) {
+      var genreSet = buildUnionSetFromMap(fd && fd.genreMap, f.genre);
+      cur = intersectWithSet(cur, genreSet);
     }
     if (f.country && f.country.length) {
-      ids = ids.filter(function (id) {
-        var m = list.find(function (x) { return x.id === id; });
-        if (!m || !m.country) return false;
-        return f.country.some(function (c) {
-          return m.country.some(function (x) { return (x.slug || x.id) === c; });
-        });
-      });
+      var countrySet = buildUnionSetFromMap(fd && fd.countryMap, f.country);
+      cur = intersectWithSet(cur, countrySet);
     }
     if (f.videoType && f.videoType.length) {
-      ids = ids.filter(function (id) {
-        var m = list.find(function (x) { return x.id === id; });
-        if (!m) return false;
-        return f.videoType.some(function (v) {
-          if (v === 'tvshows') return (m.type || '') === 'tvshows';
-          if (v === 'hoathinh') return (m.type || '') === 'hoathinh';
-          if (v === '4k') return m.is_4k === true || (fd.quality4kIds || []).indexOf(id) !== -1;
-          if (v === 'exclusive') return m.sub_docquyen === true || (fd.exclusiveIds || []).indexOf(id) !== -1;
-          return false;
-        });
+      var vtSet = new Set();
+      (f.videoType || []).forEach(function (v) {
+        if (v === 'tvshows') ((fd && fd.typeMap && fd.typeMap.tvshows) || []).forEach(function (id) { vtSet.add(id); });
+        else if (v === 'hoathinh') ((fd && fd.typeMap && fd.typeMap.hoathinh) || []).forEach(function (id) { vtSet.add(id); });
+        else if (v === '4k') ((fd && fd.quality4kIds) || []).forEach(function (id) { vtSet.add(id); });
+        else if (v === 'exclusive') ((fd && fd.exclusiveIds) || []).forEach(function (id) { vtSet.add(id); });
       });
+      cur = intersectWithSet(cur, vtSet);
     }
     if (f.lang && f.lang.length) {
-      ids = ids.filter(function (id) {
-        var m = list.find(function (x) { return x.id === id; });
-        if (!m) return false;
-        var lk = (m.lang_key || '').toLowerCase();
-        return f.lang.some(function (lang) {
-          if (lang === 'vietsub') return lk.indexOf('vietsub') >= 0;
-          if (lang === 'thuyetminh') return lk.indexOf('thuyết minh') >= 0 || lk.indexOf('thuyet minh') >= 0;
-          if (lang === 'longtieng') return lk.indexOf('lồng tiếng') >= 0 || lk.indexOf('long tieng') >= 0;
-          if (lang === 'khac') return !lk || (lk.indexOf('vietsub') < 0 && lk.indexOf('thuyết minh') < 0 && lk.indexOf('thuyet minh') < 0 && lk.indexOf('lồng tiếng') < 0 && lk.indexOf('long tieng') < 0);
-          return false;
-        });
-      });
+      var lm = (fd && fd.langMap) ? fd.langMap : {};
+      var langSet = buildUnionSetFromMap(lm, f.lang);
+      cur = intersectWithSet(cur, langSet);
     }
-    this.filteredIds = ids;
+    this.filteredIds = cur;
   };
 
   CategoryPage.prototype.renderPage = function () {
@@ -270,14 +272,48 @@
     var perPage = this.itemsPerPage;
     var start = (this.currentPage - 1) * perPage;
     var slice = this.filteredIds.slice(start, start + perPage);
-    var list = window.moviesLight || [];
     var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
     var usePoster = this.usePoster === true;
-    var html = slice.map(function (id) {
-      var m = list.find(function (x) { return x.id === id; });
-      return m && window.DAOP.renderMovieCard ? window.DAOP.renderMovieCard(m, baseUrl, { usePoster: usePoster }) : '';
-    }).join('');
-    grid.innerHTML = html || '<p>Không có phim nào.</p>';
+
+    var self = this;
+    var seq = ++this._renderSeq;
+    grid.innerHTML = '<p>Đang tải...</p>';
+
+    var render = window.DAOP && window.DAOP.renderMovieCard;
+    var getById = window.DAOP && window.DAOP.getMovieLightByIdAsync;
+    if (!render) {
+      grid.innerHTML = '<p>Lỗi: không thể hiển thị danh sách.</p>';
+    } else if (!slice.length) {
+      grid.innerHTML = '<p>Không có phim nào.</p>';
+    } else if (window.moviesLight && Array.isArray(window.moviesLight) && window.moviesLight.length) {
+      var html0 = slice.map(function (id) {
+        var m = window.moviesLight.find(function (x) { return x && x.id === id; });
+        return m ? render(m, baseUrl, { usePoster: usePoster }) : '';
+      }).join('');
+      grid.innerHTML = html0 || '<p>Không có phim nào.</p>';
+    } else if (typeof getById !== 'function') {
+      grid.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+    } else {
+      Promise.all(slice.map(function (id) {
+        var k = String(id);
+        if (self._lightCache[k]) return Promise.resolve(self._lightCache[k]);
+        return getById(id).then(function (m) {
+          if (m) self._lightCache[k] = m;
+          return m;
+        });
+      }))
+        .then(function (movies) {
+          if (seq !== self._renderSeq) return;
+          var html2 = (movies || []).map(function (m) {
+            return m ? render(m, baseUrl, { usePoster: usePoster }) : '';
+          }).join('');
+          grid.innerHTML = html2 || '<p>Không có phim nào.</p>';
+        })
+        .catch(function () {
+          if (seq !== self._renderSeq) return;
+          grid.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+        });
+    }
 
     var total = Math.ceil(this.filteredIds.length / perPage) || 1;
     var pagEl = document.getElementById(this.paginationId);

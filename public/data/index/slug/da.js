@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["da"] = {"dac-vu-mat":{"id":"69785937b9fc4b542964ab8c","i":10,"title":"Đặc Vụ Mật","origin_name":"The Secret Agent","slug":"dac-vu-mat","thumb":"/uploads/movies/dac-vu-mat-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

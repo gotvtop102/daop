@@ -91,11 +91,24 @@
     }
     if (favEmpty) favEmpty.style.display = 'none';
 
-    slugs.forEach(function (slug) {
-      var m = window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(slug) : null;
-      if (!m) return;
-      favGrid.insertAdjacentHTML('beforeend', window.DAOP.renderMovieCard(m, base, {}));
-    });
+    var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
+      ? window.DAOP.getMovieBySlugAsync
+      : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
+    var render = window.DAOP && window.DAOP.renderMovieCard;
+    if (!render) return;
+
+    favGrid.innerHTML = '<p>Đang tải...</p>';
+    Promise.all(slugs.map(function (slug) { return getLight(slug); }))
+      .then(function (movies) {
+        var list = (movies || []).filter(Boolean);
+        favGrid.innerHTML = '';
+        list.forEach(function (m) {
+          favGrid.insertAdjacentHTML('beforeend', render(m, base, {}));
+        });
+      })
+      .catch(function () {
+        favGrid.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+      });
   }
 
   function renderHistory() {
@@ -119,37 +132,50 @@
     }
     if (histEmpty) histEmpty.style.display = 'none';
 
-    list.forEach(function (h) {
-      if (!h || !h.slug) return;
-      var m = window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(h.slug) : null;
-      if (!m) return;
+    var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
+      ? window.DAOP.getMovieBySlugAsync
+      : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
+    histList.innerHTML = '<p>Đang tải...</p>';
+    Promise.all(list.map(function (h) {
+      if (!h || !h.slug) return Promise.resolve({ h: h, m: null });
+      return getLight(h.slug).then(function (m) { return { h: h, m: m }; });
+    }))
+      .then(function (rows) {
+        histList.innerHTML = '';
+        (rows || []).forEach(function (row) {
+          var h = row && row.h;
+          var m = row && row.m;
+          if (!h || !h.slug || !m) return;
 
-      var title = safeText(m.title || m.name || h.slug);
-      var ep = safeText(h.episode || '');
-      var href = base + '/phim/' + (m.slug || m.id || h.slug) + '.html';
-      var last = h.lastWatched ? safeText(h.lastWatched) : '';
+          var title = safeText(m.title || m.name || h.slug);
+          var ep = safeText(h.episode || '');
+          var href = base + '/phim/' + (m.slug || m.id || h.slug) + '.html';
+          var last = h.lastWatched ? safeText(h.lastWatched) : '';
 
-      var html = '' +
-        '<div class="user-history-item">' +
-        '  <div class="user-history-main">' +
-        '    <a class="user-history-title" href="' + href + '">' + title + '</a>' +
-        '    <div class="user-history-meta">Tập: <strong>' + ep + '</strong>' + (last ? ' • ' + last : '') + '</div>' +
-        '  </div>' +
-        '  <div class="user-history-actions">' +
-        '    <button type="button" class="login-btn login-btn--primary btn-continue" data-slug="' + safeText(h.slug) + '" data-episode="' + ep + '">Xem tiếp</button>' +
-        '  </div>' +
-        '</div>';
+          var html = '' +
+            '<div class="user-history-item">' +
+            '  <div class="user-history-main">' +
+            '    <a class="user-history-title" href="' + href + '">' + title + '</a>' +
+            '    <div class="user-history-meta">Tập: <strong>' + ep + '</strong>' + (last ? ' • ' + last : '') + '</div>' +
+            '  </div>' +
+            '  <div class="user-history-actions">' +
+            '    <button type="button" class="login-btn login-btn--primary btn-continue" data-slug="' + safeText(h.slug) + '" data-episode="' + ep + '">Xem tiếp</button>' +
+            '  </div>' +
+            '</div>';
 
-      histList.insertAdjacentHTML('beforeend', html);
-    });
+          histList.insertAdjacentHTML('beforeend', html);
+        });
+      })
+      .catch(function () {
+        histList.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+      });
 
     histList.querySelectorAll('.btn-continue').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var slug = btn.getAttribute('data-slug');
         var ep = btn.getAttribute('data-episode');
-        var m = window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(slug) : null;
         if (window.DAOP && window.DAOP.openPlayer) {
-          window.DAOP.openPlayer({ slug: slug, episode: ep, link: '', movie: m || { slug: slug } });
+          window.DAOP.openPlayer({ slug: slug, episode: ep, link: '', movie: { slug: slug } });
         } else {
           window.location.href = '/phim/' + encodeURIComponent(slug) + '.html';
         }

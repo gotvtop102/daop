@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["an"] = {"anh-duong-giua-troi":{"id":"69a3bcaff063d23bbbce2e7c","i":20,"title":"Ánh Dương Giữa Trời","origin_name":"My Only Sunshine","slug":"anh-duong-giua-troi","thumb":"/uploads/movies/anh-duong-giua-troi-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 1"}};

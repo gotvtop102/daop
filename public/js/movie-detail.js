@@ -253,25 +253,29 @@
       document.getElementById('movie-detail') && (document.getElementById('movie-detail').innerHTML = '<p>Không tìm thấy phim.</p>');
       return;
     }
-    var light = window.DAOP.getMovieBySlug(slug);
-    if (!light) {
-      var base = (window.DAOP && window.DAOP.basePath) || '';
-      var msg = '<div class="movie-not-found"><p><strong>Không tìm thấy phim</strong> với đường dẫn này.</p>' +
-        '<p>Phim có thể chưa có trong dữ liệu (do giới hạn build hoặc chưa cập nhật).</p>' +
-        '<p><a href="' + base + '/tim-kiem.html">Tìm kiếm phim</a> · <a href="' + base + '/">Trang chủ</a></p></div>';
-      document.getElementById('movie-detail') && (document.getElementById('movie-detail').innerHTML = msg);
-      return;
-    }
-    document.title = (light.title || slug) + ' | ' + (window.DAOP?.siteName || 'DAOP Phim');
-    var metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) metaDesc.setAttribute('content', (light.description || light.title || '').slice(0, 160));
-
-    window.DAOP.loadMovieDetail(light.id, function (movie) {
-      if (!movie) {
-        renderFromLight(light);
+    var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
+      ? window.DAOP.getMovieBySlugAsync
+      : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
+    getLight(slug).then(function (light) {
+      if (!light) {
+        var base = (window.DAOP && window.DAOP.basePath) || '';
+        var msg = '<div class="movie-not-found"><p><strong>Không tìm thấy phim</strong> với đường dẫn này.</p>' +
+          '<p>Phim có thể chưa có trong dữ liệu (do giới hạn build hoặc chưa cập nhật).</p>' +
+          '<p><a href="' + base + '/tim-kiem.html">Tìm kiếm phim</a> · <a href="' + base + '/">Trang chủ</a></p></div>';
+        document.getElementById('movie-detail') && (document.getElementById('movie-detail').innerHTML = msg);
         return;
       }
-      renderFull(movie);
+      document.title = (light.title || slug) + ' | ' + (window.DAOP?.siteName || 'DAOP Phim');
+      var metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', (light.description || light.title || '').slice(0, 160));
+
+      window.DAOP.loadMovieDetail(light.id, function (movie) {
+        if (!movie) {
+          renderFromLight(light);
+          return;
+        }
+        renderFull(movie);
+      });
     });
   }
 

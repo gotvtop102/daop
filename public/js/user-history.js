@@ -178,45 +178,61 @@
     var start = (currentPage - 1) * pageSize;
     var end = Math.min(list.length, start + pageSize);
 
-    list.slice(start, end).forEach(function (h) {
-      if (!h || !h.slug) return;
-      var m = window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(h.slug) : null;
-      if (!m) return;
 
-      var title = safeText(m.title || m.name || h.slug);
-      var ep = safeText(h.episode || '');
-      var href = '/phim/' + encodeURIComponent(m.slug || m.id || h.slug) + '.html';
-      var last = h.lastWatched ? safeText(h.lastWatched) : '';
-      var poster = (m.poster || m.thumb || '').replace(/^\/\//, 'https://');
-      if (!poster) poster = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="96" height="64"%3E%3Crect fill="%2321262d" width="96" height="64"/%3E%3C/svg%3E';
+    var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
+      ? window.DAOP.getMovieBySlugAsync
+      : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
 
-      var html = '' +
-        '<div class="user-history-item">' +
-        '  <a class="user-history-thumb" href="' + href + '"><img loading="lazy" src="' + poster + '" alt=""></a>' +
-        '  <div class="user-history-main">' +
-        '    <a class="user-history-title" href="' + href + '">' + title + '</a>' +
-        '    <div class="user-history-meta">Tập: <strong>' + ep + '</strong>' + (last ? ' • ' + last : '') + '</div>' +
-        '  </div>' +
-        '  <div class="user-history-actions">' +
-        '    <button type="button" class="login-btn login-btn--primary btn-continue" data-slug="' + safeText(h.slug) + '" data-episode="' + ep + '">Xem tiếp</button>' +
-        '  </div>' +
-        '</div>';
+    histList.innerHTML = '<p>Đang tải...</p>';
+    var pageItems = list.slice(start, end);
+    Promise.all(pageItems.map(function (h) {
+      if (!h || !h.slug) return Promise.resolve({ h: h, m: null });
+      return getLight(h.slug).then(function (m) { return { h: h, m: m }; });
+    }))
+      .then(function (rows) {
+        histList.innerHTML = '';
+        (rows || []).forEach(function (row) {
+          var h = row && row.h;
+          var m = row && row.m;
+          if (!h || !h.slug || !m) return;
 
-      histList.insertAdjacentHTML('beforeend', html);
-    });
+          var title = safeText(m.title || m.name || h.slug);
+          var ep = safeText(h.episode || '');
+          var href = '/phim/' + encodeURIComponent(m.slug || m.id || h.slug) + '.html';
+          var last = h.lastWatched ? safeText(h.lastWatched) : '';
+          var poster = (m.poster || m.thumb || '').replace(/^\/\//, 'https://');
+          if (!poster) poster = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="96" height="64"%3E%3Crect fill="%2321262d" width="96" height="64"/%3E%3C/svg%3E';
 
-    histList.querySelectorAll('.btn-continue').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var slug = btn.getAttribute('data-slug');
-        var ep = btn.getAttribute('data-episode');
-        var m = window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(slug) : null;
-        if (window.DAOP && window.DAOP.openPlayer) {
-          window.DAOP.openPlayer({ slug: slug, episode: ep, link: '', movie: m || { slug: slug } });
-        } else {
-          window.location.href = '/phim/' + encodeURIComponent(slug) + '.html';
-        }
+          var html = '' +
+            '<div class="user-history-item">' +
+            '  <a class="user-history-thumb" href="' + href + '"><img loading="lazy" src="' + poster + '" alt=""></a>' +
+            '  <div class="user-history-main">' +
+            '    <a class="user-history-title" href="' + href + '">' + title + '</a>' +
+            '    <div class="user-history-meta">Tập: <strong>' + ep + '</strong>' + (last ? ' • ' + last : '') + '</div>' +
+            '  </div>' +
+            '  <div class="user-history-actions">' +
+            '    <button type="button" class="login-btn login-btn--primary btn-continue" data-slug="' + safeText(h.slug) + '" data-episode="' + ep + '">Xem tiếp</button>' +
+            '  </div>' +
+            '</div>';
+
+          histList.insertAdjacentHTML('beforeend', html);
+        });
+
+        histList.querySelectorAll('.btn-continue').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var slug = btn.getAttribute('data-slug');
+            var ep = btn.getAttribute('data-episode');
+            if (window.DAOP && window.DAOP.openPlayer) {
+              window.DAOP.openPlayer({ slug: slug, episode: ep, link: '', movie: { slug: slug } });
+            } else {
+              window.location.href = '/phim/' + encodeURIComponent(slug) + '.html';
+            }
+          });
+        });
+      })
+      .catch(function () {
+        histList.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
       });
-    });
   }
 
   function init() {
