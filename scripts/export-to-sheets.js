@@ -371,9 +371,9 @@ async function main() {
     const shouldUpdate = sheetModified ? (localModified && localModified > sheetModified) : false;
     if (shouldUpdate) {
       const u = String(existing.update || '').toUpperCase().trim();
-      if (idxUpdate >= 0 && u === 'OK') {
+      if (idxUpdate >= 0 && (u === 'OK' || u === 'OK2')) {
         maxNumericId += 1;
-        const copyMovie = { ...m, update_status: 'COPY' };
+        const copyMovie = { ...m, update_status: (u === 'OK2' ? 'COPY2' : 'COPY') };
         const row = buildMovieRow(copyMovie, movieHeaders, maxNumericId);
         moviesToCopyAppend.push(row);
         const epRows = buildEpisodeRows(maxNumericId, m, epHeaders);

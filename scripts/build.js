@@ -336,6 +336,7 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
   };
   const idxUpdate = idx('update');
   const idxModified = idx('modified');
+  const idxSlug = idx('slug');
   const movies = [];
   for (let i = 1; i < moviesRows.length; i++) {
     const row = moviesRows[i];
@@ -388,10 +389,10 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
       keywords: [],
     };
 
-    // NEW: ép modified=now để chắc chắn build lại/batch thay đổi, và lưu info để update lại sheet NEW->OK sau build.
-    if (updateStatus === 'NEW') {
+    // NEW/NEW2: ép modified=now để chắc chắn build lại/batch thay đổi, và lưu info để update lại sheet NEW->OK/NEW2->OK2 sau build.
+    if (updateStatus === 'NEW' || updateStatus === 'NEW2') {
       movie.modified = new Date().toISOString();
-      movie._sheetUpdateStatus = 'NEW';
+      movie._sheetUpdateStatus = updateStatus;
     } else if (updateStatus) {
       movie._sheetUpdateStatus = updateStatus;
     }
@@ -399,22 +400,14 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
       movie._sheetId = opts.sheetId;
       movie._sheetRowNumber = i + 1;
       movie._sheetUpdateColIndex = idxUpdate;
+      movie._sheetSlugColIndex = idxSlug;
+      movie._sheetOriginalSlug = baseSlug;
     }
 
     movies.push(movie);
   }
-  // Đảm bảo slug không trùng (phim trùng tên → slug trùng): thêm hậu tố -2, -3...
-  const usedSlugs = new Set();
-  for (const m of movies) {
-    let s = m.slug;
-    let n = 1;
-    while (usedSlugs.has(s)) {
-      n++;
-      s = m.slug + '-' + n;
-    }
-    m.slug = s;
-    usedSlugs.add(s);
-  }
+  // Không tự sửa slug ở đây nữa. Việc chống trùng slug sẽ xử lý trong mergeMovies
+  // (để xét cả trùng với OPhim), và sẽ sync ngược slug mới về sheet nếu có.
   const epHeaders = episodesRows[0]?.map((h) => (h || '').toString().toLowerCase().trim()) || [];
   const epIdx = (name) => {
     const i = epHeaders.indexOf(name);
@@ -504,14 +497,30 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
 async function applySheetUpdateStatuses(movies) {
   const sheetId = process.env.GOOGLE_SHEETS_ID;
   if (!sheetId) return;
-  const need = (movies || []).filter(
-    (m) => m && m._sheetUpdateStatus === 'NEW' && m._sheetRowNumber && m._sheetUpdateColIndex >= 0
-  );
-  if (!need.length) return;
 
-  const key = await loadServiceAccountFromEnv(true);
-  if (!key) return;
+  const need = (movies || []).filter(
+    (m) =>
+      m &&
+      (m._sheetUpdateStatus === 'NEW' || m._sheetUpdateStatus === 'NEW2') &&
+      m._sheetRowNumber &&
+      m._sheetUpdateColIndex >= 0
+  );
+
+  const slugFix = (movies || []).filter(
+    (m) =>
+      m &&
+      m._sheetId &&
+      m._sheetRowNumber &&
+      m._sheetSlugColIndex >= 0 &&
+      m._sheetOriginalSlug &&
+      m.slug &&
+      String(m.slug) !== String(m._sheetOriginalSlug)
+  );
+
+  if (!need.length && !slugFix.length) return;
+
   try {
+    const key = await loadServiceAccountFromEnv(true);
     const { google } = await import('googleapis');
     const auth = new google.auth.GoogleAuth({
       credentials: key,
@@ -519,31 +528,39 @@ async function applySheetUpdateStatuses(movies) {
     });
     const sheets = google.sheets({ version: 'v4', auth });
 
-    function colToLetter(n) {
-      let s = '';
-      n++;
-      while (n > 0) {
-        n--;
-        s = String.fromCharCode(65 + (n % 26)) + s;
-        n = Math.floor(n / 26);
-      }
-      return s || 'A';
-    }
-
     for (const m of need) {
       const col = colToLetter(m._sheetUpdateColIndex);
+      const rowNum = Number(m._sheetRowNumber);
+      const range = `movies!${col}${rowNum}`;
+      const newVal = m._sheetUpdateStatus === 'NEW2' ? 'OK2' : 'OK';
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: sheetId,
+        range,
+        valueInputOption: 'RAW',
+        requestBody: { values: [[newVal]] },
+      });
+    }
+
+    for (const m of slugFix) {
+      const col = colToLetter(m._sheetSlugColIndex);
       const rowNum = Number(m._sheetRowNumber);
       const range = `movies!${col}${rowNum}`;
       await sheets.spreadsheets.values.update({
         spreadsheetId: sheetId,
         range,
         valueInputOption: 'RAW',
-        requestBody: { values: [['OK']] },
+        requestBody: { values: [[String(m.slug)]] },
       });
     }
-    console.log('   Google Sheets: updated', need.length, 'rows update NEW -> OK');
+
+    if (need.length) {
+      console.log('   Google Sheets: updated', need.length, 'rows update NEW/NEW2 -> OK/OK2');
+    }
+    if (slugFix.length) {
+      console.log('   Google Sheets: updated', slugFix.length, 'rows slug (auto-fix collisions)');
+    }
   } catch (e) {
-    console.warn('   Google Sheets: failed to update NEW -> OK:', e?.message || e);
+    console.warn('   Google Sheets: failed to sync update statuses / slugs:', e?.message || e);
   }
 }
 
@@ -619,14 +636,72 @@ async function enrichTmdb(movies) {
 function mergeMovies(ophim, custom) {
   const bySlug = new Map();
   for (const m of ophim) {
-    if (m && m.slug) bySlug.set(m.slug, m);
+    if (!m || !m.slug) continue;
+    if (bySlug.has(m.slug)) {
+      console.warn('   Duplicate slug from OPhim, keep first:', m.slug);
+      continue;
+    }
+    bySlug.set(m.slug, m);
   }
-  // Custom (từ Google Sheets/Excel) được ưu tiên override nếu trùng slug,
-  // để có thể chỉnh sửa phim OPhim qua sheet bằng cách tạo bản ghi cùng slug.
+
+  function ensureUniqueSlug(base, used) {
+    const raw = (base || '').toString().trim();
+    let s = raw;
+    let n = 1;
+    while (s && used.has(s)) {
+      n++;
+      s = raw + '-' + n;
+    }
+    return s;
+  }
+
+  const usedSlugs = new Set(bySlug.keys());
+
+  // Custom (từ Google Sheets/Excel):
+  // - NEW/NEW2: luôn được build (build mới / build lại), nhưng nếu trùng slug với OPhim/custom thì auto thêm hậu tố và sync ngược lại sheet.
+  // - OK/OK2/COPY/COPY2: vẫn được dùng như nguồn custom nếu không đụng OPhim; nếu slug trùng OPhim thì giữ OPhim và bỏ qua custom.
   for (const m of custom) {
-    if (m && m.slug) bySlug.set(m.slug, m);
+    if (!m || !m.slug) continue;
+    const st = (m._sheetUpdateStatus || '').toString().toUpperCase();
+    const isNew = st === 'NEW' || st === 'NEW2';
+
+    const exists = usedSlugs.has(m.slug);
+    if (exists) {
+      if (isNew) {
+        const old = m.slug;
+        const fixed = ensureUniqueSlug(old, usedSlugs);
+        if (fixed && fixed !== old) {
+          m.slug = fixed;
+          usedSlugs.add(fixed);
+        }
+      } else {
+        console.warn('   Sheet movie skipped (slug collision, not NEW/NEW2):', m.slug, st || '(empty)');
+        continue;
+      }
+    } else {
+      usedSlugs.add(m.slug);
+    }
+
+    bySlug.set(m.slug, m);
   }
   const merged = Array.from(bySlug.values());
+
+  // Validate duplicates (id/slug) to avoid corrupt batch lookup and routing.
+  const seenIds = new Set();
+  const seenSlugs = new Set();
+  for (const m of merged) {
+    const idStr = m && m.id != null ? String(m.id) : '';
+    const slugStr = m && m.slug != null ? String(m.slug) : '';
+    if (slugStr) {
+      if (seenSlugs.has(slugStr)) console.warn('   Duplicate slug in merged output:', slugStr);
+      seenSlugs.add(slugStr);
+    }
+    if (idStr) {
+      if (seenIds.has(idStr)) console.warn('   Duplicate id in merged output:', idStr, 'slug:', slugStr);
+      seenIds.add(idStr);
+    }
+  }
+
   for (const m of merged) {
     if (m && m.thumb) m.thumb = compactOphimImgUrl(m.thumb);
     if (m && m.poster) m.poster = compactOphimImgUrl(m.poster);
