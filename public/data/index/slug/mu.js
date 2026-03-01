@@ -1,1 +1,5 @@
+<<<<<<< Updated upstream
 window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["mu"] = {"mua-he-nhung-nam-80":{"id":"698d7df94da3bf6eb33517fe","i":129,"title":"Mùa Hè Những Năm 80","origin_name":"A Summer Meant for Us","slug":"mua-he-nhung-nam-80","thumb":"/uploads/movies/mua-he-nhung-nam-80-thumb.jpg","year":2026,"type":"series","episode_current":"Hoàn tất (30/30)"},"mua-ruc-ro-cua-em":{"id":"6999abc4ccc6cea2687a17f6","i":152,"title":"Mùa Rực Rỡ Của Em","origin_name":"In Your Radiant Season","slug":"mua-ruc-ro-cua-em","thumb":"/uploads/movies/mua-ruc-ro-cua-em-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 4"}};
+=======
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["mu"] = {"mua-he-nhung-nam-80":{"id":"698d7df94da3bf6eb33517fe","i":13,"title":"Mùa Hè Những Năm 80","origin_name":"A Summer Meant for Us","slug":"mua-he-nhung-nam-80","thumb":"/uploads/movies/mua-he-nhung-nam-80-thumb.jpg","year":2026,"type":"series","episode_current":"Hoàn tất (30/30)"}};
+>>>>>>> Stashed changes

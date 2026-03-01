@@ -1,19 +1,16 @@
 {
   "baseBatchSize": 120,
   "maxBytes": 300000,
+<<<<<<< Updated upstream
   "total": 240,
+=======
+  "total": 24,
+>>>>>>> Stashed changes
   "windows": [
     {
       "start": 0,
-      "end": 5
-    },
-    {
-      "start": 5,
-      "end": 8
-    },
-    {
-      "start": 8,
       "end": 24
+<<<<<<< Updated upstream
     },
     {
       "start": 24,
@@ -34,6 +31,8 @@
     {
       "start": 190,
       "end": 240
+=======
+>>>>>>> Stashed changes
     }
   ]
 }

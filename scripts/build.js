@@ -1727,13 +1727,11 @@ function writeBatches(movies, prevLastModified, tmdbById, prevTmdbById) {
   const toCoreMovie = (m) => {
     if (!m) return m;
     const {
-      tmdb,
       imdb,
       cast,
       director,
       cast_meta,
       keywords,
-      tmdb_id,
       _skip_tmdb,
       ...rest
     } = m;
