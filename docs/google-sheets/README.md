@@ -46,6 +46,27 @@ Hàng đầu tiên mỗi sheet = **header** (không phân biệt hoa thường; 
 | is_exclusive | ✓ | 0/1 hoặc true/false |
 | tmdb_id | ✓ | Số |
 | modified | ✓ (cho export) | ISO 8601 (vd. `2026-02-23T10:00:00.000Z`). **Bắt buộc** để export-to-sheets biết phim nào cần cập nhật. Nếu thiếu cột này, export chỉ append phim mới, không update phim đã có. |
+| update | ✓ (tùy chọn) | Workflow đồng bộ theo trạng thái: `NEW` / `OK` / `COPY` (xem mục bên dưới). |
+
+### Cột `update` (NEW/OK/COPY) – workflow kiểm soát build & export
+
+> Cột này **không bắt buộc**. Nếu sheet không có cột `update`, build/export vẫn chạy như cũ.
+
+**Giá trị hợp lệ (không phân biệt hoa thường):**
+
+- **NEW**
+  - Dùng khi bạn muốn **ép build lại / build mới** phim đó trong lần build kế tiếp.
+  - Build sẽ coi phim đã thay đổi (ép `modified` = thời gian hiện tại) để đảm bảo phim được ghi lại vào dữ liệu build.
+  - Sau khi build thành công, build sẽ tự đổi `NEW` → **OK** (cần service account có quyền ghi Sheets).
+
+- **OK**
+  - Dùng để đánh dấu dòng phim đang là “bản gốc ổn định” trên sheet.
+  - Khi chạy `scripts/export-to-sheets.js`: nếu phim local có `modified` mới hơn và dòng hiện tại đang là `OK`, script sẽ **KHÔNG ghi đè** dòng đó.
+  - Thay vào đó script sẽ **append một dòng mới** (bản sao) với `update = COPY`.
+
+- **COPY**
+  - Dòng do script tự append để lưu lịch sử/copy khi phim gốc đang `OK` nhưng có phiên bản mới.
+  - Bạn có thể giữ lại để đối chiếu hoặc xóa nếu không cần.
 
 ### Sheet `episodes` – cột build đọc (kiểu MỚI, tối ưu cho phim dài)
 
@@ -109,7 +130,23 @@ Script export **chỉ export phim mới hoặc phim có cập nhật**:
 - **Phim mới** (slug chưa có trong sheet): append vào movies và episodes.
 - **Phim có cập nhật** (slug đã có, `modified` local mới hơn trong sheet): ghi đè row movies, **xóa** hết episodes cũ của phim đó và **append** episodes mới.
 
+**Ngoại lệ khi có cột `update`:**
+
+- Nếu dòng phim hiện tại có `update = OK` và phim local có `modified` mới hơn:
+  - Script sẽ append **dòng mới** vào sheet movies với `update = COPY` (và append episodes tương ứng), thay vì ghi đè dòng `OK`.
+
 **Yêu cầu:** Sheet movies phải có cột **modified**. Nếu thiếu, export chỉ append phim mới, không update phim đã có.
+
+---
+
+## Quyền ghi ngược `NEW` → `OK` trong build
+
+Nếu bạn dùng cột `update` và muốn build tự đổi `NEW` → `OK` sau khi build thành công:
+
+- Service account phải được share spreadsheet với quyền **Editor**.
+- Môi trường build phải có key service account dạng read-write.
+  - Ưu tiên dùng env `GOOGLE_SHEETS_JSON` / `GOOGLE_SERVICE_ACCOUNT_JSON` (nội dung JSON key)
+  - Hoặc `GOOGLE_SERVICE_ACCOUNT_KEY` (đường dẫn file JSON)
 
 ---
 

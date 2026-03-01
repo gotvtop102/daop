@@ -145,6 +145,9 @@ function buildMovieRow(movie, headers, nextId) {
     setIfExists('is_exclusive', '1');
   }
   setIfExists('modified', movie.modified || movie.updated_at || '');
+  if (movie.update_status) {
+    setIfExists('update', movie.update_status);
+  }
 
   // Tránh lỗi Google Sheets: mỗi ô tối đa ~50000 ký tự
   const MAX_CELL_LEN = 49000;
@@ -259,6 +262,7 @@ async function main() {
   const idxMovieId = movieHeaders.indexOf('id');
   const idxSlug = movieHeaders.indexOf('slug');
   const idxModified = movieHeaders.indexOf('modified');
+  const idxUpdate = movieHeaders.indexOf('update');
   const idxTitle = movieHeaders.indexOf('title') >= 0 ? movieHeaders.indexOf('title') : movieHeaders.indexOf('name');
   const idxOrigin = movieHeaders.indexOf('origin_name');
   let maxNumericId = 0;
@@ -269,19 +273,20 @@ async function main() {
     console.warn('   ⚠ CẢNH BÁO: Sheet movies KHÔNG có cột "slug"! Sẽ dùng title+origin_name để check trùng.');
   }
 
-  /** slug -> { rowIndex (1-based), id (numeric), modified } */
+  /** slug -> { rowIndex (1-based), id (numeric), modified, update } */
   const slugToRow = new Map();
-  /** title|origin_name -> { rowIndex, id, modified } (fallback khi không có slug) */
+  /** title|origin_name -> { rowIndex, id, modified, update } (fallback khi không có slug) */
   const titleToRow = new Map();
   for (let i = 0; i < existingMovieRows.length; i++) {
     const row = existingMovieRows[i];
     const idVal = idxMovieId >= 0 ? (row[idxMovieId] || '') : '';
     const slugVal = idxSlug >= 0 ? (row[idxSlug] || '') : '';
     const modifiedVal = idxModified >= 0 ? (row[idxModified] || '') : '';
+    const updateVal = idxUpdate >= 0 ? (row[idxUpdate] || '') : '';
     const n = Number(idVal);
     if (!Number.isNaN(n) && n > maxNumericId) maxNumericId = n;
     const slug = String(slugVal).toLowerCase().trim();
-    const info = { rowIndex: i + 2, id: n, modified: String(modifiedVal).trim() };
+    const info = { rowIndex: i + 2, id: n, modified: String(modifiedVal).trim(), update: String(updateVal).trim() };
     if (slug) {
       slugToRow.set(slug, info);
     }
@@ -315,6 +320,8 @@ async function main() {
   const moviesToAppend = [];
   const episodesToAppend = [];
   const moviesToUpdate = [];
+  const moviesToCopyAppend = [];
+  const episodesToCopyAppend = [];
 
   let skippedCount = 0;
   for (const m of movies) {
@@ -339,20 +346,40 @@ async function main() {
     const sheetModified = existing.modified || '';
     const shouldUpdate = sheetModified ? (localModified && localModified > sheetModified) : false;
     if (shouldUpdate) {
-      moviesToUpdate.push({
-        movie: m,
-        sheetId: existing.id,
-        rowIndex: existing.rowIndex,
-      });
+      const u = String(existing.update || '').toUpperCase().trim();
+      if (idxUpdate >= 0 && u === 'OK') {
+        maxNumericId += 1;
+        const copyMovie = { ...m, update_status: 'COPY' };
+        const row = buildMovieRow(copyMovie, movieHeaders, maxNumericId);
+        moviesToCopyAppend.push(row);
+        const epRows = buildEpisodeRows(maxNumericId, m, epHeaders);
+        episodesToCopyAppend.push(...epRows);
+      } else {
+        moviesToUpdate.push({
+          movie: m,
+          sheetId: existing.id,
+          rowIndex: existing.rowIndex,
+        });
+      }
     } else {
       skippedCount++;
     }
   }
-  console.log('   Kết quả check trùng: append =', moviesToAppend.length, ', update =', moviesToUpdate.length, ', skip =', skippedCount);
+  console.log(
+    '   Kết quả check trùng: append =',
+    moviesToAppend.length,
+    ', update =',
+    moviesToUpdate.length,
+    ', copy-append =',
+    moviesToCopyAppend.length,
+    ', skip =',
+    skippedCount
+  );
 
   const hasAppend = moviesToAppend.length > 0;
   const hasUpdate = moviesToUpdate.length > 0;
-  if (!hasAppend && !hasUpdate) {
+  const hasCopyAppend = moviesToCopyAppend.length > 0;
+  if (!hasAppend && !hasUpdate && !hasCopyAppend) {
     console.log('3. Không có phim mới hoặc phim có cập nhật. Kết thúc.');
     return;
   }
@@ -373,6 +400,26 @@ async function main() {
         valueInputOption: 'RAW',
         insertDataOption: 'INSERT_ROWS',
         requestBody: { values: episodesToAppend },
+      });
+    }
+  }
+
+  if (hasCopyAppend) {
+    console.log('3a2. Append COPY', moviesToCopyAppend.length, 'phim và', episodesToCopyAppend.length, 'tập...');
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId,
+      range: 'movies!A1',
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: { values: moviesToCopyAppend },
+    });
+    if (episodesToCopyAppend.length) {
+      await sheets.spreadsheets.values.append({
+        spreadsheetId: sheetId,
+        range: 'episodes!A1',
+        valueInputOption: 'RAW',
+        insertDataOption: 'INSERT_ROWS',
+        requestBody: { values: episodesToCopyAppend },
       });
     }
   }

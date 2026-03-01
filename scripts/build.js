@@ -277,7 +277,7 @@ async function fetchCustomMovies() {
       const valueRanges = res.data.valueRanges || [];
       const moviesRows = valueRanges[0]?.values || [];
       const episodesRows = valueRanges[1]?.values || [];
-      return parseSheetMovies(moviesRows, episodesRows);
+      return parseSheetMovies(moviesRows, episodesRows, { sheetId });
     } catch (e) {
       console.warn('Google Sheets failed, fallback to Excel:', e.message);
     }
@@ -294,13 +294,16 @@ async function fetchCustomMovies() {
   return [];
 }
 
-function parseSheetMovies(moviesRows, episodesRows) {
+function parseSheetMovies(moviesRows, episodesRows, opts) {
+  opts = opts || {};
   if (moviesRows.length < 2) return [];
   const headers = moviesRows[0].map((h) => (h || '').toString().toLowerCase().trim());
   const idx = (name) => {
     const i = headers.indexOf(name);
     return i >= 0 ? i : headers.indexOf(name.replace('_', ' '));
   };
+  const idxUpdate = idx('update');
+  const idxModified = idx('modified');
   const movies = [];
   for (let i = 1; i < moviesRows.length; i++) {
     const row = moviesRows[i];
@@ -321,6 +324,9 @@ function parseSheetMovies(moviesRows, episodesRows) {
       .map((c) => ({ name: c.trim(), slug: slugify(c.trim(), { lower: true }) }));
     const quality = (row[idx('quality')] || '').toString();
     const is4k = /4k|uhd|2160p/i.test(quality);
+    const updateRaw = (idxUpdate >= 0 ? (row[idxUpdate] ?? '') : '').toString().trim();
+    const updateStatus = updateRaw ? updateRaw.toUpperCase() : '';
+    const sheetModified = (idxModified >= 0 ? (row[idxModified] ?? '') : '').toString().trim();
     const movie = {
       id: movieId,
       title: title.toString(),
@@ -335,7 +341,7 @@ function parseSheetMovies(moviesRows, episodesRows) {
       lang_key: (row[idx('language')] || '').toString(),
       episode_current: (row[idx('episode_current')] || '1').toString(),
       quality,
-      modified: new Date().toISOString(),
+      modified: (idxModified >= 0 ? sheetModified : new Date().toISOString()),
       is_4k: is4k,
       is_exclusive: Boolean(row[idx('is_exclusive')]),
       status: (row[idx('status')] || '').toString(),
@@ -349,6 +355,20 @@ function parseSheetMovies(moviesRows, episodesRows) {
       director: [],
       keywords: [],
     };
+
+    // NEW: ép modified=now để chắc chắn build lại/batch thay đổi, và lưu info để update lại sheet NEW->OK sau build.
+    if (updateStatus === 'NEW') {
+      movie.modified = new Date().toISOString();
+      movie._sheetUpdateStatus = 'NEW';
+    } else if (updateStatus) {
+      movie._sheetUpdateStatus = updateStatus;
+    }
+    if (opts.sheetId) {
+      movie._sheetId = opts.sheetId;
+      movie._sheetRowNumber = i + 1;
+      movie._sheetUpdateColIndex = idxUpdate;
+    }
+
     movies.push(movie);
   }
   // Đảm bảo slug không trùng (phim trùng tên → slug trùng): thêm hậu tố -2, -3...
@@ -447,6 +467,52 @@ function parseSheetMovies(moviesRows, episodesRows) {
     }
   }
   return movies;
+}
+
+async function applySheetUpdateStatuses(movies) {
+  const sheetId = process.env.GOOGLE_SHEETS_ID;
+  if (!sheetId) return;
+  const need = (movies || []).filter(
+    (m) => m && m._sheetUpdateStatus === 'NEW' && m._sheetRowNumber && m._sheetUpdateColIndex >= 0
+  );
+  if (!need.length) return;
+
+  const key = await loadServiceAccountFromEnv(true);
+  if (!key) return;
+  try {
+    const { google } = await import('googleapis');
+    const auth = new google.auth.GoogleAuth({
+      credentials: key,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+    const sheets = google.sheets({ version: 'v4', auth });
+
+    function colToLetter(n) {
+      let s = '';
+      n++;
+      while (n > 0) {
+        n--;
+        s = String.fromCharCode(65 + (n % 26)) + s;
+        n = Math.floor(n / 26);
+      }
+      return s || 'A';
+    }
+
+    for (const m of need) {
+      const col = colToLetter(m._sheetUpdateColIndex);
+      const rowNum = Number(m._sheetRowNumber);
+      const range = `movies!${col}${rowNum}`;
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: sheetId,
+        range,
+        valueInputOption: 'RAW',
+        requestBody: { values: [['OK']] },
+      });
+    }
+    console.log('   Google Sheets: updated', need.length, 'rows update NEW -> OK');
+  } catch (e) {
+    console.warn('   Google Sheets: failed to update NEW -> OK:', e?.message || e);
+  }
 }
 
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500';
@@ -1577,6 +1643,9 @@ async function main() {
   writeCategoryPages(filters);
   writeActors(allMovies);
   const newLastModified = writeBatches(allMovies, prevLastModified || undefined);
+
+  console.log('6b. Sync update status back to Google Sheets (NEW -> OK)...');
+  await applySheetUpdateStatuses(custom);
 
   const buildVersion = { builtAt: new Date().toISOString() };
   fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
