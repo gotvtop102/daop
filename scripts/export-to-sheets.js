@@ -112,7 +112,7 @@ function expandImgUrl(url) {
   return u;
 }
 
-function buildMovieRow(movie, headers, nextId) {
+function buildMovieRow(movie, headers, explicitId) {
   const row = new Array(headers.length).fill('');
   const headerIndex = (name) => {
     const lower = name.toLowerCase();
@@ -122,7 +122,7 @@ function buildMovieRow(movie, headers, nextId) {
     return idx;
   };
 
-  const idStr = String(nextId);
+  const idStr = explicitId != null ? String(explicitId) : (movie && movie.id != null ? String(movie.id) : '');
   const setIfExists = (name, val) => {
     const idx = headerIndex(name);
     if (idx >= 0 && val != null) row[idx] = String(val);
@@ -289,7 +289,7 @@ async function main() {
   const idxUpdate = movieHeaders.indexOf('update');
   const idxTitle = movieHeaders.indexOf('title') >= 0 ? movieHeaders.indexOf('title') : movieHeaders.indexOf('name');
   const idxOrigin = movieHeaders.indexOf('origin_name');
-  let maxNumericId = 0;
+  // id có thể là string (OPhim _id). Không dùng auto-increment numeric nữa.
 
   console.log('   Headers:', movieHeaders.join(', '));
   console.log('   idxSlug:', idxSlug, ', idxModified:', idxModified, ', idxMovieId:', idxMovieId);
@@ -303,14 +303,13 @@ async function main() {
   const titleToRow = new Map();
   for (let i = 0; i < existingMovieRows.length; i++) {
     const row = existingMovieRows[i];
-    const idVal = idxMovieId >= 0 ? (row[idxMovieId] || '') : '';
     const slugVal = idxSlug >= 0 ? (row[idxSlug] || '') : '';
+    const idVal = idxMovieId >= 0 ? (row[idxMovieId] || '') : '';
     const modifiedVal = idxModified >= 0 ? (row[idxModified] || '') : '';
     const updateVal = idxUpdate >= 0 ? (row[idxUpdate] || '') : '';
-    const n = Number(idVal);
-    if (!Number.isNaN(n) && n > maxNumericId) maxNumericId = n;
     const slug = String(slugVal).toLowerCase().trim();
-    const info = { rowIndex: i + 2, id: n, modified: String(modifiedVal).trim(), update: String(updateVal).trim() };
+    const idStr = String(idVal).trim();
+    const info = { rowIndex: i + 2, id: idStr, modified: String(modifiedVal).trim(), update: String(updateVal).trim() };
     if (slug) {
       slugToRow.set(slug, info);
     }
@@ -323,23 +322,23 @@ async function main() {
   }
   console.log('   slugToRow size:', slugToRow.size, ', titleToRow size:', titleToRow.size);
 
-  /** movie_id (numeric) -> [sheet row indices 0-based] trong episodes */
+  /** movie_id (string) -> [sheet row indices 0-based] trong episodes */
   const epIdxMovieId = epHeaders.indexOf('movie_id');
   const movieIdToEpRows = new Map();
   for (let i = 1; i < episodesRows.length; i++) {
     const row = episodesRows[i];
     const mid = epIdxMovieId >= 0 ? row?.[epIdxMovieId] : '';
-    const n = Number(mid);
-    if (!Number.isNaN(n) && n > 0) {
-      if (!movieIdToEpRows.has(n)) movieIdToEpRows.set(n, []);
-      movieIdToEpRows.get(n).push(i);
+    const idStr = mid != null ? String(mid).trim() : '';
+    if (idStr) {
+      if (!movieIdToEpRows.has(idStr)) movieIdToEpRows.set(idStr, []);
+      movieIdToEpRows.get(idStr).push(i);
     }
   }
 
   if (idxModified < 0) {
     console.log('   Lưu ý: Sheet movies chưa có cột "modified". Chỉ append phim mới, không update phim đã có.');
   }
-  console.log('   Số dòng movies:', existingMovieRows.length, ', max id =', maxNumericId);
+  console.log('   Số dòng movies:', existingMovieRows.length);
 
   const moviesToAppend = [];
   const episodesToAppend = [];
@@ -349,8 +348,8 @@ async function main() {
 
   let skippedCount = 0;
   for (const m of movies) {
-    const slug = (m.slug || '').toString().toLowerCase().trim();
-    if (!slug) continue;
+    const slug = String(m.slug || '').toLowerCase().trim();
+    const titleKey = (String(m.title || '').trim() + '||' + String(m.origin_name || '').trim()).toLowerCase();
     const localModified = String(m.modified || m.updated_at || '').trim();
     // check by slug first, then fallback to title|origin_name
     let existing = slugToRow.get(slug);
@@ -359,10 +358,9 @@ async function main() {
       existing = titleToRow.get(titleKey) || null;
     }
     if (!existing) {
-      maxNumericId += 1;
-      const row = buildMovieRow(m, movieHeaders, maxNumericId);
+      const row = buildMovieRow(m, movieHeaders, m.id);
       moviesToAppend.push(row);
-      const epRows = buildEpisodeRows(maxNumericId, m, epHeaders);
+      const epRows = buildEpisodeRows(m.id, m, epHeaders);
       episodesToAppend.push(...epRows);
       continue;
     }
@@ -372,12 +370,11 @@ async function main() {
     if (shouldUpdate) {
       const u = String(existing.update || '').toUpperCase().trim();
       if (idxUpdate >= 0 && (u === 'OK' || u === 'OK2')) {
-        maxNumericId += 1;
         const copyMovie = { ...m, update_status: (u === 'OK2' ? 'COPY2' : 'COPY') };
-        const row = buildMovieRow(copyMovie, movieHeaders, maxNumericId);
+        // User yêu cầu giữ nguyên id gốc cho COPY/COPY2
+        const row = buildMovieRow(copyMovie, movieHeaders, existing.id || m.id);
         moviesToCopyAppend.push(row);
-        const epRows = buildEpisodeRows(maxNumericId, m, epHeaders);
-        episodesToCopyAppend.push(...epRows);
+        // Giữ nguyên id => không append episodes (tránh đụng movie_id). Episodes chỉ update khi update in-place.
       } else {
         moviesToUpdate.push({
           movie: m,
@@ -468,7 +465,7 @@ async function main() {
 
     const allRowsToDelete = [];
     for (const { sheetId: numericId } of moviesToUpdate) {
-      const rows = movieIdToEpRows.get(numericId) || [];
+      const rows = movieIdToEpRows.get(String(numericId)) || [];
       allRowsToDelete.push(...rows);
     }
     const sortedToDelete = [...new Set(allRowsToDelete)].sort((a, b) => b - a);

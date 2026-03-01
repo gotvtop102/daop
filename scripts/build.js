@@ -49,6 +49,17 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function colToLetter(n) {
+  let s = '';
+  n++;
+  while (n > 0) {
+    n--;
+    s = String.fromCharCode(65 + (n % 26)) + s;
+    n = Math.floor(n / 26);
+  }
+  return s || 'A';
+}
+
 /** Fetch JSON from URL */
 async function fetchJson(url) {
   const res = await fetch(url);
@@ -125,8 +136,71 @@ const OPHIM_START_PAGE = Number(process.env.OPHIM_START_PAGE) || 1;
 const OPHIM_END_PAGE = Number(process.env.OPHIM_END_PAGE) || 0;
 
 /** 1. Thu thập phim từ OPhim */
-async function fetchOPhimMovies() {
+function parseWindowArray(jsContent, globalName) {
+  const prefix = `window.${globalName}`;
+  let s = jsContent.trim();
+  if (!s.startsWith(prefix)) {
+    throw new Error(`Không tìm thấy prefix ${prefix} trong file.`);
+  }
+  s = s.replace(new RegExp(`^${prefix}\\s*=\\s*`), '');
+  s = s.replace(/;\s*$/, '');
+  return JSON.parse(s);
+}
+
+async function loadPreviousBuiltMoviesById() {
+  try {
+    const moviesLightPath = path.join(PUBLIC_DATA, 'movies-light.js');
+    const batchDir = path.join(PUBLIC_DATA, 'batches');
+    if (!(await fs.pathExists(moviesLightPath))) return new Map();
+    if (!(await fs.pathExists(batchDir))) return new Map();
+    const mlRaw = await fs.readFile(moviesLightPath, 'utf8');
+    const light = parseWindowArray(mlRaw, 'moviesLight');
+    const byId = new Map();
+    for (const m of light || []) {
+      if (m && m.id != null) byId.set(String(m.id), { ...m, episodes: [] });
+    }
+    const files = (await fs.readdir(batchDir)).filter((f) => /^batch_\d+_\d+\.js$/i.test(f));
+    for (const f of files) {
+      try {
+        const raw = await fs.readFile(path.join(batchDir, f), 'utf8');
+        const batch = parseWindowArray(raw, 'moviesBatch');
+        for (const bm of batch || []) {
+          const idStr = bm && bm.id != null ? String(bm.id) : '';
+          if (!idStr) continue;
+          const cur = byId.get(idStr);
+          if (cur) byId.set(idStr, { ...cur, ...bm });
+          else byId.set(idStr, bm);
+        }
+      } catch {}
+    }
+    return byId;
+  } catch {
+    return new Map();
+  }
+}
+
+async function loadOphimIndex() {
+  const p = path.join(PUBLIC_DATA, 'ophim_index.json');
+  try {
+    if (!(await fs.pathExists(p))) return {};
+    return JSON.parse(await fs.readFile(p, 'utf8')) || {};
+  } catch {
+    return {};
+  }
+}
+
+async function saveOphimIndex(index) {
+  const p = path.join(PUBLIC_DATA, 'ophim_index.json');
+  try {
+    await fs.writeFile(p, JSON.stringify(index || {}, null, 2), 'utf8');
+  } catch {}
+}
+
+async function fetchOPhimMovies(prevMoviesById, prevIndex) {
   const list = [];
+  const nextIndex = {};
+  const reused = { count: 0 };
+  const fetched = { count: 0 };
   let page = OPHIM_START_PAGE > 0 ? OPHIM_START_PAGE : 1;
   let fetchedPages = 0;
   const targetEnd = OPHIM_END_PAGE > 0 ? OPHIM_END_PAGE : 1;
@@ -166,7 +240,29 @@ async function fetchOPhimMovies() {
     for (const item of items) {
       if (OPHIM_MAX_MOVIES > 0 && list.length >= OPHIM_MAX_MOVIES) break;
       const slug = item?.slug;
+      const rawId = item?._id || item?.id || '';
+      const idStr = rawId ? String(rawId) : '';
       if (!slug) continue;
+
+      const rawModified =
+        (item?.modified && typeof item.modified === 'object' && item.modified.time)
+          ? item.modified.time
+          : (item?.modified || item?.updated_at || item?.updatedAt || item?.createdAt || '');
+      const modifiedStr = rawModified ? String(rawModified) : '';
+
+      const prev = idStr ? prevIndex?.[idStr] : null;
+      const isChanged = !idStr || !prev || (modifiedStr && prev.modified !== modifiedStr);
+
+      if (!isChanged && idStr && prevMoviesById && prevMoviesById.has(idStr)) {
+        const reusedMovie = prevMoviesById.get(idStr);
+        if (reusedMovie) {
+          list.push({ ...reusedMovie, _skip_tmdb: true });
+          nextIndex[idStr] = { slug: slug.toString().toLowerCase(), modified: prev.modified || modifiedStr || '' };
+          reused.count++;
+          continue;
+        }
+      }
+
       await sleep(OPHIM_DELAY_MS);
       try {
         const detail = await fetchJsonWithTimeout(`${OPHIM_BASE}/phim/${slug}`);
@@ -174,7 +270,12 @@ async function fetchOPhimMovies() {
         if (!movie) continue;
         const cdnBase = (detail?.data?.APP_DOMAIN_CDN_IMAGE || '').replace(/\/$/, '') || 'https://img.ophim.live';
         const m = normalizeOPhimMovie(movie, slug, cdnBase);
-        list.push(m);
+        list.push({ ...m, _skip_tmdb: false });
+        const finalId = m && m.id != null ? String(m.id) : idStr;
+        if (finalId) {
+          nextIndex[finalId] = { slug: m.slug || slug.toString().toLowerCase(), modified: m.modified || modifiedStr || '' };
+        }
+        fetched.count++;
       } catch (e) {
         console.warn('OPhim detail skip:', slug, e.message);
       }
@@ -182,6 +283,8 @@ async function fetchOPhimMovies() {
     fetchedPages++;
     page += step;
   }
+  console.log('   OPhim reused:', reused.count, ', fetched detail:', fetched.count);
+  await saveOphimIndex(nextIndex);
   return list;
 }
 
@@ -309,9 +412,13 @@ async function fetchCustomMovies() {
       const valueRanges = res.data.valueRanges || [];
       const moviesRows = valueRanges[0]?.values || [];
       const episodesRows = valueRanges[1]?.values || [];
-      return parseSheetMovies(moviesRows, episodesRows, { sheetId });
+      const movies = parseSheetMovies(moviesRows, episodesRows, { sheetId });
+      return movies.filter((m) => {
+        const st = (m && m._sheetUpdateStatus ? String(m._sheetUpdateStatus) : '').toUpperCase();
+        return st === 'NEW' || st === 'NEW2';
+      });
     } catch (e) {
-      console.warn('Google Sheets failed, fallback to Excel:', e.message);
+      console.warn('Google Sheets fetch failed, fallback Excel (nếu có):', e.message);
     }
   }
   const xlsxPath = path.join(ROOT, 'custom_movies.xlsx');
@@ -321,7 +428,11 @@ async function fetchCustomMovies() {
     const episodesSheet = wb.Sheets['episodes'];
     const moviesRows = XLSX.utils.sheet_to_json(moviesSheet, { header: 1 });
     const episodesRows = episodesSheet ? XLSX.utils.sheet_to_json(episodesSheet, { header: 1 }) : [];
-    return parseSheetMovies(moviesRows, episodesRows);
+    const movies = parseSheetMovies(moviesRows, episodesRows);
+    return movies.filter((m) => {
+      const st = (m && m._sheetUpdateStatus ? String(m._sheetUpdateStatus) : '').toUpperCase();
+      return st === 'NEW' || st === 'NEW2';
+    });
   }
   return [];
 }
@@ -1717,8 +1828,11 @@ async function main() {
     }
   }
 
+  const prevMoviesById = await loadPreviousBuiltMoviesById();
+  const prevOphimIndex = await loadOphimIndex();
+
   console.log('1. Fetching OPhim...');
-  const ophim = await fetchOPhimMovies();
+  const ophim = await fetchOPhimMovies(prevMoviesById, prevOphimIndex);
   console.log('   OPhim count:', ophim.length);
 
   console.log('2. Fetching custom (Sheets/Excel)...');
@@ -1726,7 +1840,7 @@ async function main() {
   console.log('   Custom count:', custom.length);
 
   console.log('3. Enriching TMDB...');
-  await enrichTmdb(ophim);
+  await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
   await enrichTmdb(custom);
 
   const allMovies = mergeMovies(ophim, custom);
