@@ -1,5 +1,1 @@
-<<<<<<< Updated upstream
 window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["so"] = {"soda-master":{"id":"697f03db124287e08252ff23","i":105,"title":"Soda Master","origin_name":"Soda Master","slug":"soda-master","thumb":"/uploads/movies/soda-master-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 5"},"soa-nhi-su-truong":{"id":"698dab28f937c3b5a10a47ce","i":130,"title":"Sỏa Nhi Sư Trưởng","origin_name":"The Naive Leader","slug":"soa-nhi-su-truong","thumb":"/uploads/movies/soa-nhi-su-truong-thumb.jpg","year":2026,"type":"series","episode_current":"Hoàn tất (21/21)"}};
-=======
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["so"] = {"soda-master":{"id":"697f03db124287e08252ff23","i":11,"title":"Soda Master","origin_name":"Soda Master","slug":"soda-master","thumb":"/uploads/movies/soda-master-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 5"}};
->>>>>>> Stashed changes
