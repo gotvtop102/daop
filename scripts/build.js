@@ -2410,8 +2410,14 @@ async function main() {
   const tmdbOnly = (process.env.TMDB_ONLY === '1' || process.env.TMDB_ONLY === 'true');
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');
-    await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
-    await enrichTmdb(custom);
+    if (tmdbOnly) {
+      // TMDB_ONLY: vẫn cần enrich lại cho cả phim reused (vì reused thường bị đánh dấu _skip_tmdb).
+      await enrichTmdb((ophim || []).filter((m) => m));
+      await enrichTmdb(custom);
+    } else {
+      await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
+      await enrichTmdb(custom);
+    }
   } else {
     console.log('3. Enriching TMDB... (SKIP_TMDB)');
   }

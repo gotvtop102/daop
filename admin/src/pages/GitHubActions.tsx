@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, Button, List, message, Spin, Typography, InputNumber, Form, Space, Modal, Radio, Switch } from 'antd';
+import { Card, Button, List, message, Spin, Typography, InputNumber, Form, Space, Modal, Radio } from 'antd';
+import type { RadioChangeEvent } from 'antd';
 import { PlayCircleOutlined, InfoCircleOutlined, SaveOutlined, DeleteOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 
@@ -137,7 +138,7 @@ export default function GitHubActions() {
         { onConflict: 'key' }
       );
       if (error) throw error;
-      setUpdateSettings((prev) => ({
+      setUpdateSettings((prev: { start_page: number; end_page: number }) => ({
         ...prev,
         start_page: values.start_page ?? prev.start_page,
         end_page: values.end_page ?? prev.end_page,
@@ -217,11 +218,11 @@ export default function GitHubActions() {
   };
 
   const extraMap = new Map(EXTRA_ACTIONS.map((a) => [a.id, a]));
-  const triggerableList = actions.map((a) => {
+  const triggerableList = actions.map((a: ActionItem) => {
     const extra = extraMap.get(a.id);
     return { ...a, triggerable: true, ...(extra ? { danger: (extra as any).danger } : {}) };
   });
-  const apiIds = new Set(actions.map((a) => a.id));
+  const apiIds = new Set(actions.map((a: ActionItem) => a.id));
   const extraFiltered = EXTRA_ACTIONS.filter((a) => !apiIds.has(a.id));
   const allList = [...triggerableList, ...extraFiltered];
 
@@ -241,7 +242,7 @@ export default function GitHubActions() {
           <Form.Item style={{ marginBottom: 8 }}>
             <Radio.Group
               value={twoPhase ? '2' : '1'}
-              onChange={(e) => setTwoPhase(e.target.value === '2')}
+              onChange={(e: RadioChangeEvent) => setTwoPhase(e.target.value === '2')}
               optionType="button"
               buttonStyle="solid"
             >
@@ -252,10 +253,15 @@ export default function GitHubActions() {
 
           <Text strong style={{ width: '100%', marginBottom: 8 }}>Tự động (schedule):</Text>
           <Form.Item style={{ marginBottom: 8 }}>
-            <Space size={8} align="center">
-              <Switch checked={autoTwoPhase} onChange={setAutoTwoPhase} />
-              <Text type="secondary">Bật 2 pha cho lịch tự động</Text>
-            </Space>
+            <Radio.Group
+              value={autoTwoPhase ? '2' : '1'}
+              onChange={(e: RadioChangeEvent) => setAutoTwoPhase(e.target.value === '2')}
+              optionType="button"
+              buttonStyle="solid"
+            >
+              <Radio.Button value="1">1 pha (full)</Radio.Button>
+              <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
+            </Radio.Group>
           </Form.Item>
 
           <Text strong style={{ width: '100%' }}>Thủ công (khi bấm Kích hoạt):</Text>

@@ -122,7 +122,11 @@
         var bannerWrap = document.getElementById('banner-wrap');
         if (banners.length && bannerWrap) {
           var b = banners[0];
-          bannerWrap.innerHTML = '<a href="' + (b.link_url || '#') + '"><img src="' + (b.image_url || '') + '" alt=""></a>';
+          var norm2 = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
+            ? window.DAOP.normalizeImgUrl
+            : function (x) { return x; };
+          var img2 = norm2(b.image_url || '').replace(/^\/\//, 'https://');
+          bannerWrap.innerHTML = '<a href="' + (b.link_url || '#') + '"><img src="' + img2 + '" alt=""></a>';
         }
         var container = document.getElementById('home-sections');
         if (!container) return;
@@ -178,7 +182,17 @@
               movies.forEach(function(m){
                 var href = base + '/phim/' + (m.slug || m.id) + '.html';
                 var slug = String(m.slug || m.id || '');
-                var posterUrl = (cardOrientation === 'horizontal' ? (m.poster || m.thumb) : (m.thumb || m.poster) || '').replace(/^\/\//, 'https://') || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="168"%3E%3Crect fill="%2321262d" width="120" height="168"/%3E%3C/svg%3E';
+                var derive = (window.DAOP && typeof window.DAOP.derivePosterFromThumb === 'function')
+                  ? window.DAOP.derivePosterFromThumb
+                  : function () { return ''; };
+                var norm = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
+                  ? window.DAOP.normalizeImgUrl
+                  : function (x) { return x; };
+                var derivedPoster = (!m.poster && m.thumb) ? derive(m.thumb) : '';
+                var raw = cardOrientation === 'horizontal'
+                  ? (m.poster || derivedPoster || m.thumb || '')
+                  : (m.thumb || m.poster || derivedPoster || '');
+                var posterUrl = norm(raw).replace(/^\/\//, 'https://') || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="168"%3E%3Crect fill="%2321262d" width="120" height="168"/%3E%3C/svg%3E';
                 var title = (m.title || '').replace(/</g, '&lt;');
                 var origin = (m.origin_name || '').replace(/</g, '&lt;');
                 out2 += '<div class="movies-list-item-wrap">' +
