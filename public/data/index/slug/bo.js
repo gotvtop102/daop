@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["bo"] = {"bo-cuc":{"id":"6982f25aeea244e3e8a76900","i":152,"title":"Bố Cục","origin_name":"Layout","slug":"bo-cuc","thumb":"/uploads/movies/bo-cuc-thumb.jpg","year":2021,"type":"series","episode_current":"Trailer"}};

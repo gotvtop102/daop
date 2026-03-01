@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["en"] = [{"id":"698efd7d458948c6799e8ed5","title":"Kết Thúc","origin_name":"It Ends","slug":"ket-thuc","thumb":"/uploads/movies/ket-thuc-thumb.jpg","year":2025,"type":"single","episode_current":"Full","_t":"ket thuc it ends ket thuc"}];

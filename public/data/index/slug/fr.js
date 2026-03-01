@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["fr"] = {"frozen-valentine":{"id":"698ecd2eb06c99c722f0a250","i":222,"title":"Frozen Valentine","origin_name":"Frozen Valentine","slug":"frozen-valentine","thumb":"/uploads/movies/frozen-valentine-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 1"}};

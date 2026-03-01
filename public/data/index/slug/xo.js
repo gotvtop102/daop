@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["xo"] = {"xoan-quay":{"id":"698c0e321d0b515454a742e6","i":208,"title":"Xoắn Quẩy","origin_name":"Twisted","slug":"xoan-quay","thumb":"/uploads/movies/xoan-quay-thumb.jpg","year":2026,"type":"single","episode_current":"Full"}};

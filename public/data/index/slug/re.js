@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["re"] = {"reloved":{"id":"692bf274d5a2e1941a28349d","i":26,"title":"Như Thuở Ban Đầu","origin_name":"Reloved","slug":"reloved","thumb":"/uploads/movies/reloved-thumb.jpg","year":2025,"type":"hoathinh","episode_current":"Hoàn tất (10/10)"}};

@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["ir"] = [{"id":"698205831d0b515454a65927","title":"Phổi Sắt","origin_name":"Iron Lung","slug":"phoi-sat","thumb":"/uploads/movies/phoi-sat-thumb.jpg","year":2026,"type":"single","episode_current":"Trailer","_t":"phoi sat iron lung phoi sat"}];

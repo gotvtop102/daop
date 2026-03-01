@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["oa"] = {"oan-danh":{"id":"6975ee5a0a0114095c727b07","i":71,"title":"Oán Danh","origin_name":"Death Name","slug":"oan-danh","thumb":"/uploads/movies/oan-danh-thumb.jpg","year":2026,"type":"single","episode_current":"Full"}};

@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ai"] = {"ai-cung-biet-juan":{"id":"69841947ccc6cea26874dfc4","i":166,"title":"Ai cũng biết Juan","origin_name":"Everyone Knows Every Juan","slug":"ai-cung-biet-juan","thumb":"/uploads/movies/ai-cung-biet-juan-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

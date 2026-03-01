@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["__"] = {"ดีว่าราวี":{"id":"6992ef37ccc6cea26877deaf","i":243,"title":"Vẻ đẹp và nhịp đập","origin_name":"Beauty and the Beat","slug":"ดีว่าราวี","thumb":"/uploads/movies/ดีว่าราวี-thumb.jpg","year":2025,"type":"single","episode_current":"Trailer"}};

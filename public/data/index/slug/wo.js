@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["wo"] = {"wonder-man":{"id":"697ab6cf458948c6799c68b0","i":82,"title":"Wonder Man","origin_name":"Wonder Man","slug":"wonder-man","thumb":"/uploads/movies/wonder-man-thumb.jpg","year":2026,"type":"series","episode_current":"Hoàn Tất (8/8)"}};

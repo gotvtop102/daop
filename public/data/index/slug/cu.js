@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["cu"] = {"cung-me-di-hen-ho":{"id":"695a832d1d0b515454a31f17","i":45,"title":"Cùng Mẹ Đi Hẹn Hò","origin_name":"Match to Marry","slug":"cung-me-di-hen-ho","thumb":"/uploads/movies/cung-me-di-hen-ho-thumb.jpg","year":2026,"type":"tvshows","episode_current":"Hoàn tất (6/6)"}};
