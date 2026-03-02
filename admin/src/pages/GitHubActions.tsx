@@ -18,6 +18,7 @@ const OPHIM_AUTO_KEYS = {
 };
 
 const UPDATE_DATA_TWO_PHASE_KEY = 'update_data_two_phase';
+const UPDATE_DATA_MANUAL_TWO_PHASE_KEY = 'update_data_manual_two_phase';
 const UPLOAD_IMAGES_AFTER_BUILD_KEY = 'upload_images_after_build';
 
 type ActionItem = {
@@ -76,6 +77,7 @@ export default function GitHubActions() {
         OPHIM_AUTO_KEYS.start_page,
         OPHIM_AUTO_KEYS.end_page,
         UPDATE_DATA_TWO_PHASE_KEY,
+        UPDATE_DATA_MANUAL_TWO_PHASE_KEY,
         UPLOAD_IMAGES_AFTER_BUILD_KEY,
       ]);
     const map: Record<string, string> = {};
@@ -87,11 +89,15 @@ export default function GitHubActions() {
     const t2 = (map[UPDATE_DATA_TWO_PHASE_KEY] || '').toString().trim().toLowerCase();
     const t2On = (t2 === '1' || t2 === 'true');
 
+    const tManual2 = (map[UPDATE_DATA_MANUAL_TWO_PHASE_KEY] || '').toString().trim().toLowerCase();
+    const tManual2On = (tManual2 === '1' || tManual2 === 'true');
+
     const tUpload = (map[UPLOAD_IMAGES_AFTER_BUILD_KEY] || '').toString().trim().toLowerCase();
     const tUploadOn = (tUpload === '1' || tUpload === 'true');
 
     setAutoTwoPhase(t2On);
     setAutoUploadImagesAfterBuild(tUploadOn);
+    setTwoPhase(tManual2On);
 
     setUpdateSettings({ start_page, end_page });
     form.setFieldsValue({
@@ -142,6 +148,7 @@ export default function GitHubActions() {
           { key: OPHIM_AUTO_KEYS.start_page, value: String(values.auto_start_page ?? values.start_page ?? 1), updated_at: now },
           { key: OPHIM_AUTO_KEYS.end_page, value: String(values.auto_end_page ?? values.end_page ?? 1), updated_at: now },
           { key: UPDATE_DATA_TWO_PHASE_KEY, value: autoTwoPhase ? '1' : '0', updated_at: now },
+          { key: UPDATE_DATA_MANUAL_TWO_PHASE_KEY, value: twoPhase ? '1' : '0', updated_at: now },
           { key: UPLOAD_IMAGES_AFTER_BUILD_KEY, value: autoUploadImagesAfterBuild ? '1' : '0', updated_at: now },
         ],
         { onConflict: 'key' }
