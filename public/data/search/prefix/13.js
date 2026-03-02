@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["13"] = [{"id":"69a4fd14d88856be771d36a0","title":"Valentine Dối Trá","origin_name":"Club Friday Season 13: Love Seasons Celebration","slug":"valentine-doi-tra","thumb":"/uploads/movies/valentine-doi-tra-thumb.jpg","year":2021,"type":"series","episode_current":"Hoàn tất (18/18)","_t":"valentine doi tra club friday season 13 love seasons celebration valentine doi tra"}];
+=======
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["13"] = [{"id":"69a4fd14d88856be771d36a0","title":"Valentine Dối Trá","origin_name":"Club Friday Season 13: Love Seasons Celebration","slug":"valentine-doi-tra","thumb":"/uploads/movies/valentine-doi-tra-thumb.jpg","year":2021,"type":"series","episode_current":"Trailer","_t":"valentine doi tra club friday season 13 love seasons celebration valentine doi tra"}];
+>>>>>>> fb9b57810fbcb013ebe3584ef12239efbaaeadd2

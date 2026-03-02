@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+=======
+window.actorsData = {"map":{"fan-ming":["69895b6eb9fc4b5429662af5"],"fu-dongnuan":["699fcba4400bf394bd8b72c6"]},"names":{"fan-ming":"Phạm Minh","fu-dongnuan":"Fu Dongnuan"},"meta":{"fan-ming":{"tmdb_id":1100750,"profile":"https://image.tmdb.org/t/p/w500/lgs16RJ2YPhvx5Vmp1H7sLhXm1M.jpg","tmdb_url":"https://www.themoviedb.org/person/1100750"},"fu-dongnuan":{"tmdb_id":5675491,"profile":"https://image.tmdb.org/t/p/w500/2uWUj4iEFQBItRT3bvsykVCfJVd.jpg","tmdb_url":"https://www.themoviedb.org/person/5675491"}},"movies":{"fan-ming":[{"id":"69895b6eb9fc4b5429662af5","title":"Thanh Xuân Trở Lại","origin_name":"We Are Still Young","slug":"thanh-xuan-tro-lai","thumb":"/uploads/movies/thanh-xuan-tro-lai-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 36"}],"fu-dongnuan":[{"id":"699fcba4400bf394bd8b72c6","title":"Hạt Mầm Dục Vọng","origin_name":"Seeds of Scarlet Longing","slug":"hat-mam-duc-vong","thumb":"/uploads/movies/hat-mam-duc-vong-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 13"}]}};
+>>>>>>> fb9b57810fbcb013ebe3584ef12239efbaaeadd2

@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+=======
+window.actorsData = {"map":{"tony-revolori":["68fb1cb0d7c846461cb71361"],"tian-yu":["699fccb1f937c3b5a110e678"]},"names":{"tony-revolori":"Tony Revolori","tian-yu":"Điền Vũ"},"meta":{"tony-revolori":{"tmdb_id":1291350,"profile":"https://image.tmdb.org/t/p/w500/tSF6XmXDikrKZbFUeoDnafXxKjT.jpg","tmdb_url":"https://www.themoviedb.org/person/1291350"},"tian-yu":{"tmdb_id":1397566,"profile":"https://image.tmdb.org/t/p/w500/hltc7NNhaBpD45nVqhC1dPkoVuB.jpg","tmdb_url":"https://www.themoviedb.org/person/1397566"}},"movies":{"tony-revolori":[{"id":"68fb1cb0d7c846461cb71361","title":"Yêu Nhầm Tội Nhân","origin_name":"Roofman","slug":"roofman","thumb":"/uploads/movies/roofman-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}],"tian-yu":[{"id":"699fccb1f937c3b5a110e678","title":"Khoảng Thời Gian Tuyệt Vời","origin_name":"Wonderful Times","slug":"khoang-thoi-gian-tuyet-voi","thumb":"/uploads/movies/khoang-thoi-gian-tuyet-voi-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 13"}]}};
+>>>>>>> fb9b57810fbcb013ebe3584ef12239efbaaeadd2

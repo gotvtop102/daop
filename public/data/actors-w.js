@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+=======
+window.actorsData = {"map":{"wang-chengsi":["69a3bbc1eea244e3e8b099da"],"wei-zixin":["69a3bbc1eea244e3e8b099da"]},"names":{"wang-chengsi":"Wang Chengsi","wei-zixin":"Wei Zixin"},"meta":{"wang-chengsi":{"tmdb_id":2029011,"profile":"https://image.tmdb.org/t/p/w500/nIZhWUvPfE7pTnKdlud8iFJdhqQ.jpg","tmdb_url":"https://www.themoviedb.org/person/2029011"},"wei-zixin":{"tmdb_id":3094484,"profile":"https://image.tmdb.org/t/p/w500/bNqFs9jJWJZ4xmZNOpxe4KN5trh.jpg","tmdb_url":"https://www.themoviedb.org/person/3094484"}},"movies":{"wang-chengsi":[{"id":"69a3bbc1eea244e3e8b099da","title":"Oan Gia Đường Tôm","origin_name":"Shrimp Encounter","slug":"oan-gia-duong-tom","thumb":"/uploads/movies/oan-gia-duong-tom-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 8"}],"wei-zixin":[{"id":"69a3bbc1eea244e3e8b099da","title":"Oan Gia Đường Tôm","origin_name":"Shrimp Encounter","slug":"oan-gia-duong-tom","thumb":"/uploads/movies/oan-gia-duong-tom-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 8"}]}};
+>>>>>>> fb9b57810fbcb013ebe3584ef12239efbaaeadd2

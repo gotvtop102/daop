@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"uzo-aduba":["68fb1cb0d7c846461cb71361"]},"names":{"uzo-aduba":"Uzo Aduba"},"meta":{"uzo-aduba":{"tmdb_id":1332680,"profile":"https://image.tmdb.org/t/p/w500/VXzHXOKBTAcNmhAHHYPiNmhxwF.jpg","tmdb_url":"https://www.themoviedb.org/person/1332680"}},"movies":{"uzo-aduba":[{"id":"68fb1cb0d7c846461cb71361","title":"Yêu Nhầm Tội Nhân","origin_name":"Roofman","slug":"roofman","thumb":"/uploads/movies/roofman-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}]}};

@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["12"] = [{"id":"69a4fbae46046a8eb68fdd02","title":"Cái Kết Của Nhân Tình","origin_name":"Club Friday Season 12: Uncharted Love","slug":"cai-ket-cua-nhan-tinh","thumb":"/uploads/movies/cai-ket-cua-nhan-tinh-thumb.jpg","year":2020,"type":"series","episode_current":"Hoàn tất (8/8)","_t":"cai ket cua nhan tinh club friday season 12 uncharted love cai ket cua nhan tinh"}];
+=======
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["12"] = [{"id":"69a4fbae46046a8eb68fdd02","title":"Cái Kết Của Nhân Tình","origin_name":"Club Friday Season 12: Uncharted Love","slug":"cai-ket-cua-nhan-tinh","thumb":"/uploads/movies/cai-ket-cua-nhan-tinh-thumb.jpg","year":2020,"type":"series","episode_current":"Trailer","_t":"cai ket cua nhan tinh club friday season 12 uncharted love cai ket cua nhan tinh"}];
+>>>>>>> fb9b57810fbcb013ebe3584ef12239efbaaeadd2
