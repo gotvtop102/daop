@@ -84,6 +84,19 @@ function guessExtFromUrl(u) {
   }
 }
 
+function derivePosterFromThumb(url) {
+  if (!url) return '';
+  const u = String(url);
+  if (/poster\.(jpe?g|png|webp)$/i.test(u)) return u;
+  const r1 = u.replace(/thumb\.(jpe?g|png|webp)$/i, 'poster.$1');
+  if (r1 !== u) return r1;
+  const r2 = u.replace(/-thumb\.(jpe?g|png|webp)$/i, '-poster.$1');
+  if (r2 !== u) return r2;
+  const r3 = u.replace(/_thumb\.(jpe?g|png|webp)$/i, '_poster.$1');
+  if (r3 !== u) return r3;
+  return '';
+}
+
 function contentTypeFromExt(ext) {
   const e = String(ext || '').toLowerCase();
   if (e === 'png') return 'image/png';
@@ -258,7 +271,9 @@ async function main() {
         continue;
       }
 
-      const rawUrl = kind === 'thumb' ? (m.thumb || '') : (m.poster || '');
+      const rawUrl = kind === 'thumb'
+        ? (m.thumb || '')
+        : (m.poster || derivePosterFromThumb(m.thumb || '') || '');
       const url = normalizeSourceUrl(rawUrl);
       if (!url) {
         skipped++;
