@@ -507,8 +507,11 @@
       ? (m.poster || derivedPoster || m.thumb || '')
       : (m.thumb || m.poster || derivedPoster || '');
     const fallbackRaw = m.thumb || '';
-    const imgUrl = norm(primaryRaw).replace(/^\/\//, 'https://');
-    const fallbackUrl = norm(fallbackRaw).replace(/^\/\//, 'https://');
+    const defaultImg = cardOrientation === 'horizontal'
+      ? (baseUrl + '/images/default_poster.png')
+      : (baseUrl + '/images/default_thumb.png');
+    const imgUrl = norm(primaryRaw).replace(/^\/\//, 'https://') || defaultImg;
+    const fallbackUrl = norm(fallbackRaw).replace(/^\/\//, 'https://') || defaultImg;
     const title = (m.title || '').replace(/</g, '&lt;');
     const origin = (m.origin_name || '').replace(/</g, '&lt;');
 
@@ -535,7 +538,9 @@
       favBtn +
       '<a href="' + href + '">' +
       '<div class="thumb-wrap"><img loading="lazy" src="' + imgUrl + '"' +
-      (fallbackUrl && fallbackUrl !== imgUrl ? (' onerror="this.onerror=null;this.src=\'' + fallbackUrl.replace(/'/g, '%27') + '\';"') : '') +
+      (fallbackUrl && fallbackUrl !== imgUrl
+        ? (' onerror="this.onerror=function(){this.onerror=null;this.src=\'' + defaultImg.replace(/'/g, '%27') + '\';};this.src=\'' + fallbackUrl.replace(/'/g, '%27') + '\';"')
+        : (' onerror="this.onerror=null;this.src=\'' + defaultImg.replace(/'/g, '%27') + '\';"')) +
       ' decoding="async" fetchpriority="low"' +
       ' alt="' + title + '"></div>' +
       '<div class="movie-info">' +

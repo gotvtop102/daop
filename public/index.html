@@ -185,6 +185,8 @@
               movies.forEach(function(m){
                 var href = base + '/phim/' + (m.slug || m.id) + '.html';
                 var slug = String(m.slug || m.id || '');
+                var defaultPoster = base + '/images/default_poster.png';
+                var defaultThumb = base + '/images/default_thumb.png';
                 var derive = (window.DAOP && typeof window.DAOP.derivePosterFromThumb === 'function')
                   ? window.DAOP.derivePosterFromThumb
                   : function () { return ''; };
@@ -195,11 +197,14 @@
                 var raw = cardOrientation === 'horizontal'
                   ? (m.poster || derivedPoster || m.thumb || '')
                   : (m.thumb || m.poster || derivedPoster || '');
-                var posterUrl = norm(raw).replace(/^\/\//, 'https://') || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="168"%3E%3Crect fill="%2321262d" width="120" height="168"/%3E%3C/svg%3E';
-                var thumbUrl = norm(m.thumb || '').replace(/^\/\//, 'https://');
+                var posterUrl = norm(raw).replace(/^\/\//, 'https://') || defaultPoster;
+                var thumbUrl = norm(m.thumb || '').replace(/^\/\//, 'https://') || defaultThumb;
+                var posterEsc = posterUrl.replace(/'/g, '%27');
+                var thumbEsc = thumbUrl.replace(/'/g, '%27');
+                var defaultPosterEsc = defaultPoster.replace(/'/g, '%27');
                 var imgOnError = (thumbUrl && thumbUrl !== posterUrl)
-                  ? ' onerror="this.onerror=null;this.src=\'' + thumbUrl.replace(/'/g, '%27') + '\';"'
-                  : '';
+                  ? ' onerror="this.onerror=function(){this.onerror=null;this.src=\'' + defaultPosterEsc + '\';};this.src=\'' + thumbEsc + '\';"'
+                  : ' onerror="this.onerror=null;this.src=\'' + defaultPosterEsc + '\';"';
                 var title = (m.title || '').replace(/</g, '&lt;');
                 var origin = (m.origin_name || '').replace(/</g, '&lt;');
                 out2 += '<div class="movies-list-item-wrap">' +
