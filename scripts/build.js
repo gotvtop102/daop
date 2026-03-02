@@ -1794,24 +1794,29 @@ function writeBatches(movies, prevLastModified, tmdbById, prevTmdbById) {
   //   changed batches may exceed MAX_BATCH_BYTES.
   // - If total increases: extend windows for new tail using size cap.
   // - If movies removed (handled below): force full regen and rebuild windows.
+  // - TMDB_ONLY: MUST reuse existing windows exactly, never rebuild or overwrite windows.
   let windows = [];
-  let prevWindowsTotal = 0;
-  if (prevLastModified && fs.existsSync(windowsPath)) {
-    try {
-      const wj = JSON.parse(fs.readFileSync(windowsPath, 'utf8'));
-      const wins = wj && Array.isArray(wj.windows) ? wj.windows : [];
-      prevWindowsTotal = typeof wj.total === 'number' ? wj.total : 0;
-      if (isWindowsValid(wins, Math.min(total, prevWindowsTotal || total))) {
-        windows = wins.slice(0);
-      }
-    } catch {}
-  }
-  if (!windows.length) {
-    windows = buildWindowsBySize(0, total);
-  } else if (windows.length && windows[windows.length - 1].end < total) {
-    const from = windows[windows.length - 1].end;
-    const extra = buildWindowsBySize(from, total);
-    if (extra.length) windows = windows.concat(extra);
+  if (forcedWindows && Array.isArray(forcedWindows.windows) && forcedWindows.windows.length) {
+    windows = forcedWindows.windows.slice(0);
+  } else {
+    let prevWindowsTotal = 0;
+    if (prevLastModified && fs.existsSync(windowsPath)) {
+      try {
+        const wj = JSON.parse(fs.readFileSync(windowsPath, 'utf8'));
+        const wins = wj && Array.isArray(wj.windows) ? wj.windows : [];
+        prevWindowsTotal = typeof wj.total === 'number' ? wj.total : 0;
+        if (isWindowsValid(wins, Math.min(total, prevWindowsTotal || total))) {
+          windows = wins.slice(0);
+        }
+      } catch {}
+    }
+    if (!windows.length) {
+      windows = buildWindowsBySize(0, total);
+    } else if (windows.length && windows[windows.length - 1].end < total) {
+      const from = windows[windows.length - 1].end;
+      const extra = buildWindowsBySize(from, total);
+      if (extra.length) windows = windows.concat(extra);
+    }
   }
 
   for (let idx = 0; idx < sorted.length; idx++) {
@@ -1822,7 +1827,8 @@ function writeBatches(movies, prevLastModified, tmdbById, prevTmdbById) {
   }
 
   // Nếu có phim bị xóa (có trong map cũ nhưng không còn trong map mới) → ghi lại toàn bộ để tránh lệch dữ liệu.
-  if (prevLastModified) {
+  // TMDB_ONLY: không được tự rebuild windows trong phase này.
+  if (prevLastModified && !forcedWindows) {
     for (const idStr of Object.keys(prevLastModified)) {
       if (!newLastModified[idStr]) {
         console.log('   Detect removed movies, regenerate toàn bộ batch files.');
@@ -1934,17 +1940,20 @@ function writeBatches(movies, prevLastModified, tmdbById, prevTmdbById) {
     if (writeTmdb) console.log('   Đã ghi lại', rewrittenTmdb, 'tmdb batch files có TMDB thay đổi.');
   }
 
-  try {
-    fs.writeFileSync(
-      windowsPath,
-      JSON.stringify({
-        baseBatchSize: BASE_BATCH,
-        maxBytes: MAX_BATCH_BYTES,
-        total,
-        windows,
-      }, null, 2)
-    );
-  } catch {}
+  // TMDB_ONLY: không ghi đè windows, vì core batch files đang theo windows của core phase.
+  if (!forcedWindows) {
+    try {
+      fs.writeFileSync(
+        windowsPath,
+        JSON.stringify({
+          baseBatchSize: BASE_BATCH,
+          maxBytes: MAX_BATCH_BYTES,
+          total,
+          windows,
+        }, null, 2)
+      );
+    } catch {}
+  }
 
   return { newLastModified, batchPtrById };
 }
@@ -2462,10 +2471,12 @@ async function main() {
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');
     if (tmdbOnly) {
+      const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
       const shouldEnrich = (m) => {
         if (!m) return false;
         const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
         if (!tid) return false;
+        if (forceTmdb) return true;
         const idStr = m && m.id != null ? String(m.id) : '';
         if (!idStr) return true;
         if (!prevTmdbById || typeof prevTmdbById.get !== 'function') return true;
@@ -2473,16 +2484,21 @@ async function main() {
         if (!prev) return true;
         const prevTid = prev && prev.tmdb ? prev.tmdb.id : null;
         if (prevTid != null && String(prevTid) !== String(tid)) return true;
-        const hasCast = Array.isArray(prev.cast) && prev.cast.length;
-        const hasCastMeta = Array.isArray(prev.cast_meta) && prev.cast_meta.length;
-        const hasDirector = Array.isArray(prev.director) && prev.director.length;
-        const hasKeywords = Array.isArray(prev.keywords) && prev.keywords.length;
-        const hasImdb = !!prev.imdb;
-        const hasTmdb = !!prev.tmdb;
-        return !(hasTmdb && (hasCast || hasCastMeta) && (hasDirector || hasKeywords || hasImdb));
+        // Nếu phim không đổi so với last_modified và đã có payload TMDB trước đó => bỏ qua gọi TMDB.
+        if (prevLastModified && typeof prevLastModified === 'object') {
+          const curMod = m.modified || m.updated_at || '';
+          const oldMod = prevLastModified[idStr];
+          if (oldMod && curMod && String(oldMod) === String(curMod)) {
+            return false;
+          }
+        }
+        return true;
       };
-      await enrichTmdb((ophim || []).filter(shouldEnrich));
-      await enrichTmdb((custom || []).filter(shouldEnrich));
+      const needOphim = (ophim || []).filter(shouldEnrich);
+      const needCustom = (custom || []).filter(shouldEnrich);
+      console.log('   TMDB_ONLY: movies to enrich:', needOphim.length + needCustom.length);
+      await enrichTmdb(needOphim);
+      await enrichTmdb(needCustom);
     } else {
       await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
       await enrichTmdb(custom);
@@ -2495,17 +2511,25 @@ async function main() {
   for (const m of [...(ophim || []), ...(custom || [])]) {
     const idStr = m && m.id != null ? String(m.id) : '';
     if (!idStr) continue;
-    if (m.tmdb || m.imdb || (Array.isArray(m.cast) && m.cast.length) || (Array.isArray(m.director) && m.director.length) || (Array.isArray(m.cast_meta) && m.cast_meta.length) || (Array.isArray(m.keywords) && m.keywords.length)) {
-      tmdbById.set(idStr, {
-        id: idStr,
-        tmdb: m.tmdb || null,
-        imdb: m.imdb || null,
-        cast: Array.isArray(m.cast) ? m.cast : [],
-        director: Array.isArray(m.director) ? m.director : [],
-        cast_meta: Array.isArray(m.cast_meta) ? m.cast_meta : [],
-        keywords: Array.isArray(m.keywords) ? m.keywords : [],
-      });
-    }
+    const hasAnyTmdbField =
+      !!m.tmdb ||
+      !!m.imdb ||
+      (Array.isArray(m.cast) && m.cast.length) ||
+      (Array.isArray(m.director) && m.director.length) ||
+      (Array.isArray(m.cast_meta) && m.cast_meta.length) ||
+      (Array.isArray(m.keywords) && m.keywords.length);
+    if (!hasAnyTmdbField) continue;
+
+    const prev = tmdbById.get(idStr);
+    tmdbById.set(idStr, {
+      id: idStr,
+      tmdb: m.tmdb || (prev && prev.tmdb) || null,
+      imdb: m.imdb || (prev && prev.imdb) || null,
+      cast: (Array.isArray(m.cast) && m.cast.length) ? m.cast : ((prev && Array.isArray(prev.cast)) ? prev.cast : []),
+      director: (Array.isArray(m.director) && m.director.length) ? m.director : ((prev && Array.isArray(prev.director)) ? prev.director : []),
+      cast_meta: (Array.isArray(m.cast_meta) && m.cast_meta.length) ? m.cast_meta : ((prev && Array.isArray(prev.cast_meta)) ? prev.cast_meta : []),
+      keywords: (Array.isArray(m.keywords) && m.keywords.length) ? m.keywords : ((prev && Array.isArray(prev.keywords)) ? prev.keywords : []),
+    });
   }
 
   const allMovies = mergeMovies(ophim, custom);

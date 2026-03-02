@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"fan-wu":["68e4bc4d69d7b4696cc59469"]},"names":{"fan-wu":"Fan Wu"},"meta":{"fan-wu":{"tmdb_id":4342788,"profile":null,"tmdb_url":"https://www.themoviedb.org/person/4342788"}},"movies":{"fan-wu":[{"id":"68e4bc4d69d7b4696cc59469","title":"Võ Thần Chúa Tể","origin_name":"Martial Master","slug":"vo-than-chua-te","thumb":"/uploads/movies/vo-than-chua-te-thumb.jpg","year":2020,"type":"hoathinh","episode_current":"Tập 624"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
