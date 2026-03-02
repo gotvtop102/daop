@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"xiao-qixin":["698559a0988d934ea9e68527"]},"names":{"xiao-qixin":"Xiao Qixin"},"meta":{"xiao-qixin":{"tmdb_id":5982474,"profile":null,"tmdb_url":"https://www.themoviedb.org/person/5982474"}},"movies":{"xiao-qixin":[{"id":"698559a0988d934ea9e68527","title":"Hầu Vua Như Hầu Cọp","origin_name":"Shall We Dance","slug":"hau-vua-nhu-hau-cop","thumb":"/uploads/movies/hau-vua-nhu-hau-cop-thumb.jpg","year":2026,"type":"series","episode_current":"Hoàn tất (24/24)"}]}};
