@@ -536,6 +536,7 @@
       '<a href="' + href + '">' +
       '<div class="thumb-wrap"><img loading="lazy" src="' + imgUrl + '"' +
       (fallbackUrl && fallbackUrl !== imgUrl ? (' onerror="this.onerror=null;this.src=\'' + fallbackUrl.replace(/'/g, '%27') + '\';"') : '') +
+      ' decoding="async" fetchpriority="low"' +
       ' alt="' + title + '"></div>' +
       '<div class="movie-info">' +
       '<h3 class="title">' + title + '</h3>' +
@@ -772,10 +773,12 @@
       var genreTags = genres.slice(0, 5).map(function (g) { return '<span class="slider-genre">' + esc(typeof g === 'string' ? g : (g && g.name) ? g.name : '') + '</span>'; }).join('');
       var desc = esc((s.description || '').slice(0, 160));
       if (desc.length === 160) desc += '...';
+      var imgLoading = i === 0 ? 'eager' : 'lazy';
+      var imgPriority = i === 0 ? 'high' : 'low';
       html +=
         '<div class="slider-slide" data-index="' + i + '">' +
         '<a href="' + href + '" class="slider-slide-link">' +
-        '<div class="slider-slide-bg"><img src="' + img + '" alt="' + title + '"></div>' +
+        '<div class="slider-slide-bg"><img loading="' + imgLoading + '" decoding="async" fetchpriority="' + imgPriority + '" src="' + img + '" alt="' + title + '"></div>' +
         '<div class="slider-slide-overlay"></div>' +
         '<div class="slider-slide-content">' +
         '<h2 class="slider-slide-title">' + title + '</h2>' +

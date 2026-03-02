@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GoTV - Xem phim online</title>
   <meta name="description" content="Xem phim online miễn phí, cập nhật nhanh.">
+  <link rel="preconnect" href="https://img.ophim.live" crossorigin>
+  <link rel="dns-prefetch" href="//img.ophim.live">
   <link rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
 </head>
@@ -202,7 +204,7 @@
                 var origin = (m.origin_name || '').replace(/</g, '&lt;');
                 out2 += '<div class="movies-list-item-wrap">' +
                   '<button type="button" class="movie-fav-btn" data-movie-slug="' + slug.replace(/"/g, '&quot;') + '" aria-pressed="false" aria-label="Yêu thích">♥</button>' +
-                  '<a href="' + href + '" class="movies-list-item"><span class="list-thumb"><img loading="lazy" src="' + posterUrl + '"' + imgOnError + ' alt=""></span><span class="list-info"><strong>' + title + '</strong>' + (origin ? '<em class="list-origin">' + origin + '</em>' : '') + (m.episode_current ? ' <span class="list-ep">• ' + m.episode_current + ' tập</span>' : '') + '</span></a>' +
+                  '<a href="' + href + '" class="movies-list-item"><span class="list-thumb"><img loading="lazy" decoding="async" fetchpriority="low" src="' + posterUrl + '"' + imgOnError + ' alt=""></span><span class="list-info"><strong>' + title + '</strong>' + (origin ? '<em class="list-origin">' + origin + '</em>' : '') + (m.episode_current ? ' <span class="list-ep">• ' + m.episode_current + ' tập</span>' : '') + '</span></a>' +
                   '</div>';
               });
               listEl.innerHTML = out2;
