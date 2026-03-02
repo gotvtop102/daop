@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["nu"] = {"nu-phan-dien-duoc-hoang-tu-nuoc-lang-gieng-yeu-men":{"id":"6965de7bda6ce23e8e95a751","i":8,"title":"Nữ Phản Diện Được Hoàng Tử Nước Láng Giềng Yêu Mến","origin_name":"The Villainess Is Adored by the Prince of the Neighbor Kingdom","slug":"nu-phan-dien-duoc-hoang-tu-nuoc-lang-gieng-yeu-men","thumb":"/uploads/movies/nu-phan-dien-duoc-hoang-tu-nuoc-lang-gieng-yeu-men-thumb.jpg","year":2026,"type":"hoathinh","episode_current":"Tập 7"}};
-=======
 window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["nu"] = {"nu-phan-dien-duoc-hoang-tu-nuoc-lang-gieng-yeu-men":{"id":"6965de7bda6ce23e8e95a751","i":72,"title":"Nữ Phản Diện Được Hoàng Tử Nước Láng Giềng Yêu Mến","origin_name":"The Villainess Is Adored by the Prince of the Neighbor Kingdom","slug":"nu-phan-dien-duoc-hoang-tu-nuoc-lang-gieng-yeu-men","thumb":"/uploads/movies/nu-phan-dien-duoc-hoang-tu-nuoc-lang-gieng-yeu-men-thumb.jpg","year":2026,"type":"hoathinh","episode_current":"Tập 8"}};
->>>>>>> fb9b57810fbcb013ebe3584ef12239efbaaeadd2

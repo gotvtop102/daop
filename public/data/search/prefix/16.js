@@ -1,5 +1,1 @@
-<<<<<<< HEAD
 window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["16"] = [{"id":"69a4fc72da6ce23e8ea1b077","title":"Yêu Người Đến Chết","origin_name":"Club Friday Season 16: Hot Love Issue","slug":"yeu-nguoi-den-chet","thumb":"/uploads/movies/yeu-nguoi-den-chet-thumb.jpg","year":2024,"type":"series","episode_current":"Hoàn tất (4/4)","_t":"yeu nguoi den chet club friday season 16 hot love issue yeu nguoi den chet"}];
-=======
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["16"] = [{"id":"69a4fc72da6ce23e8ea1b077","title":"Yêu Người Đến Chết","origin_name":"Club Friday Season 16: Hot Love Issue","slug":"yeu-nguoi-den-chet","thumb":"/uploads/movies/yeu-nguoi-den-chet-thumb.jpg","year":2024,"type":"series","episode_current":"Trailer","_t":"yeu nguoi den chet club friday season 16 hot love issue yeu nguoi den chet"}];
->>>>>>> fb9b57810fbcb013ebe3584ef12239efbaaeadd2
