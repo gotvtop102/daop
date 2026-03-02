@@ -86,6 +86,7 @@
           var ver = (v && v.builtAt) ? encodeURIComponent(v.builtAt) : '';
           var q = ver ? '?v=' + ver : '';
           return Promise.all([
+            fetch(base + '/data/home/home-sections-data.json' + q).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
             fetch(base + '/data/config/homepage-sections.json' + q).then(function(r){ return r.json(); }),
             fetch(base + '/data/config/banners.json' + q).then(function(r){ return r.json(); })
           ]);
@@ -94,7 +95,8 @@
       (window.DAOP && window.DAOP.siteSettings ? Promise.resolve() : fetch(base + '/data/config/site-settings.json').then(function(r){ return r.json(); }).then(function(s){ window.DAOP = window.DAOP || {}; window.DAOP.siteSettings = s; }))
         .then(loadSectionsAndBanners)
         .then(function(res){
-        var sections = (res[0] && res[0].length) ? res[0] : [
+        var pre = res[0];
+        var sections = (res[1] && res[1].length) ? res[1] : [
           { title: 'Phim bộ', source_type: 'type', source_value: 'series', limit_count: 24, sort_order: 0, more_link: '/phim-bo.html' },
           { title: 'Phim lẻ', source_type: 'type', source_value: 'single', limit_count: 24, sort_order: 1, more_link: '/phim-le.html' },
           { title: 'Phim 4K', source_type: 'quality_4k', source_value: '', limit_count: 24, sort_order: 2, more_link: '/danh-sach/phim-4k.html' },
@@ -102,7 +104,7 @@
           { title: 'Quốc gia (mẫu)', source_type: 'country', source_value: 'au-my', limit_count: 18, sort_order: 4, more_link: '/quoc-gia/' },
           { title: 'Năm phát hành (mẫu)', source_type: 'year', source_value: '2024', limit_count: 18, sort_order: 5, more_link: '/nam-phat-hanh/' }
         ];
-        var banners = res[1] || [];
+        var banners = res[2] || [];
         var fd = window.filtersData || {};
         var lightCache = {};
         function getLightById(id) {
@@ -137,12 +139,6 @@
         var ss = window.DAOP && window.DAOP.siteSettings || {};
         sections.forEach(function(sec){
           var ids = [];
-          if (sec.source_type === 'type' && fd.typeMap && fd.typeMap[sec.source_value]) ids = fd.typeMap[sec.source_value];
-          else if (sec.source_type === 'genre' && fd.genreMap && fd.genreMap[sec.source_value]) ids = fd.genreMap[sec.source_value];
-          else if (sec.source_type === 'country' && fd.countryMap && fd.countryMap[sec.source_value]) ids = fd.countryMap[sec.source_value];
-          else if (sec.source_type === 'year' && fd.yearMap && fd.yearMap[sec.source_value]) ids = fd.yearMap[sec.source_value];
-          else if (sec.source_type === 'status' && fd.statusMap && fd.statusMap[sec.source_value]) ids = fd.statusMap[sec.source_value];
-          else if (sec.source_type === 'quality_4k' && fd.quality4kIds) ids = fd.quality4kIds;
           var limit = sec.limit_count || 24;
           var moreLink = sec.more_link ? '<a href="' + sec.more_link + '">Xem thêm</a>' : '';
           var layout = (sec.display_type || 'grid').toLowerCase();
@@ -165,7 +161,23 @@
           container.insertAdjacentHTML('beforeend', html);
 
           var secEl = container.lastElementChild;
-          resolveMoviesByIds(ids, limit).then(function (movies) {
+          var preMovies = null;
+          if (pre && Array.isArray(pre)) {
+            var match = pre.find(function(p){ return p && (String(p.id||'') === String(sec.id||'')) || (p && p.title && sec.title && String(p.title) === String(sec.title)); });
+            if (match && Array.isArray(match.movies)) preMovies = match.movies.slice(0, limit);
+          }
+
+          var p = preMovies ? Promise.resolve(preMovies) : (function(){
+            if (sec.source_type === 'type' && fd.typeMap && fd.typeMap[sec.source_value]) ids = fd.typeMap[sec.source_value];
+            else if (sec.source_type === 'genre' && fd.genreMap && fd.genreMap[sec.source_value]) ids = fd.genreMap[sec.source_value];
+            else if (sec.source_type === 'country' && fd.countryMap && fd.countryMap[sec.source_value]) ids = fd.countryMap[sec.source_value];
+            else if (sec.source_type === 'year' && fd.yearMap && fd.yearMap[sec.source_value]) ids = fd.yearMap[sec.source_value];
+            else if (sec.source_type === 'status' && fd.statusMap && fd.statusMap[sec.source_value]) ids = fd.statusMap[sec.source_value];
+            else if (sec.source_type === 'quality_4k' && fd.quality4kIds) ids = fd.quality4kIds;
+            return resolveMoviesByIds(ids, limit);
+          })();
+
+          p.then(function (movies) {
             if (!secEl) return;
             if (!movies || !movies.length) {
               var grid0 = secEl.querySelector('.section-slider-track') || secEl.querySelector('.movies-list') || secEl.querySelector('.movies-grid');

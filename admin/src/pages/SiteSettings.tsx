@@ -25,6 +25,22 @@ const SITE_SETTINGS_KEYS = [
   'site_name',
   'logo_url',
   'favicon_url',
+  'r2_img_domain',
+  'ophim_img_domain',
+  'upload_images_after_build',
+  'update_data_two_phase',
+  'home_prebuild_enabled',
+  'home_prebuild_limit',
+  'home_prebuild_enable_series',
+  'home_prebuild_enable_single',
+  'home_prebuild_enable_hoathinh',
+  'home_prebuild_enable_tvshows',
+  'home_prebuild_enable_year',
+  'home_prebuild_years',
+  'home_prebuild_enable_genre',
+  'home_prebuild_genres',
+  'home_prebuild_enable_country',
+  'home_prebuild_countries',
   'google_analytics_id',
   'simple_analytics_script',
   'twikoo_env_id',
@@ -61,6 +77,22 @@ export default function SiteSettings() {
         site_name: data.site_name ?? 'DAOP Phim',
         logo_url: data.logo_url ?? '',
         favicon_url: data.favicon_url ?? '',
+        r2_img_domain: data.r2_img_domain ?? 'https://pub-62eef44669df48e4bca5388a38e69522.r2.dev',
+        ophim_img_domain: data.ophim_img_domain ?? 'https://img.ophim.live',
+        upload_images_after_build: data.upload_images_after_build === 'true' || data.upload_images_after_build === '1',
+        update_data_two_phase: data.update_data_two_phase === 'true' || data.update_data_two_phase === '1',
+        home_prebuild_enabled: data.home_prebuild_enabled !== 'false',
+        home_prebuild_limit: data.home_prebuild_limit ?? '24',
+        home_prebuild_enable_series: data.home_prebuild_enable_series !== 'false',
+        home_prebuild_enable_single: data.home_prebuild_enable_single !== 'false',
+        home_prebuild_enable_hoathinh: data.home_prebuild_enable_hoathinh !== 'false',
+        home_prebuild_enable_tvshows: data.home_prebuild_enable_tvshows !== 'false',
+        home_prebuild_enable_year: data.home_prebuild_enable_year !== 'false',
+        home_prebuild_years: data.home_prebuild_years ?? '',
+        home_prebuild_enable_genre: data.home_prebuild_enable_genre !== 'false',
+        home_prebuild_genres: data.home_prebuild_genres ?? '',
+        home_prebuild_enable_country: data.home_prebuild_enable_country !== 'false',
+        home_prebuild_countries: data.home_prebuild_countries ?? '',
         google_analytics_id: data.google_analytics_id ?? '',
         simple_analytics_script: data.simple_analytics_script ?? '',
         twikoo_env_id: data.twikoo_env_id ?? '',
@@ -136,7 +168,12 @@ export default function SiteSettings() {
                           const r = await fetch(apiBase + '/api/upload-image', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ image: base64, contentType: file.type || 'image/jpeg' }),
+                            body: JSON.stringify({
+                              image: base64,
+                              contentType: file.type || 'image/jpeg',
+                              filename: file.name,
+                              folder: 'site/logo',
+                            }),
                           });
                           const data = await r.json();
                           if (data.url) {
@@ -185,7 +222,12 @@ export default function SiteSettings() {
                           const r = await fetch(apiBase + '/api/upload-image', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ image: base64, contentType: file.type || 'image/png' }),
+                            body: JSON.stringify({
+                              image: base64,
+                              contentType: file.type || 'image/png',
+                              filename: file.name,
+                              folder: 'site/favicon',
+                            }),
                           });
                           const data = await r.json();
                           if (data.url) {
@@ -209,6 +251,56 @@ export default function SiteSettings() {
               }
             />
           </Form.Item>
+          <Form.Item name="r2_img_domain" label="Domain ảnh R2 (ưu tiên)">
+            <Input placeholder="https://... (để trống = không dùng R2)" />
+          </Form.Item>
+          <Form.Item name="ophim_img_domain" label="Domain ảnh OPhim (fallback)">
+            <Input placeholder="https://img.ophim.live" />
+          </Form.Item>
+          <Form.Item name="upload_images_after_build" label="Tự động upload ảnh lên R2 sau khi Update data (schedule)" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+          <Form.Item name="update_data_two_phase" label="Update data theo 2-phase (core -> tmdb) khi chạy schedule" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+          <Card title="Tối ưu Homepage (build sẵn dữ liệu section)" style={{ marginTop: 16 }}>
+            <Form.Item name="home_prebuild_enabled" label="Bật build sẵn home-sections-data.json" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="home_prebuild_limit" label="Số phim tối đa mỗi mục (1–50)">
+              <Input type="number" min={1} max={50} placeholder="24" />
+            </Form.Item>
+            <Form.Item name="home_prebuild_enable_series" label="Lấy Phim bộ (type=series)" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="home_prebuild_enable_single" label="Lấy Phim lẻ (type=single)" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="home_prebuild_enable_hoathinh" label="Lấy Hoạt hình (type=hoathinh)" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="home_prebuild_enable_tvshows" label="Lấy TV Shows (type=tvshows)" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="home_prebuild_enable_year" label="Lấy theo Năm" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="home_prebuild_years" label="Danh sách năm (cách nhau bởi dấu phẩy, để trống = lấy tất cả section năm)">
+              <Input placeholder="2026,2025,2024" />
+            </Form.Item>
+            <Form.Item name="home_prebuild_enable_genre" label="Lấy theo Thể loại" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="home_prebuild_genres" label="Danh sách thể loại slug (cách nhau bởi dấu phẩy, để trống = lấy tất cả section thể loại)">
+              <Input placeholder="hanh-dong,tinh-cam,hai-huoc" />
+            </Form.Item>
+            <Form.Item name="home_prebuild_enable_country" label="Lấy theo Quốc gia" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="home_prebuild_countries" label="Danh sách quốc gia slug (cách nhau bởi dấu phẩy, để trống = lấy tất cả section quốc gia)">
+              <Input placeholder="au-my,han-quoc,trung-quoc" />
+            </Form.Item>
+          </Card>
           <Form.Item name="google_analytics_id" label="Google Analytics ID">
             <Input placeholder="G-XXXXXXXXXX" />
           </Form.Item>

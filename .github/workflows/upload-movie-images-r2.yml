@@ -1,0 +1,100 @@
+name: Upload movie images to R2
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "thumb,poster, or thumb or poster"
+        required: false
+        default: "thumb,poster"
+      quality:
+        description: "Default quality (1-100)"
+        required: false
+        default: "70"
+      thumb_quality:
+        description: "Thumb quality override"
+        required: false
+        default: ""
+      poster_quality:
+        description: "Poster quality override"
+        required: false
+        default: ""
+      thumb_width:
+        description: "Resize thumb width (0 = no resize)"
+        required: false
+        default: "238"
+      thumb_height:
+        description: "Resize thumb height (0 = no resize)"
+        required: false
+        default: "344"
+      poster_width:
+        description: "Resize poster width (0 = no resize)"
+        required: false
+        default: "486"
+      poster_height:
+        description: "Resize poster height (0 = no resize)"
+        required: false
+        default: "274"
+      limit:
+        description: "Limit movies processed (0 = no limit)"
+        required: false
+        default: "0"
+      concurrency:
+        description: "Concurrency (1-32)"
+        required: false
+        default: "6"
+      force_ids:
+        description: "Comma-separated movie ids to force reupload"
+        required: false
+        default: ""
+      force_id_min:
+        description: "Force reupload for id >= min (numeric ids only)"
+        required: false
+        default: ""
+      force_id_max:
+        description: "Force reupload for id <= max (numeric ids only)"
+        required: false
+        default: ""
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm install
+
+      - name: Upload images to R2
+        run: |
+          node scripts/upload-movie-images-r2.js \
+            --mode "${{ inputs.mode }}" \
+            --quality "${{ inputs.quality }}" \
+            --thumb_quality "${{ inputs.thumb_quality }}" \
+            --poster_quality "${{ inputs.poster_quality }}" \
+            --thumb_width "${{ inputs.thumb_width }}" \
+            --thumb_height "${{ inputs.thumb_height }}" \
+            --poster_width "${{ inputs.poster_width }}" \
+            --poster_height "${{ inputs.poster_height }}" \
+            --limit "${{ inputs.limit }}" \
+            --concurrency "${{ inputs.concurrency }}" \
+            --force_ids "${{ inputs.force_ids }}" \
+            --force_id_min "${{ inputs.force_id_min }}" \
+            --force_id_max "${{ inputs.force_id_max }}"
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+
+      - name: Commit upload state
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add public/data/r2_upload_state.json
+          git diff --staged --quiet || (git commit -m "chore: update R2 upload state" && git push)

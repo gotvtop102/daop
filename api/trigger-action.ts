@@ -39,6 +39,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const twoPhaseRaw = req.body?.two_phase ?? req.query?.two_phase;
   const phase = phaseRaw != null ? String(phaseRaw) : '';
   const twoPhase = (twoPhaseRaw === true || twoPhaseRaw === 'true' || phase === '2');
+  const uploadImagesRaw = req.body?.upload_images ?? req.query?.upload_images;
+  const uploadImages = uploadImagesRaw != null ? String(uploadImagesRaw) : undefined;
 
   const repo = GITHUB_REPO.trim();
   const headers = {
@@ -81,6 +83,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const inputs: Record<string, string> = {};
       if (startPage !== undefined) inputs.start_page = startPage;
       if (endPage !== undefined) inputs.end_page = endPage;
+      if (uploadImages !== undefined) inputs.upload_images = uploadImages;
 
       const url = twoPhase
         ? `https://api.github.com/repos/${repo}/actions/workflows/core-then-tmdb.yml/dispatches`
@@ -126,6 +129,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (startPage !== undefined) inputs.start_page = startPage;
       if (endPage !== undefined) inputs.end_page = endPage;
       if (clean !== undefined) inputs.clean = clean;
+      if (uploadImages !== undefined) inputs.upload_images = uploadImages;
       const r = await fetch(
         `https://api.github.com/repos/${repo}/actions/workflows/core-then-tmdb.yml/dispatches`,
         {
@@ -168,6 +172,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const inputs: Record<string, string> = { clean: 'true' };
       if (startPage !== undefined) inputs.start_page = startPage;
       if (endPage !== undefined) inputs.end_page = endPage;
+      if (uploadImages !== undefined) inputs.upload_images = uploadImages;
 
       const url = twoPhase
         ? `https://api.github.com/repos/${repo}/actions/workflows/core-then-tmdb.yml/dispatches`

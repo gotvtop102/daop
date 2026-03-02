@@ -223,6 +223,8 @@ export default function Banners() {
                           body: JSON.stringify({
                             image: base64,
                             contentType: file.type || 'image/jpeg',
+                            filename: file.name,
+                            folder: 'banners',
                           }),
                         });
                         const data = await r.json();

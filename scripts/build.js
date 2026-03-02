@@ -259,16 +259,65 @@ async function uploadToR2(buffer, key, contentType = 'image/webp') {
   return base ? `${base}/${key}` : null;
 }
 
-/** Download image, convert to WebP, optional upload R2 */
+function sanitizeR2Name(name) {
+  const raw = String(name || '').trim();
+  if (!raw) return '';
+  const n = raw.replace(/\\/g, '/').split('/').pop() || '';
+  return n.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 180);
+}
+
+function guessExtFromContentType(ct) {
+  const t = String(ct || '').toLowerCase();
+  if (t.includes('image/png')) return 'png';
+  if (t.includes('image/webp')) return 'webp';
+  if (t.includes('image/gif')) return 'gif';
+  if (t.includes('image/jpeg') || t.includes('image/jpg')) return 'jpg';
+  return '';
+}
+
+function guessExtFromUrl(u) {
+  try {
+    const p = new URL(u).pathname || '';
+    const base = p.split('/').pop() || '';
+    const m = base.match(/\.([a-zA-Z0-9]{2,5})$/);
+    const ext = m ? m[1].toLowerCase() : '';
+    if (ext === 'jpeg') return 'jpg';
+    if (ext === 'jpg' || ext === 'png' || ext === 'webp' || ext === 'gif') return ext;
+    return '';
+  } catch {
+    return '';
+  }
+}
+
+async function optimizeImageBuffer(buf, ext) {
+  const e = String(ext || '').toLowerCase();
+  if (e === 'gif') return buf;
+  try {
+    const img = sharp(buf, { failOn: 'none' }).rotate();
+    if (e === 'png') return await img.png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer();
+    if (e === 'webp') return await img.webp({ quality: 80 }).toBuffer();
+    return await img.jpeg({ quality: 80, mozjpeg: true }).toBuffer();
+  } catch {
+    return buf;
+  }
+}
+
+/** Download image, optimize/compress, optional upload R2 (keep original filename) */
 async function processImage(url, slug, folder = 'thumbs') {
   if (!url) return null;
   try {
     const res = await fetch(url);
     if (!res.ok) return url;
     const buf = Buffer.from(await res.arrayBuffer());
-    const webp = await sharp(buf).webp({ quality: 80 }).toBuffer();
-    const key = `${folder}/${slug}.webp`;
-    const r2Url = await uploadToR2(webp, key);
+
+    const ct = res.headers.get('content-type') || '';
+    const ext = guessExtFromContentType(ct) || guessExtFromUrl(url) || 'jpg';
+    const fromUrlName = sanitizeR2Name((new URL(url).pathname || '').split('/').pop() || '');
+    const filename = fromUrlName || sanitizeR2Name(`${slug}.${ext}`) || `${slug}.${ext}`;
+
+    const optimized = await optimizeImageBuffer(buf, ext);
+    const key = `${folder}/${filename}`;
+    const r2Url = await uploadToR2(optimized, key, `image/${ext === 'jpg' ? 'jpeg' : ext}`);
     return r2Url || url;
   } catch {
     return url;
@@ -849,6 +898,48 @@ async function applySheetUpdateStatuses(movies) {
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500';
 const TMDB_LANG = 'vi-VN';
 
+const TMDB_CACHE_DIR = path.join(PUBLIC_DATA, 'cache', 'tmdb');
+const TMDB_CACHE_ENABLED = (process.env.TMDB_CACHE !== '0' && process.env.TMDB_CACHE !== 'false');
+const TMDB_CACHE_TTL_DAYS = Number(process.env.TMDB_CACHE_TTL_DAYS || 7);
+const TMDB_CACHE_TTL_MS = Number.isFinite(TMDB_CACHE_TTL_DAYS) ? (TMDB_CACHE_TTL_DAYS * 24 * 60 * 60 * 1000) : (7 * 24 * 60 * 60 * 1000);
+const TMDB_CONCURRENCY = Math.max(1, Math.min(32, Number(process.env.TMDB_CONCURRENCY || 6)));
+
+function safeJsonRead(p) {
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function tmdbCachePath(key) {
+  const safe = String(key || '').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 180);
+  return path.join(TMDB_CACHE_DIR, safe + '.json');
+}
+
+async function tmdbFetchJsonCached(url, cacheKey) {
+  if (!TMDB_CACHE_ENABLED) return fetchJson(url);
+  try {
+    fs.ensureDirSync(TMDB_CACHE_DIR);
+  } catch {}
+  const p = tmdbCachePath(cacheKey);
+  try {
+    if (await fs.pathExists(p)) {
+      const st = await fs.stat(p);
+      const fresh = (Date.now() - st.mtimeMs) <= TMDB_CACHE_TTL_MS;
+      if (fresh) {
+        const cached = safeJsonRead(p);
+        if (cached != null) return cached;
+      }
+    }
+  } catch {}
+  const data = await fetchJson(url);
+  try {
+    fs.writeFileSync(p, JSON.stringify(data), 'utf8');
+  } catch {}
+  return data;
+}
+
 const _tmdbPersonNameViCache = new Map();
 
 async function getTmdbPersonNameVi(personId) {
@@ -859,9 +950,12 @@ async function getTmdbPersonNameVi(personId) {
     _tmdbPersonNameViCache.set(id, null);
     return null;
   }
-  await sleep(80);
+  await sleep(40);
   try {
-    const res = await fetchJson(`${TMDB_BASE}/person/${id}/translations?api_key=${TMDB_KEY}`).catch(() => null);
+    const res = await tmdbFetchJsonCached(
+      `${TMDB_BASE}/person/${id}/translations?api_key=${TMDB_KEY}`,
+      `person_${id}_translations`
+    ).catch(() => null);
     const arr = (res && res.translations) ? res.translations : [];
     const vi = Array.isArray(arr) ? arr.find((t) => t && t.iso_639_1 === 'vi') : null;
     const nameVi = vi && vi.data && vi.data.name ? String(vi.data.name).trim() : '';
@@ -877,41 +971,67 @@ async function getTmdbPersonNameVi(personId) {
 /** 3. Làm giàu TMDB (credits, keywords, poster khi thiếu) */
 async function enrichTmdb(movies) {
   if (!TMDB_KEY) return;
-  for (const m of movies) {
-    const tid = m.tmdb?.id || m.tmdb_id;
-    if (!tid) continue;
-    const type = (m.type || 'movie') === 'single' ? 'movie' : 'tv';
-    await sleep(150);
-    try {
-      const [detailRes, creditsRes, keywordsRes] = await Promise.all([
-        fetchJson(`${TMDB_BASE}/${type}/${tid}?api_key=${TMDB_KEY}&language=${TMDB_LANG}`).catch(() => null),
-        fetchJson(`${TMDB_BASE}/${type}/${tid}/credits?api_key=${TMDB_KEY}`),
-        fetchJson(`${TMDB_BASE}/${type}/${tid}/keywords?api_key=${TMDB_KEY}`).catch(() => ({ keywords: [] })),
-      ]);
-      const castMeta = [];
-      for (const c of (creditsRes.cast || []).slice(0, 15)) {
-        const nameVi = await getTmdbPersonNameVi(c.id);
-        castMeta.push({
-          name: nameVi || c.name,
-          name_vi: nameVi || null,
-          name_original: c.name,
-          tmdb_id: c.id,
-          profile: c.profile_path ? (TMDB_IMG_BASE + c.profile_path) : null,
-          tmdb_url: c.id ? `https://www.themoviedb.org/person/${c.id}` : null,
-        });
-      }
-      const cast = castMeta.map((c) => c.name);
-      const director = (creditsRes.crew || []).filter((c) => c.job === 'Director').map((c) => c.name);
-      const keywords = (keywordsRes.keywords || []).map((k) => k.name);
-      m.cast = m.cast?.length ? m.cast : cast;
-      m.cast_meta = Array.isArray(m.cast_meta) && m.cast_meta.length ? m.cast_meta : castMeta;
-      m.director = m.director?.length ? m.director : director;
-      m.keywords = m.keywords?.length ? m.keywords : keywords;
-      if (!m.poster && detailRes?.poster_path) {
-        m.poster = TMDB_IMG_BASE + detailRes.poster_path;
-      }
-    } catch {}
-  }
+  const list = Array.isArray(movies) ? movies : [];
+  let nextIndex = 0;
+  const workerCount = Math.min(TMDB_CONCURRENCY, list.length || 1);
+  const workers = Array.from({ length: workerCount }, () => (async () => {
+    while (true) {
+      const i = nextIndex;
+      nextIndex++;
+      const m = list[i];
+      if (!m) break;
+
+      const tid = m.tmdb?.id || m.tmdb_id;
+      if (!tid) continue;
+      const type = (m.type || 'movie') === 'single' ? 'movie' : 'tv';
+      await sleep(40);
+      try {
+        const baseKey = `${type}_${tid}`;
+        const [detailRes, creditsRes, keywordsRes] = await Promise.all([
+          tmdbFetchJsonCached(`${TMDB_BASE}/${type}/${tid}?api_key=${TMDB_KEY}&language=${TMDB_LANG}`, `${baseKey}_detail_${TMDB_LANG}`).catch(() => null),
+          tmdbFetchJsonCached(`${TMDB_BASE}/${type}/${tid}/credits?api_key=${TMDB_KEY}`, `${baseKey}_credits`),
+          tmdbFetchJsonCached(`${TMDB_BASE}/${type}/${tid}/keywords?api_key=${TMDB_KEY}`, `${baseKey}_keywords`).catch(() => ({ keywords: [] })),
+        ]);
+
+        const castList = (creditsRes && Array.isArray(creditsRes.cast)) ? creditsRes.cast.slice(0, 15) : [];
+        const castMeta = [];
+
+        let castNext = 0;
+        const castWorkers = Array.from({ length: Math.min(3, castList.length || 1) }, () => (async () => {
+          while (true) {
+            const ci = castNext;
+            castNext++;
+            const c = castList[ci];
+            if (!c) break;
+            const nameVi = await getTmdbPersonNameVi(c.id);
+            castMeta[ci] = {
+              name: nameVi || c.name,
+              name_vi: nameVi || null,
+              name_original: c.name,
+              tmdb_id: c.id,
+              profile: c.profile_path ? (TMDB_IMG_BASE + c.profile_path) : null,
+              tmdb_url: c.id ? `https://www.themoviedb.org/person/${c.id}` : null,
+            };
+          }
+        })());
+        await Promise.all(castWorkers);
+
+        const castMetaCompact = castMeta.filter(Boolean);
+        const cast = castMetaCompact.map((c) => c.name);
+        const director = (creditsRes && Array.isArray(creditsRes.crew)) ? creditsRes.crew.filter((c) => c.job === 'Director').map((c) => c.name) : [];
+        const keywords = (keywordsRes && Array.isArray(keywordsRes.keywords)) ? keywordsRes.keywords.map((k) => k.name) : [];
+        m.cast = m.cast?.length ? m.cast : cast;
+        m.cast_meta = Array.isArray(m.cast_meta) && m.cast_meta.length ? m.cast_meta : castMetaCompact;
+        m.director = m.director?.length ? m.director : director;
+        m.keywords = m.keywords?.length ? m.keywords : keywords;
+        if (!m.poster && detailRes?.poster_path) {
+          m.poster = TMDB_IMG_BASE + detailRes.poster_path;
+        }
+      } catch {}
+    }
+  })());
+
+  await Promise.all(workers);
 }
 
 /** 4. Hợp nhất và xử lý ảnh (optional: upload R2) */
@@ -1019,6 +1139,166 @@ function writeMoviesLight(movies) {
   }));
   const content = `window.moviesLight = ${JSON.stringify(light)};`;
   fs.writeFileSync(path.join(PUBLIC_DATA, 'movies-light.js'), content, 'utf8');
+}
+
+function pickMovieLight(m) {
+  if (!m) return null;
+  return {
+    id: String(m.id),
+    title: m.title,
+    origin_name: m.origin_name || '',
+    slug: m.slug,
+    thumb: m.thumb,
+    poster: m.poster,
+    year: m.year,
+    type: m.type,
+    genre: m.genre,
+    country: m.country,
+    lang_key: m.lang_key,
+    episode_current: m.episode_current,
+    quality: m.quality,
+    status: m.status || '',
+    showtimes: m.showtimes || '',
+    is_4k: m.is_4k,
+    is_exclusive: m.is_exclusive || false,
+    chieurap: m.chieurap,
+    sub_docquyen: m.sub_docquyen,
+    modified: m.modified,
+  };
+}
+
+function modifiedTs(m) {
+  const v = m && m.modified ? Date.parse(String(m.modified)) : NaN;
+  return Number.isNaN(v) ? 0 : v;
+}
+
+function parseCsvSet(s) {
+  const raw = String(s || '').trim();
+  if (!raw) return null;
+  const arr = raw.split(',').map((x) => String(x).trim()).filter(Boolean);
+  return arr.length ? new Set(arr.map((x) => x.toLowerCase())) : null;
+}
+
+function isOn(settingValue, defaultOn) {
+  if (settingValue == null || settingValue === '') return !!defaultOn;
+  const v = String(settingValue).trim().toLowerCase();
+  if (v === '0' || v === 'false' || v === 'off' || v === 'no') return false;
+  if (v === '1' || v === 'true' || v === 'on' || v === 'yes') return true;
+  return !!defaultOn;
+}
+
+function writeHomeSectionsData(movies) {
+  const configPath = path.join(PUBLIC_DATA, 'config', 'homepage-sections.json');
+  if (!fs.existsSync(configPath)) return;
+  const siteSettingsPath = path.join(PUBLIC_DATA, 'config', 'site-settings.json');
+  let siteSettings = {};
+  try {
+    if (fs.existsSync(siteSettingsPath)) siteSettings = JSON.parse(fs.readFileSync(siteSettingsPath, 'utf8')) || {};
+  } catch {}
+
+  const homeDir = path.join(PUBLIC_DATA, 'home');
+  const outPath = path.join(homeDir, 'home-sections-data.json');
+  const enabled = isOn(siteSettings.home_prebuild_enabled, true);
+  if (!enabled) {
+    try { fs.removeSync(outPath); } catch {}
+    return;
+  }
+
+  const globalLimitRaw = Number(siteSettings.home_prebuild_limit || 24);
+  const globalLimit = Math.max(1, Math.min(50, Number.isFinite(globalLimitRaw) ? globalLimitRaw : 24));
+
+  const enableSeries = isOn(siteSettings.home_prebuild_enable_series, true);
+  const enableSingle = isOn(siteSettings.home_prebuild_enable_single, true);
+  const enableHoathinh = isOn(siteSettings.home_prebuild_enable_hoathinh, true);
+  const enableTvshows = isOn(siteSettings.home_prebuild_enable_tvshows, true);
+  const enableYear = isOn(siteSettings.home_prebuild_enable_year, true);
+  const enableGenre = isOn(siteSettings.home_prebuild_enable_genre, true);
+  const enableCountry = isOn(siteSettings.home_prebuild_enable_country, true);
+
+  const allowYears = parseCsvSet(siteSettings.home_prebuild_years);
+  const allowGenres = parseCsvSet(siteSettings.home_prebuild_genres);
+  const allowCountries = parseCsvSet(siteSettings.home_prebuild_countries);
+
+  let sections;
+  try {
+    sections = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch {
+    return;
+  }
+  const list = Array.isArray(movies) ? movies : [];
+  const sortedByModified = [...list].sort((a, b) => modifiedTs(b) - modifiedTs(a));
+
+  const out = [];
+  for (const sec of (sections || [])) {
+    if (!sec || sec.is_active === false) continue;
+    const st = String(sec.source_type || '').toLowerCase();
+    const sv = String(sec.source_value || '').toLowerCase();
+
+    if (st === 'type') {
+      if (sv === 'series' && !enableSeries) continue;
+      if (sv === 'single' && !enableSingle) continue;
+      if (sv === 'hoathinh' && !enableHoathinh) continue;
+      if (sv === 'tvshows' && !enableTvshows) continue;
+    }
+    if (st === 'year') {
+      if (!enableYear) continue;
+      const y = String(sec.source_value || '').trim().toLowerCase();
+      if (allowYears && y && !allowYears.has(y)) continue;
+    }
+    if (st === 'genre') {
+      if (!enableGenre) continue;
+      if (allowGenres && sv && !allowGenres.has(sv)) continue;
+    }
+    if (st === 'country') {
+      if (!enableCountry) continue;
+      if (allowCountries && sv && !allowCountries.has(sv)) continue;
+    }
+
+    const secLimitRaw = Number(sec.limit_count || 0);
+    const secLimit = Number.isFinite(secLimitRaw) && secLimitRaw > 0 ? secLimitRaw : globalLimit;
+    const limit = Math.max(1, Math.min(50, secLimit));
+    let picked = [];
+
+    if (st === 'manual' && Array.isArray(sec.manual_movies) && sec.manual_movies.length) {
+      const wanted = sec.manual_movies.map((x) => String(x)).filter(Boolean);
+      const wantedSet = new Set(wanted);
+      const byId = new Map();
+      for (const m of sortedByModified) byId.set(String(m.id), m);
+      for (const id of wanted) {
+        const mv = byId.get(id);
+        if (mv) picked.push(mv);
+        if (picked.length >= limit) break;
+      }
+      if (picked.length < limit) {
+        for (const mv of sortedByModified) {
+          if (wantedSet.has(String(mv.id))) continue;
+          picked.push(mv);
+          if (picked.length >= limit) break;
+        }
+      }
+    } else {
+      for (const m of sortedByModified) {
+        let ok = false;
+        if (st === 'type') ok = String(m.type || '').toLowerCase() === sv;
+        else if (st === 'year') ok = String(m.year || '') === String(sec.source_value || '');
+        else if (st === 'genre') ok = Array.isArray(m.genre) && m.genre.some((g) => String(g.slug || '').toLowerCase() === sv);
+        else if (st === 'country') ok = Array.isArray(m.country) && m.country.some((c) => String(c.slug || '').toLowerCase() === sv);
+        else if (st === 'status') ok = String(m.status || '').toLowerCase() === sv;
+        else if (st === 'quality_4k') ok = !!m.is_4k;
+        else if (st === 'exclusive') ok = !!m.is_exclusive;
+        if (ok) picked.push(m);
+        if (picked.length >= limit) break;
+      }
+    }
+
+    out.push({
+      ...sec,
+      movies: picked.map(pickMovieLight).filter(Boolean),
+    });
+  }
+
+  fs.ensureDirSync(homeDir);
+  fs.writeFileSync(outPath, JSON.stringify(out, null, 2));
 }
 
 function normalizeSearchText(s) {
@@ -2021,6 +2301,8 @@ async function exportConfigFromSupabase() {
     site_name: 'DAOP Phim',
     logo_url: '',
     favicon_url: '',
+    r2_img_domain: 'https://pub-62eef44669df48e4bca5388a38e69522.r2.dev',
+    ophim_img_domain: 'https://img.ophim.live',
     google_analytics_id: '',
     simple_analytics_script: '',
     twikoo_env_id: '',
@@ -2558,6 +2840,8 @@ async function main() {
   }
   const batchRes = writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
   const newLastModified = batchRes && batchRes.newLastModified ? batchRes.newLastModified : batchRes;
+
+  writeHomeSectionsData(allMovies);
   const batchPtrById = batchRes && batchRes.batchPtrById ? batchRes.batchPtrById : null;
 
   writeIndexAndSearchShards(allMovies, batchPtrById);

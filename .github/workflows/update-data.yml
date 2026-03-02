@@ -11,6 +11,10 @@ on:
         description: 'Chế độ chạy: 1 = full (1 pha), 2 = core -> tmdb (2 pha)'
         required: false
         default: '1'
+      upload_images:
+        description: 'Sau khi build xong thì tải/nén/upload ảnh thumb/poster lên R2 (true/false)'
+        required: false
+        default: 'false'
       start_page:
         description: 'Trang bắt đầu (OPhim), 0 = mặc định'
         required: false
@@ -51,6 +55,16 @@ jobs:
             echo "TWO_PHASE=false" >> $GITHUB_ENV
           fi
 
+      - name: Decide upload images mode
+        run: |
+          if [ "${{ inputs.upload_images }}" = "true" ]; then
+            echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
+          elif [ "${UPLOAD_IMAGES_AFTER_BUILD}" = "1" ]; then
+            echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
+          else
+            echo "UPLOAD_IMAGES=false" >> $GITHUB_ENV
+          fi
+
       - name: Build (1-phase full)
         if: ${{ env.TWO_PHASE != 'true' }}
         run: npm run build
@@ -65,6 +79,16 @@ jobs:
           GOOGLE_SHEETS_JSON: ${{ secrets.GOOGLE_SHEETS_JSON }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+
+      - name: Upload movie images to R2 (after 1-phase build)
+        if: ${{ env.TWO_PHASE != 'true' && env.UPLOAD_IMAGES == 'true' }}
+        run: node scripts/upload-movie-images-r2.js
+        env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -132,6 +156,16 @@ jobs:
           GOOGLE_SHEETS_JSON: ${{ secrets.GOOGLE_SHEETS_JSON }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+
+      - name: Upload movie images to R2 (after 2-phase TMDB build)
+        if: ${{ env.TWO_PHASE == 'true' && env.UPLOAD_IMAGES == 'true' }}
+        run: node scripts/upload-movie-images-r2.js
+        env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

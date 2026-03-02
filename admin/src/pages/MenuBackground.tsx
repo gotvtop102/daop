@@ -86,7 +86,12 @@ export default function MenuBackground() {
         const r = await fetch(apiBase + '/api/upload-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64, contentType: file.type || 'image/png' }),
+          body: JSON.stringify({
+            image: base64,
+            contentType: file.type || 'image/png',
+            filename: file.name,
+            folder: 'menu-background',
+          }),
         });
         const data = await r.json();
         if (data.url) {

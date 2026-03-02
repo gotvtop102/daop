@@ -5,9 +5,46 @@
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import sharp from 'sharp';
 
 const MAX_SIZE = 4 * 1024 * 1024; // 4MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+function sanitizeFilename(name: string) {
+  const raw = String(name || '').trim();
+  if (!raw) return '';
+  const n = raw.replace(/\\/g, '/').split('/').pop() || '';
+  return n.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 180);
+}
+
+function sanitizeFolder(folder: string) {
+  const raw = String(folder || '').trim();
+  if (!raw) return 'uploads';
+  const cleaned = raw
+    .replace(/\\/g, '/')
+    .replace(/\.+/g, '.')
+    .replace(/\/+/g, '/')
+    .replace(/^\//, '')
+    .replace(/\/$/, '');
+  const safe = cleaned
+    .split('/')
+    .filter(Boolean)
+    .map((seg) => seg.replace(/[^a-zA-Z0-9._-]/g, '_'))
+    .join('/');
+  return safe || 'uploads';
+}
+
+async function optimizeImage(buffer: Buffer, contentType: string) {
+  if (contentType === 'image/gif') return buffer;
+  try {
+    const img = sharp(buffer, { failOn: 'none' }).rotate();
+    if (contentType === 'image/png') return await img.png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer();
+    if (contentType === 'image/webp') return await img.webp({ quality: 80 }).toBuffer();
+    return await img.jpeg({ quality: 80, mozjpeg: true }).toBuffer();
+  } catch {
+    return buffer;
+  }
+}
 
 function getR2Client() {
   const accountId = process.env.R2_ACCOUNT_ID;
@@ -30,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
-  const body = req.body as { image?: string; contentType?: string };
+  const body = req.body as { image?: string; contentType?: string; filename?: string; folder?: string };
   const base64 = body?.image;
   if (!base64 || typeof base64 !== 'string') {
     res.status(400).json({ error: 'Thiếu field image (base64)' });
@@ -50,6 +87,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(400).json({ error: 'Ảnh tối đa 4MB' });
     return;
   }
+
+  const folder = sanitizeFolder(body?.folder || 'uploads');
+  const filename = sanitizeFilename(body?.filename || `image.${ext}`);
+  if (!filename) {
+    res.status(400).json({ error: 'Thiếu filename hoặc filename không hợp lệ' });
+    return;
+  }
+
+  const optimized = await optimizeImage(buffer, contentType);
+
   const client = getR2Client();
   const bucket = process.env.R2_BUCKET_NAME;
   if (!client || !bucket) {
@@ -65,13 +112,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(503).json({ error: msg });
     return;
   }
-  const key = `banners/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+  const key = `${folder}/${filename}`;
   try {
     await client.send(
       new PutObjectCommand({
         Bucket: bucket,
         Key: key,
-        Body: buffer,
+        Body: optimized,
         ContentType: contentType,
       })
     );

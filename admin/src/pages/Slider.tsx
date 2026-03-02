@@ -368,7 +368,12 @@ export default function Slider() {
                         const r = await fetch(apiBase + '/api/upload-image', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ image: base64, contentType: file.type || 'image/jpeg' }),
+                          body: JSON.stringify({
+                            image: base64,
+                            contentType: file.type || 'image/jpeg',
+                            filename: file.name,
+                            folder: 'slider',
+                          }),
                         });
                         const data = await r.json();
                         if (data.url) {
