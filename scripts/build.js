@@ -903,6 +903,7 @@ const TMDB_CACHE_ENABLED = (process.env.TMDB_CACHE !== '0' && process.env.TMDB_C
 const TMDB_CACHE_TTL_DAYS = Number(process.env.TMDB_CACHE_TTL_DAYS || 7);
 const TMDB_CACHE_TTL_MS = Number.isFinite(TMDB_CACHE_TTL_DAYS) ? (TMDB_CACHE_TTL_DAYS * 24 * 60 * 60 * 1000) : (7 * 24 * 60 * 60 * 1000);
 const TMDB_CONCURRENCY = Math.max(1, Math.min(32, Number(process.env.TMDB_CONCURRENCY || 6)));
+const TMDB_CACHE_SHARDS = Math.max(1, Math.min(256, Number(process.env.TMDB_CACHE_SHARDS || 64)));
 
 function safeJsonRead(p) {
   try {
@@ -912,31 +913,104 @@ function safeJsonRead(p) {
   }
 }
 
-function tmdbCachePath(key) {
-  const safe = String(key || '').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 180);
-  return path.join(TMDB_CACHE_DIR, safe + '.json');
+function tmdbCacheShardIndex(key) {
+  const s = String(key || '');
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) + h) + s.charCodeAt(i);
+    h |= 0;
+  }
+  const idx = Math.abs(h) % TMDB_CACHE_SHARDS;
+  return idx;
+}
+
+function tmdbCacheShardPath(idx) {
+  const safe = String(idx).padStart(3, '0');
+  return path.join(TMDB_CACHE_DIR, `shard_${safe}.json`);
+}
+
+const _tmdbShardMem = new Map();
+const _tmdbShardLocks = new Map();
+
+async function withShardLock(idx, fn) {
+  const prev = _tmdbShardLocks.get(idx) || Promise.resolve();
+  const next = prev.then(fn, fn);
+  _tmdbShardLocks.set(idx, next.catch(() => {}));
+  return next;
+}
+
+function loadTmdbShardFile(p) {
+  const j = safeJsonRead(p);
+  if (!j || typeof j !== 'object') return { version: 1, entries: {} };
+  if (!j.version) j.version = 1;
+  if (!j.entries || typeof j.entries !== 'object') j.entries = {};
+  return j;
 }
 
 async function tmdbFetchJsonCached(url, cacheKey) {
   if (!TMDB_CACHE_ENABLED) return fetchJson(url);
+
+  const key = String(cacheKey || '').trim();
+  if (!key) return fetchJson(url);
+
+  const idx = tmdbCacheShardIndex(key);
+  const p = tmdbCacheShardPath(idx);
+  const now = Date.now();
+
   try {
     fs.ensureDirSync(TMDB_CACHE_DIR);
   } catch {}
-  const p = tmdbCachePath(cacheKey);
-  try {
-    if (await fs.pathExists(p)) {
-      const st = await fs.stat(p);
-      const fresh = (Date.now() - st.mtimeMs) <= TMDB_CACHE_TTL_MS;
-      if (fresh) {
-        const cached = safeJsonRead(p);
-        if (cached != null) return cached;
-      }
+
+  // Fast path: memory cache
+  const mem = _tmdbShardMem.get(idx);
+  if (mem && mem.entries && mem.entries[key] && mem.entries[key].at) {
+    const fresh = (now - Number(mem.entries[key].at)) <= TMDB_CACHE_TTL_MS;
+    if (fresh) return mem.entries[key].data;
+  }
+
+  // Load shard from disk (serialized)
+  await withShardLock(idx, async () => {
+    if (_tmdbShardMem.has(idx)) return;
+    try {
+      const shard = await fs.pathExists(p) ? loadTmdbShardFile(p) : { version: 1, entries: {} };
+      _tmdbShardMem.set(idx, shard);
+    } catch {
+      _tmdbShardMem.set(idx, { version: 1, entries: {} });
     }
-  } catch {}
+  });
+
+  const shard = _tmdbShardMem.get(idx) || { version: 1, entries: {} };
+  const hit = shard.entries && shard.entries[key];
+  if (hit && hit.at) {
+    const fresh = (now - Number(hit.at)) <= TMDB_CACHE_TTL_MS;
+    if (fresh) return hit.data;
+  }
+
+  // Miss -> fetch
   const data = await fetchJson(url);
-  try {
-    fs.writeFileSync(p, JSON.stringify(data), 'utf8');
-  } catch {}
+
+  // Write back (serialized)
+  await withShardLock(idx, async () => {
+    const s2 = _tmdbShardMem.get(idx) || { version: 1, entries: {} };
+    s2.entries = s2.entries && typeof s2.entries === 'object' ? s2.entries : {};
+    s2.entries[key] = { at: Date.now(), data };
+
+    // Opportunistic cleanup (remove expired entries to keep shards small)
+    try {
+      const cutoff = Date.now() - TMDB_CACHE_TTL_MS;
+      const entries = s2.entries;
+      for (const k of Object.keys(entries)) {
+        const e = entries[k];
+        if (!e || !e.at || Number(e.at) < cutoff) delete entries[k];
+      }
+    } catch {}
+
+    _tmdbShardMem.set(idx, s2);
+    try {
+      fs.writeFileSync(p, JSON.stringify(s2), 'utf8');
+    } catch {}
+  });
+
   return data;
 }
 
