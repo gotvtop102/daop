@@ -27,8 +27,6 @@ const SITE_SETTINGS_KEYS = [
   'favicon_url',
   'r2_img_domain',
   'ophim_img_domain',
-  'upload_images_after_build',
-  'update_data_two_phase',
   'home_prebuild_enabled',
   'home_prebuild_limit',
   'home_prebuild_enable_series',
@@ -79,8 +77,6 @@ export default function SiteSettings() {
         favicon_url: data.favicon_url ?? '',
         r2_img_domain: data.r2_img_domain ?? 'https://pub-62eef44669df48e4bca5388a38e69522.r2.dev',
         ophim_img_domain: data.ophim_img_domain ?? 'https://img.ophim.live',
-        upload_images_after_build: data.upload_images_after_build === 'true' || data.upload_images_after_build === '1',
-        update_data_two_phase: data.update_data_two_phase === 'true' || data.update_data_two_phase === '1',
         home_prebuild_enabled: data.home_prebuild_enabled !== 'false',
         home_prebuild_limit: data.home_prebuild_limit ?? '24',
         home_prebuild_enable_series: data.home_prebuild_enable_series !== 'false',
@@ -272,12 +268,6 @@ export default function SiteSettings() {
                 label: 'Tự động & Build',
                 children: (
                   <>
-                    <Form.Item name="upload_images_after_build" label="Tự động upload ảnh lên R2 sau khi Update data (schedule)" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                    <Form.Item name="update_data_two_phase" label="Update data theo 2-phase (core -> tmdb) khi chạy schedule" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
                     <Card title="Tối ưu Homepage (build sẵn dữ liệu section)" style={{ marginTop: 8 }}>
                       <Form.Item name="home_prebuild_enabled" label="Bật build sẵn home-sections-data.json" valuePropName="checked">
                         <Switch />

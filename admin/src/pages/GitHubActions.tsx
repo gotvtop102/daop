@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Button, List, message, Spin, Typography, InputNumber, Input, Form, Space, Modal, Radio } from 'antd';
+import { Card, Button, List, message, Spin, Typography, InputNumber, Input, Form, Space, Modal, Radio, Switch } from 'antd';
 import type { RadioChangeEvent } from 'antd';
 import { PlayCircleOutlined, InfoCircleOutlined, SaveOutlined, DeleteOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
@@ -18,6 +18,7 @@ const OPHIM_AUTO_KEYS = {
 };
 
 const UPDATE_DATA_TWO_PHASE_KEY = 'update_data_two_phase';
+const UPLOAD_IMAGES_AFTER_BUILD_KEY = 'upload_images_after_build';
 
 type ActionItem = {
   id: string;
@@ -53,6 +54,7 @@ export default function GitHubActions() {
   const [triggering, setTriggering] = useState<string | null>(null);
   const [twoPhase, setTwoPhase] = useState(false);
   const [autoTwoPhase, setAutoTwoPhase] = useState(false);
+  const [autoUploadImagesAfterBuild, setAutoUploadImagesAfterBuild] = useState(false);
   const [updateSettings, setUpdateSettings] = useState<{ start_page: number; end_page: number }>({
     start_page: 1,
     end_page: 1,
@@ -74,6 +76,7 @@ export default function GitHubActions() {
         OPHIM_AUTO_KEYS.start_page,
         OPHIM_AUTO_KEYS.end_page,
         UPDATE_DATA_TWO_PHASE_KEY,
+        UPLOAD_IMAGES_AFTER_BUILD_KEY,
       ]);
     const map: Record<string, string> = {};
     (data || []).forEach((r: { key: string; value: string }) => { map[r.key] = r.value; });
@@ -84,7 +87,11 @@ export default function GitHubActions() {
     const t2 = (map[UPDATE_DATA_TWO_PHASE_KEY] || '').toString().trim().toLowerCase();
     const t2On = (t2 === '1' || t2 === 'true');
 
+    const tUpload = (map[UPLOAD_IMAGES_AFTER_BUILD_KEY] || '').toString().trim().toLowerCase();
+    const tUploadOn = (tUpload === '1' || tUpload === 'true');
+
     setAutoTwoPhase(t2On);
+    setAutoUploadImagesAfterBuild(tUploadOn);
 
     setUpdateSettings({ start_page, end_page });
     form.setFieldsValue({
@@ -135,6 +142,7 @@ export default function GitHubActions() {
           { key: OPHIM_AUTO_KEYS.start_page, value: String(values.auto_start_page ?? values.start_page ?? 1), updated_at: now },
           { key: OPHIM_AUTO_KEYS.end_page, value: String(values.auto_end_page ?? values.end_page ?? 1), updated_at: now },
           { key: UPDATE_DATA_TWO_PHASE_KEY, value: autoTwoPhase ? '1' : '0', updated_at: now },
+          { key: UPLOAD_IMAGES_AFTER_BUILD_KEY, value: autoUploadImagesAfterBuild ? '1' : '0', updated_at: now },
         ],
         { onConflict: 'key' }
       );
@@ -263,6 +271,13 @@ export default function GitHubActions() {
               <Radio.Button value="1">1 pha (full)</Radio.Button>
               <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
             </Radio.Group>
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 8 }}>
+            <Space size={8} align="center">
+              <Text>Tự động upload ảnh lên R2 sau khi Update data:</Text>
+              <Switch checked={autoUploadImagesAfterBuild} onChange={setAutoUploadImagesAfterBuild} />
+            </Space>
           </Form.Item>
 
           <Text strong style={{ width: '100%' }}>Thủ công (khi bấm Kích hoạt):</Text>
