@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"victor-ramos":["69986267e263b2a9461a427d"]},"names":{"victor-ramos":"Víctor Ramos"},"meta":{"victor-ramos":{"tmdb_id":1759641,"profile":null,"tmdb_url":"https://www.themoviedb.org/person/1759641"}},"movies":{"victor-ramos":[{"id":"69986267e263b2a9461a427d","title":"Vành đai phòng lửa","origin_name":"Firebreak","slug":"vanh-dai-phong-lua","thumb":"/uploads/movies/vanh-dai-phong-lua-thumb.jpg","year":2026,"type":"single","episode_current":"Full"}]}};
