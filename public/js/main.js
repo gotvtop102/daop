@@ -952,7 +952,6 @@
         startX = e.clientX;
         startY = e.clientY;
         stopAuto();
-        try { viewport.setPointerCapture(pointerId); } catch (err) {}
       });
 
       viewport.addEventListener('pointermove', function (e) {
@@ -970,6 +969,9 @@
             return;
           }
           moved = true;
+          // Only capture pointer after we have confirmed a horizontal drag.
+          // Capturing too early can retarget click events to the viewport and break <a> navigation.
+          try { viewport.setPointerCapture(pointerId); } catch (err) {}
         }
         e.preventDefault();
         setTranslate(dx);
@@ -990,6 +992,11 @@
           hadSwipe = false;
         }
         moved = false;
+        try {
+          if (pointerId != null && viewport.hasPointerCapture && viewport.hasPointerCapture(pointerId)) {
+            viewport.releasePointerCapture(pointerId);
+          }
+        } catch (eRel) {}
         pointerId = null;
         startAuto();
       }
@@ -999,6 +1006,11 @@
         if (!dragging) return;
         dragging = false;
         moved = false;
+        try {
+          if (pointerId != null && viewport.hasPointerCapture && viewport.hasPointerCapture(pointerId)) {
+            viewport.releasePointerCapture(pointerId);
+          }
+        } catch (eRel2) {}
         pointerId = null;
         resetTranslate();
         startAuto();
