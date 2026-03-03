@@ -68,7 +68,7 @@
           });
         } else genres = genres.slice().sort();
         var name = function(s){ return genreNames[s] || s; };
-        var genreIcons = { 'hanh-dong':'🥷','tinh-cam':'💕','hai-huoc':'😂','co-trang':'🏯','tam-ly':'🧠','hinh-su':'🔍','chien-tranh':'⚔️','the-thao':'⚽','vo-thuat':'🥋','vien-tuong':'🚀','phieu-luu':'🗺️','khoa-hoc':'🔬','kinh-di':'👻','am-nhac':'🎵','than-thoai':'⚡','tai-lieu':'📽️','gia-dinh':'👨‍👩‍👧‍👦','chinh-kich':'🎭','bi-an':'🕵️','hoc-duong':'📚','kinh-dien':'🎞️','phim-18':'🔞','short-drama':'📺' };
+        var genreIcons = { 'hanh-dong':'🥷','tinh-cam':'💕','hai-huoc':'😂','co-trang':'🏯','tam-ly':'🎭','hinh-su':'🔍','chien-tranh':'⚔️','the-thao':'⚽','vo-thuat':'🥋','vien-tuong':'🚀','phieu-luu':'🗺️','khoa-hoc':'🔬','kinh-di':'👻','am-nhac':'🎵','than-thoai':'⚡','tai-lieu':'📽️','gia-dinh':'👨‍👩‍👧‍👦','chinh-kich':'🎭','bi-an':'🕵️','hoc-duong':'📚','kinh-dien':'🎞️','phim-18':'🔞','short-drama':'📺' };
         var base = (window.DAOP && window.DAOP.basePath) || '';
         document.getElementById('page-title').textContent = 'Thể loại';
         document.getElementById('movies-grid').innerHTML = genres.length

@@ -51,17 +51,89 @@ export default function Slider() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [moviesDataUrl, setMoviesDataUrl] = useState<string>('');
+  const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
   const [movieLinkInput, setMovieLinkInput] = useState('');
   const [addingFromMovie, setAddingFromMovie] = useState(false);
   const [addingLatest, setAddingLatest] = useState(false);
   const [latestCount, setLatestCount] = useState(5);
   const [form] = Form.useForm();
 
+  const getSiteBaseFromMoviesDataUrl = (rawUrl: string) => {
+    const raw = String(rawUrl || '').trim();
+    if (!raw) return '';
+    try {
+      const u = new URL(raw);
+      const path = u.pathname || '';
+      const basePath = path.replace(/\/?data\/.*$/, '');
+      return u.origin + basePath;
+    } catch {
+      return raw.replace(/\/?data\/.*$/, '');
+    }
+  };
+
+  const getSlugShardPrefix = (slugRaw: string) => {
+    const s = String(slugRaw || '').trim().toLowerCase();
+    const c1 = s[0] || '_';
+    const c2 = s[1] || '_';
+    const ok = (c: string) => /^[a-z0-9]$/.test(c);
+    const p1 = ok(c1) ? c1 : '_';
+    const p2 = ok(c2) ? c2 : '_';
+    return p1 + p2;
+  };
+
+  const parseMoviesLightText = (text: string) => {
+    let t = String(text || '');
+    t = t.replace(/^[\s\S]*?window\.moviesLight\s*=\s*/, '').replace(/;\s*$/, '');
+    return JSON.parse(t);
+  };
+
+  const parseSlugShardText = (text: string) => {
+    // window.DAOP.slugIndex["ha"] = { "some-slug": { ...light } }
+    const m = String(text || '').match(/slugIndex\s*\[\s*"([^"]+)"\s*\]\s*=\s*({[\s\S]*});?\s*$/);
+    if (!m) throw new Error('Không parse được slug index shard');
+    const prefix = m[1];
+    const objStr = m[2];
+    const map = JSON.parse(objStr);
+    return { prefix, map } as { prefix: string; map: Record<string, any> };
+  };
+
+  const normalizePreviewUrl = (raw: string, siteBase: string) => {
+    const u = String(raw || '').trim();
+    if (!u) return '';
+    if (/^https?:\/\//i.test(u)) return u;
+    if (u.startsWith('//')) return 'https:' + u;
+    if (u.startsWith('/uploads/')) {
+      const d = String(ophimImgDomain || '').replace(/\/$/, '');
+      if (d) return d + u;
+      const b = String(siteBase || '').replace(/\/$/, '');
+      return b ? b + u : u;
+    }
+    if (u.startsWith('/')) {
+      const b = String(siteBase || '').replace(/\/$/, '');
+      return b ? b + u : u;
+    }
+    return u;
+  };
+
+  const fetchMovieLightBySlug = async (siteBase: string, slug: string) => {
+    const base = String(siteBase || '').replace(/\/$/, '');
+    if (!base) throw new Error('Thiếu base URL (movies_data_url)');
+    const prefix = getSlugShardPrefix(slug);
+    const shardUrl = base + '/data/index/slug/' + prefix + '.js';
+    const res = await fetch(shardUrl);
+    if (!res.ok) throw new Error('Không tải được slug index: ' + shardUrl);
+    const text = await res.text();
+    const parsed = parseSlugShardText(text);
+    const hit = (parsed.map || {})[String(slug || '').toLowerCase()];
+    return hit || null;
+  };
+
   const loadData = async () => {
     setLoading(true);
-    const [sliderRes, settingsRes] = await Promise.all([
+    const [sliderRes, settingsRes, ophimRes] = await Promise.all([
       supabase.from('site_settings').select('value').eq('key', SLIDER_KEY).single(),
       supabase.from('site_settings').select('value').eq('key', MOVIES_DATA_URL_KEY).maybeSingle(),
+      supabase.from('site_settings').select('value').eq('key', 'ophim_img_domain').maybeSingle(),
     ]);
     try {
       const parsed = sliderRes.data?.value ? JSON.parse(sliderRes.data.value) : [];
@@ -71,6 +143,7 @@ export default function Slider() {
       setList([]);
     }
     setMoviesDataUrl(settingsRes.data?.value ?? '');
+    setOphimImgDomain(ophimRes.data?.value ?? '');
     setLoading(false);
   };
 
@@ -106,24 +179,34 @@ export default function Slider() {
     }
     setAddingFromMovie(true);
     try {
-      const res = await fetch(moviesDataUrl);
-      if (!res.ok) throw new Error('Không tải được dữ liệu phim');
-      let text = await res.text();
-      text = text.replace(/^[\s\S]*?window\.moviesLight\s*=\s*/, '').replace(/;\s*$/, '');
-      const movies: MovieLight[] = JSON.parse(text);
-      const movie = movies.find((m) => (m.slug || '').toLowerCase() === slug.toLowerCase());
+      const siteBase = getSiteBaseFromMoviesDataUrl(moviesDataUrl);
+      let movie: any = null;
+      try {
+        const res = await fetch(moviesDataUrl);
+        if (!res.ok) throw new Error('Không tải được dữ liệu phim');
+        const text = await res.text();
+        const movies: MovieLight[] = parseMoviesLightText(text);
+        movie = movies.find((m) => (m.slug || '').toLowerCase() === slug.toLowerCase()) || null;
+      } catch {
+        movie = await fetchMovieLightBySlug(siteBase, slug);
+      }
+
       if (!movie) {
         message.error('Không tìm thấy phim với slug: ' + slug);
         return;
       }
-      const base = moviesDataUrl.replace(/\/data\/movies-light\.js.*$/, '') || new URL(moviesDataUrl).origin;
-      const linkUrl = base + '/phim/' + (movie.slug || slug) + '.html';
-      const img = ((movie as any).poster || movie.thumb || '').replace(/^\/\//, 'https://');
+
+      const linkUrl = String(siteBase || '').replace(/\/$/, '') + '/phim/' + (movie.slug || slug) + '.html';
+      const img = ((movie as any).poster || movie.thumb || (movie as any).image_url || '').replace(/^\/\//, 'https://');
       const title = movie.title || movie.origin_name || (movie as any).name || '';
-      const countryName = Array.isArray(movie.country) && movie.country[0] ? (movie.country[0].name || '') : '';
+      const countryName = Array.isArray(movie.country)
+        ? (movie.country[0]?.name || '')
+        : '';
       const genreNames = Array.isArray(movie.genre)
         ? movie.genre.map((g: any) => (g && g.name) ? g.name : '').filter(Boolean)
-        : [];
+        : Array.isArray(movie.genres)
+          ? movie.genres.map((g: any) => (g && g.name) ? g.name : String(g || '')).filter(Boolean)
+          : [];
       const newSlide: SlideItem = {
         image_url: img,
         link_url: linkUrl,
@@ -185,22 +268,39 @@ export default function Slider() {
     const n = Math.max(1, Math.min(50, latestCount || 5));
     setAddingLatest(true);
     try {
-      const res = await fetch(moviesDataUrl);
-      if (!res.ok) throw new Error('Không tải được dữ liệu phim');
-      let text = await res.text();
-      text = text.replace(/^[\s\S]*?window\.moviesLight\s*=\s*/, '').replace(/;\s*$/, '');
-      const movies: MovieLight[] = JSON.parse(text);
-      const sorted = [...movies].sort((a, b) => {
+      const siteBase = getSiteBaseFromMoviesDataUrl(moviesDataUrl);
+      let movies: any[] = [];
+      try {
+        const res = await fetch(moviesDataUrl);
+        if (!res.ok) throw new Error('Không tải được dữ liệu phim');
+        const text = await res.text();
+        movies = parseMoviesLightText(text);
+      } catch {
+        const res2 = await fetch(String(siteBase || '').replace(/\/$/, '') + '/data/home/home-sections-data.json');
+        if (!res2.ok) throw new Error('Không tải được dữ liệu phim');
+        const sections = await res2.json();
+        const pool: Record<string, any> = {};
+        (sections || []).forEach((sec: any) => {
+          (sec?.movies || []).forEach((m: any) => {
+            const k = String(m?.slug || m?.id || '');
+            if (k && !pool[k]) pool[k] = m;
+          });
+        });
+        movies = Object.values(pool);
+      }
+
+      const sorted = [...movies].sort((a: any, b: any) => {
         const ya = Number(a.year) || 0;
         const yb = Number(b.year) || 0;
         if (yb !== ya) return yb - ya;
         return 0;
       });
-      const base = moviesDataUrl.replace(/\/data\/movies-light\.js.*$/, '') || new URL(moviesDataUrl).origin;
-      const newSlides: SlideItem[] = sorted.slice(0, n).map((movie, i) => {
+
+      const base = String(siteBase || '').replace(/\/$/, '');
+      const newSlides: SlideItem[] = sorted.slice(0, n).map((movie: any, i: number) => {
         const linkUrl = base + '/phim/' + (movie.slug || movie.id) + '.html';
-        const img = (movie.poster || movie.thumb || '').replace(/^\/\//, 'https://');
-        const title = movie.title || movie.origin_name || (movie as any).name || '';
+        const img = (movie.poster || movie.thumb || movie.image_url || '').replace(/^\/\//, 'https://');
+        const title = movie.title || movie.origin_name || movie.name || '';
         const countryName = Array.isArray(movie.country) && movie.country[0] ? (movie.country[0].name || '') : '';
         const genreNames = Array.isArray(movie.genre)
           ? movie.genre.map((g: any) => (g && g.name) ? g.name : '').filter(Boolean)
@@ -319,7 +419,15 @@ export default function Slider() {
             dataIndex: 'image_url',
             key: 'img',
             render: (url: string) =>
-              url ? <Image src={url} width={80} height={45} style={{ objectFit: 'cover' }} alt="" /> : '-',
+              url ? (
+                <Image
+                  src={normalizePreviewUrl(url, getSiteBaseFromMoviesDataUrl(moviesDataUrl))}
+                  width={80}
+                  height={45}
+                  style={{ objectFit: 'cover' }}
+                  alt=""
+                />
+              ) : '-',
           },
           { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
           { title: 'Link', dataIndex: 'link_url', key: 'link_url', ellipsis: true },

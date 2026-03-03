@@ -243,11 +243,11 @@
           btn.addEventListener('click', function () {
             var slug = btn.getAttribute('data-slug');
             var ep = btn.getAttribute('data-episode');
-            if (window.DAOP && window.DAOP.openPlayer) {
-              window.DAOP.openPlayer({ slug: slug, episode: ep, link: '', movie: { slug: slug } });
-            } else {
-              window.location.href = '/phim/' + encodeURIComponent(slug) + '.html';
-            }
+            var base = (window.DAOP && window.DAOP.basePath) || '';
+            if (!slug) return;
+            var href = base + '/xem-phim/' + encodeURIComponent(slug) + '.html';
+            if (ep) href += '?ep=' + encodeURIComponent(ep);
+            window.location.href = href;
           });
         });
       })
