@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"fabio-zenoni":["627b9e9cdb9df06c65952600"]},"names":{"fabio-zenoni":"Fabio Zenoni"},"meta":{"fabio-zenoni":{"tmdb_id":21668,"profile":"https://image.tmdb.org/t/p/w500/f0OSZyEZZbcChQh0CFoEmg5m4O9.jpg","tmdb_url":"https://www.themoviedb.org/person/21668"}},"movies":{"fabio-zenoni":[{"id":"627b9e9cdb9df06c65952600","title":"Ngày 24","origin_name":"The Advent Calendar","slug":"ngay-24","thumb":"/uploads/movies/ngay-24-thumb.jpg","year":2021,"type":"single","episode_current":"Full"}]}};
