@@ -129,6 +129,12 @@ function normalizeOphimCdnUrl(raw, cdnBase) {
   }
 
   // Some OPhim responses return only a filename like "xxx-thumb.jpg"
+  const ophimBase = String(process.env.OPHIM_IMG_DOMAIN || 'https://img.ophim.live').replace(/\/$/, '');
+  const looksLikeFilename = !u.includes('/') && /\.(jpe?g|png|webp|gif)$/i.test(u);
+  if (ophimBase && looksLikeFilename) {
+    return ophimBase + '/uploads/movies/' + u.replace(/^\/+/, '');
+  }
+
   const base = String(cdnBase || '').replace(/\/$/, '');
   if (base) return base + '/' + u.replace(/^\/+/, '');
   return u;
