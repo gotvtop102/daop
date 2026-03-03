@@ -2,7 +2,7 @@
  * Trang diễn viên: load shard theo ký tự đầu (actors-index.js hoặc actors-{a..z|other}.js), rồi hiển thị.
  */
 (function () {
-  var PAGE_SIZE_ACTORS = 120;
+  var PAGE_SIZE_ACTORS = 24;
   var PAGE_SIZE_MOVIES = 24;
 
   function ensureSiteSettings(done) {

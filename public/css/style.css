@@ -260,6 +260,27 @@ body.site-header--collapsed .site-header {
   color: var(--accent-hover);
 }
 
+.site-nav-actions a .nav-ico {
+  vertical-align: -0.18em;
+  margin-right: 0.35rem;
+}
+
+@media (max-width: 640px) {
+  .site-nav-actions a {
+    padding: 0.35rem 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+  .site-nav-actions a .nav-ico {
+    margin-right: 0;
+  }
+  .site-nav-actions a .nav-text {
+    display: none;
+  }
+}
+
 /* Nút 3 gạch (hamburger) - ẩn trên desktop */
 .site-header .nav-toggle {
   display: none;
@@ -732,6 +753,13 @@ body.site-header--collapsed .site-header {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  gap: 0.5rem;
+}
+
+.user-history-actions .movie-fav-btn {
+  position: relative;
+  top: auto;
+  right: auto;
 }
 
 @media (max-width: 640px) {

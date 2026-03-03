@@ -238,7 +238,7 @@
             '  </div>' +
             '  <div class="user-history-actions">' +
             '    <button type="button" class="login-btn login-btn--primary btn-continue" data-slug="' + safeText(h.slug) + '" data-episode="' + ep + '">Xem tiếp</button>' +
-            '    <button type="button" class="login-btn btn-fav" data-slug="' + safeText(h.slug) + '" aria-pressed="' + (isFav ? 'true' : 'false') + '">' + (isFav ? 'Bỏ thích' : 'Yêu thích') + '</button>' +
+            '    <button type="button" class="movie-fav-btn' + (isFav ? ' is-fav' : '') + '" data-movie-slug="' + safeText(h.slug) + '" aria-pressed="' + (isFav ? 'true' : 'false') + '" aria-label="Yêu thích">♥</button>' +
             '    <button type="button" class="login-btn btn-remove" data-slug="' + safeText(h.slug) + '">Xóa</button>' +
             '  </div>' +
             '</div>';
@@ -255,19 +255,6 @@
             var href = base + '/xem-phim/' + encodeURIComponent(slug) + '.html';
             if (ep) href += '?ep=' + encodeURIComponent(ep);
             window.location.href = href;
-          });
-        });
-
-        histList.querySelectorAll('.btn-fav').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var slug = btn.getAttribute('data-slug');
-            var us = window.DAOP && window.DAOP.userSync;
-            if (!slug || !us) return;
-            try {
-              var nowFav = !!(us.toggleFavorite && us.toggleFavorite(slug));
-              btn.textContent = nowFav ? 'Bỏ thích' : 'Yêu thích';
-              btn.setAttribute('aria-pressed', nowFav ? 'true' : 'false');
-            } catch (eFav1) {}
           });
         });
 

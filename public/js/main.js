@@ -137,13 +137,25 @@
       if (!a) return Promise.resolve();
 
       // Tránh nháy chữ "Đăng nhập" do HTML hardcode: set text sớm ngay khi JS chạy.
-      a.textContent = 'Tài khoản';
+      try {
+        var labelEl0 = a.querySelector && a.querySelector('.nav-text');
+        if (labelEl0) labelEl0.textContent = 'Tài khoản';
+        else a.textContent = 'Tài khoản';
+      } catch (e0) {
+        a.textContent = 'Tài khoản';
+      }
 
       return ensureSupabaseUserConfig().then(function (cfg) {
         var url = cfg && cfg.url;
         var key = cfg && cfg.key;
         if (!url || !key) {
-          a.textContent = 'Tài khoản';
+          try {
+            var labelEl1 = a.querySelector && a.querySelector('.nav-text');
+            if (labelEl1) labelEl1.textContent = 'Tài khoản';
+            else a.textContent = 'Tài khoản';
+          } catch (e1) {
+            a.textContent = 'Tài khoản';
+          }
           a.setAttribute('href', '/login.html');
           return;
         }
@@ -165,10 +177,22 @@
           return window.DAOP._supabaseUser.auth.getSession().then(function (res) {
             var user = res && res.data && res.data.session && res.data.session.user;
             if (user) {
-              a.textContent = 'Tài khoản';
+              try {
+                var labelEl2 = a.querySelector && a.querySelector('.nav-text');
+                if (labelEl2) labelEl2.textContent = 'Tài khoản';
+                else a.textContent = 'Tài khoản';
+              } catch (e2) {
+                a.textContent = 'Tài khoản';
+              }
               a.setAttribute('href', '/nguoi-dung.html');
             } else {
-              a.textContent = 'Tài khoản';
+              try {
+                var labelEl3 = a.querySelector && a.querySelector('.nav-text');
+                if (labelEl3) labelEl3.textContent = 'Tài khoản';
+                else a.textContent = 'Tài khoản';
+              } catch (e3) {
+                a.textContent = 'Tài khoản';
+              }
               a.setAttribute('href', '/login.html');
             }
           }).catch(function () {});
@@ -1166,6 +1190,33 @@
     var header = document.querySelector('.site-header');
     var nav = header && header.querySelector('.site-nav');
     if (!header || !nav) return;
+
+    // Add icons to nav actions (Search / Account) and allow responsive hide/show of label.
+    try {
+      var actions = nav.querySelector('.site-nav-actions');
+      if (actions) {
+        var links = actions.querySelectorAll('a[href]');
+        links.forEach(function (a) {
+          if (a.getAttribute('data-nav-iconized') === '1') return;
+          var href = a.getAttribute('href') || '';
+          var isSearch = href.indexOf('tim-kiem') >= 0;
+          var isAccount = href.indexOf('login') >= 0 || href.indexOf('nguoi-dung') >= 0;
+          if (!isSearch && !isAccount) return;
+
+          var label = (a.textContent || '').trim() || (isSearch ? 'Tìm kiếm' : 'Tài khoản');
+          var icon = '';
+          if (isSearch) {
+            icon = '<svg class="nav-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M10 2a8 8 0 105.3 14l4.2 4.2 1.5-1.5-4.2-4.2A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/></svg>';
+          } else if (isAccount) {
+            icon = '<svg class="nav-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 12a4.5 4.5 0 10-4.5-4.5A4.5 4.5 0 0012 12zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/></svg>';
+          }
+
+          a.innerHTML = icon + '<span class="nav-text">' + esc(label) + '</span>';
+          a.setAttribute('data-nav-iconized', '1');
+        });
+      }
+    } catch (e0) {}
+
     if (header.querySelector('.nav-toggle')) return;
     var btn = document.createElement('button');
     btn.type = 'button';

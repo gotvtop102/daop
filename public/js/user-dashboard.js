@@ -6,6 +6,7 @@
   var logoutConfirm = $('logout-confirm');
   var btnLogoutConfirm = $('btn-dashboard-logout-confirm');
   var btnLogoutCancel = $('btn-dashboard-logout-cancel');
+  var userMenuList = document.querySelector('.user-menu-list');
 
   function getCreateClient() {
     if (typeof createClient !== 'undefined') return createClient;
@@ -79,12 +80,28 @@
         if (btnLogout && logoutConfirm) {
           btnLogout.addEventListener('click', function (e) {
             if (e && e.preventDefault) e.preventDefault();
-            logoutConfirm.style.display = logoutConfirm.style.display === 'none' ? '' : 'none';
+            var nextOpen = logoutConfirm.style.display === 'none' || logoutConfirm.style.display === '' ? (logoutConfirm.style.display === 'none') : true;
+            // Nếu inline style là 'none' thì mở, còn lại toggle.
+            if (logoutConfirm.style.display === 'none') nextOpen = true;
+            else nextOpen = false;
+            logoutConfirm.style.display = nextOpen ? '' : 'none';
+            try {
+              if (nextOpen) {
+                btnLogout.style.display = 'none';
+                if (userMenuList && logoutConfirm.parentNode !== userMenuList) {
+                  userMenuList.appendChild(logoutConfirm);
+                }
+                logoutConfirm.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+              } else {
+                btnLogout.style.display = '';
+              }
+            } catch (e2) {}
           });
         }
         if (btnLogoutCancel && logoutConfirm) {
           btnLogoutCancel.addEventListener('click', function () {
             logoutConfirm.style.display = 'none';
+            if (btnLogout) btnLogout.style.display = '';
           });
         }
         if (btnLogoutConfirm) {
@@ -95,6 +112,24 @@
             });
           });
         }
+
+        function closeLogoutConfirm() {
+          if (!logoutConfirm) return;
+          logoutConfirm.style.display = 'none';
+          if (btnLogout) btnLogout.style.display = '';
+        }
+
+        document.addEventListener('keydown', function (e) {
+          if (e && e.key === 'Escape') closeLogoutConfirm();
+        });
+
+        document.addEventListener('click', function (e) {
+          if (!logoutConfirm || logoutConfirm.style.display === 'none') return;
+          var t = e && e.target;
+          if (btnLogout && btnLogout.contains && btnLogout.contains(t)) return;
+          if (logoutConfirm.contains && logoutConfirm.contains(t)) return;
+          closeLogoutConfirm();
+        }, true);
       }).catch(function () {
         window.location.href = '/login.html';
       });
