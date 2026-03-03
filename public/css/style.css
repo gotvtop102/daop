@@ -84,7 +84,7 @@ body.site-header--collapsed .site-header {
   }
 
   body:not(.site-header--collapsed) .site-header-toggle {
-    top: 4.25rem;
+    top: 0.55rem;
   }
 }
 
@@ -328,6 +328,8 @@ body.site-header--collapsed .site-header {
 @media (max-width: 768px) {
   .site-header {
     justify-content: space-between;
+    /* Chừa khoảng trống bên phải để nút ẩn/hiện header (fixed) không che 2 icon action */
+    padding-right: 4.75rem;
   }
   .site-header .nav-toggle {
     display: flex;
@@ -359,6 +361,11 @@ body.site-header--collapsed .site-header {
     display: flex;
     margin-left: 0;
     align-items: center;
+  }
+
+  .site-header .site-nav-actions {
+    /* đẩy 2 icon sang trái, chừa đúng khoảng trống bên phải cho nút toggle */
+    margin-right: 3.25rem;
   }
   .site-header .site-nav-main {
     display: none;
