@@ -59,6 +59,19 @@ export default function Slider() {
   const [siteBase, setSiteBase] = useState<string>('');
   const [form] = Form.useForm();
 
+  const derivePosterFromThumb = (url: string) => {
+    if (!url) return '';
+    const u = String(url);
+    if (/poster\.(jpe?g|png|webp)$/i.test(u)) return u;
+    const r1 = u.replace(/thumb\.(jpe?g|png|webp)$/i, 'poster.$1');
+    if (r1 !== u) return r1;
+    const r2 = u.replace(/-thumb\.(jpe?g|png|webp)$/i, '-poster.$1');
+    if (r2 !== u) return r2;
+    const r3 = u.replace(/_thumb\.(jpe?g|png|webp)$/i, '_poster.$1');
+    if (r3 !== u) return r3;
+    return '';
+  };
+
   const getSiteBaseFromMovieUrl = (rawUrl: string) => {
     const raw = String(rawUrl || '').trim();
     if (!raw) return '';
@@ -225,7 +238,8 @@ export default function Slider() {
       }
 
       const linkUrl = String(baseFromLink || '').replace(/\/$/, '') + '/phim/' + (movie.slug || slug) + '.html';
-      const imgRaw = ((movie as any).poster || movie.thumb || (movie as any).image_url || '').replace(/^\/\//, 'https://');
+      const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
+      const imgRaw = ((movie as any).poster || derivedPoster || movie.thumb || (movie as any).image_url || '').replace(/^\/\//, 'https://');
       const img = normalizePreviewUrl(imgRaw, baseFromLink);
       const title = movie.title || movie.origin_name || (movie as any).name || '';
       const countryName = Array.isArray(movie.country)
@@ -319,7 +333,8 @@ export default function Slider() {
 
       const newSlides: SlideItem[] = sorted.slice(0, n).map((movie: any, i: number) => {
         const linkUrl = base + '/phim/' + (movie.slug || movie.id) + '.html';
-        const imgRaw = (movie.poster || movie.thumb || movie.image_url || '').replace(/^\/\//, 'https://');
+        const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
+        const imgRaw = (movie.poster || derivedPoster || movie.thumb || movie.image_url || '').replace(/^\/\//, 'https://');
         const img = normalizePreviewUrl(imgRaw, base);
         const title = movie.title || movie.origin_name || movie.name || '';
         const countryName = Array.isArray(movie.country) && movie.country[0] ? (movie.country[0].name || '') : '';
