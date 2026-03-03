@@ -26,6 +26,55 @@
     "grid_columns_xs": 3,
     "movies": [
       {
+        "id": "69a44a87f937c3b5a112a21f",
+        "title": "Thiên tằm biến",
+        "origin_name": "Reincarnated",
+        "slug": "thien-tam-bien",
+        "thumb": "/uploads/movies/thien-tam-bien-thumb.jpg",
+        "poster": "",
+        "year": 1979,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          },
+          {
+            "id": "620a2347e0fc277084dfd876",
+            "name": "Hồng Kông",
+            "slug": "hong-kong"
+          }
+        ],
+        "lang_key": "Lồng Tiếng",
+        "episode_current": "Hoàn tất (60/60)",
+        "quality": "HD",
+        "status": "",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-03T09:11:16.000Z"
+      },
+      {
         "id": "690d5c6726683d7f739fd5d0",
         "title": "Những Ông Bố Của Ma Ri",
         "origin_name": "Marie and Her Three Daddies",
@@ -458,40 +507,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-02T18:02:58.000Z"
-      },
-      {
-        "id": "699fcddf97c71dcd0d702678",
-        "title": "Đi Nghe Tiếng Gió Đại Ngàn",
-        "origin_name": "Dreams Never End",
-        "slug": "di-nghe-tieng-gio-dai-ngan",
-        "thumb": "/uploads/movies/di-nghe-tieng-gio-dai-ngan-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (16/16)",
-        "quality": "HD",
-        "status": "",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-02T18:02:36.000Z"
       }
     ]
   },
@@ -622,6 +637,55 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "movies": [
+      {
+        "id": "69a44a87f937c3b5a112a21f",
+        "title": "Thiên tằm biến",
+        "origin_name": "Reincarnated",
+        "slug": "thien-tam-bien",
+        "thumb": "/uploads/movies/thien-tam-bien-thumb.jpg",
+        "poster": "",
+        "year": 1979,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          },
+          {
+            "id": "620a2347e0fc277084dfd876",
+            "name": "Hồng Kông",
+            "slug": "hong-kong"
+          }
+        ],
+        "lang_key": "Lồng Tiếng",
+        "episode_current": "Hoàn tất (60/60)",
+        "quality": "HD",
+        "status": "",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-03T09:11:16.000Z"
+      },
       {
         "id": "695f54c2f063d23bbbc21c73",
         "title": "Học Viện Anh Hùng: Vigilantes (Phần 2)",
