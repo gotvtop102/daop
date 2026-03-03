@@ -258,9 +258,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         'poster_height',
         'limit',
         'concurrency',
-        'force_ids',
-        'force_id_min',
-        'force_id_max',
+        'force_slugs',
+        'reupload_existing',
       ];
 
       for (const k of keys) {

@@ -183,17 +183,24 @@ function loadState(statePath) {
   }
 }
 
-function shouldForceById(idStr, forceIdSet, forceMin, forceMax) {
-  if (!idStr) return false;
-  if (forceIdSet && forceIdSet.has(idStr)) return true;
-  if (forceMin != null || forceMax != null) {
-    const n = Number(idStr);
-    if (!Number.isFinite(n)) return false;
-    if (forceMin != null && n < forceMin) return false;
-    if (forceMax != null && n > forceMax) return false;
-    return true;
-  }
-  return false;
+function parseSlugList(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return null;
+  const parts = s
+    .split(/[,\n\r\t ]+/)
+    .map((x) => String(x || '').trim())
+    .filter(Boolean);
+  if (!parts.length) return null;
+  return new Set(parts);
+}
+
+function parseBool(raw, fallback) {
+  if (raw == null) return !!fallback;
+  const s = String(raw).trim().toLowerCase();
+  if (!s) return !!fallback;
+  if (s === '1' || s === 'true' || s === 'yes' || s === 'y' || s === 'on') return true;
+  if (s === '0' || s === 'false' || s === 'no' || s === 'n' || s === 'off') return false;
+  return !!fallback;
 }
 
 async function main() {
@@ -210,12 +217,8 @@ async function main() {
   const posterW = Number(args.poster_width || 486);
   const posterH = Number(args.poster_height || 274);
 
-  const forceIdsRaw = String(args.force_ids || '').trim();
-  const forceIdSet = forceIdsRaw
-    ? new Set(forceIdsRaw.split(',').map((s) => s.trim()).filter(Boolean))
-    : null;
-  const forceMin = args.force_id_min != null ? Number(args.force_id_min) : null;
-  const forceMax = args.force_id_max != null ? Number(args.force_id_max) : null;
+  const forceSlugSet = parseSlugList(args.force_slugs);
+  const reuploadExisting = parseBool(args.reupload_existing, false);
 
   const limit = args.limit != null ? Math.max(0, Number(args.limit)) : 0;
   const concurrency = Math.max(1, Math.min(32, Number(args.concurrency || 6)));
@@ -236,7 +239,13 @@ async function main() {
   console.log('Movies loaded:', movies.length);
 
   const moviesFiltered = (movies || []).filter((m) => m && m.id != null);
-  const moviesToProcess = limit ? moviesFiltered.slice(0, limit) : moviesFiltered;
+  const moviesBySlug = forceSlugSet
+    ? moviesFiltered.filter((m) => {
+      const slug = m && (m.slug || m.id) ? String(m.slug || m.id) : '';
+      return slug && forceSlugSet.has(slug);
+    })
+    : moviesFiltered;
+  const moviesToProcess = limit ? moviesBySlug.slice(0, limit) : moviesBySlug;
 
   let done = 0;
   let skipped = 0;
@@ -261,12 +270,13 @@ async function main() {
     const idStr = m && m.id != null ? String(m.id) : '';
     if (!idStr) return;
 
-    const force = shouldForceById(idStr, forceIdSet, forceMin, forceMax);
+    const slugStr = m && (m.slug || m.id) ? String(m.slug || m.id) : '';
+    const inForceList = !!(forceSlugSet && slugStr && forceSlugSet.has(slugStr));
     const row = state.uploaded[idStr] || {};
 
     for (const kind of tasks) {
       const already = row && row[kind] && row[kind].ok;
-      if (already && !force) {
+      if (already && !(inForceList && reuploadExisting)) {
         skipped++;
         continue;
       }

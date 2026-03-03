@@ -67,6 +67,25 @@ export default function GitHubActions() {
   const [form] = Form.useForm();
   const [uploadForm] = Form.useForm();
 
+  const readTextFile = (file: File) => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => reject(new Error('Không đọc được file'));
+      reader.readAsText(file);
+    });
+  };
+
+  const parseSlugList = (raw: any) => {
+    const s = String(raw || '').trim();
+    if (!s) return [] as string[];
+    const parts = s
+      .split(/[\n\r,\t ]+/)
+      .map((x) => String(x || '').trim())
+      .filter(Boolean);
+    return Array.from(new Set(parts));
+  };
+
   const loadUpdateSettings = async () => {
     const { data } = await supabase
       .from('site_settings')
@@ -339,9 +358,9 @@ export default function GitHubActions() {
             poster_height: 274,
             limit: 0,
             concurrency: 6,
-            force_ids: '',
-            force_id_min: '',
-            force_id_max: '',
+            force_slugs: '',
+            force_slugs_file: null,
+            reupload_existing: false,
           }}
         >
           <Space wrap align="start">
@@ -385,16 +404,23 @@ export default function GitHubActions() {
               <InputNumber min={1} max={32} style={{ width: 190 }} />
             </Form.Item>
 
-            <Form.Item name="force_ids" label="Force IDs (comma-separated)">
-              <Input style={{ width: 260 }} placeholder="123,456" />
+            <Form.Item name="force_slugs" label="Force slugs (comma/newline separated)">
+              <Input.TextArea style={{ width: 360 }} rows={3} placeholder="slug-1\nslug-2" />
             </Form.Item>
 
-            <Form.Item name="force_id_min" label="Force ID min">
-              <Input style={{ width: 160 }} placeholder="" />
+            <Form.Item name="force_slugs_file" label="File danh sách slug (.txt/.csv)">
+              <input
+                type="file"
+                accept=".txt,.csv,text/plain,text/csv"
+                onChange={(e) => {
+                  const f = (e.target && (e.target as HTMLInputElement).files && (e.target as HTMLInputElement).files?.[0]) || null;
+                  uploadForm.setFieldsValue({ force_slugs_file: f });
+                }}
+              />
             </Form.Item>
 
-            <Form.Item name="force_id_max" label="Force ID max">
-              <Input style={{ width: 160 }} placeholder="" />
+            <Form.Item name="reupload_existing" label="Upload lại nếu đã upload" valuePropName="checked">
+              <Switch />
             </Form.Item>
 
             <Form.Item label=" ">
@@ -405,10 +431,24 @@ export default function GitHubActions() {
                   setTriggering('upload-movie-images-r2');
                   try {
                     const values = uploadForm.getFieldsValue();
+                    const file: File | null = values.force_slugs_file || null;
+                    const fileText = file ? await readTextFile(file).catch(() => '') : '';
+                    const slugs = Array.from(
+                      new Set([
+                        ...parseSlugList(values.force_slugs),
+                        ...parseSlugList(fileText),
+                      ])
+                    );
+                    const payload = {
+                      ...values,
+                      force_slugs: slugs.join('\n'),
+                      reupload_existing: values.reupload_existing ? 'true' : 'false',
+                    } as any;
+                    delete payload.force_slugs_file;
                     const res = await fetch(`${API_URL}/api/trigger-action`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ action: 'upload-movie-images-r2', ...values }),
+                      body: JSON.stringify({ action: 'upload-movie-images-r2', ...payload }),
                     });
                     const data = await res.json().catch(async () => ({ error: await res.text() }));
                     if (res.ok && data?.ok) {
