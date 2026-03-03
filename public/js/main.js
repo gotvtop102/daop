@@ -714,6 +714,8 @@
     var header = document.querySelector('.site-header');
     if (!header) return;
 
+    var actions = header.querySelector('.site-nav-actions');
+
     var btn = document.getElementById('site-header-toggle');
     if (!btn) {
       btn = document.createElement('button');
@@ -722,7 +724,14 @@
       btn.className = 'site-header-toggle';
       btn.setAttribute('aria-label', 'Ẩn/hiện menu');
       btn.innerHTML = '<span class="site-header-toggle-ico" aria-hidden="true">≡</span>';
-      document.body.appendChild(btn);
+      if (actions) actions.appendChild(btn);
+      else header.appendChild(btn);
+    } else {
+      try {
+        if (actions && btn.parentNode !== actions) {
+          actions.appendChild(btn);
+        }
+      } catch (e0) {}
     }
 
     function shouldDefaultHide() {

@@ -215,7 +215,8 @@
           var defaultImg = baseUrl + '/images/default_thumb.png';
           if (!defaultImg) defaultImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="96" height="64"%3E%3Crect fill="%2321262d" width="96" height="64"/%3E%3C/svg%3E';
 
-          var posterRaw = (m.poster || m.thumb || '');
+          var posterRaw = (m.poster || '');
+          if (!posterRaw) posterRaw = (m.thumb || '');
           var poster = norm(posterRaw).replace(/^\/\//, 'https://') || defaultImg;
           var posterOphim = normOphim(posterRaw).replace(/^\/\//, 'https://') || '';
           var posterEsc = safeText(poster).replace(/"/g, '&quot;');

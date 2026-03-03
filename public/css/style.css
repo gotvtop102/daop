@@ -40,10 +40,10 @@ a:hover {
 }
 
 .site-header-toggle {
-  position: fixed;
-  top: 0.75rem;
-  right: 0.75rem;
-  z-index: 2000;
+  position: relative;
+  top: auto;
+  right: auto;
+  z-index: 1;
   width: 44px;
   height: 44px;
   border-radius: 999px;
@@ -79,19 +79,17 @@ body.site-header--collapsed .site-header {
 
 @media (max-width: 768px) {
   .site-header-toggle {
-    top: 0.55rem;
-    right: 0.55rem;
+    margin-left: 0.25rem;
   }
 
   body:not(.site-header--collapsed) .site-header-toggle {
-    top: 4.25rem;
+    margin-top: 0;
   }
 }
 
 @media (min-width: 769px) {
   .site-header-toggle {
-    left: auto;
-    right: 0.9rem;
+    margin-left: 0.35rem;
     background: var(--accent);
     border-color: rgba(255, 255, 255, 0.15);
     color: #0d1117;
@@ -760,6 +758,32 @@ body.site-header--collapsed .site-header {
   position: relative;
   top: auto;
   right: auto;
+  width: auto;
+  height: auto;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  line-height: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.user-history-actions .movie-fav-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--card);
+}
+
+.user-history-actions .movie-fav-btn.is-fav {
+  color: #f85149;
+  border-color: var(--border);
+}
+
+.user-history-actions .movie-fav-btn.is-fav:hover {
+  border-color: var(--accent);
+  color: #f85149;
 }
 
 @media (max-width: 640px) {
