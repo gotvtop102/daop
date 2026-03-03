@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"braden-mccawley":["69a68580400bf394bd8dfb5c"]},"names":{"braden-mccawley":"Braden McCawley"},"meta":{"braden-mccawley":{"tmdb_id":4613664,"profile":"https://image.tmdb.org/t/p/w500/2HuY6qkHN2C1AVJOSQ72WYEJGzF.jpg","tmdb_url":"https://www.themoviedb.org/person/4613664"}},"movies":{}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

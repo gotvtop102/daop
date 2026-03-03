@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"xiong-xianda":["69a685dff063d23bbbcf34ee"]},"names":{"xiong-xianda":"Xiong Xianda"},"meta":{"xiong-xianda":{"tmdb_id":6038218,"profile":null,"tmdb_url":"https://www.themoviedb.org/person/6038218"}},"movies":{}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
