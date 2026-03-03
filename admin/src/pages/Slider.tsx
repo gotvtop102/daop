@@ -43,7 +43,6 @@ type MovieLight = {
 };
 
 const SLIDER_KEY = 'homepage_slider';
-const LOCAL_SITE_BASE_KEY = 'daop_admin_slider_site_base';
 const SITE_URL_KEY = 'site_url';
 
 export default function Slider() {
@@ -51,31 +50,14 @@ export default function Slider() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
   const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
   const [movieLinkInput, setMovieLinkInput] = useState('');
   const [addingFromMovie, setAddingFromMovie] = useState(false);
   const [addingLatest, setAddingLatest] = useState(false);
   const [latestCount, setLatestCount] = useState(5);
-  const [siteBase, setSiteBase] = useState<string>(() => {
-    try {
-      return localStorage.getItem(LOCAL_SITE_BASE_KEY) || '';
-    } catch {
-      return '';
-    }
-  });
+  const [siteBase, setSiteBase] = useState<string>('');
   const [form] = Form.useForm();
-
-  const saveDefaultSiteUrl = async (nextUrl: string) => {
-    try {
-      const v = String(nextUrl || '').trim();
-      const { error } = await supabase
-        .from('site_settings')
-        .upsert({ key: SITE_URL_KEY, value: v, updated_at: new Date().toISOString() }, { onConflict: 'key' });
-      if (error) throw error;
-    } catch (e: any) {
-      message.error(e?.message || 'Lưu Site URL thất bại');
-    }
-  };
 
   const getSiteBaseFromMovieUrl = (rawUrl: string) => {
     const raw = String(rawUrl || '').trim();
@@ -120,9 +102,18 @@ export default function Slider() {
   const normalizePreviewUrl = (raw: string, siteBase: string) => {
     const u = String(raw || '').trim();
     if (!u) return '';
-    if (/^https?:\/\//i.test(u)) return u;
+    if (/^https?:\/\//i.test(u)) {
+      const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
+      const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
+      if (r2 && ophim && u.indexOf(ophim + '/uploads/') === 0) {
+        return r2 + u.slice(ophim.length);
+      }
+      return u;
+    }
     if (u.startsWith('//')) return 'https:' + u;
     if (u.startsWith('/uploads/')) {
+      const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
+      if (r2) return r2 + u;
       const d = String(ophimImgDomain || '').replace(/\/$/, '');
       if (d) return d + u;
       const b = String(siteBase || '').replace(/\/$/, '');
@@ -150,8 +141,9 @@ export default function Slider() {
 
   const loadData = async () => {
     setLoading(true);
-    const [sliderRes, ophimRes, siteUrlRes] = await Promise.all([
+    const [sliderRes, r2Res, ophimRes, siteUrlRes] = await Promise.all([
       supabase.from('site_settings').select('value').eq('key', SLIDER_KEY).single(),
+      supabase.from('site_settings').select('value').eq('key', 'r2_img_domain').maybeSingle(),
       supabase.from('site_settings').select('value').eq('key', 'ophim_img_domain').maybeSingle(),
       supabase.from('site_settings').select('value').eq('key', SITE_URL_KEY).maybeSingle(),
     ]);
@@ -162,18 +154,10 @@ export default function Slider() {
     } catch {
       setList([]);
     }
+    setR2ImgDomain(r2Res.data?.value ?? '');
     setOphimImgDomain(ophimRes.data?.value ?? '');
 
-    try {
-      const cached = (localStorage.getItem(LOCAL_SITE_BASE_KEY) || '').trim();
-      if (!cached) {
-        const def = String(siteUrlRes.data?.value ?? '').trim();
-        if (def) setSiteBase(def);
-      }
-    } catch {
-      const def = String(siteUrlRes.data?.value ?? '').trim();
-      if (def) setSiteBase(def);
-    }
+    setSiteBase(String(siteUrlRes.data?.value ?? '').trim());
 
     setLoading(false);
   };
@@ -221,7 +205,8 @@ export default function Slider() {
       }
 
       const linkUrl = String(baseFromLink || '').replace(/\/$/, '') + '/phim/' + (movie.slug || slug) + '.html';
-      const img = ((movie as any).poster || movie.thumb || (movie as any).image_url || '').replace(/^\/\//, 'https://');
+      const imgRaw = ((movie as any).poster || movie.thumb || (movie as any).image_url || '').replace(/^\/\//, 'https://');
+      const img = normalizePreviewUrl(imgRaw, baseFromLink);
       const title = movie.title || movie.origin_name || (movie as any).name || '';
       const countryName = Array.isArray(movie.country)
         ? (movie.country[0]?.name || '')
@@ -287,7 +272,7 @@ export default function Slider() {
   const addLatestMovies = async () => {
     const base = String(siteBase || '').trim().replace(/\/$/, '');
     if (!base) {
-      message.warning('Nhập Site URL để lấy danh sách phim mới nhất.');
+      message.warning('Vui lòng cấu hình Site URL trong Cài đặt chung để dùng tính năng này.');
       return;
     }
     const n = Math.max(1, Math.min(50, latestCount || 5));
@@ -314,7 +299,8 @@ export default function Slider() {
 
       const newSlides: SlideItem[] = sorted.slice(0, n).map((movie: any, i: number) => {
         const linkUrl = base + '/phim/' + (movie.slug || movie.id) + '.html';
-        const img = (movie.poster || movie.thumb || movie.image_url || '').replace(/^\/\//, 'https://');
+        const imgRaw = (movie.poster || movie.thumb || movie.image_url || '').replace(/^\/\//, 'https://');
+        const img = normalizePreviewUrl(imgRaw, base);
         const title = movie.title || movie.origin_name || movie.name || '';
         const countryName = Array.isArray(movie.country) && movie.country[0] ? (movie.country[0].name || '') : '';
         const genreNames = Array.isArray(movie.genre)
@@ -382,22 +368,9 @@ export default function Slider() {
       </p>
       <Card title="Thêm phim mới nhất" style={{ marginBottom: 16 }}>
         <p style={{ color: '#666', marginBottom: 8 }}>
-          Thêm N phim mới nhất (sắp xếp theo năm) vào slider. Cần nhập Site URL (website chính).
+          Thêm N phim mới nhất (sắp xếp theo năm) vào slider. Cần cấu hình Site URL (website chính) trong Cài đặt chung.
         </p>
         <Space>
-          <Input
-            placeholder="Site URL (vd: https://your-site.com)"
-            value={siteBase}
-            style={{ width: 320 }}
-            onChange={(e) => {
-              const v = e.target.value;
-              setSiteBase(v);
-              try {
-                localStorage.setItem(LOCAL_SITE_BASE_KEY, v);
-              } catch {}
-            }}
-            onBlur={() => saveDefaultSiteUrl(siteBase)}
-          />
           <InputNumber min={1} max={50} value={latestCount} onChange={(v) => setLatestCount(Number(v) || 5)} />
           <Button type="primary" icon={<ThunderboltOutlined />} loading={addingLatest} onClick={addLatestMovies}>
             Thêm phim mới nhất
