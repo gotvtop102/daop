@@ -2553,6 +2553,7 @@ async function exportConfigFromSupabase() {
     favicon_url: '',
     r2_img_domain: 'https://pub-62eef44669df48e4bca5388a38e69522.r2.dev',
     ophim_img_domain: 'https://img.ophim.live',
+    theme_light_bg: '#eef2f5',
     home_prebuild_enabled: 'true',
     home_prebuild_limit: '24',
     home_prebuild_enable_series: 'true',

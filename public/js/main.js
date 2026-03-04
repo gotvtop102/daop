@@ -1154,6 +1154,7 @@
     if (settings.theme_primary) root.style.setProperty('--accent', settings.theme_primary);
     if (settings.theme_accent) root.style.setProperty('--accent-hover', settings.theme_accent);
     if (settings.theme_bg) root.style.setProperty('--bg', settings.theme_bg);
+    if (settings.theme_light_bg) root.style.setProperty('--light-bg', settings.theme_light_bg);
     if (settings.theme_card) root.style.setProperty('--card', settings.theme_card);
     if (settings.theme_text) root.style.setProperty('--text', settings.theme_text);
     if (settings.theme_muted) root.style.setProperty('--muted', settings.theme_muted);

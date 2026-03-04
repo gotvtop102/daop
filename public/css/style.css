@@ -7,6 +7,7 @@
   --muted: #8b949e;
   --accent: #58a6ff;
   --accent-hover: #79b8ff;
+  --light-bg: #eef2f5;
 }
 
 * {
@@ -21,7 +22,7 @@ body {
 }
 
 body.theme-light {
-  background: #eef2f5;
+  background: var(--light-bg);
 }
 a {
   color: var(--link-color, var(--accent));
