@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["al"] = {"alice-trang-ram":{"id":"69a6dee9eea244e3e8b1b29e","i":251,"title":"Alice Trăng Rằm","origin_name":"Oversize Love","slug":"alice-trang-ram","thumb":"/uploads/movies/alice-trang-ram-thumb.jpg","year":2020,"type":"single","episode_current":"Full"}};

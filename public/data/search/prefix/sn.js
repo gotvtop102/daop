@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["sn"] = [{"id":"69a3a5c646046a8eb68f5078","title":"Lán ăn vặt","origin_name":"Snack Shack","slug":"lan-an-vat","thumb":"/uploads/movies/lan-an-vat-thumb.jpg","year":2024,"type":"single","episode_current":"Full","_t":"lan an vat snack shack lan an vat"}];
