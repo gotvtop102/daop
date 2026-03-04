@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["dr"] = {"droga-donikad":{"id":"69a668744ea2111da8c149a1","i":246,"title":"Droga donikąd","origin_name":"The Road to Nowhere","slug":"droga-donikad","thumb":"/uploads/movies/droga-donikad-thumb.jpg","year":2024,"type":"single","episode_current":"Full"}};

@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ro"] = {"roofman":{"id":"68fb1cb0d7c846461cb71361","i":29,"title":"Yêu Nhầm Tội Nhân","origin_name":"Roofman","slug":"roofman","thumb":"/uploads/movies/roofman-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};
