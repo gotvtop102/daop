@@ -136,6 +136,31 @@
         if (!container) return;
         sections.sort(function(a,b){ return (a.sort_order || 0) - (b.sort_order || 0); });
         var ss = window.DAOP && window.DAOP.siteSettings || {};
+        var lazySectionsEnabled = !(
+          ss.home_lazy_sections_enabled === false ||
+          ss.home_lazy_sections_enabled === 'false' ||
+          ss.home_lazy_sections_enabled === '0' ||
+          ss.home_lazy_sections_enabled === 0
+        );
+        var eagerCountRaw = parseInt(ss.home_lazy_sections_eager_count, 10);
+        var eagerCount = (Number.isFinite(eagerCountRaw) && eagerCountRaw >= 0) ? eagerCountRaw : 2;
+        var io = null;
+        if (lazySectionsEnabled && typeof IntersectionObserver !== 'undefined') {
+          try {
+            io = new IntersectionObserver(function (entries) {
+              entries.forEach(function (ent) {
+                if (!ent || !ent.isIntersecting) return;
+                var el = ent.target;
+                if (el && typeof el._daopLoadSection === 'function') {
+                  try { el._daopLoadSection(); } catch (e) {}
+                }
+                try { io.unobserve(el); } catch (e2) {}
+              });
+            }, { root: null, rootMargin: '600px 0px', threshold: 0.01 });
+          } catch (e0) {
+            io = null;
+          }
+        }
         function getBpKey() {
           var w = window.innerWidth || 0;
           if (w >= 1024) return 'lg';
@@ -184,7 +209,7 @@
           if (!html) return html;
           return String(html).replace('class="movie-card', 'class="movie-card is-featured');
         }
-        sections.forEach(function(sec){
+        sections.forEach(function(sec, secIndex){
           var ids = [];
           var limit = sec.limit_count || 24;
           var moreLink = sec.more_link ? '<a href="' + sec.more_link + '">Xem thêm</a>' : '';
@@ -239,7 +264,7 @@
               ? resolveMoviesByIds(preIds, limit)
               : Promise.resolve([]));
 
-          p.then(function (movies) {
+          function renderSectionMovies(movies) {
             if (!secEl) return;
             if (!movies || !movies.length) {
               var grid0 = secEl.querySelector('.section-slider-track') || secEl.querySelector('.movies-list') || secEl.querySelector('.movies-grid');
@@ -256,9 +281,9 @@
               var listEl = secEl.querySelector('.movies-list');
               if (!listEl) return;
               var out2 = '';
-              movies.forEach(function(m){
-                var href = base + '/phim/' + (m.slug || m.id) + '.html';
-                var slug = String(m.slug || m.id || '');
+              movies.forEach(function (m) {
+                var slug = (m && (m.slug || m.id)) ? String(m.slug || m.id) : '';
+                var href = base + '/phim/' + slug + '.html';
                 var defaultPoster = base + '/images/default_poster.png';
                 var defaultThumb = base + '/images/default_thumb.png';
                 var derive = (window.DAOP && typeof window.DAOP.derivePosterFromThumb === 'function')
@@ -354,7 +379,29 @@
               movies2.forEach(function(m){ out3 += window.DAOP.renderMovieCard(m, base, { cardOrientation: cardOrientation }); });
               gridEl.innerHTML = out3;
             }
-          });
+
+          }
+
+          var loaded = false;
+          function loadAndRender() {
+            if (loaded) return;
+            loaded = true;
+            p.then(function (movies) {
+              renderSectionMovies(movies);
+            });
+          }
+
+          if (secEl) {
+            secEl._daopLoadSection = loadAndRender;
+          }
+          var eager = !lazySectionsEnabled || !io || secIndex < eagerCount;
+          if (eager) {
+            loadAndRender();
+          } else if (io && secEl) {
+            try { io.observe(secEl); } catch (e3) { loadAndRender(); }
+          } else {
+            loadAndRender();
+          }
         });
         container.querySelectorAll('.section-slider-wrap').forEach(function(wrap){
           var track = wrap.querySelector('.section-slider-track');
