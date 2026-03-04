@@ -133,7 +133,7 @@ jobs:
           git diff --staged --quiet || (git commit -m "chore: update data (core)" && git push)
 
       - name: Deploy CORE to Cloudflare Pages (2-phase)
-        if: ${{ env.TWO_PHASE == 'true' && (env.DEPLOY_AFTER_R2_UPLOAD != '1' || env.UPLOAD_IMAGES != 'true') }}
+        if: ${{ env.TWO_PHASE == 'true' && env.DEPLOY_AFTER_R2_UPLOAD != '1' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
