@@ -10,13 +10,11 @@ export default function Dashboard() {
     Promise.all([
       supabase.from('ad_banners').select('id', { count: 'exact', head: true }),
       supabase.from('homepage_sections').select('id', { count: 'exact', head: true }),
-      supabase.from('server_sources').select('id', { count: 'exact', head: true }),
       supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(10),
-    ]).then(([b, s, r, l]) => {
+    ]).then(([b, s, l]) => {
       setStats({
         banners: (b as any).count ?? 0,
         sections: (s as any).count ?? 0,
-        servers: (r as any).count ?? 0,
       });
       setLogs((l as any).data ?? []);
     }).catch(() => {});
@@ -31,9 +29,6 @@ export default function Dashboard() {
         </Col>
         <Col xs={24} sm={24} md={8}>
           <Card title="Homepage Sections" extra={stats.sections}>Số section trang chủ</Card>
-        </Col>
-        <Col xs={24} sm={24} md={8}>
-          <Card title="Nguồn server" extra={stats.servers}>Server active</Card>
         </Col>
       </Row>
       <Card title="Audit log gần đây">

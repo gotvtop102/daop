@@ -5,7 +5,6 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Banners from './pages/Banners';
 import HomepageSections from './pages/HomepageSections';
-import ServerSources from './pages/ServerSources';
 import SiteSettings from './pages/SiteSettings';
 import DonateSettings from './pages/DonateSettings';
 import StaticPages from './pages/StaticPages';
@@ -33,7 +32,6 @@ export default function App() {
           <Route path="filter-order" element={<FilterOrder />} />
           <Route path="homepage-sections" element={<HomepageSections />} />
           <Route path="category-page-settings" element={<CategoryPageSettings />} />
-          <Route path="server-sources" element={<ServerSources />} />
           <Route path="settings" element={<SiteSettings />} />
           <Route path="theme" element={<ThemeSettings />} />
           <Route path="player-settings" element={<PlayerSettings />} />

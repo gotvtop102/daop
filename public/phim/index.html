@@ -82,9 +82,6 @@
           window.DAOP.twikooEnvId = s.twikoo_env_id || '';
           window.DAOP.supabaseUserUrl = s.supabase_user_url || '';
           window.DAOP.supabaseUserAnonKey = s.supabase_user_anon_key || '';
-          return fetch('/data/config/server-sources.json' + q);
-        }).then(function (r) { return r && r.json ? r.json() : []; }).then(function (arr) {
-          window.DAOP.serverSources = arr || [];
           return fetch('/data/config/player-settings.json' + q);
         }).then(function (r) { return r && r.ok ? r.json() : null; }).then(function (p) {
           window.DAOP.playerSettings = p || {};

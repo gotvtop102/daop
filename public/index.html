@@ -69,10 +69,6 @@
         window.DAOP.siteSettings = s;
         window.DAOP.supabaseUserUrl = s.supabase_user_url || '';
         window.DAOP.supabaseUserAnonKey = s.supabase_user_anon_key || '';
-        window.DAOP.serverSources = [];
-        fetch(base + '/data/config/server-sources.json').then(function(r){ return r.json(); }).then(function(arr){
-          window.DAOP.serverSources = arr || [];
-        }).catch(function(){});
       }).catch(function(){});
     })();
   </script>

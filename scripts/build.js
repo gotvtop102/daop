@@ -2479,8 +2479,7 @@ async function exportConfigFromSupabase() {
   fs.ensureDirSync(configDir);
 
   const today = new Date().toISOString().slice(0, 10);
-  const [sources, bannersRes, sections, settings, staticPages, donate, playerSettingsRes, prerollRes] = await Promise.all([
-    supabase.from('server_sources').select('*').eq('is_active', true).order('sort_order'),
+  const [bannersRes, sections, settings, staticPages, donate, playerSettingsRes, prerollRes] = await Promise.all([
     supabase.from('ad_banners').select('*').eq('is_active', true),
     supabase.from('homepage_sections').select('*').eq('is_active', true).order('sort_order'),
     supabase.from('site_settings').select('key, value'),
@@ -2491,7 +2490,6 @@ async function exportConfigFromSupabase() {
   ]);
 
   const errors = [
-    [sources, 'server_sources'],
     [bannersRes, 'ad_banners'],
     [sections, 'homepage_sections'],
     [settings, 'site_settings'],
@@ -2514,7 +2512,6 @@ async function exportConfigFromSupabase() {
   const defaultSections = JSON.parse(
     fs.readFileSync(path.join(ROOT, 'config', 'default-sections.json'), 'utf-8')
   );
-  fs.writeFileSync(path.join(configDir, 'server-sources.json'), JSON.stringify(sources.data || [], null, 2));
   fs.writeFileSync(path.join(configDir, 'banners.json'), JSON.stringify(banners, null, 2));
   const sectionsOut = (sections.data && sections.data.length)
     ? sections.data.map((s) => {
@@ -2777,7 +2774,6 @@ async function writeDefaultConfig() {
   const configDir = path.join(PUBLIC_DATA, 'config');
   fs.ensureDirSync(configDir);
   const defaults = {
-    'server-sources.json': [],
     'banners.json': [],
     'homepage-sections.json': JSON.parse(
       fs.readFileSync(path.join(ROOT, 'config', 'default-sections.json'), 'utf-8')
