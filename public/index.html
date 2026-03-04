@@ -87,8 +87,12 @@
           var q = ver ? '?v=' + ver : '';
           return Promise.all([
             fetch(base + '/data/home/home-sections-data.json' + q).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
-            fetch(base + '/data/config/homepage-sections.json' + q).then(function(r){ return r.json(); }),
-            fetch(base + '/data/config/banners.json' + q).then(function(r){ return r.json(); })
+            fetch(base + '/data/config/homepage-sections.json' + q)
+              .then(function(r){ return r.ok ? r.json() : []; })
+              .catch(function(){ return []; }),
+            fetch(base + '/data/config/banners.json' + q)
+              .then(function(r){ return r.ok ? r.json() : []; })
+              .catch(function(){ return []; })
           ]);
         });
       }
@@ -185,7 +189,7 @@
             else if (sec.source_type === 'thuyetminh' && fd.langMap && fd.langMap.thuyetminh) ids = fd.langMap.thuyetminh;
             else if (sec.source_type === 'longtieng' && fd.langMap && fd.langMap.longtieng) ids = fd.langMap.longtieng;
             return resolveMoviesByIds(ids, limit);
-          })()));
+          })());
 
           p.then(function (movies) {
             if (!secEl) return;
