@@ -5,6 +5,40 @@
   window.DAOP = window.DAOP || {};
   const BASE = window.DAOP.basePath || '';
 
+  function initThemeToggle() {
+    var btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    var key = 'daop_theme';
+    function getPref() {
+      try {
+        var v = localStorage.getItem(key);
+        return v ? String(v) : '';
+      } catch (e) {
+        return '';
+      }
+    }
+    function setPref(v) {
+      try {
+        if (!v) localStorage.removeItem(key);
+        else localStorage.setItem(key, String(v));
+      } catch (e) {}
+    }
+    function apply(v) {
+      var isLight = v === 'light';
+      document.body.classList.toggle('theme-light', isLight);
+      btn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+      btn.setAttribute('aria-label', isLight ? 'Bật nền tối' : 'Bật nền sáng');
+    }
+    var pref = getPref();
+    apply(pref === 'light' ? 'light' : 'dark');
+    btn.addEventListener('click', function () {
+      var isLightNow = document.body.classList.contains('theme-light');
+      var next = isLightNow ? 'dark' : 'light';
+      setPref(next);
+      apply(next);
+    });
+  }
+
   /** Ẩn màn hình Loading (bật/tắt + thời gian tối đa theo site_settings) */
   function initLoadingScreen() {
     var el = document.getElementById('loading-screen');
@@ -63,8 +97,10 @@
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initLoadingScreen);
+    document.addEventListener('DOMContentLoaded', initThemeToggle);
   } else {
     initLoadingScreen();
+    initThemeToggle();
   }
 
   /** Load JSON config from data/config/ */
