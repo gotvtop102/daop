@@ -1,1 +1,0 @@
-window.actorsIndex = {"names":{},"meta":{}};

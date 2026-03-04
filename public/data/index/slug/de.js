@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["de"] = {"dead-account":{"id":"697ff0dbd88856be7713382f","i":98,"title":"Dead Account","origin_name":"Dead Account","slug":"dead-account","thumb":"/uploads/movies/dead-account-thumb.jpg","year":2026,"type":"hoathinh","episode_current":"Tập 8"}};
