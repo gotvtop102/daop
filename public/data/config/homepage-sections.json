@@ -169,5 +169,83 @@
     "is_active": true,
     "created_at": "2026-02-21T19:19:39.988963+00:00",
     "updated_at": "2026-02-21T19:19:39.988963+00:00"
+  },
+  {
+    "id": "d78ad490-b9d9-4781-b131-64c7b5b18417",
+    "title": "Phim đang chiếu",
+    "display_type": "slider",
+    "source_type": "status",
+    "source_value": "/danh-sach/phim-dang-chieu",
+    "filter_config": {
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2
+    },
+    "manual_movies": null,
+    "limit_count": 12,
+    "more_link": "/danh-sach/phim-dang-chieu",
+    "sort_order": 9,
+    "is_active": true,
+    "created_at": "2026-03-04T11:51:59.022481+00:00",
+    "updated_at": "2026-03-04T11:54:49.56+00:00",
+    "use_poster": false,
+    "grid_columns_lg": 6,
+    "grid_columns_md": 4,
+    "grid_columns_sm": 3,
+    "grid_columns_xs": 2
+  },
+  {
+    "id": "43ce5b9b-5323-4195-a256-26cad65e8b0d",
+    "title": "Phim sắp chiếu",
+    "display_type": "slider",
+    "source_type": "status",
+    "source_value": "/danh-sach/phim-sap-chieu",
+    "filter_config": {
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2
+    },
+    "manual_movies": null,
+    "limit_count": 12,
+    "more_link": "/danh-sach/phim-sap-chieu",
+    "sort_order": 10,
+    "is_active": true,
+    "created_at": "2026-03-04T11:54:27.983583+00:00",
+    "updated_at": "2026-03-04T11:55:00.822+00:00",
+    "use_poster": false,
+    "grid_columns_lg": 6,
+    "grid_columns_md": 4,
+    "grid_columns_sm": 3,
+    "grid_columns_xs": 2
+  },
+  {
+    "id": "89d66342-dcec-426e-aabb-eaa8f593a005",
+    "title": "Chỉ có trên GoTV",
+    "display_type": "slider",
+    "source_type": "exclusive",
+    "source_value": "/danh-sach/phim-doc-quyen",
+    "filter_config": {
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2
+    },
+    "manual_movies": null,
+    "limit_count": 16,
+    "more_link": "/danh-sach/phim-doc-quyen",
+    "sort_order": 11,
+    "is_active": true,
+    "created_at": "2026-03-04T11:56:28.409976+00:00",
+    "updated_at": "2026-03-04T11:56:28.409976+00:00",
+    "use_poster": false,
+    "grid_columns_lg": 6,
+    "grid_columns_md": 4,
+    "grid_columns_sm": 3,
+    "grid_columns_xs": 2
   }
 ]
