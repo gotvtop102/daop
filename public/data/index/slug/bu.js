@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["bu"] = {"bui-hoa-hong":{"id":"68e4c2797554a460a6e769a5","i":0,"title":"Bụi Hoa Hồng","origin_name":"About Love","slug":"bui-hoa-hong","thumb":"/uploads/movies/bui-hoa-hong-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 13"}};
-=======
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["bu"] = {"bui-hoa-hong":{"id":"68e4c2797554a460a6e769a5","i":25,"title":"Bụi Hoa Hồng","origin_name":"About Love","slug":"bui-hoa-hong","thumb":"/uploads/movies/bui-hoa-hong-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 13"}};
->>>>>>> 9a295e1434743c1fc71b6648706e10cf923b6ed8
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["bu"] = {"bui-hoa-hong":{"id":"68e4c2797554a460a6e769a5","i":27,"title":"Bụi Hoa Hồng","origin_name":"About Love","slug":"bui-hoa-hong","thumb":"/uploads/movies/bui-hoa-hong-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 13"}};
