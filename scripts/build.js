@@ -476,10 +476,33 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex) {
       if (!isChanged && idStr && prevMoviesById && prevMoviesById.has(idStr)) {
         const reusedMovie = prevMoviesById.get(idStr);
         if (reusedMovie) {
-          list.push({ ...reusedMovie, _skip_tmdb: true });
-          nextIndex[idStr] = { slug: slug.toString().toLowerCase(), modified: prev.modified || modifiedStr || '' };
-          reused.count++;
-          continue;
+          const reusedStatus = (reusedMovie.status || '').toString().trim();
+          const reusedShowtimes = (reusedMovie.showtimes || '').toString().trim();
+          const itemStatus = (item && item.status != null) ? String(item.status).trim() : '';
+          const itemShowtimes = (item && item.showtimes != null) ? String(item.showtimes).trim() : '';
+          const canBackfill = (!reusedStatus && itemStatus) || (!reusedShowtimes && itemShowtimes);
+          const shouldRefetchDetail = (!reusedStatus && !itemStatus) && (!reusedShowtimes && !itemShowtimes);
+
+          if (canBackfill && !shouldRefetchDetail) {
+            list.push({
+              ...reusedMovie,
+              status: reusedStatus || itemStatus,
+              showtimes: reusedShowtimes || itemShowtimes,
+              _skip_tmdb: true,
+            });
+            nextIndex[idStr] = { slug: slug.toString().toLowerCase(), modified: prev.modified || modifiedStr || '' };
+            reused.count++;
+            continue;
+          }
+
+          if (reusedStatus || reusedShowtimes) {
+            list.push({ ...reusedMovie, _skip_tmdb: true });
+            nextIndex[idStr] = { slug: slug.toString().toLowerCase(), modified: prev.modified || modifiedStr || '' };
+            reused.count++;
+            continue;
+          }
+
+          // Nếu phim cũ thiếu status/showtimes (do build cũ normalize lỗi) => ép fetch detail lại.
         }
       }
 
