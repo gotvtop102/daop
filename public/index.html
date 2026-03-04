@@ -300,7 +300,8 @@
               var usedSmall = 0;
               var remainingCols = colsNow - (featuredInRow * spanNow);
               if (!Number.isFinite(remainingCols) || remainingCols < 0) remainingCols = 0;
-              var smalls = remainingCols > 0 ? afterFeatured.slice(0, remainingCols) : [];
+              var allowFillSmalls = colsNow >= 4;
+              var smalls = (allowFillSmalls && remainingCols > 0) ? afterFeatured.slice(0, remainingCols) : [];
               usedSmall = smalls.length;
               var rest = afterFeatured.slice(usedSmall);
 
