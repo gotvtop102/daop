@@ -174,6 +174,10 @@
           if (!Number.isFinite(fsm) || fsm <= 0) fsm = 2;
           if (!Number.isFinite(fmd) || fmd <= 0) fmd = 3;
           if (!Number.isFinite(flg) || flg <= 0) flg = 4;
+          var mdMax = Math.max(1, Math.floor(md / 2));
+          var lgMax = Math.max(1, Math.floor(lg / 2));
+          if (fmd > mdMax) fmd = mdMax;
+          if (flg > lgMax) flg = lgMax;
           var gridVars = '--grid-cols-xs:' + xs + ';--grid-cols-sm:' + sm + ';--grid-cols-md:' + md + ';--grid-cols-lg:' + lg + ';' +
             '--featured-span-xs:' + fxs + ';--featured-span-sm:' + fsm + ';--featured-span-md:' + fmd + ';--featured-span-lg:' + flg + ';';
           var defaultPoster = (ss.default_use_poster === true || ss.default_use_poster === 'true' || ss.default_use_poster === 'poster');

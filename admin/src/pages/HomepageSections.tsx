@@ -114,8 +114,8 @@ export default function HomepageSections() {
       featured_count_lg: 2,
       featured_span_xs: 2,
       featured_span_sm: 3,
-      featured_span_md: 4,
-      featured_span_lg: 4,
+      featured_span_md: 2,
+      featured_span_lg: 3,
     } as any);
     setModalVisible(true);
   };
