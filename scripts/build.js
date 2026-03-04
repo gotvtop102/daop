@@ -1335,10 +1335,19 @@ function writeHomeSectionsData(movies) {
   const sortedByModified = [...list].sort((a, b) => modifiedTs(b) - modifiedTs(a));
 
   const out = [];
-  for (const sec of (sections || [])) {
+  for (const sec of sections) {
     if (!sec || sec.is_active === false) continue;
-    const st = String(sec.source_type || '').toLowerCase();
-    const sv = String(sec.source_value || '').toLowerCase();
+    const st = String(sec.source_type || '').trim().toLowerCase();
+    const rawSv = String(sec.source_value || '').trim();
+    let sv = rawSv.toLowerCase();
+
+    if (st === 'status') {
+      // Backward compatibility: admin may store status section value as list-page URL.
+      // Normalize to one of: current | upcoming | theater
+      if (sv.includes('phim-dang-chieu')) sv = 'current';
+      else if (sv.includes('phim-sap-chieu')) sv = 'upcoming';
+      else if (sv.includes('phim-chieu-rap')) sv = 'theater';
+    }
 
     if (st === 'type') {
       if (sv === 'series' && !enableSeries) continue;
