@@ -1,39 +1,75 @@
 {
   "baseBatchSize": 120,
   "maxBytes": 300000,
-  "total": 240,
+  "total": 720,
   "windows": [
     {
       "start": 0,
-      "end": 5
+      "end": 7
     },
     {
-      "start": 5,
+      "start": 7,
       "end": 10
     },
     {
       "start": 10,
-      "end": 18
+      "end": 17
     },
     {
-      "start": 18,
-      "end": 25
+      "start": 17,
+      "end": 46
     },
     {
-      "start": 25,
-      "end": 80
+      "start": 46,
+      "end": 54
     },
     {
-      "start": 80,
+      "start": 54,
+      "end": 83
+    },
+    {
+      "start": 83,
       "end": 120
     },
     {
       "start": 120,
-      "end": 192
+      "end": 188
     },
     {
-      "start": 192,
+      "start": 188,
       "end": 240
+    },
+    {
+      "start": 240,
+      "end": 295
+    },
+    {
+      "start": 295,
+      "end": 360
+    },
+    {
+      "start": 360,
+      "end": 411
+    },
+    {
+      "start": 411,
+      "end": 480
+    },
+    {
+      "start": 480,
+      "end": 569
+    },
+    {
+      "start": 569,
+      "end": 600
+    },
+    {
+      "start": 600,
+      "end": 671
+    },
+    {
+      "start": 671,
+      "end": 720
     }
   ]
 }
