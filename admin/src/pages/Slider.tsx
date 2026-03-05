@@ -72,6 +72,24 @@ export default function Slider() {
     return '';
   };
 
+  const toStoredLinkPathOnly = (raw: string) => {
+    const u = String(raw || '').trim();
+    if (!u) return '';
+    if (u.startsWith('#')) return u;
+    if (u.startsWith('/')) return u;
+    if (u.startsWith('//')) return u;
+    if (!/^https?:\/\//i.test(u)) return u;
+    try {
+      const parsed = new URL(u);
+      const p = parsed.pathname || '';
+      const q = parsed.search || '';
+      const h = parsed.hash || '';
+      return (p || '/') + q + h;
+    } catch {
+      return u;
+    }
+  };
+
   const getSiteBaseFromMovieUrl = (rawUrl: string) => {
     const raw = String(rawUrl || '').trim();
     if (!raw) return '';
@@ -117,6 +135,12 @@ export default function Slider() {
     if (!u) return '';
     const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
     const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
+    const toWebpName = (filename: string) => {
+      const f = String(filename || '').trim();
+      if (!f) return '';
+      if (/\.gif$/i.test(f)) return f;
+      return f.replace(/\.(jpe?g|jpg|png|webp)$/i, '') + '.webp';
+    };
     const buildR2FromUploadsPath = (uploadsPath: string) => {
       const p = String(uploadsPath || '').trim();
       if (!p || p.indexOf('/uploads/') !== 0) return '';
@@ -130,7 +154,7 @@ export default function Slider() {
       if (!filename) return '';
       const lower = filename.toLowerCase();
       const folder = (lower.indexOf('poster') >= 0) ? 'posters' : 'thumbs';
-      return r2 + '/' + folder + '/' + filename;
+      return r2 + '/' + folder + '/' + toWebpName(filename);
     };
     if (/^https?:\/\//i.test(u)) {
       try {
@@ -159,6 +183,37 @@ export default function Slider() {
     return u;
   };
 
+  const normalizeStoredSlideImageUrl = (raw: string, r2Override?: string) => {
+    const u = String(raw || '').trim();
+    if (!u) return '';
+    const r2 = String((r2Override != null ? r2Override : r2ImgDomain) || '').replace(/\/$/, '');
+    if (r2 && /^https?:\/\//i.test(u)) {
+      try {
+        const parsed = new URL(u);
+        if (parsed.origin === r2 || (r2 && u.indexOf(r2 + '/') === 0)) {
+          if (!/\.gif(\?|#|$)/i.test(u)) {
+            return u.replace(/\.(jpe?g|jpg|png|webp)(\?|#|$)/i, '.webp$2');
+          }
+        }
+      } catch {}
+    }
+    return u;
+  };
+
+  const pickUploadsUrlFromAnyUrl = (raw: string) => {
+    const u = String(raw || '').trim();
+    if (!u) return '';
+    if (u.startsWith('/uploads/')) return u;
+    if (/^https?:\/\//i.test(u)) {
+      try {
+        const parsed = new URL(u);
+        const p = parsed.pathname || '';
+        if (p.startsWith('/uploads/')) return u;
+      } catch {}
+    }
+    return '';
+  };
+
   const fetchMovieLightBySlug = async (siteBase: string, slug: string) => {
     const base = String(siteBase || '').replace(/\/$/, '');
     if (!base) throw new Error('Thiếu Site URL');
@@ -180,18 +235,27 @@ export default function Slider() {
       supabase.from('site_settings').select('value').eq('key', 'ophim_img_domain').maybeSingle(),
       supabase.from('site_settings').select('value').eq('key', SITE_URL_KEY).maybeSingle(),
     ]);
+
+    const r2Domain = String(r2Res.data?.value ?? '');
+    const ophimDomain = String(ophimRes.data?.value ?? '');
+    const base = String(siteUrlRes.data?.value ?? '').trim();
+
+    setR2ImgDomain(r2Domain);
+    setOphimImgDomain(ophimDomain);
+    setSiteBase(base);
+
     try {
       const parsed = sliderRes.data?.value ? JSON.parse(sliderRes.data.value) : [];
       const arr = Array.isArray(parsed) ? parsed : [];
-      setList(arr.map((s: SlideItem) => ({ ...s, enabled: s.enabled !== false })));
+      setList(arr.map((s: SlideItem) => ({
+        ...s,
+        image_url: normalizeStoredSlideImageUrl((s as any)?.image_url || '', r2Domain),
+        link_url: toStoredLinkPathOnly((s as any)?.link_url || ''),
+        enabled: s.enabled !== false,
+      })));
     } catch {
       setList([]);
     }
-    setR2ImgDomain(r2Res.data?.value ?? '');
-    setOphimImgDomain(ophimRes.data?.value ?? '');
-
-    setSiteBase(String(siteUrlRes.data?.value ?? '').trim());
-
     setLoading(false);
   };
 
@@ -237,10 +301,11 @@ export default function Slider() {
         return;
       }
 
-      const linkUrl = String(baseFromLink || '').replace(/\/$/, '') + '/phim/' + (movie.slug || slug) + '.html';
+      const linkUrl = '/phim/' + (movie.slug || slug) + '.html';
       const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
       const imgRaw = ((movie as any).poster || derivedPoster || movie.thumb || (movie as any).image_url || '').replace(/^\/\//, 'https://');
-      const img = normalizePreviewUrl(imgRaw, baseFromLink);
+      const uploadsUrl = pickUploadsUrlFromAnyUrl(imgRaw);
+      const img = uploadsUrl || normalizeStoredSlideImageUrl(imgRaw);
       const title = movie.title || movie.origin_name || (movie as any).name || '';
       const countryName = Array.isArray(movie.country)
         ? (movie.country[0]?.name || '')
@@ -252,7 +317,7 @@ export default function Slider() {
           : [];
       const newSlide: SlideItem = {
         image_url: img,
-        link_url: linkUrl,
+        link_url: toStoredLinkPathOnly(linkUrl),
         title,
         year: movie.year != null ? String(movie.year) : undefined,
         country: countryName || undefined,
@@ -332,10 +397,11 @@ export default function Slider() {
       });
 
       const newSlides: SlideItem[] = sorted.slice(0, n).map((movie: any, i: number) => {
-        const linkUrl = base + '/phim/' + (movie.slug || movie.id) + '.html';
+        const linkUrl = '/phim/' + (movie.slug || movie.id) + '.html';
         const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
         const imgRaw = (movie.poster || derivedPoster || movie.thumb || movie.image_url || '').replace(/^\/\//, 'https://');
-        const img = normalizePreviewUrl(imgRaw, base);
+        const uploadsUrl = pickUploadsUrlFromAnyUrl(imgRaw);
+        const img = uploadsUrl || normalizeStoredSlideImageUrl(imgRaw);
         const title = movie.title || movie.origin_name || movie.name || '';
         const countryName = Array.isArray(movie.country) && movie.country[0] ? (movie.country[0].name || '') : '';
         const genreNames = Array.isArray(movie.genre)
@@ -343,7 +409,7 @@ export default function Slider() {
           : [];
         return {
           image_url: img,
-          link_url: linkUrl,
+          link_url: toStoredLinkPathOnly(linkUrl),
           title,
           year: movie.year != null ? String(movie.year) : undefined,
           country: countryName || undefined,
@@ -373,8 +439,8 @@ export default function Slider() {
       ? (genresRaw || '').split(',').map((s: string) => s.trim()).filter(Boolean)
       : Array.isArray(genresRaw) ? genresRaw : undefined;
     const slide: SlideItem = {
-      image_url: values.image_url || '',
-      link_url: values.link_url || '',
+      image_url: normalizeStoredSlideImageUrl(values.image_url || ''),
+      link_url: toStoredLinkPathOnly(values.link_url || ''),
       title: values.title || '',
       year: values.year != null && values.year !== '' ? String(values.year) : undefined,
       country: values.country || undefined,

@@ -901,7 +901,10 @@
     var base = BASE || '';
     var html = '<div class="slider-viewport"><div class="slider-track">';
     slides.forEach(function (s, i) {
-      var href = (s.link_url || '#').replace(/"/g, '&quot;');
+      var hrefRaw = (s.link_url || '#');
+      var hrefFinal = hrefRaw;
+      if (hrefRaw && hrefRaw[0] === '/' && base) hrefFinal = base + hrefRaw;
+      var href = String(hrefFinal || '#').replace(/"/g, '&quot;');
       var norm = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
         ? window.DAOP.normalizeImgUrl
         : function (x) { return x; };
