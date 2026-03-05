@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["mr"] = [{"id":"69646b201d0b515454a3f5df","title":"Mr. Buzzkill","origin_name":"Mr. Buzzkill","slug":"mr-buzzkill","thumb":"/uploads/movies/mr-buzzkill-thumb.jpg","year":2025,"type":"single","episode_current":"Full","_t":"mr buzzkill mr buzzkill mr buzzkill"}];

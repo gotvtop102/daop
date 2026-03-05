@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["12"] = {"120-bahadur":{"id":"696467894ea2111da8b4a004","i":191,"title":"120 Bahadur","origin_name":"120 Bahadur","slug":"120-bahadur","thumb":"/uploads/movies/120-bahadur-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

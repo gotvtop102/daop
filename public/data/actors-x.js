@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"xiao-douhua":["69a954d032adc86a1e7d7794"]},"names":{"xiao-douhua":"Xiao Douhua"},"meta":{"xiao-douhua":{"tmdb_id":5071905,"profile":null,"tmdb_url":"https://www.themoviedb.org/person/5071905"}},"movies":{"xiao-douhua":[{"id":"69a954d032adc86a1e7d7794","title":"Trâm Khoá Tình","origin_name":"The Inescapable","slug":"tram-khoa-tinh","thumb":"/uploads/movies/tram-khoa-tinh-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 6"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

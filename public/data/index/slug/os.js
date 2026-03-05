@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["os"] = {"oscar-shaw":{"id":"69646887d88856be77110b77","i":193,"title":"Oscar Shaw","origin_name":"Oscar Shaw","slug":"oscar-shaw","thumb":"/uploads/movies/oscar-shaw-thumb.jpg","year":2026,"type":"single","episode_current":"Full"}};

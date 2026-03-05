@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["le"] = {"les-orphelins":{"id":"6964670e54ca9185bba97574","i":190,"title":"Les Orphelins","origin_name":"The Orphans","slug":"les-orphelins","thumb":"/uploads/movies/les-orphelins-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};
