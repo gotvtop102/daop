@@ -821,6 +821,8 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69a56b5ceea244e3e8b143f4",
+      "69a84f29f063d23bbbcf8d05",
       "69895b6eb9fc4b5429662af5",
       "69a3bbc1eea244e3e8b099da",
       "696883b0f937c3b5a10711d6",
@@ -831,11 +833,92 @@
       "69841589ae6f0c1fdf37ee28",
       "698466edae6f0c1fdf37f989",
       "69a81f8154ca9185bbb66858",
-      "6947a82897c71dcd0d63982e",
-      "69a84f29f063d23bbbcf8d05",
-      "695be65bf65d22d617a4122c"
+      "6947a82897c71dcd0d63982e"
     ],
     "movies": [
+      {
+        "id": "69a56b5ceea244e3e8b143f4",
+        "title": "Giấu Kín Tình Yêu",
+        "origin_name": "Love in a Secret",
+        "slug": "giau-kin-tinh-yeu",
+        "thumb": "/uploads/movies/giau-kin-tinh-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T14:32:06.000Z"
+      },
+      {
+        "id": "69a84f29f063d23bbbcf8d05",
+        "title": "56 Ngày",
+        "origin_name": "56 Days",
+        "slug": "56-ngay",
+        "thumb": "/uploads/movies/56-ngay-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          },
+          {
+            "id": "620a2381e0fc277084dfd9c6",
+            "name": "Canada",
+            "slug": "canada"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (8/8)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T14:11:27.000Z"
+      },
       {
         "id": "69895b6eb9fc4b5429662af5",
         "title": "Thanh Xuân Trở Lại",
@@ -1259,89 +1342,6 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-04T23:07:43.000Z"
-      },
-      {
-        "id": "69a84f29f063d23bbbcf8d05",
-        "title": "56 Ngày",
-        "origin_name": "56 Days",
-        "slug": "56-ngay",
-        "thumb": "/uploads/movies/56-ngay-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2381e0fc277084dfd9c6",
-            "name": "Canada",
-            "slug": "canada"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-04T22:26:33.000Z"
-      },
-      {
-        "id": "695be65bf65d22d617a4122c",
-        "title": "Chúng Ta Ngang Tài Ngang Sức (Phần 2)",
-        "origin_name": "Live and Love (Season 2)",
-        "slug": "chung-ta-ngang-tai-ngang-suc-phan-2",
-        "thumb": "/uploads/movies/chung-ta-ngang-tai-ngang-suc-phan-2-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a220de0fc277084dfd16d",
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 8",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-04T21:22:54.000Z"
       }
     ]
   },
@@ -1901,6 +1901,8 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69a56b5ceea244e3e8b143f4",
+      "69a84f29f063d23bbbcf8d05",
       "69a9268fda6ce23e8ea2ba10",
       "69895b6eb9fc4b5429662af5",
       "69a3bbc1eea244e3e8b099da",
@@ -1910,11 +1912,92 @@
       "699fcba4400bf394bd8b72c6",
       "69a80c56b9fc4b54296ffd1e",
       "699fce7cb06c99c722f6e216",
-      "69840ded400bf394bd83d41e",
-      "69841589ae6f0c1fdf37ee28",
-      "695f572b0a0114095c70a212"
+      "69840ded400bf394bd83d41e"
     ],
     "movies": [
+      {
+        "id": "69a56b5ceea244e3e8b143f4",
+        "title": "Giấu Kín Tình Yêu",
+        "origin_name": "Love in a Secret",
+        "slug": "giau-kin-tinh-yeu",
+        "thumb": "/uploads/movies/giau-kin-tinh-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T14:32:06.000Z"
+      },
+      {
+        "id": "69a84f29f063d23bbbcf8d05",
+        "title": "56 Ngày",
+        "origin_name": "56 Days",
+        "slug": "56-ngay",
+        "thumb": "/uploads/movies/56-ngay-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          },
+          {
+            "id": "620a2381e0fc277084dfd9c6",
+            "name": "Canada",
+            "slug": "canada"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (8/8)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T14:11:27.000Z"
+      },
       {
         "id": "69a9268fda6ce23e8ea2ba10",
         "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
@@ -2299,89 +2382,6 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-05T11:06:13.000Z"
-      },
-      {
-        "id": "69841589ae6f0c1fdf37ee28",
-        "title": "Thủy Triều Tình Yêu (Phần 2)",
-        "origin_name": "Tide of Love (Season 2)",
-        "slug": "thuy-trieu-tinh-yeu-phan-2",
-        "thumb": "/uploads/movies/thuy-trieu-tinh-yeu-phan-2-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 5",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T10:58:27.000Z"
-      },
-      {
-        "id": "695f572b0a0114095c70a212",
-        "title": "Lãnh chúa vô tư vui thú bảo vệ lãnh địa ~ Biến ngôi làng vô danh thành pháo đài mạnh nhất bằng ma pháp hệ sản xuất ~",
-        "origin_name": "Easygoing Territory Defense by the Optimistic Lord",
-        "slug": "lanh-chua-vo-tu-vui-thu-bao-ve-lanh-dia-bien-ngoi-lang-vo-danh-thanh-phao-dai-manh-nhat-bang-ma-phap-he-san-xuat",
-        "thumb": "/uploads/movies/lanh-chua-vo-tu-vui-thu-bao-ve-lanh-dia-bien-ngoi-lang-vo-danh-thanh-phao-dai-manh-nhat-bang-ma-phap-he-san-xuat-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "hoathinh",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a2282e0fc277084dfd435",
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "id": "620a229be0fc277084dfd4dd",
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2307e0fc277084dfd726",
-            "name": "Nhật Bản",
-            "slug": "nhat-ban"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 9",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T10:58:11.000Z"
       }
     ]
   },
@@ -2427,6 +2427,7 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69a56b5ceea244e3e8b143f4",
       "69a3bbc1eea244e3e8b099da",
       "696883b0f937c3b5a10711d6",
       "699fccb1f937c3b5a110e678",
@@ -2438,10 +2439,43 @@
       "695f572b0a0114095c70a212",
       "695a23faccc6cea268717561",
       "698466edae6f0c1fdf37f989",
-      "69a81f8154ca9185bbb66858",
-      "6947a82897c71dcd0d63982e"
+      "69a81f8154ca9185bbb66858"
     ],
     "movies": [
+      {
+        "id": "69a56b5ceea244e3e8b143f4",
+        "title": "Giấu Kín Tình Yêu",
+        "origin_name": "Love in a Secret",
+        "slug": "giau-kin-tinh-yeu",
+        "thumb": "/uploads/movies/giau-kin-tinh-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T14:32:06.000Z"
+      },
       {
         "id": "69a3bbc1eea244e3e8b099da",
         "title": "Oan Gia Đường Tôm",
@@ -2919,50 +2953,6 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-05T02:26:21.000Z"
-      },
-      {
-        "id": "6947a82897c71dcd0d63982e",
-        "title": "Người Đàn Ông Đầu Tiên",
-        "origin_name": "First Man",
-        "slug": "nguoi-dan-ong-dau-tien",
-        "thumb": "/uploads/movies/nguoi-dan-ong-dau-tien-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620e4c0b6ba8271c5eef05a8",
-            "name": "Gia Đình",
-            "slug": "gia-dinh"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 41",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-04T23:07:43.000Z"
       }
     ]
   },
@@ -2999,11 +2989,11 @@
       "69a8e3a1f937c3b5a113e0f9",
       "69a8e1ccae6f0c1fdf4284e5",
       "69a8e28b400bf394bd8e6d8c",
-      "69a84f29f063d23bbbcf8d05",
       "69a80cb297c71dcd0d72f84a",
       "69a5a0cdf937c3b5a1132aaf",
       "69a5a066e263b2a9461f5530",
-      "69a26af4400bf394bd8c7175"
+      "69a26af4400bf394bd8c7175",
+      "69a257d4f063d23bbbcda28f"
     ],
     "movies": [
       {
@@ -3275,55 +3265,6 @@
         "modified": "2026-03-05T08:55:40.000Z"
       },
       {
-        "id": "69a84f29f063d23bbbcf8d05",
-        "title": "56 Ngày",
-        "origin_name": "56 Days",
-        "slug": "56-ngay",
-        "thumb": "/uploads/movies/56-ngay-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2381e0fc277084dfd9c6",
-            "name": "Canada",
-            "slug": "canada"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-04T22:26:33.000Z"
-      },
-      {
         "id": "69a80cb297c71dcd0d72f84a",
         "title": "Cha Mẹ Chị và Em",
         "origin_name": "Father Mother Sister Brother",
@@ -3488,6 +3429,55 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-02-28T11:11:32.000Z"
+      },
+      {
+        "id": "69a257d4f063d23bbbcda28f",
+        "title": "Khách Sạn Tận Thế",
+        "origin_name": "Apocalypse Hotel",
+        "slug": "khach-san-tan-the",
+        "thumb": "/uploads/movies/khach-san-tan-the-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-02-28T09:49:58.000Z"
       }
     ]
   },
@@ -6385,6 +6375,8 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69a56b5ceea244e3e8b143f4",
+      "69a84f29f063d23bbbcf8d05",
       "69a9268fda6ce23e8ea2ba10",
       "69a905ae124287e0825e06e0",
       "693162625f6639c506373d1c",
@@ -6398,11 +6390,92 @@
       "691beef1b53029a1749b7586",
       "69a905650a0114095c7e2932",
       "696883b0f937c3b5a10711d6",
-      "699fccb1f937c3b5a110e678",
-      "694cb94a458948c67998aa33",
-      "625c61c8941a26e421dc5d16"
+      "699fccb1f937c3b5a110e678"
     ],
     "movies": [
+      {
+        "id": "69a56b5ceea244e3e8b143f4",
+        "title": "Giấu Kín Tình Yêu",
+        "origin_name": "Love in a Secret",
+        "slug": "giau-kin-tinh-yeu",
+        "thumb": "/uploads/movies/giau-kin-tinh-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T14:32:06.000Z"
+      },
+      {
+        "id": "69a84f29f063d23bbbcf8d05",
+        "title": "56 Ngày",
+        "origin_name": "56 Days",
+        "slug": "56-ngay",
+        "thumb": "/uploads/movies/56-ngay-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          },
+          {
+            "id": "620a2381e0fc277084dfd9c6",
+            "name": "Canada",
+            "slug": "canada"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (8/8)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T14:11:27.000Z"
+      },
       {
         "id": "69a9268fda6ce23e8ea2ba10",
         "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
@@ -6958,104 +7031,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T11:22:13.000Z"
-      },
-      {
-        "id": "694cb94a458948c67998aa33",
-        "title": "Kiếm Lai (Phần 2)",
-        "origin_name": "Sword of Coming (Season 2)",
-        "slug": "kiem-lai-phan-2",
-        "thumb": "/uploads/movies/kiem-lai-phan-2-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "hoathinh",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a2282e0fc277084dfd435",
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "id": "620a229be0fc277084dfd4dd",
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 13",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T11:22:01.000Z"
-      },
-      {
-        "id": "625c61c8941a26e421dc5d16",
-        "title": "Thế Giới Hoàn Mỹ",
-        "origin_name": "Perfect World",
-        "slug": "the-gioi-hoan-my",
-        "thumb": "/uploads/movies/the-gioi-hoan-my-thumb.jpg",
-        "poster": "",
-        "year": 2021,
-        "type": "hoathinh",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a222fe0fc277084dfd23d",
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          },
-          {
-            "id": "620a2279e0fc277084dfd3e1",
-            "name": "Võ Thuật",
-            "slug": "vo-thuat"
-          },
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub + Thuyết Minh",
-        "episode_current": "Tập 257",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T11:21:51.000Z"
       }
     ]
   },
@@ -7101,6 +7076,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69a56b5ceea244e3e8b143f4",
       "69a9268fda6ce23e8ea2ba10",
       "693162625f6639c506373d1c",
       "69895b6eb9fc4b5429662af5",
@@ -7115,10 +7091,43 @@
       "68dfaf5c64345e80cbec3021",
       "69a8e3a1f937c3b5a113e0f9",
       "69a82b6746046a8eb690b2e7",
-      "69a82ad31d0b515454b0ee0b",
-      "695be65bf65d22d617a4122c"
+      "69a82ad31d0b515454b0ee0b"
     ],
     "movies": [
+      {
+        "id": "69a56b5ceea244e3e8b143f4",
+        "title": "Giấu Kín Tình Yêu",
+        "origin_name": "Love in a Secret",
+        "slug": "giau-kin-tinh-yeu",
+        "thumb": "/uploads/movies/giau-kin-tinh-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T14:32:06.000Z"
+      },
       {
         "id": "69a9268fda6ce23e8ea2ba10",
         "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
@@ -7713,40 +7722,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-04T21:25:51.000Z"
-      },
-      {
-        "id": "695be65bf65d22d617a4122c",
-        "title": "Chúng Ta Ngang Tài Ngang Sức (Phần 2)",
-        "origin_name": "Live and Love (Season 2)",
-        "slug": "chung-ta-ngang-tai-ngang-suc-phan-2",
-        "thumb": "/uploads/movies/chung-ta-ngang-tai-ngang-suc-phan-2-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a220de0fc277084dfd16d",
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 8",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-04T21:22:54.000Z"
       }
     ]
   },
@@ -8443,6 +8418,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69a84f29f063d23bbbcf8d05",
       "69a905650a0114095c7e2932",
       "69a80c56b9fc4b54296ffd1e",
       "699fce7cb06c99c722f6e216",
@@ -8450,7 +8426,6 @@
       "69a8e4450a0114095c7e1ffc",
       "69a8e28b400bf394bd8e6d8c",
       "69a81f8154ca9185bbb66858",
-      "69a84f29f063d23bbbcf8d05",
       "6966276b4da3bf6eb331cdd6",
       "69a80cb297c71dcd0d72f84a",
       "69a7fdca4ea2111da8c19592",
@@ -8461,6 +8436,55 @@
       "69a66693ccc6cea2687ef8ab"
     ],
     "movies": [
+      {
+        "id": "69a84f29f063d23bbbcf8d05",
+        "title": "56 Ngày",
+        "origin_name": "56 Days",
+        "slug": "56-ngay",
+        "thumb": "/uploads/movies/56-ngay-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          },
+          {
+            "id": "620a2381e0fc277084dfd9c6",
+            "name": "Canada",
+            "slug": "canada"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (8/8)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T14:11:27.000Z"
+      },
       {
         "id": "69a905650a0114095c7e2932",
         "title": "Cô Dâu!",
@@ -8753,55 +8777,6 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-05T02:26:21.000Z"
-      },
-      {
-        "id": "69a84f29f063d23bbbcf8d05",
-        "title": "56 Ngày",
-        "origin_name": "56 Days",
-        "slug": "56-ngay",
-        "thumb": "/uploads/movies/56-ngay-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2381e0fc277084dfd9c6",
-            "name": "Canada",
-            "slug": "canada"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-04T22:26:33.000Z"
       },
       {
         "id": "6966276b4da3bf6eb331cdd6",
