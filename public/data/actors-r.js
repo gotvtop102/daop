@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"rachel-weisz":["69a93b8ef937c3b5a113f663"]},"names":{"rachel-weisz":"Rachel Weisz"},"meta":{"rachel-weisz":{"tmdb_id":3293,"profile":"https://image.tmdb.org/t/p/w500/9tfHL5tholha1YF6bSKt422ETPM.jpg","tmdb_url":"https://www.themoviedb.org/person/3293"}},"movies":{"rachel-weisz":[{"id":"69a93b8ef937c3b5a113f663","title":"Vladimir","origin_name":"Vladimir","slug":"vladimir","thumb":"/uploads/movies/vladimir-thumb.jpg","year":2026,"type":"series","episode_current":"Trailer"}]}};

@@ -822,7 +822,6 @@
     "featured_count_xs": 1,
     "ids": [
       "69a954d032adc86a1e7d7794",
-      "68e4c2797554a460a6e769a5",
       "699ad7baae6f0c1fdf3d96ec",
       "69a93b8ef937c3b5a113f663",
       "69a939e0ae6f0c1fdf429b01",
@@ -833,7 +832,8 @@
       "69a3bbc1eea244e3e8b099da",
       "696883b0f937c3b5a10711d6",
       "699fccb1f937c3b5a110e678",
-      "699fcba4400bf394bd8b72c6"
+      "699fcba4400bf394bd8b72c6",
+      "699fce7cb06c99c722f6e216"
     ],
     "movies": [
       {
@@ -869,45 +869,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T17:08:49.000Z"
-      },
-      {
-        "id": "68e4c2797554a460a6e769a5",
-        "title": "Bụi Hoa Hồng",
-        "origin_name": "About Love",
-        "slug": "bui-hoa-hong",
-        "thumb": "/uploads/movies/bui-hoa-hong-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 14",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T17:08:31.000Z"
       },
       {
         "id": "699ad7baae6f0c1fdf3d96ec",
@@ -1332,6 +1293,50 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T11:21:36.000Z"
+      },
+      {
+        "id": "699fce7cb06c99c722f6e216",
+        "title": "Mất Tích 2026 (Phần 1)",
+        "origin_name": "Vanished (Season 1)",
+        "slug": "mat-tich-2026-phan-1",
+        "thumb": "/uploads/movies/mat-tich-2026-phan-1-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          },
+          {
+            "id": "620a2370e0fc277084dfd91e",
+            "name": "Anh",
+            "slug": "anh"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (4/4)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-05T11:08:19.000Z"
       }
     ]
   },
@@ -1398,16 +1403,16 @@
             "slug": "trung-quoc"
           }
         ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Full",
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2026-03-05T15:06:08.000Z"
+        "modified": "2026-03-05T13:45:35.000Z"
       },
       {
         "id": "69a905ae124287e0825e06e0",
@@ -1895,10 +1900,10 @@
       "699ad7baae6f0c1fdf3d96ec",
       "69a93b8ef937c3b5a113f663",
       "69a939e0ae6f0c1fdf429b01",
-      "69a9268fda6ce23e8ea2ba10",
       "6996e4f91d0b515454aac59f",
       "69a56b5ceea244e3e8b143f4",
       "69a84f29f063d23bbbcf8d05",
+      "69a9268fda6ce23e8ea2ba10",
       "69895b6eb9fc4b5429662af5",
       "69a3bbc1eea244e3e8b099da",
       "69a905650a0114095c7e2932",
@@ -2067,40 +2072,6 @@
         "modified": "2026-03-05T15:12:26.000Z"
       },
       {
-        "id": "69a9268fda6ce23e8ea2ba10",
-        "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
-        "origin_name": "Fist of Fury: The Winds of Jingwu",
-        "slug": "tinh-vo-tran-chan-to-gioi-phong-van",
-        "thumb": "/uploads/movies/tinh-vo-tran-chan-to-gioi-phong-van-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T15:06:08.000Z"
-      },
-      {
         "id": "6996e4f91d0b515454aac59f",
         "title": "Vua Bóng Đá Giao Hàng",
         "origin_name": "Rack 'n' Roll Delivery",
@@ -2216,6 +2187,40 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T14:11:27.000Z"
+      },
+      {
+        "id": "69a9268fda6ce23e8ea2ba10",
+        "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
+        "origin_name": "Fist of Fury: The Winds of Jingwu",
+        "slug": "tinh-vo-tran-chan-to-gioi-phong-van",
+        "thumb": "/uploads/movies/tinh-vo-tran-chan-to-gioi-phong-van-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T13:45:35.000Z"
       },
       {
         "id": "69895b6eb9fc4b5429662af5",
@@ -2418,7 +2423,6 @@
     "featured_count_xs": 1,
     "ids": [
       "69a954d032adc86a1e7d7794",
-      "68e4c2797554a460a6e769a5",
       "699ad7baae6f0c1fdf3d96ec",
       "6996e4f91d0b515454aac59f",
       "69a56b5ceea244e3e8b143f4",
@@ -2429,7 +2433,8 @@
       "625c61c8941a26e421dc5d16",
       "699fcba4400bf394bd8b72c6",
       "69840ded400bf394bd83d41e",
-      "69841589ae6f0c1fdf37ee28"
+      "69841589ae6f0c1fdf37ee28",
+      "695f572b0a0114095c70a212"
     ],
     "movies": [
       {
@@ -2465,45 +2470,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T17:08:49.000Z"
-      },
-      {
-        "id": "68e4c2797554a460a6e769a5",
-        "title": "Bụi Hoa Hồng",
-        "origin_name": "About Love",
-        "slug": "bui-hoa-hong",
-        "thumb": "/uploads/movies/bui-hoa-hong-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 14",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T17:08:31.000Z"
       },
       {
         "id": "699ad7baae6f0c1fdf3d96ec",
@@ -2933,6 +2899,55 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T10:58:27.000Z"
+      },
+      {
+        "id": "695f572b0a0114095c70a212",
+        "title": "Lãnh chúa vô tư vui thú bảo vệ lãnh địa ~ Biến ngôi làng vô danh thành pháo đài mạnh nhất bằng ma pháp hệ sản xuất ~",
+        "origin_name": "Easygoing Territory Defense by the Optimistic Lord",
+        "slug": "lanh-chua-vo-tu-vui-thu-bao-ve-lanh-dia-bien-ngoi-lang-vo-danh-thanh-phao-dai-manh-nhat-bang-ma-phap-he-san-xuat",
+        "thumb": "/uploads/movies/lanh-chua-vo-tu-vui-thu-bao-ve-lanh-dia-bien-ngoi-lang-vo-danh-thanh-phao-dai-manh-nhat-bang-ma-phap-he-san-xuat-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 9",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T10:58:11.000Z"
       }
     ]
   },
@@ -2964,6 +2979,7 @@
     "ids": [
       "69a93b8ef937c3b5a113f663",
       "69a939e0ae6f0c1fdf429b01",
+      "69a9268fda6ce23e8ea2ba10",
       "69a905650a0114095c7e2932",
       "69a8fb6e988d934ea9f0fbe3",
       "69a8e4450a0114095c7e1ffc",
@@ -2972,8 +2988,7 @@
       "69a8e28b400bf394bd8e6d8c",
       "69a80cb297c71dcd0d72f84a",
       "69a5a0cdf937c3b5a1132aaf",
-      "69a5a066e263b2a9461f5530",
-      "69a26af4400bf394bd8c7175"
+      "69a5a066e263b2a9461f5530"
     ],
     "movies": [
       {
@@ -3053,6 +3068,40 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T15:12:26.000Z"
+      },
+      {
+        "id": "69a9268fda6ce23e8ea2ba10",
+        "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
+        "origin_name": "Fist of Fury: The Winds of Jingwu",
+        "slug": "tinh-vo-tran-chan-to-gioi-phong-van",
+        "thumb": "/uploads/movies/tinh-vo-tran-chan-to-gioi-phong-van-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T13:45:35.000Z"
       },
       {
         "id": "69a905650a0114095c7e2932",
@@ -3419,40 +3468,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-02T21:36:22.000Z"
-      },
-      {
-        "id": "69a26af4400bf394bd8c7175",
-        "title": "Wolfoo & Cuộc Đua Tam Giới",
-        "origin_name": "Wolfoo & Cuộc Đua Tam Giới",
-        "slug": "wolfoo-and-cuoc-dua-tam-gioi",
-        "thumb": "/uploads/movies/wolfoo-and-cuoc-dua-tam-gioi-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "hoathinh",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "63e0fd3ecaf0f6e22aeb0616",
-            "name": "Việt Nam",
-            "slug": "viet-nam"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-02-28T11:11:32.000Z"
       }
     ]
   },
@@ -5185,7 +5200,6 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
-      "69a9268fda6ce23e8ea2ba10",
       "625c61c8941a26e421dc5d16",
       "6981538df063d23bbbc4c7d1",
       "696e21a2b06c99c722ed865a",
@@ -5193,40 +5207,6 @@
       "65711707efed8b7739873bf4"
     ],
     "movies": [
-      {
-        "id": "69a9268fda6ce23e8ea2ba10",
-        "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
-        "origin_name": "Fist of Fury: The Winds of Jingwu",
-        "slug": "tinh-vo-tran-chan-to-gioi-phong-van",
-        "thumb": "/uploads/movies/tinh-vo-tran-chan-to-gioi-phong-van-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T15:06:08.000Z"
-      },
       {
         "id": "625c61c8941a26e421dc5d16",
         "title": "Thế Giới Hoàn Mỹ",
@@ -5461,13 +5441,13 @@
     "grid_columns_xs": 2,
     "ids": [
       "69a954d032adc86a1e7d7794",
-      "68e4c2797554a460a6e769a5",
       "699ad7baae6f0c1fdf3d96ec",
       "69a93b8ef937c3b5a113f663",
       "69a939e0ae6f0c1fdf429b01",
       "6996e4f91d0b515454aac59f",
       "69a56b5ceea244e3e8b143f4",
       "69a84f29f063d23bbbcf8d05",
+      "69a9268fda6ce23e8ea2ba10",
       "69a905ae124287e0825e06e0",
       "693162625f6639c506373d1c",
       "69895b6eb9fc4b5429662af5",
@@ -5511,45 +5491,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T17:08:49.000Z"
-      },
-      {
-        "id": "68e4c2797554a460a6e769a5",
-        "title": "Bụi Hoa Hồng",
-        "origin_name": "About Love",
-        "slug": "bui-hoa-hong",
-        "thumb": "/uploads/movies/bui-hoa-hong-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 14",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T17:08:31.000Z"
       },
       {
         "id": "699ad7baae6f0c1fdf3d96ec",
@@ -5794,6 +5735,40 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T14:11:27.000Z"
+      },
+      {
+        "id": "69a9268fda6ce23e8ea2ba10",
+        "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
+        "origin_name": "Fist of Fury: The Winds of Jingwu",
+        "slug": "tinh-vo-tran-chan-to-gioi-phong-van",
+        "thumb": "/uploads/movies/tinh-vo-tran-chan-to-gioi-phong-van-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T13:45:35.000Z"
       },
       {
         "id": "69a905ae124287e0825e06e0",
@@ -6157,11 +6132,10 @@
     "featured_count_xs": 0,
     "ids": [
       "69a954d032adc86a1e7d7794",
-      "68e4c2797554a460a6e769a5",
       "699ad7baae6f0c1fdf3d96ec",
-      "69a9268fda6ce23e8ea2ba10",
       "6996e4f91d0b515454aac59f",
       "69a56b5ceea244e3e8b143f4",
+      "69a9268fda6ce23e8ea2ba10",
       "693162625f6639c506373d1c",
       "69895b6eb9fc4b5429662af5",
       "69a3bbc1eea244e3e8b099da",
@@ -6171,7 +6145,8 @@
       "694cb94a458948c67998aa33",
       "625c61c8941a26e421dc5d16",
       "699fcba4400bf394bd8b72c6",
-      "69a8fcae4ea2111da8c1cae1"
+      "69a8fcae4ea2111da8c1cae1",
+      "68dfaf5c64345e80cbec3021"
     ],
     "movies": [
       {
@@ -6207,45 +6182,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T17:08:49.000Z"
-      },
-      {
-        "id": "68e4c2797554a460a6e769a5",
-        "title": "Bụi Hoa Hồng",
-        "origin_name": "About Love",
-        "slug": "bui-hoa-hong",
-        "thumb": "/uploads/movies/bui-hoa-hong-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 14",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T17:08:31.000Z"
       },
       {
         "id": "699ad7baae6f0c1fdf3d96ec",
@@ -6295,40 +6231,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T17:08:14.000Z"
-      },
-      {
-        "id": "69a9268fda6ce23e8ea2ba10",
-        "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
-        "origin_name": "Fist of Fury: The Winds of Jingwu",
-        "slug": "tinh-vo-tran-chan-to-gioi-phong-van",
-        "thumb": "/uploads/movies/tinh-vo-tran-chan-to-gioi-phong-van-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-05T15:06:08.000Z"
       },
       {
         "id": "6996e4f91d0b515454aac59f",
@@ -6397,6 +6299,40 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T14:32:06.000Z"
+      },
+      {
+        "id": "69a9268fda6ce23e8ea2ba10",
+        "title": "Tinh Võ Trần Chân: Tô Giới Phong Vân",
+        "origin_name": "Fist of Fury: The Winds of Jingwu",
+        "slug": "tinh-vo-tran-chan-to-gioi-phong-van",
+        "thumb": "/uploads/movies/tinh-vo-tran-chan-to-gioi-phong-van-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T13:45:35.000Z"
       },
       {
         "id": "693162625f6639c506373d1c",
@@ -6812,6 +6748,45 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-05T10:57:52.000Z"
+      },
+      {
+        "id": "68dfaf5c64345e80cbec3021",
+        "title": "Đại Đường Thừa Phong Lục",
+        "origin_name": "Wind Driver in Tang Dynasty",
+        "slug": "dai-duong-thua-phong-luc",
+        "thumb": "/uploads/movies/dai-duong-thua-phong-luc-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (26/26)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-05T10:15:45.000Z"
       }
     ]
   },
@@ -8611,16 +8586,16 @@
             "slug": "trung-quoc"
           }
         ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Full",
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2026-03-05T15:06:08.000Z"
+        "modified": "2026-03-05T13:45:35.000Z"
       },
       {
         "id": "69a905ae124287e0825e06e0",
