@@ -1,1 +1,0 @@
-window.actorsData = {"map":{"harriet-cains":["69a8e1ccae6f0c1fdf4284e5"]},"names":{"harriet-cains":"Harriet Cains"},"meta":{"harriet-cains":{"tmdb_id":1198657,"profile":"https://image.tmdb.org/t/p/w500/tnYWhvS9ZUrO5Z2ErbAIqm3o0wU.jpg","tmdb_url":"https://www.themoviedb.org/person/1198657"}},"movies":{}};

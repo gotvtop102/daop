@@ -1,1 +1,0 @@
-window.actorsData = {"map":{"william-magnuson":["69a8e28b400bf394bd8e6d8c"]},"names":{"william-magnuson":"William Magnuson"},"meta":{"william-magnuson":{"tmdb_id":2547272,"profile":"https://image.tmdb.org/t/p/w500/h3pya0jLFzukfoVnC35O8qNAtc7.jpg","tmdb_url":"https://www.themoviedb.org/person/2547272"}},"movies":{}};

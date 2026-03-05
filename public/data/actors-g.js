@@ -1,1 +1,0 @@
-window.actorsData = {"map":{"graham-skipper":["69a8e28b400bf394bd8e6d8c"]},"names":{"graham-skipper":"Graham Skipper"},"meta":{"graham-skipper":{"tmdb_id":1194700,"profile":"https://image.tmdb.org/t/p/w500/kU61AybO1EWbzE6UDo5dSwm9Ep4.jpg","tmdb_url":"https://www.themoviedb.org/person/1194700"}},"movies":{}};

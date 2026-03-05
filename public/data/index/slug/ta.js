@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ta"] = {"tam-ly-me-ao":{"id":"69a3a83df937c3b5a1125ce6","i":190,"title":"Tâm Lý Mê Ảo","origin_name":"Placebo Cure","slug":"tam-ly-me-ao","thumb":"/uploads/movies/tam-ly-me-ao-thumb.jpg","year":2005,"type":"series","episode_current":"Hoàn Tất (20/20)"}};

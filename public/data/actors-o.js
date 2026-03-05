@@ -1,1 +1,0 @@
-window.actorsData = {"map":{"oliver-coopersmith":["69a8e1ccae6f0c1fdf4284e5"]},"names":{"oliver-coopersmith":"Oliver Coopersmith"},"meta":{"oliver-coopersmith":{"tmdb_id":1133904,"profile":"https://image.tmdb.org/t/p/w500/no2k4eXLW8Bb6TDaPs8p0u69plF.jpg","tmdb_url":"https://www.themoviedb.org/person/1133904"}},"movies":{}};

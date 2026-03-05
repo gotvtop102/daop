@@ -1,1 +1,0 @@
-window.actorsData = {"map":{"xander-bailey":["69a8e4450a0114095c7e1ffc"]},"names":{"xander-bailey":"Xander Bailey"},"meta":{"xander-bailey":{"tmdb_id":1800933,"profile":"https://image.tmdb.org/t/p/w500/7trhXBGaWlfQ66H4UxEVzrxla7C.jpg","tmdb_url":"https://www.themoviedb.org/person/1800933"}},"movies":{}};

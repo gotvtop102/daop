@@ -1,1 +1,0 @@
-window.actorsData = {"map":{"luca-pusceddu":["69a8e4450a0114095c7e1ffc"]},"names":{"luca-pusceddu":"Luca Pusceddu"},"meta":{"luca-pusceddu":{"tmdb_id":1273127,"profile":"https://image.tmdb.org/t/p/w500/8oaXxRGKuqZa1KOI4w0FcGWrjC5.jpg","tmdb_url":"https://www.themoviedb.org/person/1273127"}},"movies":{}};
