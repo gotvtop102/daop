@@ -159,34 +159,6 @@ export default function Slider() {
     return u;
   };
 
-  const toStoredPathOnly = (raw: string) => {
-    const u = String(raw || '').trim();
-    if (!u) return '';
-    if (u.startsWith('/')) return u;
-    if (u.startsWith('//')) return u;
-    if (!/^https?:\/\//i.test(u)) return u;
-    try {
-      const parsed = new URL(u);
-      return parsed.pathname || u;
-    } catch {
-      return u;
-    }
-  };
-
-  const pickUploadsPathFromAnyUrl = (raw: string) => {
-    const u = String(raw || '').trim();
-    if (!u) return '';
-    if (u.startsWith('/uploads/')) return u;
-    try {
-      if (/^https?:\/\//i.test(u)) {
-        const parsed = new URL(u);
-        const p = parsed.pathname || '';
-        if (p.startsWith('/uploads/')) return p;
-      }
-    } catch {}
-    return '';
-  };
-
   const fetchMovieLightBySlug = async (siteBase: string, slug: string) => {
     const base = String(siteBase || '').replace(/\/$/, '');
     if (!base) throw new Error('Thiếu Site URL');
@@ -211,7 +183,7 @@ export default function Slider() {
     try {
       const parsed = sliderRes.data?.value ? JSON.parse(sliderRes.data.value) : [];
       const arr = Array.isArray(parsed) ? parsed : [];
-      setList(arr.map((s: SlideItem) => ({ ...s, image_url: toStoredPathOnly((s as any)?.image_url || ''), enabled: s.enabled !== false })));
+      setList(arr.map((s: SlideItem) => ({ ...s, enabled: s.enabled !== false })));
     } catch {
       setList([]);
     }
@@ -268,8 +240,7 @@ export default function Slider() {
       const linkUrl = String(baseFromLink || '').replace(/\/$/, '') + '/phim/' + (movie.slug || slug) + '.html';
       const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
       const imgRaw = ((movie as any).poster || derivedPoster || movie.thumb || (movie as any).image_url || '').replace(/^\/\//, 'https://');
-      const uploadsPath = pickUploadsPathFromAnyUrl(imgRaw);
-      const img = uploadsPath || toStoredPathOnly(imgRaw);
+      const img = normalizePreviewUrl(imgRaw, baseFromLink);
       const title = movie.title || movie.origin_name || (movie as any).name || '';
       const countryName = Array.isArray(movie.country)
         ? (movie.country[0]?.name || '')
@@ -364,8 +335,7 @@ export default function Slider() {
         const linkUrl = base + '/phim/' + (movie.slug || movie.id) + '.html';
         const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
         const imgRaw = (movie.poster || derivedPoster || movie.thumb || movie.image_url || '').replace(/^\/\//, 'https://');
-        const uploadsPath = pickUploadsPathFromAnyUrl(imgRaw);
-        const img = uploadsPath || toStoredPathOnly(imgRaw);
+        const img = normalizePreviewUrl(imgRaw, base);
         const title = movie.title || movie.origin_name || movie.name || '';
         const countryName = Array.isArray(movie.country) && movie.country[0] ? (movie.country[0].name || '') : '';
         const genreNames = Array.isArray(movie.genre)
@@ -403,7 +373,7 @@ export default function Slider() {
       ? (genresRaw || '').split(',').map((s: string) => s.trim()).filter(Boolean)
       : Array.isArray(genresRaw) ? genresRaw : undefined;
     const slide: SlideItem = {
-      image_url: toStoredPathOnly(values.image_url || ''),
+      image_url: values.image_url || '',
       link_url: values.link_url || '',
       title: values.title || '',
       year: values.year != null && values.year !== '' ? String(values.year) : undefined,
