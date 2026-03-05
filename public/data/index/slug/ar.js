@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ar"] = {"arco":{"id":"699fbce0ccc6cea2687c71ae","i":149,"title":"Arco","origin_name":"Arco","slug":"arco","thumb":"/uploads/movies/arco-thumb.jpg","year":2025,"type":"hoathinh","episode_current":"Full"}};
