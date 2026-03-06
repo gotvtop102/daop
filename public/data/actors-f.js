@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"fu-mei":["69a14f3f1d0b515454ae9db7"]},"names":{"fu-mei":"Fu Mei"},"meta":{"fu-mei":{"tmdb_id":3091134,"profile":"https://image.tmdb.org/t/p/w500/fZRD3I3Jjekrl5tptsi7AQIdLKo.jpg","tmdb_url":"https://www.themoviedb.org/person/3091134"}},"movies":{"fu-mei":[{"id":"69a14f3f1d0b515454ae9db7","title":"Tháp Thiên Thông","origin_name":"Tower of Babel","slug":"thap-thien-thong","thumb":"/uploads/movies/thap-thien-thong-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 18"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

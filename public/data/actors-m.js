@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"ming-dao":["68e4c2797554a460a6e769a5"]},"names":{"ming-dao":"Ming Dao"},"meta":{"ming-dao":{"tmdb_id":1137149,"profile":"https://image.tmdb.org/t/p/w500/1auKzPes5Eko91shqmYiwv7miZj.jpg","tmdb_url":"https://www.themoviedb.org/person/1137149"}},"movies":{"ming-dao":[{"id":"68e4c2797554a460a6e769a5","title":"Bụi Hoa Hồng","origin_name":"About Love","slug":"bui-hoa-hong","thumb":"/uploads/movies/bui-hoa-hong-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 14"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

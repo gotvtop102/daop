@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"deng-kai":["692eadd4f8d2b25ec830f9ef"]},"names":{"deng-kai":"Đặng Khải"},"meta":{"deng-kai":{"tmdb_id":3152643,"profile":"https://image.tmdb.org/t/p/w500/cefuRdyIZaVf0jaO5a0agqZWvMC.jpg","tmdb_url":"https://www.themoviedb.org/person/3152643"}},"movies":{"deng-kai":[{"id":"692eadd4f8d2b25ec830f9ef","title":"Trục Ngọc","origin_name":"Zhu Yu","slug":"truc-ngoc","thumb":"/uploads/movies/truc-ngoc-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 5"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
