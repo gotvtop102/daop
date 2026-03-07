@@ -816,6 +816,10 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69ac4709e263b2a94620cb0d",
+      "69759733f07c400a86c3261f",
+      "696b9967b9fc4b5429639e55",
+      "692eadd4f8d2b25ec830f9ef",
       "697360c932adc86a1e717f84",
       "69aa81bcccc6cea2687fbe70",
       "69abbae8ae6f0c1fdf4322e0",
@@ -824,13 +828,160 @@
       "69abb6a1b06c99c722fa7867",
       "69abb56f1d0b515454b1aaaa",
       "69abb3f14da3bf6eb33f5e8d",
-      "69abb29ef937c3b5a114793d",
-      "69abb2be4da3bf6eb33f5dc5",
-      "69abb1c2f063d23bbbd03d3e",
-      "69abad07ccc6cea2688008c6",
-      "69abad79e263b2a94620a194"
+      "69abb29ef937c3b5a114793d"
     ],
     "movies": [
+      {
+        "id": "69ac4709e263b2a94620cb0d",
+        "title": "Cô Gái Đến Từ Hư Vô: Tái Khởi Động",
+        "origin_name": "Girl from Nowhere: The Reset",
+        "slug": "co-gai-den-tu-hu-vo-tai-khoi-dong",
+        "thumb": "/uploads/movies/co-gai-den-tu-hu-vo-tai-khoi-dong-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 1",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:44:39.000Z"
+      },
+      {
+        "id": "69759733f07c400a86c3261f",
+        "title": "Se Duyên Địa Đại",
+        "origin_name": "The Earth",
+        "slug": "se-duyen-dia-dai",
+        "thumb": "/uploads/movies/se-duyen-dia-dai-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:09:25.000Z"
+      },
+      {
+        "id": "696b9967b9fc4b5429639e55",
+        "title": "Điều tra viên Hong",
+        "origin_name": "Undercover Miss Hong",
+        "slug": "dieu-tra-vien-hong",
+        "thumb": "/uploads/movies/dieu-tra-vien-hong-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 15",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:08:26.000Z"
+      },
+      {
+        "id": "692eadd4f8d2b25ec830f9ef",
+        "title": "Trục Ngọc",
+        "origin_name": "Pursuit of Jade",
+        "slug": "truc-ngoc",
+        "thumb": "/uploads/movies/truc-ngoc-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub + Thuyết Minh",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:07:01.000Z"
+      },
       {
         "id": "697360c932adc86a1e717f84",
         "title": "His Man (Phần 4)",
@@ -1176,167 +1327,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-07T12:12:47.000Z"
-      },
-      {
-        "id": "69abb2be4da3bf6eb33f5dc5",
-        "title": "Blue Therapy",
-        "origin_name": "Blue Therapy",
-        "slug": "blue-therapy",
-        "thumb": "/uploads/movies/blue-therapy-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a220de0fc277084dfd16d",
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2370e0fc277084dfd91e",
-            "name": "Anh",
-            "slug": "anh"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T12:08:14.000Z"
-      },
-      {
-        "id": "69abb1c2f063d23bbbd03d3e",
-        "title": "Luật Sư Bóng Ma",
-        "origin_name": "Phantom Lawyer",
-        "slug": "luat-su-bong-ma",
-        "thumb": "/uploads/movies/luat-su-bong-ma-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2282e0fc277084dfd435",
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "id": "620a229be0fc277084dfd4dd",
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T12:04:02.000Z"
-      },
-      {
-        "id": "69abad07ccc6cea2688008c6",
-        "title": "Pinanong",
-        "origin_name": "Pinanong",
-        "slug": "pinanong",
-        "thumb": "/uploads/movies/pinanong-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2318e0fc277084dfd77a",
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 1",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:59:51.000Z"
-      },
-      {
-        "id": "69abad79e263b2a94620a194",
-        "title": "Xe Đạp Tình Yêu",
-        "origin_name": "Love Like a Bike",
-        "slug": "xe-dap-tinh-yeu",
-        "thumb": "/uploads/movies/xe-dap-tinh-yeu-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2318e0fc277084dfd77a",
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 1",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:59:35.000Z"
       }
     ]
   },
@@ -1871,6 +1861,9 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69ac4709e263b2a94620cb0d",
+      "69759733f07c400a86c3261f",
+      "696b9967b9fc4b5429639e55",
       "697360c932adc86a1e717f84",
       "69aa81bcccc6cea2687fbe70",
       "699c7049f07c400a86caa21f",
@@ -1879,12 +1872,126 @@
       "69abad07ccc6cea2688008c6",
       "69abad79e263b2a94620a194",
       "69abafd3b9fc4b542970beea",
-      "699fcba4400bf394bd8b72c6",
-      "699fccb1f937c3b5a110e678",
-      "695a2015f65d22d617a3e52a",
-      "696c7034124287e082517e03"
+      "699fcba4400bf394bd8b72c6"
     ],
     "movies": [
+      {
+        "id": "69ac4709e263b2a94620cb0d",
+        "title": "Cô Gái Đến Từ Hư Vô: Tái Khởi Động",
+        "origin_name": "Girl from Nowhere: The Reset",
+        "slug": "co-gai-den-tu-hu-vo-tai-khoi-dong",
+        "thumb": "/uploads/movies/co-gai-den-tu-hu-vo-tai-khoi-dong-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 1",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:44:39.000Z"
+      },
+      {
+        "id": "69759733f07c400a86c3261f",
+        "title": "Se Duyên Địa Đại",
+        "origin_name": "The Earth",
+        "slug": "se-duyen-dia-dai",
+        "thumb": "/uploads/movies/se-duyen-dia-dai-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:09:25.000Z"
+      },
+      {
+        "id": "696b9967b9fc4b5429639e55",
+        "title": "Điều tra viên Hong",
+        "origin_name": "Undercover Miss Hong",
+        "slug": "dieu-tra-vien-hong",
+        "thumb": "/uploads/movies/dieu-tra-vien-hong-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 15",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:08:26.000Z"
+      },
       {
         "id": "697360c932adc86a1e717f84",
         "title": "His Man (Phần 4)",
@@ -2235,158 +2342,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-07T11:39:33.000Z"
-      },
-      {
-        "id": "699fccb1f937c3b5a110e678",
-        "title": "Khoảng Thời Gian Tuyệt Vời",
-        "origin_name": "Wonderful Times",
-        "slug": "khoang-thoi-gian-tuyet-voi",
-        "thumb": "/uploads/movies/khoang-thoi-gian-tuyet-voi-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620e4c0b6ba8271c5eef05a8",
-            "name": "Gia Đình",
-            "slug": "gia-dinh"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 18",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:39:12.000Z"
-      },
-      {
-        "id": "695a2015f65d22d617a3e52a",
-        "title": "Người Trên Vạn Người (Phần 6)",
-        "origin_name": "Hitori No Shita - The Outcast (Season 6)",
-        "slug": "nguoi-tren-van-nguoi-phan-6",
-        "thumb": "/uploads/movies/nguoi-tren-van-nguoi-phan-6-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "hoathinh",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "id": "620a2282e0fc277084dfd435",
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "id": "620a229be0fc277084dfd4dd",
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          },
-          {
-            "id": "620a2307e0fc277084dfd726",
-            "name": "Nhật Bản",
-            "slug": "nhat-ban"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 11",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:32:53.000Z"
-      },
-      {
-        "id": "696c7034124287e082517e03",
-        "title": "Frieren: Pháp Sư Tiễn Táng (Phần 2)",
-        "origin_name": "Frieren: Beyond Journey's End (Season 2)",
-        "slug": "frieren-phap-su-tien-tang-phan-2",
-        "thumb": "/uploads/movies/frieren-phap-su-tien-tang-phan-2-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a2282e0fc277084dfd435",
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "id": "620a229be0fc277084dfd4dd",
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2307e0fc277084dfd726",
-            "name": "Nhật Bản",
-            "slug": "nhat-ban"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 7",
-        "quality": "FHD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:32:38.000Z"
       }
     ]
   },
@@ -2432,21 +2387,172 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69ac4709e263b2a94620cb0d",
+      "69759733f07c400a86c3261f",
+      "696b9967b9fc4b5429639e55",
+      "692eadd4f8d2b25ec830f9ef",
       "69aa81bcccc6cea2687fbe70",
       "69abad07ccc6cea2688008c6",
       "69abad79e263b2a94620a194",
-      "692eadd4f8d2b25ec830f9ef",
       "699fcba4400bf394bd8b72c6",
       "699fccb1f937c3b5a110e678",
       "69aba24f46046a8eb6916589",
       "62d841c00376e41264b61afa",
       "65711707efed8b7739873bf4",
-      "695a2015f65d22d617a3e52a",
-      "696c7034124287e082517e03",
-      "69aba7d4ccc6cea2688005cb",
-      "699967540a0114095c78ad50"
+      "695a2015f65d22d617a3e52a"
     ],
     "movies": [
+      {
+        "id": "69ac4709e263b2a94620cb0d",
+        "title": "Cô Gái Đến Từ Hư Vô: Tái Khởi Động",
+        "origin_name": "Girl from Nowhere: The Reset",
+        "slug": "co-gai-den-tu-hu-vo-tai-khoi-dong",
+        "thumb": "/uploads/movies/co-gai-den-tu-hu-vo-tai-khoi-dong-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 1",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:44:39.000Z"
+      },
+      {
+        "id": "69759733f07c400a86c3261f",
+        "title": "Se Duyên Địa Đại",
+        "origin_name": "The Earth",
+        "slug": "se-duyen-dia-dai",
+        "thumb": "/uploads/movies/se-duyen-dia-dai-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:09:25.000Z"
+      },
+      {
+        "id": "696b9967b9fc4b5429639e55",
+        "title": "Điều tra viên Hong",
+        "origin_name": "Undercover Miss Hong",
+        "slug": "dieu-tra-vien-hong",
+        "thumb": "/uploads/movies/dieu-tra-vien-hong-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 15",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:08:26.000Z"
+      },
+      {
+        "id": "692eadd4f8d2b25ec830f9ef",
+        "title": "Trục Ngọc",
+        "origin_name": "Pursuit of Jade",
+        "slug": "truc-ngoc",
+        "thumb": "/uploads/movies/truc-ngoc-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub + Thuyết Minh",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:07:01.000Z"
+      },
       {
         "id": "69aa81bcccc6cea2687fbe70",
         "title": "Trở Lại Năm 2000: Theo Đuổi Nàng Hoa Khôi Cùng Bàn",
@@ -2558,40 +2664,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-07T11:59:35.000Z"
-      },
-      {
-        "id": "692eadd4f8d2b25ec830f9ef",
-        "title": "Trục Ngọc",
-        "origin_name": "Zhu Yu",
-        "slug": "truc-ngoc",
-        "thumb": "/uploads/movies/truc-ngoc-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub + Thuyết Minh",
-        "episode_current": "Tập 5",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:48:44.000Z"
       },
       {
         "id": "699fcba4400bf394bd8b72c6",
@@ -2841,128 +2913,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-07T11:32:53.000Z"
-      },
-      {
-        "id": "696c7034124287e082517e03",
-        "title": "Frieren: Pháp Sư Tiễn Táng (Phần 2)",
-        "origin_name": "Frieren: Beyond Journey's End (Season 2)",
-        "slug": "frieren-phap-su-tien-tang-phan-2",
-        "thumb": "/uploads/movies/frieren-phap-su-tien-tang-phan-2-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a2282e0fc277084dfd435",
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "id": "620a229be0fc277084dfd4dd",
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2307e0fc277084dfd726",
-            "name": "Nhật Bản",
-            "slug": "nhat-ban"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 7",
-        "quality": "FHD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:32:38.000Z"
-      },
-      {
-        "id": "69aba7d4ccc6cea2688005cb",
-        "title": "Ánh sáng của đôi ta",
-        "origin_name": "Still Shining",
-        "slug": "anh-sang-cua-doi-ta",
-        "thumb": "/uploads/movies/anh-sang-cua-doi-ta-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 2",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:27:53.000Z"
-      },
-      {
-        "id": "699967540a0114095c78ad50",
-        "title": "Play Park",
-        "origin_name": "Play Park",
-        "slug": "play-park",
-        "thumb": "/uploads/movies/play-park-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2318e0fc277084dfd77a",
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 3",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:25:50.000Z"
       }
     ]
   },
@@ -4927,7 +4877,7 @@
       {
         "id": "692eadd4f8d2b25ec830f9ef",
         "title": "Trục Ngọc",
-        "origin_name": "Zhu Yu",
+        "origin_name": "Pursuit of Jade",
         "slug": "truc-ngoc",
         "thumb": "/uploads/movies/truc-ngoc-thumb.jpg",
         "poster": "",
@@ -4948,7 +4898,7 @@
           }
         ],
         "lang_key": "Vietsub + Thuyết Minh",
-        "episode_current": "Tập 5",
+        "episode_current": "Tập 7",
         "quality": "HD",
         "status": "ongoing",
         "showtimes": "",
@@ -4956,7 +4906,7 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2026-03-07T11:48:44.000Z"
+        "modified": "2026-03-07T22:07:01.000Z"
       },
       {
         "id": "65711707efed8b7739873bf4",
@@ -5225,6 +5175,10 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69ac4709e263b2a94620cb0d",
+      "69759733f07c400a86c3261f",
+      "696b9967b9fc4b5429639e55",
+      "692eadd4f8d2b25ec830f9ef",
       "697360c932adc86a1e717f84",
       "69aa81bcccc6cea2687fbe70",
       "69abbae8ae6f0c1fdf4322e0",
@@ -5236,13 +5190,160 @@
       "69abb56f1d0b515454b1aaaa",
       "69abb3f14da3bf6eb33f5e8d",
       "69abb29ef937c3b5a114793d",
-      "699c7049f07c400a86caa21f",
-      "69abb2be4da3bf6eb33f5dc5",
-      "69abb1c2f063d23bbbd03d3e",
-      "69abad07ccc6cea2688008c6",
-      "69abad79e263b2a94620a194"
+      "699c7049f07c400a86caa21f"
     ],
     "movies": [
+      {
+        "id": "69ac4709e263b2a94620cb0d",
+        "title": "Cô Gái Đến Từ Hư Vô: Tái Khởi Động",
+        "origin_name": "Girl from Nowhere: The Reset",
+        "slug": "co-gai-den-tu-hu-vo-tai-khoi-dong",
+        "thumb": "/uploads/movies/co-gai-den-tu-hu-vo-tai-khoi-dong-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 1",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:44:39.000Z"
+      },
+      {
+        "id": "69759733f07c400a86c3261f",
+        "title": "Se Duyên Địa Đại",
+        "origin_name": "The Earth",
+        "slug": "se-duyen-dia-dai",
+        "thumb": "/uploads/movies/se-duyen-dia-dai-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:09:25.000Z"
+      },
+      {
+        "id": "696b9967b9fc4b5429639e55",
+        "title": "Điều tra viên Hong",
+        "origin_name": "Undercover Miss Hong",
+        "slug": "dieu-tra-vien-hong",
+        "thumb": "/uploads/movies/dieu-tra-vien-hong-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 15",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:08:26.000Z"
+      },
+      {
+        "id": "692eadd4f8d2b25ec830f9ef",
+        "title": "Trục Ngọc",
+        "origin_name": "Pursuit of Jade",
+        "slug": "truc-ngoc",
+        "thumb": "/uploads/movies/truc-ngoc-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub + Thuyết Minh",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:07:01.000Z"
+      },
       {
         "id": "697360c932adc86a1e717f84",
         "title": "His Man (Phần 4)",
@@ -5695,167 +5796,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-07T12:12:19.000Z"
-      },
-      {
-        "id": "69abb2be4da3bf6eb33f5dc5",
-        "title": "Blue Therapy",
-        "origin_name": "Blue Therapy",
-        "slug": "blue-therapy",
-        "thumb": "/uploads/movies/blue-therapy-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a220de0fc277084dfd16d",
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2370e0fc277084dfd91e",
-            "name": "Anh",
-            "slug": "anh"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T12:08:14.000Z"
-      },
-      {
-        "id": "69abb1c2f063d23bbbd03d3e",
-        "title": "Luật Sư Bóng Ma",
-        "origin_name": "Phantom Lawyer",
-        "slug": "luat-su-bong-ma",
-        "thumb": "/uploads/movies/luat-su-bong-ma-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2282e0fc277084dfd435",
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "id": "620a229be0fc277084dfd4dd",
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T12:04:02.000Z"
-      },
-      {
-        "id": "69abad07ccc6cea2688008c6",
-        "title": "Pinanong",
-        "origin_name": "Pinanong",
-        "slug": "pinanong",
-        "thumb": "/uploads/movies/pinanong-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2318e0fc277084dfd77a",
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 1",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:59:51.000Z"
-      },
-      {
-        "id": "69abad79e263b2a94620a194",
-        "title": "Xe Đạp Tình Yêu",
-        "origin_name": "Love Like a Bike",
-        "slug": "xe-dap-tinh-yeu",
-        "thumb": "/uploads/movies/xe-dap-tinh-yeu-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2318e0fc277084dfd77a",
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 1",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:59:35.000Z"
       }
     ]
   },
@@ -5901,8 +5841,8 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
-      "69aa81bcccc6cea2687fbe70",
       "692eadd4f8d2b25ec830f9ef",
+      "69aa81bcccc6cea2687fbe70",
       "699fcba4400bf394bd8b72c6",
       "699fccb1f937c3b5a110e678",
       "62d841c00376e41264b61afa",
@@ -5919,6 +5859,40 @@
       "693162625f6639c506373d1c"
     ],
     "movies": [
+      {
+        "id": "692eadd4f8d2b25ec830f9ef",
+        "title": "Trục Ngọc",
+        "origin_name": "Pursuit of Jade",
+        "slug": "truc-ngoc",
+        "thumb": "/uploads/movies/truc-ngoc-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub + Thuyết Minh",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:07:01.000Z"
+      },
       {
         "id": "69aa81bcccc6cea2687fbe70",
         "title": "Trở Lại Năm 2000: Theo Đuổi Nàng Hoa Khôi Cùng Bàn",
@@ -5952,40 +5926,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-07T14:13:12.000Z"
-      },
-      {
-        "id": "692eadd4f8d2b25ec830f9ef",
-        "title": "Trục Ngọc",
-        "origin_name": "Zhu Yu",
-        "slug": "truc-ngoc",
-        "thumb": "/uploads/movies/truc-ngoc-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub + Thuyết Minh",
-        "episode_current": "Tập 5",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-07T11:48:44.000Z"
       },
       {
         "id": "699fcba4400bf394bd8b72c6",
@@ -6572,6 +6512,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "696b9967b9fc4b5429639e55",
       "697360c932adc86a1e717f84",
       "699c7049f07c400a86caa21f",
       "69abb1c2f063d23bbbd03d3e",
@@ -6586,10 +6527,48 @@
       "698dcc56e263b2a946168184",
       "69a5ae72d88856be771d7da9",
       "696e21a2b06c99c722ed865a",
-      "69a6dc4c400bf394bd8e0d18",
-      "690d5c6726683d7f739fd5d0"
+      "69a6dc4c400bf394bd8e0d18"
     ],
     "movies": [
+      {
+        "id": "696b9967b9fc4b5429639e55",
+        "title": "Điều tra viên Hong",
+        "origin_name": "Undercover Miss Hong",
+        "slug": "dieu-tra-vien-hong",
+        "thumb": "/uploads/movies/dieu-tra-vien-hong-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 15",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-07T22:08:26.000Z"
+      },
       {
         "id": "697360c932adc86a1e717f84",
         "title": "His Man (Phần 4)",
@@ -7164,50 +7143,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-03T20:22:37.000Z"
-      },
-      {
-        "id": "690d5c6726683d7f739fd5d0",
-        "title": "Những Ông Bố Của Ma Ri",
-        "origin_name": "Marie and Her Three Daddies",
-        "slug": "nhung-ong-bo-cua-ma-ri",
-        "thumb": "/uploads/movies/nhung-ong-bo-cua-ma-ri-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "id": "620e4c0b6ba8271c5eef05a8",
-            "name": "Gia Đình",
-            "slug": "gia-dinh"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 90",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-03T00:38:20.000Z"
       }
     ]
   },

@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"iva-kimeridze":["69abb880988d934ea9f19436"]},"names":{"iva-kimeridze":"Iva Kimeridze"},"meta":{"iva-kimeridze":{"tmdb_id":3357369,"profile":null,"tmdb_url":"https://www.themoviedb.org/person/3357369"}},"movies":{"iva-kimeridze":[{"id":"69abb880988d934ea9f19436","title":"Cái Chết Của Otar","origin_name":"Otar's Death","slug":"cai-chet-cua-otar","thumb":"/uploads/movies/cai-chet-cua-otar-thumb.jpg","year":2021,"type":"single","episode_current":"Trailer"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
