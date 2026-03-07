@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"yeon-woo":["693a6ec954d8512f7b46ed0b"]},"names":{"yeon-woo":"Yeon Woo"},"meta":{"yeon-woo":{"tmdb_id":1875826,"profile":"https://image.tmdb.org/t/p/w500/aXroCR7GA9DKnTxppJComTHrRvC.jpg","tmdb_url":"https://www.themoviedb.org/person/1875826"}},"movies":{"yeon-woo":[{"id":"693a6ec954d8512f7b46ed0b","title":"Hội Chứng Sợ Yêu","origin_name":"Love Phobia","slug":"love-phobia","thumb":"/uploads/movies/love-phobia-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 4"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
