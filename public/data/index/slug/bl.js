@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["bl"] = {"blue-therapy":{"id":"69abb2be4da3bf6eb33f5dc5","i":231,"title":"Blue Therapy","origin_name":"Blue Therapy","slug":"blue-therapy","thumb":"/uploads/movies/blue-therapy-thumb.jpg","year":2026,"type":"series","episode_current":"Trailer"}};
