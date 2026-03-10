@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"esma-daniel":["69af685c0a0114095c7f6e84"]},"names":{"esma-daniel":"Esma Daniel"},"meta":{"esma-daniel":{"tmdb_id":1280837,"profile":"https://image.tmdb.org/t/p/w500/mE0ixne0b4WeANwTDl2dvcRI9th.jpg","tmdb_url":"https://www.themoviedb.org/person/1280837"}},"movies":{"esma-daniel":[{"id":"69af685c0a0114095c7f6e84","title":"Tù nhân","origin_name":"Banduan","slug":"tu-nhann","thumb":"/uploads/movies/tu-nhann-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

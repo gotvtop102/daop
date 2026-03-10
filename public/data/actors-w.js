@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"wi-ha-jun":["69a5ae72d88856be771d7da9"]},"names":{"wi-ha-jun":"Wi Ha-jun"},"meta":{"wi-ha-jun":{"tmdb_id":1557181,"profile":"https://image.tmdb.org/t/p/w500/tEZuIaMESdBw4LfNq3vshGR4VlP.jpg","tmdb_url":"https://www.themoviedb.org/person/1557181"}},"movies":{"wi-ha-jun":[{"id":"69a5ae72d88856be771d7da9","title":"Nụ Hôn Siren","origin_name":"Siren's Kiss","slug":"nu-hon-siren","thumb":"/uploads/movies/nu-hon-siren-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 2"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"fadhli-masoot":["69af685c0a0114095c7f6e84"]},"names":{"fadhli-masoot":"Fadhli Masoot"},"meta":{"fadhli-masoot":{"tmdb_id":2480162,"profile":"https://image.tmdb.org/t/p/w500/rrSJwr5OYaJotsUKHnIS2R0Z4h6.jpg","tmdb_url":"https://www.themoviedb.org/person/2480162"}},"movies":{"fadhli-masoot":[{"id":"69af685c0a0114095c7f6e84","title":"Tù nhân","origin_name":"Banduan","slug":"tu-nhann","thumb":"/uploads/movies/tu-nhann-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

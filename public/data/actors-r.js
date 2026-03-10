@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"rosyam-nor":["69af685c0a0114095c7f6e84"]},"names":{"rosyam-nor":"Rosyam Nor"},"meta":{"rosyam-nor":{"tmdb_id":1202465,"profile":"https://image.tmdb.org/t/p/w500/a6BSFugLlOlNrN2LzLQal7817dl.jpg","tmdb_url":"https://www.themoviedb.org/person/1202465"}},"movies":{"rosyam-nor":[{"id":"69af685c0a0114095c7f6e84","title":"Tù nhân","origin_name":"Banduan","slug":"tu-nhann","thumb":"/uploads/movies/tu-nhann-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
