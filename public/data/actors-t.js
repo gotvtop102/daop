@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"tara-tipa":["69abad07ccc6cea2688008c6"]},"names":{"tara-tipa":"Tara Tipa"},"meta":{"tara-tipa":{"tmdb_id":1348850,"profile":"https://image.tmdb.org/t/p/w500/fNSqT1EjZmFTOPAFWgVVIquB7hu.jpg","tmdb_url":"https://www.themoviedb.org/person/1348850"}},"movies":{"tara-tipa":[{"id":"69abad07ccc6cea2688008c6","title":"Pinanong","origin_name":"Pinanong","slug":"pinanong","thumb":"/uploads/movies/pinanong-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 1"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
