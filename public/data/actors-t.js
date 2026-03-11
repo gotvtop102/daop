@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"teuta-ajdini":["69b0c7ebe263b2a94621c027"]},"names":{"teuta-ajdini":"Teuta Ajdini"},"meta":{"teuta-ajdini":{"tmdb_id":3411086,"profile":null,"tmdb_url":"https://www.themoviedb.org/person/3411086"}},"movies":{"teuta-ajdini":[{"id":"69b0c7ebe263b2a94621c027","title":"Giấc Mơ Biển Cả Của Vera","origin_name":"Vera Dreams of the Sea","slug":"giac-mo-bien-ca-cua-vera","thumb":"/uploads/movies/giac-mo-bien-ca-cua-vera-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
