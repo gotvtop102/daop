@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"orelsan":["69b3b6661d0b515454b38c76"]},"names":{"orelsan":"Orelsan"},"meta":{"orelsan":{"tmdb_id":1265647,"profile":"https://image.tmdb.org/t/p/w500/kEaWkRAdgTDm59bLs4nAfajIHSV.jpg","tmdb_url":"https://www.themoviedb.org/person/1265647"}},"movies":{"orelsan":[{"id":"69b3b6661d0b515454b38c76","title":"Yoroi","origin_name":"Yoroi","slug":"yoroi","thumb":"/uploads/movies/yoroi-thumb.jpg","year":2025,"type":"single","episode_current":"Trailer"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
