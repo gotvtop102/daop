@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"kong-xueer":["692eadd4f8d2b25ec830f9ef"]},"names":{"kong-xueer":"Khổng Tuyết Nhi"},"meta":{"kong-xueer":{"tmdb_id":2676399,"profile":"https://image.tmdb.org/t/p/w500/hNwUFUMgs5nGmmagCCqXA4TZGJB.jpg","tmdb_url":"https://www.themoviedb.org/person/2676399"}},"movies":{"kong-xueer":[{"id":"692eadd4f8d2b25ec830f9ef","title":"Trục Ngọc","origin_name":"Zhu Yu","slug":"truc-ngoc","thumb":"/uploads/movies/truc-ngoc-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 5"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

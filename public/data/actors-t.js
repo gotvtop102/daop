@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"tian-xiwei":["692eadd4f8d2b25ec830f9ef"]},"names":{"tian-xiwei":"Điền Hi Vi"},"meta":{"tian-xiwei":{"tmdb_id":2430198,"profile":"https://image.tmdb.org/t/p/w500/ci7uOTYUSk4Utg9gHvqVnqCPIUn.jpg","tmdb_url":"https://www.themoviedb.org/person/2430198"}},"movies":{"tian-xiwei":[{"id":"692eadd4f8d2b25ec830f9ef","title":"Trục Ngọc","origin_name":"Zhu Yu","slug":"truc-ngoc","thumb":"/uploads/movies/truc-ngoc-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 5"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
