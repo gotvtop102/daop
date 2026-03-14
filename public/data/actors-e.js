@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"emma-de-maria":["69b522c8e263b2a94622eb98"]},"names":{"emma-de-maria":"Emma De Maria"},"meta":{"emma-de-maria":{"tmdb_id":6023590,"profile":null,"tmdb_url":"https://www.themoviedb.org/person/6023590"}},"movies":{"emma-de-maria":[{"id":"69b522c8e263b2a94622eb98","title":"Frankenstein's Bride","origin_name":"Frankenstein's Bride","slug":"frankensteins-bride","thumb":"/uploads/movies/frankensteins-bride-thumb.jpg","year":2026,"type":"single","episode_current":"Trailer"}]}};

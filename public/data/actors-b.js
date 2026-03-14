@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"bruce-faulk":["69b52407988d934ea9f3da8f"]},"names":{"bruce-faulk":"Bruce Faulk"},"meta":{"bruce-faulk":{"tmdb_id":2709020,"profile":null,"tmdb_url":"https://www.themoviedb.org/person/2709020"}},"movies":{"bruce-faulk":[{"id":"69b52407988d934ea9f3da8f","title":"The Hermit","origin_name":"The Hermit","slug":"the-hermit","thumb":"/uploads/movies/the-hermit-thumb.jpg","year":2025,"type":"single","episode_current":"Trailer"}]}};
