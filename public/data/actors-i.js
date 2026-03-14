@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"im-ji-eun":["693a6ec954d8512f7b46ed0b"]},"names":{"im-ji-eun":"Im Ji-eun"},"meta":{"im-ji-eun":{"tmdb_id":39256,"profile":"https://image.tmdb.org/t/p/w500/vCN0sbmE06VsiLFO2uegQzCZEzH.jpg","tmdb_url":"https://www.themoviedb.org/person/39256"}},"movies":{"im-ji-eun":[{"id":"693a6ec954d8512f7b46ed0b","title":"Hội Chứng Sợ Yêu","origin_name":"Love Phobia","slug":"love-phobia","thumb":"/uploads/movies/love-phobia-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 4"}]}};
