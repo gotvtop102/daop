@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"esom":["69abb1c2f063d23bbbd03d3e"]},"names":{"esom":"Esom"},"meta":{"esom":{"tmdb_id":929122,"profile":"https://image.tmdb.org/t/p/w500/jFz4smLt7SwC4wdA8gdiKpXU7Kh.jpg","tmdb_url":"https://www.themoviedb.org/person/929122"}},"movies":{"esom":[{"id":"69abb1c2f063d23bbbd03d3e","title":"Luật Sư Bóng Ma","origin_name":"Phantom Lawyer","slug":"luat-su-bong-ma","thumb":"/uploads/movies/luat-su-bong-ma-thumb.jpg","year":2026,"type":"series","episode_current":"Trailer"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
