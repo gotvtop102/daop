@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"ren-hao":["692eadd4f8d2b25ec830f9ef"]},"names":{"ren-hao":"Nhậm Hào"},"meta":{"ren-hao":{"tmdb_id":3148767,"profile":"https://image.tmdb.org/t/p/w500/4oJ4aeawiuuFy0JCIB6jTSr5GQv.jpg","tmdb_url":"https://www.themoviedb.org/person/3148767"}},"movies":{"ren-hao":[{"id":"692eadd4f8d2b25ec830f9ef","title":"Trục Ngọc","origin_name":"Zhu Yu","slug":"truc-ngoc","thumb":"/uploads/movies/truc-ngoc-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 5"}]}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

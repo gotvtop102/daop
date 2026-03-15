@@ -41,13 +41,14 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69aba24f46046a8eb6916589",
+      "69a402dada6ce23e8ea149e2",
       "69b13e384ea2111da8c3a27e",
       "69a5ae72d88856be771d7da9",
       "67ff8c12bee774075c03e8cb",
       "6947d108da6ce23e8e932ab7",
       "68dcc5953e261817af05a0df",
       "697360c932adc86a1e717f84",
-      "69aba24f46046a8eb6916589",
       "6999abc4ccc6cea2687a17f6",
       "698de34cccc6cea26875eb65",
       "698099011d0b515454a62a96",
@@ -55,10 +56,82 @@
       "69aa268c400bf394bd8ea526",
       "69a81f8154ca9185bbb66858",
       "6947a82897c71dcd0d63982e",
-      "695be65bf65d22d617a4122c",
-      "6966276b4da3bf6eb331cdd6"
+      "695be65bf65d22d617a4122c"
     ],
     "movies": [
+      {
+        "id": "69aba24f46046a8eb6916589",
+        "title": "Bác Sĩ Watson (Phần 1)",
+        "origin_name": "Watson (Season 1)",
+        "slug": "bac-si-watson-phan-1",
+        "thumb": "/uploads/movies/bac-si-watson-phan-1-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T23:30:01.000Z"
+      },
+      {
+        "id": "69a402dada6ce23e8ea149e2",
+        "title": "Cẩm Nang Yêu",
+        "origin_name": "The Practical Guide to Love",
+        "slug": "cam-nang-yeu",
+        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T20:52:16.000Z"
+      },
       {
         "id": "69b13e384ea2111da8c3a27e",
         "title": "The Crow Girl",
@@ -292,45 +365,6 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-07T14:17:08.000Z"
-      },
-      {
-        "id": "69aba24f46046a8eb6916589",
-        "title": "Bác Sĩ Watson (Phần 1)",
-        "origin_name": "Watson (Season 1)",
-        "slug": "bac-si-watson-phan-1",
-        "thumb": "/uploads/movies/bac-si-watson-phan-1-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 1",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-07T11:38:16.000Z"
       },
       {
         "id": "6999abc4ccc6cea2687a17f6",
@@ -653,60 +687,6 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-04T21:22:54.000Z"
-      },
-      {
-        "id": "6966276b4da3bf6eb331cdd6",
-        "title": "Lính Mới (Phần 8)",
-        "origin_name": "The Rookie (Season 8)",
-        "slug": "linh-moi-phan-8",
-        "thumb": "/uploads/movies/linh-moi-phan-8-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2381e0fc277084dfd9c6",
-            "name": "Canada",
-            "slug": "canada"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 9",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-04T18:01:08.000Z"
       }
     ]
   },
@@ -796,6 +776,9 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69aba24f46046a8eb6916589",
+      "69a402dada6ce23e8ea149e2",
+      "697f03db124287e08252ff23",
       "69b65cda124287e082612893",
       "69b65d5fccc6cea268829e59",
       "697ef942f65d22d617a6e6d8",
@@ -805,12 +788,121 @@
       "69a954d032adc86a1e7d7794",
       "69b4de70458948c679aa8d38",
       "69b23bfcd88856be77204d9f",
-      "69b4da44b06c99c722fca67d",
-      "69759733f07c400a86c3261f",
-      "69b50c99b06c99c722fcb93c",
-      "69b13e384ea2111da8c3a27e"
+      "69b4da44b06c99c722fca67d"
     ],
     "movies": [
+      {
+        "id": "69aba24f46046a8eb6916589",
+        "title": "Bác Sĩ Watson (Phần 1)",
+        "origin_name": "Watson (Season 1)",
+        "slug": "bac-si-watson-phan-1",
+        "thumb": "/uploads/movies/bac-si-watson-phan-1-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T23:30:01.000Z"
+      },
+      {
+        "id": "69a402dada6ce23e8ea149e2",
+        "title": "Cẩm Nang Yêu",
+        "origin_name": "The Practical Guide to Love",
+        "slug": "cam-nang-yeu",
+        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T20:52:16.000Z"
+      },
+      {
+        "id": "697f03db124287e08252ff23",
+        "title": "Soda Master",
+        "origin_name": "Soda Master",
+        "slug": "soda-master",
+        "thumb": "/uploads/movies/soda-master-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-15T20:08:57.000Z"
+      },
       {
         "id": "69b65cda124287e082612893",
         "title": "Vòng Xoáy Yoga",
@@ -1180,128 +1272,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-15T09:29:23.000Z"
-      },
-      {
-        "id": "69759733f07c400a86c3261f",
-        "title": "Se Duyên Địa Đại",
-        "origin_name": "The Earth",
-        "slug": "se-duyen-dia-dai",
-        "thumb": "/uploads/movies/se-duyen-dia-dai-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2318e0fc277084dfd77a",
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (8/8)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-14T22:33:35.000Z"
-      },
-      {
-        "id": "69b50c99b06c99c722fcb93c",
-        "title": "Trái Tim Đập Nhanh",
-        "origin_name": "Galloping Heart",
-        "slug": "trai-tim-dap-nhanh",
-        "thumb": "/uploads/movies/trai-tim-dap-nhanh-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (16/16)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-14T14:36:53.000Z"
-      },
-      {
-        "id": "69b13e384ea2111da8c3a27e",
-        "title": "The Crow Girl",
-        "origin_name": "The Crow Girl",
-        "slug": "the-crow-girl",
-        "thumb": "/uploads/movies/the-crow-girl-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2370e0fc277084dfd91e",
-            "name": "Anh",
-            "slug": "anh"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 2",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-14T13:46:56.000Z"
       }
     ]
   },
@@ -1801,6 +1771,8 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69a402dada6ce23e8ea149e2",
+      "697f03db124287e08252ff23",
       "69b65cda124287e082612893",
       "69b65d5fccc6cea268829e59",
       "69898355da6ce23e8e98af49",
@@ -1810,11 +1782,82 @@
       "69b0ec6b400bf394bd9030b7",
       "69b4de1df07c400a86d1abe7",
       "69a954d032adc86a1e7d7794",
-      "69b4de70458948c679aa8d38",
-      "69b23bfcd88856be77204d9f",
-      "69b4da44b06c99c722fca67d"
+      "69b4de70458948c679aa8d38"
     ],
     "movies": [
+      {
+        "id": "69a402dada6ce23e8ea149e2",
+        "title": "Cẩm Nang Yêu",
+        "origin_name": "The Practical Guide to Love",
+        "slug": "cam-nang-yeu",
+        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T20:52:16.000Z"
+      },
+      {
+        "id": "697f03db124287e08252ff23",
+        "title": "Soda Master",
+        "origin_name": "Soda Master",
+        "slug": "soda-master",
+        "thumb": "/uploads/movies/soda-master-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-15T20:08:57.000Z"
+      },
       {
         "id": "69b65cda124287e082612893",
         "title": "Vòng Xoáy Yoga",
@@ -2189,89 +2232,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-15T11:33:52.000Z"
-      },
-      {
-        "id": "69b23bfcd88856be77204d9f",
-        "title": "Vạn Phúc Kim An",
-        "origin_name": "Glory Back",
-        "slug": "van-phuc-kim-an",
-        "thumb": "/uploads/movies/van-phuc-kim-an-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a220de0fc277084dfd16d",
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 14",
-        "quality": "FHD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-15T11:33:34.000Z"
-      },
-      {
-        "id": "69b4da44b06c99c722fca67d",
-        "title": "Người Ngoại Tộc (Phần 8)",
-        "origin_name": "Outlander (Season 8)",
-        "slug": "nguoi-ngoai-toc-phan-8",
-        "thumb": "/uploads/movies/nguoi-ngoai-toc-phan-8-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2282e0fc277084dfd435",
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "id": "620a229be0fc277084dfd4dd",
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2370e0fc277084dfd91e",
-            "name": "Anh",
-            "slug": "anh"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 2",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-15T09:29:23.000Z"
       }
     ]
   },
@@ -2317,6 +2277,9 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69aba24f46046a8eb6916589",
+      "69a402dada6ce23e8ea149e2",
+      "697f03db124287e08252ff23",
       "69b65d5fccc6cea268829e59",
       "69898355da6ce23e8e98af49",
       "697ef942f65d22d617a6e6d8",
@@ -2326,12 +2289,121 @@
       "69a954d032adc86a1e7d7794",
       "69b4de70458948c679aa8d38",
       "69b23bfcd88856be77204d9f",
-      "69b4da44b06c99c722fca67d",
-      "69b13e384ea2111da8c3a27e",
-      "69a5ae72d88856be771d7da9",
-      "6966143754ca9185bba99c3f"
+      "69b4da44b06c99c722fca67d"
     ],
     "movies": [
+      {
+        "id": "69aba24f46046a8eb6916589",
+        "title": "Bác Sĩ Watson (Phần 1)",
+        "origin_name": "Watson (Season 1)",
+        "slug": "bac-si-watson-phan-1",
+        "thumb": "/uploads/movies/bac-si-watson-phan-1-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T23:30:01.000Z"
+      },
+      {
+        "id": "69a402dada6ce23e8ea149e2",
+        "title": "Cẩm Nang Yêu",
+        "origin_name": "The Practical Guide to Love",
+        "slug": "cam-nang-yeu",
+        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T20:52:16.000Z"
+      },
+      {
+        "id": "697f03db124287e08252ff23",
+        "title": "Soda Master",
+        "origin_name": "Soda Master",
+        "slug": "soda-master",
+        "thumb": "/uploads/movies/soda-master-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-15T20:08:57.000Z"
+      },
       {
         "id": "69b65d5fccc6cea268829e59",
         "title": "Rooster",
@@ -2716,143 +2788,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-15T09:29:23.000Z"
-      },
-      {
-        "id": "69b13e384ea2111da8c3a27e",
-        "title": "The Crow Girl",
-        "origin_name": "The Crow Girl",
-        "slug": "the-crow-girl",
-        "thumb": "/uploads/movies/the-crow-girl-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2370e0fc277084dfd91e",
-            "name": "Anh",
-            "slug": "anh"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 2",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-14T13:46:56.000Z"
-      },
-      {
-        "id": "69a5ae72d88856be771d7da9",
-        "title": "Nụ Hôn Siren",
-        "origin_name": "Siren's Kiss",
-        "slug": "nu-hon-siren",
-        "thumb": "/uploads/movies/nu-hon-siren-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-11T14:10:12.000Z"
-      },
-      {
-        "id": "6966143754ca9185bba99c3f",
-        "title": "Hỏa Thực Điểu: Đội cứu hỏa Borotobi vùng Ushu",
-        "origin_name": "Oedo Fire Slayer -The Legend of Phoenix-",
-        "slug": "hoa-thuc-dieu-doi-cuu-hoa-borotobi-vung-ushu",
-        "thumb": "/uploads/movies/hoa-thuc-dieu-doi-cuu-hoa-borotobi-vung-ushu-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "hoathinh",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2307e0fc277084dfd726",
-            "name": "Nhật Bản",
-            "slug": "nhat-ban"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 8",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-11T13:42:15.000Z"
       }
     ]
   },
@@ -4595,6 +4530,9 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69aba24f46046a8eb6916589",
+      "69a402dada6ce23e8ea149e2",
+      "697f03db124287e08252ff23",
       "69b65cda124287e082612893",
       "69b65d5fccc6cea268829e59",
       "69b65e1097c71dcd0d764f14",
@@ -4607,12 +4545,121 @@
       "69a954d032adc86a1e7d7794",
       "69b4de70458948c679aa8d38",
       "69b23bfcd88856be77204d9f",
-      "69b61c944da3bf6eb341df14",
-      "69b4da44b06c99c722fca67d",
-      "69759733f07c400a86c3261f",
-      "69b52407988d934ea9f3da8f"
+      "69b61c944da3bf6eb341df14"
     ],
     "movies": [
+      {
+        "id": "69aba24f46046a8eb6916589",
+        "title": "Bác Sĩ Watson (Phần 1)",
+        "origin_name": "Watson (Season 1)",
+        "slug": "bac-si-watson-phan-1",
+        "thumb": "/uploads/movies/bac-si-watson-phan-1-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T23:30:01.000Z"
+      },
+      {
+        "id": "69a402dada6ce23e8ea149e2",
+        "title": "Cẩm Nang Yêu",
+        "origin_name": "The Practical Guide to Love",
+        "slug": "cam-nang-yeu",
+        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T20:52:16.000Z"
+      },
+      {
+        "id": "697f03db124287e08252ff23",
+        "title": "Soda Master",
+        "origin_name": "Soda Master",
+        "slug": "soda-master",
+        "thumb": "/uploads/movies/soda-master-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 7",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-15T20:08:57.000Z"
+      },
       {
         "id": "69b65cda124287e082612893",
         "title": "Vòng Xoáy Yoga",
@@ -5099,128 +5146,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-15T10:06:28.000Z"
-      },
-      {
-        "id": "69b4da44b06c99c722fca67d",
-        "title": "Người Ngoại Tộc (Phần 8)",
-        "origin_name": "Outlander (Season 8)",
-        "slug": "nguoi-ngoai-toc-phan-8",
-        "thumb": "/uploads/movies/nguoi-ngoai-toc-phan-8-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2282e0fc277084dfd435",
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "id": "620a229be0fc277084dfd4dd",
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2370e0fc277084dfd91e",
-            "name": "Anh",
-            "slug": "anh"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 2",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-15T09:29:23.000Z"
-      },
-      {
-        "id": "69759733f07c400a86c3261f",
-        "title": "Se Duyên Địa Đại",
-        "origin_name": "The Earth",
-        "slug": "se-duyen-dia-dai",
-        "thumb": "/uploads/movies/se-duyen-dia-dai-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2318e0fc277084dfd77a",
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (8/8)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-14T22:33:35.000Z"
-      },
-      {
-        "id": "69b52407988d934ea9f3da8f",
-        "title": "The Hermit",
-        "origin_name": "The Hermit",
-        "slug": "the-hermit",
-        "thumb": "/uploads/movies/the-hermit-thumb.jpg",
-        "poster": "",
-        "year": 2025,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a22ace0fc277084dfd531",
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-14T16:02:01.000Z"
       }
     ]
   },
@@ -5927,6 +5852,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69a402dada6ce23e8ea149e2",
       "69b3a6bcd88856be7720a5d6",
       "69b37a644ea2111da8c42bba",
       "69b379f7da6ce23e8ea516c6",
@@ -5941,10 +5867,43 @@
       "69841589ae6f0c1fdf37ee28",
       "6947a82897c71dcd0d63982e",
       "696e21a2b06c99c722ed865a",
-      "690d5c6726683d7f739fd5d0",
-      "699c7307f063d23bbbcb694f"
+      "690d5c6726683d7f739fd5d0"
     ],
     "movies": [
+      {
+        "id": "69a402dada6ce23e8ea149e2",
+        "title": "Cẩm Nang Yêu",
+        "origin_name": "The Practical Guide to Love",
+        "slug": "cam-nang-yeu",
+        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T20:52:16.000Z"
+      },
       {
         "id": "69b3a6bcd88856be7720a5d6",
         "title": "Fu Bao: Bảo Bối Của Ông",
@@ -6514,40 +6473,6 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-03T00:38:20.000Z"
-      },
-      {
-        "id": "699c7307f063d23bbbcb694f",
-        "title": "Lớp Học Của Tae Ri",
-        "origin_name": "Curtain Up, Class!",
-        "slug": "lop-hoc-cua-tae-ri",
-        "thumb": "/uploads/movies/lop-hoc-cua-tae-ri-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "tvshows",
-        "genre": [
-          {
-            "id": "620a2293e0fc277084dfd489",
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 2",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-02T21:33:44.000Z"
       }
     ]
   },
@@ -6593,6 +6518,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69aba24f46046a8eb6916589",
       "69b65d5fccc6cea268829e59",
       "69898355da6ce23e8e98af49",
       "69b524980a0114095c8102c1",
@@ -6607,10 +6533,48 @@
       "69b4d7fee263b2a94622d1ec",
       "698c296ada6ce23e8e98e114",
       "69b3a866124287e0826074b1",
-      "69b3ae5e458948c679aa3ea8",
-      "69b3a781da6ce23e8ea524b8"
+      "69b3ae5e458948c679aa3ea8"
     ],
     "movies": [
+      {
+        "id": "69aba24f46046a8eb6916589",
+        "title": "Bác Sĩ Watson (Phần 1)",
+        "origin_name": "Watson (Season 1)",
+        "slug": "bac-si-watson-phan-1",
+        "thumb": "/uploads/movies/bac-si-watson-phan-1-thumb.jpg",
+        "poster": "",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T23:30:01.000Z"
+      },
       {
         "id": "69b65d5fccc6cea268829e59",
         "title": "Rooster",
@@ -7190,45 +7154,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-13T15:38:38.000Z"
-      },
-      {
-        "id": "69b3a781da6ce23e8ea524b8",
-        "title": "Siêu Sao Điện Ảnh Hollywood",
-        "origin_name": "Brad Pitt: Breaking Hollywood",
-        "slug": "sieu-sao-dien-anh-hollywood",
-        "thumb": "/uploads/movies/sieu-sao-dien-anh-hollywood-thumb.jpg",
-        "poster": "",
-        "year": 2021,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a220de0fc277084dfd16d",
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "id": "620a2238e0fc277084dfd291",
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-13T15:38:18.000Z"
       }
     ]
   },
