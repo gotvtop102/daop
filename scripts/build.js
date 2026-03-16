@@ -396,6 +396,8 @@ async function processImage(url, slug, folder = 'thumbs') {
 const OPHIM_MAX_PAGES = Number(process.env.OPHIM_MAX_PAGES) || 0;
 const OPHIM_MAX_MOVIES = Number(process.env.OPHIM_MAX_MOVIES) || 0;
 /** Khoảng trang OPhim: cho phép chọn trang bắt đầu/kết thúc (0 = mặc định/không giới hạn). */
+const OPHIM_START_PAGE_RAW = process.env.OPHIM_START_PAGE;
+const OPHIM_END_PAGE_RAW = process.env.OPHIM_END_PAGE;
 const OPHIM_START_PAGE = Number(process.env.OPHIM_START_PAGE) || 1;
 const OPHIM_END_PAGE = Number(process.env.OPHIM_END_PAGE) || 0;
 
@@ -499,8 +501,25 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
   const fetched = { count: 0 };
   let page = OPHIM_START_PAGE > 0 ? OPHIM_START_PAGE : 1;
   let fetchedPages = 0;
-  const targetEnd = OPHIM_END_PAGE > 0 ? OPHIM_END_PAGE : 1;
-  const step = page >= targetEnd ? -1 : 1;
+  const hasEnd = OPHIM_END_PAGE > 0;
+  const targetEnd = hasEnd ? OPHIM_END_PAGE : Infinity;
+  const step = hasEnd && page >= targetEnd ? -1 : 1;
+  console.log(
+    '   OPhim paging:',
+    'start=', OPHIM_START_PAGE,
+    'end=', OPHIM_END_PAGE,
+    'max_pages=', OPHIM_MAX_PAGES,
+    'max_movies=', OPHIM_MAX_MOVIES,
+    'direction=', (step === -1 ? 'backward' : 'forward'),
+    'clean_old_data=', cleanOldData ? 1 : 0
+  );
+  if (OPHIM_END_PAGE === 1 && OPHIM_END_PAGE_RAW != null && String(OPHIM_END_PAGE_RAW).trim() === '1') {
+    console.warn(
+      '   WARNING: OPHIM_END_PAGE=1 đang giới hạn fetch chỉ đến trang 1. ' +
+      'Chỉ nên dùng khi bạn chủ đích fetch trang 1 (hoặc range về 1). ' +
+      'Nếu mục tiêu là unlimited, hãy đặt OPHIM_END_PAGE=0.'
+    );
+  }
   while (true) {
     if (OPHIM_MAX_PAGES > 0 && fetchedPages >= OPHIM_MAX_PAGES) {
       console.log('   OPhim: đạt giới hạn số trang:', OPHIM_MAX_PAGES, '(từ trang', OPHIM_START_PAGE, ')');
@@ -3022,12 +3041,27 @@ async function main() {
     (OPHIM_MAX_PAGES > 0) ||
     (OPHIM_MAX_MOVIES > 0);
 
+  const strictGuards = (process.env.STRICT_BUILD_GUARDS === '1' || process.env.STRICT_BUILD_GUARDS === 'true');
   if (!incremental && cleanOldData && isPartialOphimRange) {
-    console.warn(
-      'WARNING: CLEAN_OLD_DATA=1 đang bật cùng với giới hạn OPhim (start/end/max_pages/max_movies). ' +
+    const msg =
+      'CLEAN_OLD_DATA=1 đang bật cùng với giới hạn OPhim (start/end/max_pages/max_movies). ' +
       'Build sẽ chỉ giữ dữ liệu trong phạm vi fetch hiện tại và có thể làm mất phim ngoài phạm vi. ' +
-      'Nếu bạn muốn giữ đủ dữ liệu qua nhiều lần chạy theo range, hãy chạy CLEAN_OLD_DATA=0.'
-    );
+      'Nếu bạn muốn giữ đủ dữ liệu qua nhiều lần chạy theo range, hãy chạy CLEAN_OLD_DATA=0.';
+    if (strictGuards) {
+      throw new Error('STRICT_BUILD_GUARDS: ' + msg);
+    }
+    console.warn('WARNING:', msg);
+  }
+
+  if (!incremental && cleanOldData && OPHIM_END_PAGE === 1) {
+    const msg =
+      'Bạn đang bật CLEAN_OLD_DATA=1 và đồng thời OPHIM_END_PAGE=1. ' +
+      'Đây là cấu hình rất dễ làm mất phim cũ (vì chỉ fetch đến trang 1 rồi dọn dữ liệu cũ). ' +
+      'Nếu bạn chỉ muốn refresh trang 1 nhưng vẫn giữ phim cũ: hãy đặt CLEAN_OLD_DATA=0.';
+    if (strictGuards) {
+      throw new Error('STRICT_BUILD_GUARDS: ' + msg);
+    }
+    console.warn('WARNING:', msg);
   }
 
   if (!incremental && cleanOldData) {
