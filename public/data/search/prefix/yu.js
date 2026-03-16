@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["yu"] = [{"id":"692eadd4f8d2b25ec830f9ef","title":"Trục Ngọc","origin_name":"Zhu Yu","slug":"truc-ngoc","thumb":"/uploads/movies/truc-ngoc-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 5","_t":"truc ngoc zhu yu truc ngoc"}];

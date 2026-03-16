@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["36"] = [{"id":"69637d4bb9fc4b542962f92e","title":"366 Ngày","origin_name":"366 Days","slug":"366-ngay","thumb":"/uploads/movies/366-ngay-thumb.jpg","year":2025,"type":"single","episode_current":"Full","_t":"366 ngay 366 days 366 ngay"}];
