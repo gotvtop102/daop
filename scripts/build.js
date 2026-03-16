@@ -3106,7 +3106,7 @@ async function main() {
   if (incremental) {
     await fs.ensureDir(PUBLIC_DATA);
     await fs.ensureDir(path.join(PUBLIC_DATA, 'config'));
-    console.log('Incremental: export config từ Supabase + tạo lại trang thể loại/quốc gia/năm.');
+    console.log('Incremental: export config từ Supabase + tạo lại trang thể loại/quốc gia/năm + rebuild filters/actors từ batch hiện có.');
     await exportConfigFromSupabase();
     injectSiteNameIntoHtml();
     injectFooterIntoHtml();
@@ -3115,54 +3115,68 @@ async function main() {
     if (process.env.GENERATE_MOVIES_LIGHT !== '1') {
       try { await fs.remove(path.join(PUBLIC_DATA, 'movies-light.js')); } catch {}
     }
-    const filtersPath = path.join(PUBLIC_DATA, 'filters.js');
-    const filterOrderPath = path.join(PUBLIC_DATA, 'config', 'filter-order.json');
-    if (await fs.pathExists(filtersPath)) {
-      const raw = fs.readFileSync(filtersPath, 'utf8');
-      const jsonStr = raw.replace(/^window\.filtersData\s*=\s*/, '').replace(/;\s*$/, '');
-      try {
-        const filters = JSON.parse(jsonStr);
-        if (fs.existsSync(filterOrderPath)) {
-          const fo = JSON.parse(fs.readFileSync(filterOrderPath, 'utf8'));
-          filters.filterOrder = {
-            rowOrder: fo.rowOrder && Array.isArray(fo.rowOrder) ? fo.rowOrder : (filters.filterOrder && filters.filterOrder.rowOrder) || ['year', 'genre', 'country', 'videoType', 'lang'],
-            genreOrder: fo.genreOrder && Array.isArray(fo.genreOrder) ? fo.genreOrder : (filters.filterOrder && filters.filterOrder.genreOrder) || [],
-            countryOrder: fo.countryOrder && Array.isArray(fo.countryOrder) ? fo.countryOrder : (filters.filterOrder && filters.filterOrder.countryOrder) || [],
-            videoTypeOrder: fo.videoTypeOrder && Array.isArray(fo.videoTypeOrder) ? fo.videoTypeOrder : (filters.filterOrder && filters.filterOrder.videoTypeOrder) || ['tvshows', 'hoathinh', '4k', 'exclusive'],
-            langOrder: fo.langOrder && Array.isArray(fo.langOrder) ? fo.langOrder : (filters.filterOrder && filters.filterOrder.langOrder) || ['vietsub', 'thuyetminh', 'longtieng', 'khac'],
-          };
-          fs.writeFileSync(filtersPath, `window.filtersData = ${JSON.stringify(filters)};`, 'utf8');
-        }
-        writeCategoryPages(filters);
-      } catch (e) {
-        console.warn('   Không parse được filters.js, bỏ qua writeCategoryPages:', e.message);
-      }
-    }
-    const actorsPath = path.join(PUBLIC_DATA, 'actors.js');
-    if (await fs.pathExists(actorsPath)) {
-      const raw = fs.readFileSync(actorsPath, 'utf8');
-      const jsonStr = raw.replace(/^window\.actorsData\s*=\s*/, '').replace(/;\s*$/, '');
-      try {
-        const actorsData = JSON.parse(jsonStr);
-        const { map: m, names: n, meta } = actorsData;
-        let movieById = null;
-        const mlPath = path.join(PUBLIC_DATA, 'movies-light.js');
-        if (await fs.pathExists(mlPath)) {
-          const mlRaw = fs.readFileSync(mlPath, 'utf8');
-          const mlStr = mlRaw.replace(/^window\.moviesLight\s*=\s*/, '').replace(/;\s*$/, '');
-          try {
-            const light = JSON.parse(mlStr);
-            movieById = new Map();
-            for (const mv of light || []) movieById.set(String(mv.id), mv);
-          } catch (ee) {
-            console.warn('   Không parse được movies-light.js:', ee.message);
+
+    // Incremental: rebuild filters.js và actors.js từ dữ liệu batch hiện có để phim mới xuất hiện trên các trang danh sách
+    const loadedMovies = await loadPreviousBuiltMoviesById();
+    if (loadedMovies && loadedMovies.size > 0) {
+      const allMovies = Array.from(loadedMovies.values());
+      console.log('   Incremental: rebuild filters từ', allMovies.length, 'phim trong batch hiện có.');
+      const { genreNames, countryNames } = await fetchOPhimGenresAndCountries();
+      const filters = writeFilters(allMovies, genreNames, countryNames);
+      writeCategoryPages(filters);
+      writeActors(allMovies);
+    } else {
+      // Fallback: chỉ tạo lại trang từ filters.js hiện có (hành vi cũ)
+      const filtersPath = path.join(PUBLIC_DATA, 'filters.js');
+      const filterOrderPath = path.join(PUBLIC_DATA, 'config', 'filter-order.json');
+      if (await fs.pathExists(filtersPath)) {
+        const raw = fs.readFileSync(filtersPath, 'utf8');
+        const jsonStr = raw.replace(/^window\.filtersData\s*=\s*/, '').replace(/;\s*$/, '');
+        try {
+          const filters = JSON.parse(jsonStr);
+          if (fs.existsSync(filterOrderPath)) {
+            const fo = JSON.parse(fs.readFileSync(filterOrderPath, 'utf8'));
+            filters.filterOrder = {
+              rowOrder: fo.rowOrder && Array.isArray(fo.rowOrder) ? fo.rowOrder : (filters.filterOrder && filters.filterOrder.rowOrder) || ['year', 'genre', 'country', 'videoType', 'lang'],
+              genreOrder: fo.genreOrder && Array.isArray(fo.genreOrder) ? fo.genreOrder : (filters.filterOrder && filters.filterOrder.genreOrder) || [],
+              countryOrder: fo.countryOrder && Array.isArray(fo.countryOrder) ? fo.countryOrder : (filters.filterOrder && filters.filterOrder.countryOrder) || [],
+              videoTypeOrder: fo.videoTypeOrder && Array.isArray(fo.videoTypeOrder) ? fo.videoTypeOrder : (filters.filterOrder && filters.filterOrder.videoTypeOrder) || ['tvshows', 'hoathinh', '4k', 'exclusive'],
+              langOrder: fo.langOrder && Array.isArray(fo.langOrder) ? fo.langOrder : (filters.filterOrder && filters.filterOrder.langOrder) || ['vietsub', 'thuyetminh', 'longtieng', 'khac'],
+            };
+            fs.writeFileSync(filtersPath, `window.filtersData = ${JSON.stringify(filters)};`, 'utf8');
           }
+          writeCategoryPages(filters);
+        } catch (e) {
+          console.warn('   Không parse được filters.js, bỏ qua writeCategoryPages:', e.message);
         }
-        writeActorsShardsFromData(m || {}, n || {}, movieById, meta || {});
-      } catch (e) {
-        console.warn('   Không parse được actors.js, bỏ qua writeActorsShardsFromData:', e.message);
+      }
+      const actorsPath = path.join(PUBLIC_DATA, 'actors.js');
+      if (await fs.pathExists(actorsPath)) {
+        const raw = fs.readFileSync(actorsPath, 'utf8');
+        const jsonStr = raw.replace(/^window\.actorsData\s*=\s*/, '').replace(/;\s*$/, '');
+        try {
+          const actorsData = JSON.parse(jsonStr);
+          const { map: m, names: n, meta } = actorsData;
+          let movieById = null;
+          const mlPath = path.join(PUBLIC_DATA, 'movies-light.js');
+          if (await fs.pathExists(mlPath)) {
+            const mlRaw = fs.readFileSync(mlPath, 'utf8');
+            const mlStr = mlRaw.replace(/^window\.moviesLight\s*=\s*/, '').replace(/;\s*$/, '');
+            try {
+              const light = JSON.parse(mlStr);
+              movieById = new Map();
+              for (const mv of light || []) movieById.set(String(mv.id), mv);
+            } catch (ee) {
+              console.warn('   Không parse được movies-light.js:', ee.message);
+            }
+          }
+          writeActorsShardsFromData(m || {}, n || {}, movieById, meta || {});
+        } catch (e) {
+          console.warn('   Không parse được actors.js, bỏ qua writeActorsShardsFromData:', e.message);
+        }
       }
     }
+
     const buildVersion = { builtAt: new Date().toISOString() };
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
     console.log('Incremental build xong.');
