@@ -41,13 +41,13 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
-      "69a402dada6ce23e8ea149e2",
       "68f9f11ea2d805aecaf99b2e",
       "6999abc4ccc6cea2687a17f6",
       "69aa268c400bf394bd8ea526",
       "6995931e4ea2111da8bb15c1",
       "69a81f8154ca9185bbb66858",
       "69aba24f46046a8eb6916589",
+      "69a402dada6ce23e8ea149e2",
       "694b47ecb06c99c722eaa29f",
       "693a839b8e1195b71e9271a9",
       "693a6ec954d8512f7b46ed0b",
@@ -59,40 +59,6 @@
       "68dcc5953e261817af05a0df"
     ],
     "movies": [
-      {
-        "id": "69a402dada6ce23e8ea149e2",
-        "title": "Cẩm Nang Yêu",
-        "origin_name": "The Practical Guide to Love",
-        "slug": "cam-nang-yeu",
-        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 6",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-16T23:58:17.000Z"
-      },
       {
         "id": "68f9f11ea2d805aecaf99b2e",
         "title": "Tracker (Phần 3)",
@@ -341,6 +307,40 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-15T23:30:01.000Z"
+      },
+      {
+        "id": "69a402dada6ce23e8ea149e2",
+        "title": "Cẩm Nang Yêu",
+        "origin_name": "The Practical Guide to Love",
+        "slug": "cam-nang-yeu",
+        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T20:52:16.000Z"
       },
       {
         "id": "694b47ecb06c99c722eaa29f",
@@ -786,7 +786,6 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
-      "69a402dada6ce23e8ea149e2",
       "68f9f11ea2d805aecaf99b2e",
       "6999abc4ccc6cea2687a17f6",
       "69aa268c400bf394bd8ea526",
@@ -798,43 +797,10 @@
       "69ad1ed2e263b2a94620ec76",
       "69b782921d0b515454b48678",
       "69b7819c4ea2111da8c53961",
-      "69a6876b4da3bf6eb33e5128"
+      "69a6876b4da3bf6eb33e5128",
+      "69ad23c5f063d23bbbd087e8"
     ],
     "movies": [
-      {
-        "id": "69a402dada6ce23e8ea149e2",
-        "title": "Cẩm Nang Yêu",
-        "origin_name": "The Practical Guide to Love",
-        "slug": "cam-nang-yeu",
-        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 6",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-16T23:58:17.000Z"
-      },
       {
         "id": "68f9f11ea2d805aecaf99b2e",
         "title": "Tracker (Phần 3)",
@@ -1307,6 +1273,45 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-16T12:17:08.000Z"
+      },
+      {
+        "id": "69ad23c5f063d23bbbd087e8",
+        "title": "Tình như nước sôi cho sô-cô-la(Phần 2)",
+        "origin_name": "Like Water for Chocolate (Season 2)",
+        "slug": "tinh-nhu-nuoc-soi-cho-so-co-laphan-2",
+        "thumb": "/uploads/movies/tinh-nhu-nuoc-soi-cho-so-co-laphan-2-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          },
+          {
+            "id": "6212611d1f1609c9d93466cc",
+            "name": "Mexico",
+            "slug": "mexico"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 4",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-16T12:16:49.000Z"
       }
     ]
   },
@@ -1826,7 +1831,6 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
-      "69a402dada6ce23e8ea149e2",
       "68f9f11ea2d805aecaf99b2e",
       "6999abc4ccc6cea2687a17f6",
       "69aa268c400bf394bd8ea526",
@@ -1837,43 +1841,10 @@
       "69b7ae770a0114095c81a8e2",
       "69a6876b4da3bf6eb33e5128",
       "69ad23c5f063d23bbbd087e8",
-      "6995931e4ea2111da8bb15c1"
+      "6995931e4ea2111da8bb15c1",
+      "69b7834ff65d22d617b55f55"
     ],
     "movies": [
-      {
-        "id": "69a402dada6ce23e8ea149e2",
-        "title": "Cẩm Nang Yêu",
-        "origin_name": "The Practical Guide to Love",
-        "slug": "cam-nang-yeu",
-        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 6",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-16T23:58:17.000Z"
-      },
       {
         "id": "68f9f11ea2d805aecaf99b2e",
         "title": "Tracker (Phần 3)",
@@ -2327,6 +2298,40 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-16T12:12:58.000Z"
+      },
+      {
+        "id": "69b7834ff65d22d617b55f55",
+        "title": "Tình Quan",
+        "origin_name": "The Ghost Marriage",
+        "slug": "tinh-quan",
+        "thumb": "/uploads/movies/tinh-quan-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a22ace0fc277084dfd531",
+            "name": "Kinh Dị",
+            "slug": "kinh-di"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-16T11:37:55.000Z"
       }
     ]
   },
@@ -2372,7 +2377,6 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
-      "69a402dada6ce23e8ea149e2",
       "68f9f11ea2d805aecaf99b2e",
       "6999abc4ccc6cea2687a17f6",
       "69aa268c400bf394bd8ea526",
@@ -2384,43 +2388,10 @@
       "69ad1ed2e263b2a94620ec76",
       "69a6876b4da3bf6eb33e5128",
       "69ad23c5f063d23bbbd087e8",
-      "6995931e4ea2111da8bb15c1"
+      "6995931e4ea2111da8bb15c1",
+      "69b50bab46046a8eb693af22"
     ],
     "movies": [
-      {
-        "id": "69a402dada6ce23e8ea149e2",
-        "title": "Cẩm Nang Yêu",
-        "origin_name": "The Practical Guide to Love",
-        "slug": "cam-nang-yeu",
-        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 6",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-16T23:58:17.000Z"
-      },
       {
         "id": "68f9f11ea2d805aecaf99b2e",
         "title": "Tracker (Phần 3)",
@@ -2908,6 +2879,45 @@
         "chieurap": false,
         "sub_docquyen": true,
         "modified": "2026-03-16T12:12:58.000Z"
+      },
+      {
+        "id": "69b50bab46046a8eb693af22",
+        "title": "Định Mệnh Vượt Xa Kịch Bản",
+        "origin_name": "Fate Beyond Script",
+        "slug": "dinh-menh-vuot-xa-kich-ban",
+        "thumb": "/uploads/movies/dinh-menh-vuot-xa-kich-ban-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 14",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-16T11:35:31.000Z"
       }
     ]
   },
@@ -4685,7 +4695,6 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
-      "69a402dada6ce23e8ea149e2",
       "68f9f11ea2d805aecaf99b2e",
       "6999abc4ccc6cea2687a17f6",
       "69aa268c400bf394bd8ea526",
@@ -4700,43 +4709,10 @@
       "69b7ab8accc6cea26882f9b0",
       "69b785f54ea2111da8c53c49",
       "69b7852a4ea2111da8c53bb1",
-      "69b7843accc6cea26882eb54"
+      "69b7843accc6cea26882eb54",
+      "69b7836eb06c99c722fd5578"
     ],
     "movies": [
-      {
-        "id": "69a402dada6ce23e8ea149e2",
-        "title": "Cẩm Nang Yêu",
-        "origin_name": "The Practical Guide to Love",
-        "slug": "cam-nang-yeu",
-        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 6",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-16T23:58:17.000Z"
-      },
       {
         "id": "68f9f11ea2d805aecaf99b2e",
         "title": "Tracker (Phần 3)",
@@ -5341,6 +5317,50 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-16T13:39:20.000Z"
+      },
+      {
+        "id": "69b7836eb06c99c722fd5578",
+        "title": "Đấu Trường Muôn Thú",
+        "origin_name": "Noah's Ark",
+        "slug": "dau-truong-muon-thu",
+        "thumb": "/uploads/movies/dau-truong-muon-thu-thumb.jpg",
+        "poster": "",
+        "year": 2024,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2355e0fc277084dfd8ca",
+            "name": "Ấn Độ",
+            "slug": "an-do"
+          },
+          {
+            "id": "62159c501f1609c9d934830a",
+            "name": "Brazil",
+            "slug": "brazil"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-16T13:38:52.000Z"
       }
     ]
   },
@@ -6037,10 +6057,10 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
-      "69a402dada6ce23e8ea149e2",
       "6999abc4ccc6cea2687a17f6",
       "69b7bd3a0a0114095c81ade4",
       "69b7bc804da3bf6eb3425225",
+      "69a402dada6ce23e8ea149e2",
       "6992eeedda6ce23e8e9b150b",
       "69abb1c2f063d23bbbd03d3e",
       "693a6ec954d8512f7b46ed0b",
@@ -6055,40 +6075,6 @@
       "69b379f7da6ce23e8ea516c6"
     ],
     "movies": [
-      {
-        "id": "69a402dada6ce23e8ea149e2",
-        "title": "Cẩm Nang Yêu",
-        "origin_name": "The Practical Guide to Love",
-        "slug": "cam-nang-yeu",
-        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
-        "poster": "",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 6",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": true,
-        "modified": "2026-03-16T23:58:17.000Z"
-      },
       {
         "id": "6999abc4ccc6cea2687a17f6",
         "title": "Mùa Rực Rỡ Của Em",
@@ -6220,6 +6206,40 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-16T15:51:42.000Z"
+      },
+      {
+        "id": "69a402dada6ce23e8ea149e2",
+        "title": "Cẩm Nang Yêu",
+        "origin_name": "The Practical Guide to Love",
+        "slug": "cam-nang-yeu",
+        "thumb": "/uploads/movies/cam-nang-yeu-thumb.jpg",
+        "poster": "",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-15T20:52:16.000Z"
       },
       {
         "id": "6992eeedda6ce23e8e9b150b",
