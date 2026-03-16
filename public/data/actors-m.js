@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"moon-jeong-hee":["69a402dada6ce23e8ea149e2"]},"names":{"moon-jeong-hee":"Moon Jeong-hee"},"meta":{"moon-jeong-hee":{"tmdb_id":1077269,"profile":"https://image.tmdb.org/t/p/w500/6V48aFHytTUAHG9EJ5JObUEbXOV.jpg","tmdb_url":"https://www.themoviedb.org/person/1077269"}},"movies":{}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

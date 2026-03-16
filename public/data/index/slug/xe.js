@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["xe"] = {"xe-dap-tinh-yeu":{"id":"69abad79e263b2a94620a194","i":117,"title":"Xe Đạp Tình Yêu","origin_name":"Love Like a Bike","slug":"xe-dap-tinh-yeu","thumb":"/uploads/movies/xe-dap-tinh-yeu-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 2"}};

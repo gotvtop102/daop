@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["22"] = {"22-lan-boi":{"id":"696d9437f65d22d617a5817b","i":528,"title":"22 Làn Bơi","origin_name":"22 Bahnen","slug":"22-lan-boi","thumb":"/uploads/movies/22-lan-boi-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

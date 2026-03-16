@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["bl"] = {"blood":{"id":"63de222935330788b82ff8c9","i":4,"title":"Blood","origin_name":"Blood","slug":"blood","thumb":"/uploads/movies/blood-thumb.jpg","year":2023,"type":"single","episode_current":"Full"}};

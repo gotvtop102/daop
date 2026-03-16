@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ro"] = {"rooster":{"id":"69b65d5fccc6cea268829e59","i":221,"title":"Rooster","origin_name":"Rooster","slug":"rooster","thumb":"/uploads/movies/rooster-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 1"}};

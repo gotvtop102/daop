@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["vl"] = {"vladimir":{"id":"69a93b8ef937c3b5a113f663","i":1037,"title":"Vladimir","origin_name":"Vladimir","slug":"vladimir","thumb":"/uploads/movies/vladimir-thumb.jpg","year":2026,"type":"series","episode_current":"Hoàn tất (8/8)"}};

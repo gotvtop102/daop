@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"oh-min-ae":["69a402dada6ce23e8ea149e2"]},"names":{"oh-min-ae":"Oh Min-ae"},"meta":{"oh-min-ae":{"tmdb_id":2421130,"profile":"https://image.tmdb.org/t/p/w500/ocyvvpUCPjsv6MgjSZWEeF8Hku4.jpg","tmdb_url":"https://www.themoviedb.org/person/2421130"}},"movies":{}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};

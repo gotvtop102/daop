@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["63"] = {"63-gio-doi-dau":{"id":"699eda59988d934ea9eda503","i":936,"title":"63 Giờ Đối Đầu","origin_name":"Dead Man's Wire","slug":"63-gio-doi-dau","thumb":"/uploads/movies/63-gio-doi-dau-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

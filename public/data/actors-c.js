@@ -1,1 +1,1 @@
-window.actorsData = {"map":{"choi-won-young":["69a402dada6ce23e8ea149e2"]},"names":{"choi-won-young":"Choi Won-young"},"meta":{"choi-won-young":{"tmdb_id":1258630,"profile":"https://image.tmdb.org/t/p/w500/fd6mthn1EonRrsk2WTtfQhzHCgn.jpg","tmdb_url":"https://www.themoviedb.org/person/1258630"}},"movies":{}};
+window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
