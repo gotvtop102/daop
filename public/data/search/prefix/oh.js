@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["oh"] = [{"id":"693fad809f0c379b5fd1cc4a","title":"Vui Dữ Chưa?","origin_name":"Oh. What. Fun.","slug":"vui-du-chua","thumb":"/uploads/movies/vui-du-chua-thumb.jpg","year":2025,"type":"single","episode_current":"Full","_t":"vui du chua oh what fun vui du chua"}];

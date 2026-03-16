@@ -54,8 +54,12 @@
         var fd = window.filtersData || {};
         var years = Object.keys(fd.yearMap || {}).sort(function(a,b){ return Number(b) - Number(a); });
         document.getElementById('page-title').textContent = 'Năm phát hành';
+        var base = (window.DAOP && window.DAOP.basePath) || '';
         document.getElementById('movies-grid').innerHTML = years.length
-          ? '<p>Chọn năm: ' + years.map(function(y){ return '<a href="' + y + '.html">' + y + '</a>'; }).join(' · ') + '</p>'
+          ? '<div class="genre-grid">' + years.map(function(y){
+              var label = String(y || '').replace(/</g, '&lt;');
+              return '<a class="genre-card" href="' + base + '/nam-phat-hanh/' + encodeURIComponent(String(y)) + '.html"><span class="genre-icon">📅</span><span class="genre-name">' + label + '</span></a>';
+            }).join('') + '</div>'
           : '<p>Chưa có dữ liệu.</p>';
         document.getElementById('filter-bar').innerHTML = '';
         document.getElementById('pagination').innerHTML = '';
