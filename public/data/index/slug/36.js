@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["36"] = {"366-ngay":{"id":"69637d4bb9fc4b542962f92e","i":685,"title":"366 Ngày","origin_name":"366 Days","slug":"366-ngay","thumb":"/uploads/movies/366-ngay-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};
