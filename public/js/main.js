@@ -1292,14 +1292,30 @@
     var sliderWrap = document.getElementById('slider-wrap');
     if (sliderWrap) {
       try {
-        var raw = settings.homepage_slider;
-        var arr = typeof raw === 'string' ? (raw ? JSON.parse(raw) : []) : (Array.isArray(raw) ? raw : []);
-        if (Array.isArray(arr) && arr.length > 0) {
-          arr = arr.filter(function (s) { return s.enabled !== false; });
-          arr.sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
-          window.DAOP.renderSlider(sliderWrap, arr);
-          var bannerWrap = document.getElementById('banner-wrap');
-          if (bannerWrap) bannerWrap.style.display = 'none';
+        var mode = (settings && settings.homepage_slider_display_mode) ? String(settings.homepage_slider_display_mode).trim().toLowerCase() : 'manual';
+        if (mode === 'auto') {
+          var autoUrl = (BASE || '') + '/data/home/homepage-slider-auto.json';
+          fetch(autoUrl).then(function (r) {
+            if (!r || !r.ok) return null;
+            return r.json();
+          }).then(function (arr) {
+            if (!Array.isArray(arr) || arr.length === 0) return;
+            arr = arr.filter(function (s) { return s && s.enabled !== false; });
+            arr.sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+            window.DAOP.renderSlider(sliderWrap, arr);
+            var bannerWrap = document.getElementById('banner-wrap');
+            if (bannerWrap) bannerWrap.style.display = 'none';
+          }).catch(function () {});
+        } else {
+          var raw = settings.homepage_slider;
+          var arr = typeof raw === 'string' ? (raw ? JSON.parse(raw) : []) : (Array.isArray(raw) ? raw : []);
+          if (Array.isArray(arr) && arr.length > 0) {
+            arr = arr.filter(function (s) { return s.enabled !== false; });
+            arr.sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+            window.DAOP.renderSlider(sliderWrap, arr);
+            var bannerWrap = document.getElementById('banner-wrap');
+            if (bannerWrap) bannerWrap.style.display = 'none';
+          }
         }
       } catch (e) {}
     }

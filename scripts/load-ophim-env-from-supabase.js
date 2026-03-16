@@ -51,7 +51,7 @@ async function main() {
   };
 
   const startPage = numOr(map.ophim_auto_start_page ?? map.ophim_start_page, 1);
-  const endPage = numOr(map.ophim_auto_end_page ?? map.ophim_end_page, 1);
+  const endPage = numOr(map.ophim_auto_end_page ?? map.ophim_end_page, 0);
   const twoPhase = String(map.update_data_two_phase || '').trim();
   const twoPhaseOn = (twoPhase === '1' || twoPhase.toLowerCase() === 'true');
   const uploadImages = String(map.upload_images_after_build || '').trim();

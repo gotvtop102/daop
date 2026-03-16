@@ -49,6 +49,73 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function buildAutoSliderSlides(allMovies, opts) {
+  opts = opts || {};
+  const n = Math.max(1, Math.min(50, Number(opts.count) || 5));
+  const sorted = [...(allMovies || [])].sort((a, b) => {
+    const ma = a && a.modified ? String(a.modified) : '';
+    const mb = b && b.modified ? String(b.modified) : '';
+    if (mb && ma && mb !== ma) return mb.localeCompare(ma);
+    const ya = Number(a && a.year) || 0;
+    const yb = Number(b && b.year) || 0;
+    if (yb !== ya) return yb - ya;
+    return String(b && b.id ? b.id : '').localeCompare(String(a && a.id ? a.id : ''));
+  });
+
+  const derivePoster = (url) => {
+    if (!url) return '';
+    const u = String(url);
+    if (/poster\.(jpe?g|png|webp)$/i.test(u)) return u;
+    const r1 = u.replace(/thumb\.(jpe?g|png|webp)$/i, 'poster.$1');
+    if (r1 !== u) return r1;
+    const r2 = u.replace(/-thumb\.(jpe?g|png|webp)$/i, '-poster.$1');
+    if (r2 !== u) return r2;
+    const r3 = u.replace(/_thumb\.(jpe?g|png|webp)$/i, '_poster.$1');
+    if (r3 !== u) return r3;
+    return '';
+  };
+
+  return sorted.slice(0, n).map((m, i) => {
+    const slug = m && (m.slug || m.id) ? String(m.slug || m.id) : '';
+    const linkUrl = slug ? ('/phim/' + slug + '.html') : '';
+    const derivedPoster = (!m.poster && m.thumb) ? derivePoster(m.thumb) : '';
+    const imgRaw = (m.poster || derivedPoster || m.thumb || '').toString();
+    const title = (m.title || m.origin_name || '').toString();
+    const countryName = Array.isArray(m.country) && m.country[0] ? (m.country[0].name || '') : '';
+    const genreNames = Array.isArray(m.genre) ? m.genre.map((g) => (g && g.name) ? g.name : '').filter(Boolean) : [];
+    return {
+      image_url: imgRaw,
+      link_url: linkUrl,
+      title,
+      year: m.year != null ? String(m.year) : undefined,
+      country: countryName || undefined,
+      episode_current: m.episode_current || undefined,
+      genres: genreNames.length ? genreNames : undefined,
+      sort_order: i,
+      enabled: true,
+    };
+  });
+}
+
+function writeAutoSliderFile(allMovies) {
+  try {
+    const siteSettingsPath = path.join(PUBLIC_DATA, 'config', 'site-settings.json');
+    let settings = {};
+    try {
+      if (fs.existsSync(siteSettingsPath)) settings = JSON.parse(fs.readFileSync(siteSettingsPath, 'utf8')) || {};
+    } catch {
+      settings = {};
+    }
+    const count = Number(settings.homepage_slider_auto_latest_count);
+    const slides = buildAutoSliderSlides(allMovies || [], { count });
+    const outPath = path.join(PUBLIC_DATA, 'home', 'homepage-slider-auto.json');
+    fs.ensureDirSync(path.dirname(outPath));
+    fs.writeFileSync(outPath, JSON.stringify(slides, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('   writeAutoSliderFile failed (continue):', e && e.message ? e.message : e);
+  }
+}
+
 function colToLetter(n) {
   let s = '';
   n++;
@@ -417,9 +484,17 @@ async function saveOphimIndex(index) {
   } catch {}
 }
 
-async function fetchOPhimMovies(prevMoviesById, prevIndex) {
+async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false) {
   const list = [];
-  const nextIndex = {};
+  const isPartialRange =
+    (OPHIM_START_PAGE > 1) ||
+    (OPHIM_END_PAGE > 0) ||
+    (OPHIM_MAX_PAGES > 0) ||
+    (OPHIM_MAX_MOVIES > 0);
+
+  const nextIndex = isPartialRange && prevIndex && typeof prevIndex === 'object'
+    ? { ...prevIndex }
+    : {};
   const reused = { count: 0 };
   const fetched = { count: 0 };
   let page = OPHIM_START_PAGE > 0 ? OPHIM_START_PAGE : 1;
@@ -528,6 +603,34 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex) {
     page += step;
   }
   console.log('   OPhim reused:', reused.count, ', fetched detail:', fetched.count);
+
+  // Nếu build chỉ fetch một phần range trang (vd: 20->10) thì KHÔNG được làm mất phim cũ.
+  // Ta merge (union) với dữ liệu đã build trước đó dựa trên ophim_index.json.
+  if (isPartialRange && !cleanOldData && prevMoviesById && prevIndex && typeof prevIndex === 'object') {
+    try {
+      const fetchedIds = new Set();
+      for (const m of list || []) {
+        const idStr = m && m.id != null ? String(m.id) : '';
+        if (idStr) fetchedIds.add(idStr);
+      }
+
+      let preserved = 0;
+      for (const [idStr, prevMovie] of prevMoviesById.entries()) {
+        if (!idStr) continue;
+        if (fetchedIds.has(idStr)) continue;
+        if (!prevIndex[idStr]) continue; // chỉ preserve phim OPhim
+        if (!prevMovie) continue;
+        list.push({ ...prevMovie, _skip_tmdb: true });
+        preserved++;
+      }
+      if (preserved > 0) {
+        console.log('   OPhim preserved from previous build:', preserved);
+      }
+    } catch (e) {
+      console.warn('   OPhim preserve previous movies failed (continue):', e && e.message ? e.message : e);
+    }
+  }
+
   await saveOphimIndex(nextIndex);
   return list;
 }
@@ -2593,11 +2696,13 @@ async function exportConfigFromSupabase() {
     loading_screen_enabled: 'true',
     loading_screen_min_seconds: '0',
     homepage_slider: '[]',
+    homepage_slider_display_mode: 'manual',
+    homepage_slider_auto_latest_count: '5',
     ...Object.fromEntries(Array.from({ length: 12 }, (_, i) => [`menu_bg_${i + 1}`, ''])),
     movies_data_url: '',
     filter_row_order: JSON.stringify(['year', 'genre', 'country', 'videoType', 'lang']),
-    filter_genre_order: '[]',
-    filter_country_order: '[]',
+    filter_genre_order: JSON.stringify([]),
+    filter_country_order: JSON.stringify([]),
     filter_video_type_order: JSON.stringify(['tvshows', 'hoathinh', '4k', 'exclusive']),
     filter_lang_order: JSON.stringify(['vietsub', 'thuyetminh', 'longtieng', 'khac']),
     theme_primary: '#58a6ff',
@@ -2911,6 +3016,20 @@ async function main() {
   const cleanOldData = process.argv.includes('--clean') || process.env.CLEAN_OLD_DATA === '1';
   console.log('Build started (incremental:', incremental, ')');
 
+  const isPartialOphimRange =
+    (OPHIM_START_PAGE > 1) ||
+    (OPHIM_END_PAGE > 0) ||
+    (OPHIM_MAX_PAGES > 0) ||
+    (OPHIM_MAX_MOVIES > 0);
+
+  if (!incremental && cleanOldData && isPartialOphimRange) {
+    console.warn(
+      'WARNING: CLEAN_OLD_DATA=1 đang bật cùng với giới hạn OPhim (start/end/max_pages/max_movies). ' +
+      'Build sẽ chỉ giữ dữ liệu trong phạm vi fetch hiện tại và có thể làm mất phim ngoài phạm vi. ' +
+      'Nếu bạn muốn giữ đủ dữ liệu qua nhiều lần chạy theo range, hãy chạy CLEAN_OLD_DATA=0.'
+    );
+  }
+
   if (!incremental && cleanOldData) {
     console.log('Cleanup: removing old generated data in public/data (keep config).');
     try {
@@ -3040,7 +3159,7 @@ async function main() {
   const prevOphimIndex = await loadOphimIndex();
 
   console.log('1. Fetching OPhim...');
-  const ophim = await fetchOPhimMovies(prevMoviesById, prevOphimIndex);
+  const ophim = await fetchOPhimMovies(prevMoviesById, prevOphimIndex, cleanOldData);
   console.log('   OPhim count:', ophim.length);
 
   console.log('2. Fetching custom (Sheets/Excel)...');
@@ -3141,6 +3260,7 @@ async function main() {
   const newLastModified = batchRes && batchRes.newLastModified ? batchRes.newLastModified : batchRes;
 
   writeHomeSectionsData(allMovies);
+  writeAutoSliderFile(allMovies);
   const batchPtrById = batchRes && batchRes.batchPtrById ? batchRes.batchPtrById : null;
 
   writeIndexAndSearchShards(allMovies, batchPtrById);

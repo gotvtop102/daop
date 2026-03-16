@@ -11,6 +11,7 @@ import {
   Image,
   Card,
   Switch,
+  Select,
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, LinkOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
@@ -44,6 +45,8 @@ type MovieLight = {
 
 const SLIDER_KEY = 'homepage_slider';
 const SITE_URL_KEY = 'site_url';
+const SLIDER_DISPLAY_MODE_KEY = 'homepage_slider_display_mode';
+const SLIDER_AUTO_COUNT_KEY = 'homepage_slider_auto_latest_count';
 
 export default function Slider() {
   const [list, setList] = useState<SlideItem[]>([]);
@@ -56,6 +59,8 @@ export default function Slider() {
   const [addingFromMovie, setAddingFromMovie] = useState(false);
   const [addingLatest, setAddingLatest] = useState(false);
   const [latestCount, setLatestCount] = useState(5);
+  const [displayMode, setDisplayMode] = useState<'manual' | 'auto'>('manual');
+  const [autoLatestCount, setAutoLatestCount] = useState(5);
   const [siteBase, setSiteBase] = useState<string>('');
   const [form] = Form.useForm();
 
@@ -70,6 +75,23 @@ export default function Slider() {
     const r3 = u.replace(/_thumb\.(jpe?g|png|webp)$/i, '_poster.$1');
     if (r3 !== u) return r3;
     return '';
+  };
+
+  const saveDisplaySettings = async (mode: 'manual' | 'auto', count: number) => {
+    const n = Math.max(1, Math.min(50, Number(count) || 5));
+    try {
+      const payload = [
+        { key: SLIDER_DISPLAY_MODE_KEY, value: mode, updated_at: new Date().toISOString() },
+        { key: SLIDER_AUTO_COUNT_KEY, value: String(n), updated_at: new Date().toISOString() },
+      ];
+      const { error } = await supabase.from('site_settings').upsert(payload, { onConflict: 'key' });
+      if (error) throw error;
+      setDisplayMode(mode);
+      setAutoLatestCount(n);
+      message.success('Đã lưu chế độ hiển thị slider');
+    } catch (e: any) {
+      message.error(e?.message || 'Lưu thất bại');
+    }
   };
 
   const toStoredLinkPathOnly = (raw: string) => {
@@ -229,11 +251,13 @@ export default function Slider() {
 
   const loadData = async () => {
     setLoading(true);
-    const [sliderRes, r2Res, ophimRes, siteUrlRes] = await Promise.all([
+    const [sliderRes, r2Res, ophimRes, siteUrlRes, modeRes, autoCountRes] = await Promise.all([
       supabase.from('site_settings').select('value').eq('key', SLIDER_KEY).single(),
       supabase.from('site_settings').select('value').eq('key', 'r2_img_domain').maybeSingle(),
       supabase.from('site_settings').select('value').eq('key', 'ophim_img_domain').maybeSingle(),
       supabase.from('site_settings').select('value').eq('key', SITE_URL_KEY).maybeSingle(),
+      supabase.from('site_settings').select('value').eq('key', SLIDER_DISPLAY_MODE_KEY).maybeSingle(),
+      supabase.from('site_settings').select('value').eq('key', SLIDER_AUTO_COUNT_KEY).maybeSingle(),
     ]);
 
     const r2Domain = String(r2Res.data?.value ?? '');
@@ -243,6 +267,13 @@ export default function Slider() {
     setR2ImgDomain(r2Domain);
     setOphimImgDomain(ophimDomain);
     setSiteBase(base);
+
+    const modeRaw = String(modeRes.data?.value ?? '').trim().toLowerCase();
+    const mode = (modeRaw === 'auto' || modeRaw === 'manual') ? modeRaw : 'manual';
+    const autoCountNum = Number(autoCountRes.data?.value);
+    const autoCountFinal = Number.isFinite(autoCountNum) && autoCountNum > 0 ? autoCountNum : 5;
+    setDisplayMode(mode as any);
+    setAutoLatestCount(autoCountFinal);
 
     try {
       const parsed = sliderRes.data?.value ? JSON.parse(sliderRes.data.value) : [];
@@ -475,6 +506,40 @@ export default function Slider() {
           <InputNumber min={1} max={50} value={latestCount} onChange={(v) => setLatestCount(Number(v) || 5)} />
           <Button type="primary" icon={<ThunderboltOutlined />} loading={addingLatest} onClick={addLatestMovies}>
             Thêm phim mới nhất
+          </Button>
+        </Space>
+      </Card>
+
+      <Card title="Chế độ hiển thị slider" style={{ marginBottom: 16 }}>
+        <p style={{ color: '#666', marginBottom: 8 }}>
+          Manual: dùng slider lưu trong Supabase (chỉnh sửa thủ công). Auto: slider sẽ được tạo tự động khi chạy workflow update-data.
+        </p>
+        <Space wrap>
+          <span>Chế độ</span>
+          <Select
+            value={displayMode}
+            style={{ minWidth: 160 }}
+            options={[
+              { value: 'manual', label: 'Manual (Supabase)' },
+              { value: 'auto', label: 'Auto (build)' },
+            ]}
+            onChange={(v) => {
+              const mode = (v === 'auto' || v === 'manual') ? v : 'manual';
+              setDisplayMode(mode);
+            }}
+          />
+          <span>Số lượng (Auto)</span>
+          <InputNumber
+            min={1}
+            max={50}
+            value={autoLatestCount}
+            onChange={(v) => {
+              const n = Number(v) || 5;
+              setAutoLatestCount(n);
+            }}
+          />
+          <Button type="primary" onClick={() => saveDisplaySettings(displayMode, autoLatestCount)}>
+            Lưu chế độ
           </Button>
         </Space>
       </Card>
