@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["un"] = {"ung-cuu-loi-dinh":{"id":"696492af400bf394bd815174","i":502,"title":"Ứng Cứu Lôi Đình","origin_name":"Thunderbolt Rescue","slug":"ung-cuu-loi-dinh","thumb":"/uploads/movies/ung-cuu-loi-dinh-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

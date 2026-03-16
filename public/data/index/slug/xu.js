@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["xu"] = {"xuan-tieu":{"id":"6944d5d0d6caf55037c2cccd","i":319,"title":"Xuân Tiêu","origin_name":"Spring Night","slug":"xuan-tieu","thumb":"/uploads/movies/xuan-tieu-thumb.jpg","year":2025,"type":"series","episode_current":"Hoàn tất (24/24)"}};

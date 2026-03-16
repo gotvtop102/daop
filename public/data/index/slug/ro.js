@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ro"] = {"robin-hood-2025":{"id":"6907291672465c69777cd7c7","i":136,"title":"Robin Hood","origin_name":"Robin Hood","slug":"robin-hood-2025","thumb":"/uploads/movies/robin-hood-2025-thumb.jpg","year":2025,"type":"series","episode_current":"Hoàn tất (10/10)"}};

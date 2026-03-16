@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["bu"] = {"buoc-chan-dung-cam":{"id":"695f4e0a4da3bf6eb33139a1","i":484,"title":"Bước Chân Dũng Cảm","origin_name":"The Unbreakable Boy","slug":"buoc-chan-dung-cam","thumb":"/uploads/movies/buoc-chan-dung-cam-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

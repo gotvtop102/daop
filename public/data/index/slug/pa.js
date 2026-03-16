@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["pa"] = {"parish":{"id":"6954edfcb9fc4b542961ca21","i":439,"title":"Parish","origin_name":"Parish","slug":"parish","thumb":"/uploads/movies/parish-thumb.jpg","year":2024,"type":"series","episode_current":"Hoàn tất (6/6)"}};

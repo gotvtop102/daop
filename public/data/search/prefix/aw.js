@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["aw"] = [{"id":"69568b0af07c400a86c09537","title":"Bỏ chạy","origin_name":"Run Away","slug":"run-away","thumb":"/uploads/movies/run-away-thumb.jpg","year":2026,"type":"series","episode_current":"Hoàn tất (8/8)","_t":"bo chay run away run away"}];

@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["xa"] = {"xa-thu-kich-chien":{"id":"694a82c2ae6f0c1fdf333f28","i":390,"title":"Xạ Thủ: Kích Chiến","origin_name":"Sniper Battle","slug":"xa-thu-kich-chien","thumb":"/uploads/movies/xa-thu-kich-chien-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};
