@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["uo"] = [{"id":"69ae9622b06c99c722fafebd","title":"Tai Ương","origin_name":"Sai","slug":"tai-uong","thumb":"/uploads/movies/tai-uong-thumb.jpg","year":2025,"type":"series","episode_current":"Hoàn tất (6/6)","_t":"tai uong sai tai uong"}];

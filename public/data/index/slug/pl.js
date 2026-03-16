@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["pl"] = {"play-park":{"id":"699967540a0114095c78ad50","i":86,"title":"Play Park","origin_name":"Play Park","slug":"play-park","thumb":"/uploads/movies/play-park-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 4"}};

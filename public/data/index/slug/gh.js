@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["gh"] = {"ghost-elephants":{"id":"69b3b6fd0a0114095c809ec0","i":200,"title":"Ghost Elephants","origin_name":"Ghost Elephants","slug":"ghost-elephants","thumb":"/uploads/movies/ghost-elephants-thumb.jpg","year":2026,"type":"single","episode_current":"Full"}};

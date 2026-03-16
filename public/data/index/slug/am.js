@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["am"] = {"amsterdamned-ii":{"id":"69afdcdfae6f0c1fdf440118","i":143,"title":"Amsterdamned II","origin_name":"Amsterdamned II","slug":"amsterdamned-ii","thumb":"/uploads/movies/amsterdamned-ii-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};
