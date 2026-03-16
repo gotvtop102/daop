@@ -100,7 +100,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add public/data
+          git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
+          git status
           git diff --staged --quiet || (git commit -m "chore: update data" && git push)
 
       - name: Build CORE (2-phase, skip TMDB)
@@ -129,7 +130,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add public/data
+          git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
+          git status
           git diff --staged --quiet || (git commit -m "chore: update data (core)" && git push)
 
       - name: Deploy CORE to Cloudflare Pages (2-phase)
@@ -177,7 +179,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add public/data
+          git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
+          git status
           git diff --staged --quiet || (git commit -m "chore: update data (tmdb only)" && git push)
 
       - name: Deploy TMDB to Cloudflare Pages (2-phase)

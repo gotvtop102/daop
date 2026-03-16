@@ -1,5 +1,27 @@
 name: Build on demand
 on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Chế độ chạy: incremental | full | two_phase'
+        required: false
+        default: 'incremental'
+      upload_images:
+        description: 'Sau khi build xong thì tải/nén/upload ảnh thumb/poster lên R2 (true/false)'
+        required: false
+        default: 'false'
+      start_page:
+        description: 'Trang bắt đầu (OPhim), 0 = mặc định'
+        required: false
+        default: '0'
+      end_page:
+        description: 'Trang kết thúc (OPhim), 0 = không giới hạn'
+        required: false
+        default: '0'
+      clean:
+        description: 'Xóa dữ liệu cũ trước khi build (true/false)'
+        required: false
+        default: 'false'
   repository_dispatch:
     types: [build-on-demand]
 jobs:
@@ -14,15 +36,149 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm install
-      - run: npm run build -- --incremental
+
+      - name: Load OPhim env from Supabase (auto settings)
+        run: node scripts/load-ophim-env-from-supabase.js
         env:
-          OPHIM_BASE_URL: ${{ secrets.OPHIM_BASE_URL || 'https://ophim1.com/v1/api' }}
-          OPHIM_MAX_PAGES: ${{ vars.OPHIM_MAX_PAGES || '5' }}
-          OPHIM_MAX_MOVIES: ${{ vars.OPHIM_MAX_MOVIES || '500' }}
-          OPHIM_FETCH_TIMEOUT_MS: ${{ vars.OPHIM_FETCH_TIMEOUT_MS || '25000' }}
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+
+      - name: Resolve inputs (workflow_dispatch or repository_dispatch)
+        run: |
+          MODE_INPUT="${{ inputs.mode }}"
+          if [ -z "$MODE_INPUT" ] || [ "$MODE_INPUT" = "" ]; then
+            MODE_INPUT="${{ github.event.client_payload.mode }}"
+          fi
+          if [ -z "$MODE_INPUT" ] || [ "$MODE_INPUT" = "" ]; then
+            MODE_INPUT="incremental"
+          fi
+          echo "BUILD_MODE=$MODE_INPUT" >> $GITHUB_ENV
+
+          UPLOAD_INPUT="${{ inputs.upload_images }}"
+          if [ -z "$UPLOAD_INPUT" ] || [ "$UPLOAD_INPUT" = "" ]; then
+            UPLOAD_INPUT="${{ github.event.client_payload.upload_images }}"
+          fi
+          if [ -z "$UPLOAD_INPUT" ] || [ "$UPLOAD_INPUT" = "" ]; then
+            UPLOAD_INPUT="false"
+          fi
+          echo "UPLOAD_IMAGES=$UPLOAD_INPUT" >> $GITHUB_ENV
+
+          CLEAN_INPUT="${{ inputs.clean }}"
+          if [ -z "$CLEAN_INPUT" ] || [ "$CLEAN_INPUT" = "" ]; then
+            CLEAN_INPUT="${{ github.event.client_payload.clean }}"
+          fi
+          if [ -z "$CLEAN_INPUT" ] || [ "$CLEAN_INPUT" = "" ]; then
+            CLEAN_INPUT="false"
+          fi
+          if [ "$CLEAN_INPUT" = "true" ]; then
+            echo "CLEAN_OLD_DATA=1" >> $GITHUB_ENV
+          else
+            echo "CLEAN_OLD_DATA=0" >> $GITHUB_ENV
+          fi
+
+          START_INPUT="${{ inputs.start_page }}"
+          if [ -z "$START_INPUT" ] || [ "$START_INPUT" = "" ]; then
+            START_INPUT="${{ github.event.client_payload.start_page }}"
+          fi
+          if [ -z "$START_INPUT" ] || [ "$START_INPUT" = "" ] || [ "$START_INPUT" = "0" ]; then
+            START_INPUT="${{ vars.OPHIM_START_PAGE || '1' }}"
+          fi
+          echo "OPHIM_START_PAGE=$START_INPUT" >> $GITHUB_ENV
+
+          END_INPUT="${{ inputs.end_page }}"
+          if [ -z "$END_INPUT" ] || [ "$END_INPUT" = "" ]; then
+            END_INPUT="${{ github.event.client_payload.end_page }}"
+          fi
+          if [ -z "$END_INPUT" ] || [ "$END_INPUT" = "" ] || [ "$END_INPUT" = "0" ]; then
+            END_INPUT="${{ vars.OPHIM_END_PAGE || '0' }}"
+          fi
+          echo "OPHIM_END_PAGE=$END_INPUT" >> $GITHUB_ENV
+
+      - name: Build (incremental)
+        if: ${{ env.BUILD_MODE == 'incremental' }}
+        run: npm run build -- --incremental
+        env:
+          OPHIM_BASE_URL: ${{ secrets.OPHIM_BASE_URL || 'https://ophim1.com/v1/api' }}
+          OPHIM_FETCH_TIMEOUT_MS: ${{ vars.OPHIM_FETCH_TIMEOUT_MS || '25000' }}
+          OPHIM_START_PAGE: ${{ env.OPHIM_START_PAGE }}
+          OPHIM_END_PAGE: ${{ env.OPHIM_END_PAGE }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+          GOOGLE_SHEETS_JSON: ${{ secrets.GOOGLE_SHEETS_JSON }}
+          SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
+          SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+
+      - name: Build (full)
+        if: ${{ env.BUILD_MODE == 'full' }}
+        run: npm run build
+        env:
+          CLEAN_OLD_DATA: ${{ env.CLEAN_OLD_DATA }}
+          OPHIM_BASE_URL: ${{ secrets.OPHIM_BASE_URL || 'https://ophim1.com/v1/api' }}
+          OPHIM_FETCH_TIMEOUT_MS: ${{ vars.OPHIM_FETCH_TIMEOUT_MS || '25000' }}
+          OPHIM_START_PAGE: ${{ env.OPHIM_START_PAGE }}
+          OPHIM_END_PAGE: ${{ env.OPHIM_END_PAGE }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+          GOOGLE_SHEETS_JSON: ${{ secrets.GOOGLE_SHEETS_JSON }}
+          SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
+          SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+
+      - name: Build CORE (two_phase)
+        if: ${{ env.BUILD_MODE == 'two_phase' }}
+        run: npm run build
+        env:
+          CLEAN_OLD_DATA: ${{ env.CLEAN_OLD_DATA }}
+          SKIP_TMDB: '1'
+          OPHIM_BASE_URL: ${{ secrets.OPHIM_BASE_URL || 'https://ophim1.com/v1/api' }}
+          OPHIM_FETCH_TIMEOUT_MS: ${{ vars.OPHIM_FETCH_TIMEOUT_MS || '25000' }}
+          OPHIM_START_PAGE: ${{ env.OPHIM_START_PAGE }}
+          OPHIM_END_PAGE: ${{ env.OPHIM_END_PAGE }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+          GOOGLE_SHEETS_JSON: ${{ secrets.GOOGLE_SHEETS_JSON }}
+          SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
+          SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+
+      - name: Build TMDB ONLY (two_phase)
+        if: ${{ env.BUILD_MODE == 'two_phase' }}
+        run: npm run build
+        env:
+          CLEAN_OLD_DATA: '0'
+          TMDB_ONLY: '1'
+          OPHIM_BASE_URL: ${{ secrets.OPHIM_BASE_URL || 'https://ophim1.com/v1/api' }}
+          OPHIM_FETCH_TIMEOUT_MS: ${{ vars.OPHIM_FETCH_TIMEOUT_MS || '25000' }}
+          OPHIM_START_PAGE: ${{ env.OPHIM_START_PAGE }}
+          OPHIM_END_PAGE: ${{ env.OPHIM_END_PAGE }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+          GOOGLE_SHEETS_JSON: ${{ secrets.GOOGLE_SHEETS_JSON }}
+          SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
+          SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+
+      - name: Upload movie images to R2 (after build)
+        if: ${{ env.UPLOAD_IMAGES == 'true' }}
+        run: node scripts/upload-movie-images-r2.js
+        env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -37,5 +193,5 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes — không có gì để push."
           else
-            git commit -m "chore: build on demand (data + category pages)" && git push
+            git commit -m "chore: build on demand (${BUILD_MODE})" && git push
           fi
