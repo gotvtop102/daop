@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["sh"] = {"shell":{"id":"69ae4e3f32adc86a1e7e7110","i":124,"title":"Shell","origin_name":"Shell","slug":"shell","thumb":"/uploads/movies/shell-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

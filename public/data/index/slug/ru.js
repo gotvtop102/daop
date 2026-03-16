@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ru"] = {"rua-moi-nhuc-xua":{"id":"69800fc532adc86a1e726f26","i":221,"title":"Rửa Mối Nhục Xưa","origin_name":"A Frozen Rage","slug":"rua-moi-nhuc-xua","thumb":"/uploads/movies/rua-moi-nhuc-xua-thumb.jpg","year":2024,"type":"single","episode_current":"Trailer"}};

@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ar"] = {"arva":{"id":"69afdeeff07c400a86d05f5c","i":146,"title":"Árva","origin_name":"Orphan","slug":"arva","thumb":"/uploads/movies/arva-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

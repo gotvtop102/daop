@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["pa"] = {"pavane":{"id":"69985f49124287e082582efc","i":372,"title":"Pavane","origin_name":"Pavane","slug":"pavane","thumb":"/uploads/movies/pavane-thumb.jpg","year":2026,"type":"single","episode_current":"Full"}};

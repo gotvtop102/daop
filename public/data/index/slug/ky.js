@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ky"] = {"ky-quyen-phong-bao":{"id":"69b7852a4ea2111da8c53bb1","i":232,"title":"Kỳ Quyền Phong Bạo","origin_name":"Hybrid Storm","slug":"ky-quyen-phong-bao","thumb":"/uploads/movies/ky-quyen-phong-bao-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};

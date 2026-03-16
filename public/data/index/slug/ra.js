@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ra"] = {"ranh-gioi-dinh-menh":{"id":"6947d108da6ce23e8e932ab7","i":30,"title":"Ranh Giới Định Mệnh","origin_name":"Bound by Fate","slug":"ranh-gioi-dinh-menh","thumb":"/uploads/movies/ranh-gioi-dinh-menh-thumb.jpg","year":2025,"type":"series","episode_current":"Tập 20"}};

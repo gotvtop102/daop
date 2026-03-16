@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["el"] = {"ella-mccay":{"id":"697b682b97c71dcd0d67d899","i":164,"title":"Ella McCay","origin_name":"Ella McCay","slug":"ella-mccay","thumb":"/uploads/movies/ella-mccay-thumb.jpg","year":2025,"type":"single","episode_current":"Trailer"}};

@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["vu"] = {"vua-david":{"id":"699ede58d88856be771adcd2","i":93,"title":"Vua David","origin_name":"David","slug":"vua-david","thumb":"/uploads/movies/vua-david-thumb.jpg","year":2025,"type":"hoathinh","episode_current":"Hoàn tất (1/1)"}};

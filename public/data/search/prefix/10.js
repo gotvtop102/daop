@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["10"] = [{"id":"698c296ada6ce23e8e98e114","title":"Tội Phạm 101","origin_name":"Crime 101","slug":"toi-pham-101","thumb":"/uploads/movies/toi-pham-101-thumb.jpg","year":2026,"type":"single","episode_current":"Full","_t":"toi pham 101 crime 101 toi pham 101"}];
