@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["94"] = {"94-chua-phai-la-het":{"id":"693fa8636c032a35bf1f8dba","i":200,"title":"94 Chưa Phải Là Hết","origin_name":"Eleanor the Great","slug":"94-chua-phai-la-het","thumb":"/uploads/movies/94-chua-phai-la-het-thumb.jpg","year":2025,"type":"single","episode_current":"Full"}};
