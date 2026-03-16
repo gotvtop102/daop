@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ic"] = {"ice-skater":{"id":"69afdd891d0b515454b28d0c","i":1104,"title":"Ice Skater","origin_name":"Ice Skater","slug":"ice-skater","thumb":"/uploads/movies/ice-skater-thumb.jpg","year":2026,"type":"single","episode_current":"Trailer"}};

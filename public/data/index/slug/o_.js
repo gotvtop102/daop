@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["o_"] = {"o-ban-than":{"id":"6985c688f937c3b5a109787e","i":797,"title":"Ô! Bạn Thân","origin_name":"Yoh! Bestie","slug":"o-ban-than","thumb":"/uploads/movies/o-ban-than-thumb.jpg","year":2026,"type":"single","episode_current":"Full"}};

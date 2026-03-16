@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["56"] = [{"id":"69a84f29f063d23bbbcf8d05","title":"56 Ngày","origin_name":"56 Days","slug":"56-ngay","thumb":"/uploads/movies/56-ngay-thumb.jpg","year":2026,"type":"series","episode_current":"Hoàn tất (8/8)","_t":"56 ngay 56 days 56 ngay"}];
