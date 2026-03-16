@@ -3206,6 +3206,77 @@ async function main() {
   const prevTmdbById = await loadPreviousBuiltTmdbById();
   const prevOphimIndex = await loadOphimIndex();
 
+  const skipTmdb = (process.env.SKIP_TMDB === '1' || process.env.SKIP_TMDB === 'true');
+  const tmdbOnly = (process.env.TMDB_ONLY === '1' || process.env.TMDB_ONLY === 'true');
+
+  // TMDB_ONLY phase (2-phase): KHÔNG được fetch lại OPhim/Custom vì có thể làm thay đổi tổng số phim,
+  // dẫn tới mismatch với batch-windows.json. Phase này chỉ enrich TMDB và ghi tmdb_batch_*.
+  if (tmdbOnly) {
+    if (skipTmdb) {
+      console.log('TMDB_ONLY: SKIP_TMDB đang bật, không có gì để làm.');
+      return;
+    }
+    if (!prevMoviesById || prevMoviesById.size === 0) {
+      throw new Error('TMDB_ONLY requires existing built movies in public/data/batches (prevMoviesById is empty). Run CORE/full build first.');
+    }
+
+    const allMovies = Array.from(prevMoviesById.values());
+    console.log('TMDB_ONLY: loaded movies from existing batches:', allMovies.length);
+
+    const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
+    const shouldEnrich = (m) => {
+      if (!m) return false;
+      const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
+      if (!tid) return false;
+      if (forceTmdb) return true;
+      const idStr = m && m.id != null ? String(m.id) : '';
+      if (!idStr) return true;
+      if (!prevTmdbById || typeof prevTmdbById.get !== 'function') return true;
+      const prev = prevTmdbById.get(idStr);
+      if (!prev) return true;
+      const prevTid = prev && prev.tmdb ? prev.tmdb.id : null;
+      if (prevTid != null && String(prevTid) !== String(tid)) return true;
+      return false;
+    };
+
+    const need = (allMovies || []).filter(shouldEnrich);
+    console.log('TMDB_ONLY: movies to enrich:', need.length);
+    await enrichTmdb(need);
+
+    const tmdbById = new Map(prevTmdbById || []);
+    for (const m of allMovies) {
+      const idStr = m && m.id != null ? String(m.id) : '';
+      if (!idStr) continue;
+      const hasAnyTmdbField =
+        !!m.tmdb ||
+        !!m.imdb ||
+        (Array.isArray(m.cast) && m.cast.length) ||
+        (Array.isArray(m.director) && m.director.length) ||
+        (Array.isArray(m.cast_meta) && m.cast_meta.length) ||
+        (Array.isArray(m.keywords) && m.keywords.length);
+      if (!hasAnyTmdbField) continue;
+
+      const prev = tmdbById.get(idStr);
+      tmdbById.set(idStr, {
+        id: idStr,
+        tmdb: m.tmdb || (prev && prev.tmdb) || null,
+        imdb: m.imdb || (prev && prev.imdb) || null,
+        cast: (Array.isArray(m.cast) && m.cast.length) ? m.cast : ((prev && Array.isArray(prev.cast)) ? prev.cast : []),
+        director: (Array.isArray(m.director) && m.director.length) ? m.director : ((prev && Array.isArray(prev.director)) ? prev.director : []),
+        cast_meta: (Array.isArray(m.cast_meta) && m.cast_meta.length) ? m.cast_meta : ((prev && Array.isArray(prev.cast_meta)) ? prev.cast_meta : []),
+        keywords: (Array.isArray(m.keywords) && m.keywords.length) ? m.keywords : ((prev && Array.isArray(prev.keywords)) ? prev.keywords : []),
+      });
+    }
+
+    console.log('Writing TMDB batches only...');
+    writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
+
+    const buildVersion = { builtAt: new Date().toISOString() };
+    fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
+    console.log('TMDB_ONLY build done.');
+    return;
+  }
+
   console.log('1. Fetching OPhim...');
   const ophim = await fetchOPhimMovies(prevMoviesById, prevOphimIndex, cleanOldData);
   console.log('   OPhim count:', ophim.length);
@@ -3213,9 +3284,6 @@ async function main() {
   console.log('2. Fetching custom (Sheets/Excel)...');
   const custom = await fetchCustomMovies();
   console.log('   Custom count:', custom.length);
-
-  const skipTmdb = (process.env.SKIP_TMDB === '1' || process.env.SKIP_TMDB === 'true');
-  const tmdbOnly = (process.env.TMDB_ONLY === '1' || process.env.TMDB_ONLY === 'true');
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');
     if (tmdbOnly) {
