@@ -1,35 +1,111 @@
 {
   "baseBatchSize": 120,
   "maxBytes": 300000,
-  "total": 240,
+  "total": 1440,
   "windows": [
     {
       "start": 0,
-      "end": 3
+      "end": 30
     },
     {
-      "start": 3,
-      "end": 10
+      "start": 30,
+      "end": 89
     },
     {
-      "start": 10,
-      "end": 16
-    },
-    {
-      "start": 16,
-      "end": 37
-    },
-    {
-      "start": 37,
-      "end": 114
-    },
-    {
-      "start": 114,
+      "start": 89,
       "end": 120
     },
     {
       "start": 120,
+      "end": 188
+    },
+    {
+      "start": 188,
       "end": 240
+    },
+    {
+      "start": 240,
+      "end": 264
+    },
+    {
+      "start": 264,
+      "end": 319
+    },
+    {
+      "start": 319,
+      "end": 365
+    },
+    {
+      "start": 365,
+      "end": 384
+    },
+    {
+      "start": 384,
+      "end": 438
+    },
+    {
+      "start": 438,
+      "end": 504
+    },
+    {
+      "start": 504,
+      "end": 564
+    },
+    {
+      "start": 564,
+      "end": 624
+    },
+    {
+      "start": 624,
+      "end": 710
+    },
+    {
+      "start": 710,
+      "end": 744
+    },
+    {
+      "start": 744,
+      "end": 812
+    },
+    {
+      "start": 812,
+      "end": 864
+    },
+    {
+      "start": 864,
+      "end": 931
+    },
+    {
+      "start": 931,
+      "end": 984
+    },
+    {
+      "start": 984,
+      "end": 1070
+    },
+    {
+      "start": 1070,
+      "end": 1104
+    },
+    {
+      "start": 1104,
+      "end": 1187
+    },
+    {
+      "start": 1187,
+      "end": 1224
+    },
+    {
+      "start": 1224,
+      "end": 1336
+    },
+    {
+      "start": 1336,
+      "end": 1344
+    },
+    {
+      "start": 1344,
+      "end": 1440
     }
   ]
 }
