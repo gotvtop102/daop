@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"shin-jae-ha":["69a402dada6ce23e8ea149e2"]},"names":{"shin-jae-ha":"Shin Jae-ha"},"meta":{"shin-jae-ha":{"tmdb_id":1588284,"profile":"https://image.tmdb.org/t/p/w500/8ibnExy82kSEAPvtql5XeC8FhIv.jpg","tmdb_url":"https://www.themoviedb.org/person/1588284"}},"movies":{}};

@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"han-ji-min":["69a402dada6ce23e8ea149e2"]},"names":{"han-ji-min":"Han Ji-min"},"meta":{"han-ji-min":{"tmdb_id":1010877,"profile":"https://image.tmdb.org/t/p/w500/v2c6JPiW2REiElPz5Tlb5LmrLKV.jpg","tmdb_url":"https://www.themoviedb.org/person/1010877"}},"movies":{}};
