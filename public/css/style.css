@@ -7,6 +7,30 @@
   --muted: #8b949e;
   --accent: #58a6ff;
   --accent-hover: #79b8ff;
+  --link-color: #58a6ff;
+  --link-color-light: var(--link-color);
+  --header-logo-color: var(--text);
+  --header-logo-color-light: var(--header-logo-color);
+  --header-link-color: var(--text);
+  --header-link-color-light: var(--header-link-color);
+  --footer-text-color: var(--muted);
+  --footer-text-color-light: var(--footer-text-color);
+  --section-title-color: var(--text);
+  --section-title-color-light: var(--section-title-color);
+  --filter-label-color: var(--muted);
+  --filter-label-color-light: var(--filter-label-color);
+  --pagination-color: var(--text);
+  --pagination-color-light: var(--pagination-color);
+  --slider-title-color: #ffffff;
+  --slider-title-color-light: var(--slider-title-color);
+  --slider-meta-color: rgba(255,255,255,0.75);
+  --slider-meta-color-light: var(--slider-meta-color);
+  --slider-desc-color: rgba(255,255,255,0.7);
+  --slider-desc-color-light: var(--slider-desc-color);
+  --movie-card-title-color: #f85149;
+  --movie-card-title-color-light: var(--movie-card-title-color);
+  --movie-card-meta-color: #8b949e;
+  --movie-card-meta-color-light: var(--movie-card-meta-color);
   --light-bg: #eef2f5;
   --light-card: #ffffff;
   --light-border: #d0d7de;
@@ -32,7 +56,18 @@ body.theme-light {
   --border: var(--light-border);
   --text: var(--light-text);
   --muted: var(--light-muted);
-  --header-link-color: var(--text);
+  --link-color: var(--link-color-light);
+  --header-logo-color: var(--header-logo-color-light);
+  --header-link-color: var(--header-link-color-light);
+  --footer-text-color: var(--footer-text-color-light);
+  --section-title-color: var(--section-title-color-light);
+  --filter-label-color: var(--filter-label-color-light);
+  --pagination-color: var(--pagination-color-light);
+  --slider-title-color: var(--slider-title-color-light);
+  --slider-meta-color: var(--slider-meta-color-light);
+  --slider-desc-color: var(--slider-desc-color-light);
+  --movie-card-title-color: var(--movie-card-title-color-light);
+  --movie-card-meta-color: var(--movie-card-meta-color-light);
   background: var(--bg);
   color: var(--text);
 }
@@ -61,6 +96,10 @@ body.theme-light {
  }
 
  body.theme-light .watch-player-top {
+   background: var(--light-surface);
+ }
+
+ body.theme-light .md-action-btn {
    background: var(--light-surface);
  }
 
@@ -2188,7 +2227,7 @@ body.site-header--collapsed .site-header {
   padding: 0.55rem 0.5rem;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: rgba(22, 27, 34, 0.65);
+  background: var(--card);
   color: var(--text);
   cursor: pointer;
   font-weight: 700;
@@ -2907,7 +2946,12 @@ body.site-header--collapsed .site-header {
 .watch-actions .movie-fav-btn:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(22, 27, 34, 0.65);
+  background: var(--card);
+}
+
+body.theme-light .md-actions .movie-fav-btn:hover,
+body.theme-light .watch-actions .movie-fav-btn:hover {
+  background: var(--light-surface);
 }
 
 .md-actions .movie-fav-btn.is-fav,

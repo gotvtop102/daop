@@ -56,6 +56,20 @@
     fetch('/data/config/donate.json').then(function(r){ return r.json(); }).then(function(d){
       var target = document.getElementById('donate-target');
       var methods = document.getElementById('donate-methods');
+      function escapeHtml(s) {
+        return String(s || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+      function normalizeUrl(u) {
+        u = String(u || '').trim();
+        if (!u) return '';
+        if (/^https?:\/\//i.test(u)) return u;
+        return 'https://' + u;
+      }
       if (target) {
         var cur = Number(d.current_amount) || 0;
         var goal = Number(d.target_amount) || 0;
@@ -65,7 +79,24 @@
           (goal ? '<div style="background:#30363d;border-radius:8px;height:12px;"><div style="width:' + pct + '%;height:100%;background:#58a6ff;border-radius:8px;"></div></div>' : '');
       }
       var html = '';
-      if (d.paypal_link) html += '<p>PayPal: <a href="' + d.paypal_link + '">Link donate PayPal</a></p>';
+      if (d.paypal_link) {
+        var pp = normalizeUrl(d.paypal_link);
+        html += '<p>PayPal: <a href="' + escapeHtml(pp) + '" target="_blank" rel="noopener">Link donate PayPal</a></p>';
+      }
+      if (d.methods && d.methods.length) {
+        d.methods.forEach(function(m){
+          if (!m) return;
+          var label = escapeHtml(m.label || 'Donate');
+          var url = normalizeUrl(m.url);
+          var note = escapeHtml(m.note || '');
+          var line = '<p>' + label + ': ';
+          if (url) line += '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>';
+          else line += '<span>' + (note ? note : 'Chưa cấu hình') + '</span>';
+          if (note && url) line += ' <span style="color:#8b949e">(' + note + ')</span>';
+          line += '</p>';
+          html += line;
+        });
+      }
       if (d.bank_info && d.bank_info.length) {
         d.bank_info.forEach(function(b){ html += '<p>Chuyển khoản: ' + (b.bank_name || '') + ' - ' + (b.account_number || '') + ' - ' + (b.account_name || '') + '</p>'; });
       }

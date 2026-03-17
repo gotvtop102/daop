@@ -80,6 +80,7 @@ create table if not exists public.donate_settings (
   target_currency text default 'VND',
   current_amount numeric default 0,
   paypal_link text,
+  methods jsonb,
   bank_info jsonb,
   crypto_addresses jsonb,
   updated_at timestamptz default now()

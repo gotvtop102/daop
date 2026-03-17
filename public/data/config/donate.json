@@ -3,8 +3,17 @@
   "target_amount": 99,
   "target_currency": "USD",
   "current_amount": 1,
-  "paypal_link": null,
-  "bank_info": null,
-  "crypto_addresses": null,
+  "paypal_link": "",
+  "methods": [
+    { "label": "Bitcoin (BTC)", "url": "", "note": "" },
+    { "label": "Ethereum (ETH)", "url": "", "note": "" },
+    { "label": "Litecoin (LTC)", "url": "", "note": "" },
+    { "label": "USDT (TRC20)", "url": "", "note": "" },
+    { "label": "USDT (ERC20)", "url": "", "note": "" },
+    { "label": "BNB (BEP20)", "url": "", "note": "" },
+    { "label": "Solana (SOL)", "url": "", "note": "" }
+  ],
+  "bank_info": [],
+  "crypto_addresses": [],
   "updated_at": "2026-02-21T13:42:39.98839+00:00"
 }
