@@ -74,6 +74,7 @@ export default function MovieList() {
   const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
   const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
   const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
+  const [configReady, setConfigReady] = useState<boolean>(false);
 
   // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
@@ -107,6 +108,7 @@ export default function MovieList() {
       } catch {
         // ignore
       }
+      setConfigReady(true);
     };
     loadConfig();
   }, []);
@@ -116,6 +118,43 @@ export default function MovieList() {
     if (!u) return '';
     const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
     const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
+    const extractImageSlug = (rawSlug: string) => {
+      const x = String(rawSlug || '').trim();
+      if (!x) return '';
+      let name = x;
+      if (/^https?:\/\//i.test(x)) {
+        try {
+          const parsed = new URL(x);
+          const p = parsed.pathname || '';
+          const underKnownDomain =
+            (!!r2 && parsed.origin === r2) ||
+            (!!ophim && parsed.origin === ophim);
+          if (!underKnownDomain && p.indexOf('/uploads/') !== 0) {
+            return x;
+          }
+          name = p.split('/').pop() || '';
+        } catch {
+          name = x.split('/').pop() || '';
+        }
+      } else if (x.startsWith('/')) {
+        if (x.indexOf('/uploads/') !== 0) return x;
+        name = x.split('/').pop() || '';
+      }
+      name = name.split('?')[0].split('#')[0];
+      name = name.replace(/\.(jpe?g|jpg|png|webp|gif)$/i, '');
+      name = name
+        .replace(/[-_]?thumb$/i, '')
+        .replace(/[-_]?poster$/i, '')
+        .trim();
+      return name;
+    };
+    const buildImageUrlFromSlug = (slug: string, kind: 'thumb' | 'poster') => {
+      const s = String(slug || '').trim();
+      if (!s) return '';
+      if (r2) return `${r2}/${kind === 'poster' ? 'posters' : 'thumbs'}/${s}.webp`;
+      if (ophim) return `${ophim}/uploads/${kind === 'poster' ? 'posters' : 'thumbs'}/${s}.webp`;
+      return '';
+    };
     const toWebpName = (filename: string) => {
       const f = String(filename || '').trim();
       if (!f) return '';
@@ -159,11 +198,15 @@ export default function MovieList() {
       if (r2u) return r2u;
       if (ophim) return ophim + u;
     }
-    return u;
+
+    // slug-only
+    const slug = extractImageSlug(u);
+    return slug && !/^https?:\/\//i.test(slug) ? buildImageUrlFromSlug(slug, 'thumb') : u;
   };
 
   // Load movies from Google Sheets via API
   const loadMovies = async (opts?: { nextPage?: number; nextPageSize?: number }) => {
+    if (!configReady) return; // Wait for config to load first
     if (!spreadsheetId) {
       message.error('Chưa cấu hình Google Sheets ID. Vui lòng vào Google Sheets để thiết lập.');
       return;
@@ -219,12 +262,13 @@ export default function MovieList() {
   };
 
   useEffect(() => {
+    if (!configReady || !spreadsheetId) return; // Wait for config
     const t = setTimeout(() => {
       loadMovies({ nextPage: 1 });
       setPage(1);
-    }, 300);
+    }, 100);
     return () => clearTimeout(t);
-  }, [category, search]);
+  }, [category, search, configReady, spreadsheetId]);
 
   const filteredMovies = useMemo(() => movies, [movies]);
 

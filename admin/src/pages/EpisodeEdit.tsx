@@ -75,6 +75,7 @@ export default function EpisodeEdit() {
   const [movieTitle, setMovieTitle] = useState('');
   const [spreadsheetId, setSpreadsheetId] = useState<string>('');
   const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
+  const [configReady, setConfigReady] = useState<boolean>(false);
 
   // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
@@ -99,17 +100,20 @@ export default function EpisodeEdit() {
       } catch {
         // ignore
       }
+      setConfigReady(true);
     };
     loadConfig();
   }, []);
 
   useEffect(() => {
+    if (!configReady || !spreadsheetId) return; // Wait for config
     if (id && spreadsheetId && serviceAccountKey) {
       loadEpisodes(id);
     }
-  }, [id, spreadsheetId, serviceAccountKey]);
+  }, [id, spreadsheetId, serviceAccountKey, configReady]);
 
   const loadEpisodes = async (movieId: string) => {
+    if (!configReady) return; // Wait for config to load first
     if (!spreadsheetId) {
       message.error('Chưa cấu hình Google Sheets ID');
       return;

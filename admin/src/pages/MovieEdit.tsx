@@ -111,6 +111,7 @@ export default function MovieEdit() {
   const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
   const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
   const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
+  const [configReady, setConfigReady] = useState<boolean>(false);
   const isNew = id === 'new';
 
   // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
@@ -140,11 +141,55 @@ export default function MovieEdit() {
       } catch {
         // ignore
       }
+      setConfigReady(true);
     };
     loadConfig();
   }, []);
 
-  const normalizeMovieImageUrl = (raw: string) => {
+  const extractImageSlug = (raw: string) => {
+    const u = String(raw || '').trim();
+    if (!u) return '';
+    const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
+    const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
+    let name = u;
+    if (/^https?:\/\//i.test(u)) {
+      try {
+        const parsed = new URL(u);
+        const p = parsed.pathname || '';
+        const underKnownDomain =
+          (!!r2 && parsed.origin === r2) ||
+          (!!ophim && parsed.origin === ophim);
+        if (!underKnownDomain && p.indexOf('/uploads/') !== 0) {
+          return u;
+        }
+        name = p.split('/').pop() || '';
+      } catch {
+        name = u.split('/').pop() || '';
+      }
+    } else if (u.startsWith('/')) {
+      if (u.indexOf('/uploads/') !== 0) return u;
+      name = u.split('/').pop() || '';
+    }
+    name = name.split('?')[0].split('#')[0];
+    name = name.replace(/\.(jpe?g|jpg|png|webp|gif)$/i, '');
+    name = name
+      .replace(/[-_]?thumb$/i, '')
+      .replace(/[-_]?poster$/i, '')
+      .trim();
+    return name;
+  };
+
+  const buildImageUrlFromSlug = (slug: string, kind: 'thumb' | 'poster') => {
+    const s = String(slug || '').trim();
+    if (!s) return '';
+    const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
+    const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
+    if (r2) return `${r2}/${kind === 'poster' ? 'posters' : 'thumbs'}/${s}.webp`;
+    if (ophim) return `${ophim}/uploads/${kind === 'poster' ? 'posters' : 'thumbs'}/${s}.webp`;
+    return '';
+  };
+
+  const normalizeMovieImageUrl = (raw: string, kind: 'thumb' | 'poster') => {
     const u = String(raw || '').trim();
     if (!u) return '';
     const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
@@ -192,11 +237,14 @@ export default function MovieEdit() {
       if (r2u) return r2u;
       if (ophim) return ophim + u;
     }
-    return u;
+    // slug-only
+    const slug = extractImageSlug(u);
+    return slug ? buildImageUrlFromSlug(slug, kind) : u;
   };
 
   // Load movie data
   useEffect(() => {
+    if (!configReady) return; // Wait for config to load first
     if (!isNew && id && spreadsheetId && serviceAccountKey) {
       loadMovie(id);
     } else if (isNew) {
@@ -213,9 +261,10 @@ export default function MovieEdit() {
         update: '',
       });
     }
-  }, [id, typeFromQuery, spreadsheetId, serviceAccountKey]);
+  }, [id, typeFromQuery, spreadsheetId, serviceAccountKey, configReady]);
 
   const loadMovie = async (movieId: string) => {
+    if (!configReady) return; // Wait for config to load first
     if (!spreadsheetId) {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
@@ -244,6 +293,9 @@ export default function MovieEdit() {
         throw new Error('Phim không tồn tại');
       }
 
+      const posterSlug = extractImageSlug(result.poster_url || '');
+      const thumbSlug = extractImageSlug(result.thumb_url || '');
+
       // Parse arrays from comma-separated strings
       const movieData = {
         ...result,
@@ -251,13 +303,17 @@ export default function MovieEdit() {
         country: typeof result.country === 'string' ? result.country.split(',').filter(Boolean) : result.country || [],
         director: typeof result.director === 'string' ? result.director.split(',').filter(Boolean) : result.director || [],
         actor: typeof result.actor === 'string' ? result.actor.split(',').filter(Boolean) : result.actor || [],
-        poster_url: normalizeMovieImageUrl(result.poster_url || ''),
-        thumb_url: normalizeMovieImageUrl(result.thumb_url || ''),
+        poster_url: posterSlug,
+        thumb_url: thumbSlug,
         year: result.year ? parseInt(result.year) : new Date().getFullYear(),
       };
 
       form.setFieldsValue(movieData);
-      setPosterPreview(movieData.poster_url || '');
+      const preview =
+        normalizeMovieImageUrl(result.poster_url || '', 'poster') ||
+        (posterSlug ? buildImageUrlFromSlug(posterSlug, 'poster') : '') ||
+        (thumbSlug ? buildImageUrlFromSlug(thumbSlug, 'thumb') : '');
+      setPosterPreview(preview);
     } catch (e: any) {
       message.error(e?.message || 'Không thể tải thông tin phim');
     } finally {
@@ -336,12 +392,17 @@ export default function MovieEdit() {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const apiBase = base || window.location.origin;
 
+      const posterSlug = extractImageSlug(values.poster_url || '');
+      const thumbSlug = extractImageSlug(values.thumb_url || '');
+
       // Convert arrays to comma-separated strings
       const payload = {
         ...values,
         id: isNew ? undefined : id,
         spreadsheetId,
         serviceAccountKey,
+        poster_url: posterSlug,
+        thumb_url: thumbSlug,
         genre: Array.isArray(values.genre) ? values.genre.join(',') : values.genre,
         country: Array.isArray(values.country) ? values.country.join(',') : values.country,
         director: Array.isArray(values.director) ? values.director.join(',') : values.director,
@@ -377,7 +438,7 @@ export default function MovieEdit() {
   };
 
   const handlePosterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPosterPreview(normalizeMovieImageUrl(e.target.value));
+    setPosterPreview(normalizeMovieImageUrl(e.target.value, 'poster'));
   };
 
   return (
