@@ -92,7 +92,7 @@ export default function Login() {
           </Form.Item>
         </Form>
         <div className="login-footer">
-          Code make by <strong>GoTV Admin Tieucot</strong>
+          Code made by <strong>GoTV Admin Tieucot</strong>
           <br />
           Telegram:{' '}
           <a

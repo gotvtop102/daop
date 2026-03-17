@@ -109,6 +109,8 @@ export default function MovieEdit() {
   const [posterPreview, setPosterPreview] = useState('');
   const [spreadsheetId, setSpreadsheetId] = useState<string>('');
   const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
+  const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
+  const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
   const isNew = id === 'new';
 
   // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
@@ -117,14 +119,18 @@ export default function MovieEdit() {
       const { data: settings, error } = await supabase
         .from('site_settings')
         .select('key, value')
-        .in('key', ['google_sheets_id', 'google_service_account_key']);
+        .in('key', ['google_sheets_id', 'google_service_account_key', 'r2_img_domain', 'ophim_img_domain']);
       
       if (!error && settings) {
         const sheetId = settings.find(s => s.key === 'google_sheets_id')?.value;
         const svcKey = settings.find(s => s.key === 'google_service_account_key')?.value;
+        const r2Domain = settings.find(s => s.key === 'r2_img_domain')?.value;
+        const ophimDomain = settings.find(s => s.key === 'ophim_img_domain')?.value;
         if (sheetId) setSpreadsheetId(sheetId);
         if (svcKey) setServiceAccountKey(svcKey);
-        if (sheetId && svcKey) return;
+        if (r2Domain) setR2ImgDomain(r2Domain);
+        if (ophimDomain) setOphimImgDomain(ophimDomain);
+        if (sheetId && svcKey && r2Domain && ophimDomain) return;
       }
       
       try {
@@ -137,6 +143,57 @@ export default function MovieEdit() {
     };
     loadConfig();
   }, []);
+
+  const normalizeMovieImageUrl = (raw: string) => {
+    const u = String(raw || '').trim();
+    if (!u) return '';
+    const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
+    const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
+    const toWebpName = (filename: string) => {
+      const f = String(filename || '').trim();
+      if (!f) return '';
+      if (/\.gif$/i.test(f)) return f;
+      return f.replace(/\.(jpe?g|jpg|png|webp)$/i, '') + '.webp';
+    };
+    const buildR2FromUploadsPath = (uploadsPath: string) => {
+      const p = String(uploadsPath || '').trim();
+      if (!p || p.indexOf('/uploads/') !== 0) return '';
+      if (!r2) return '';
+      let filename = '';
+      try {
+        filename = p.split('/').pop() || '';
+      } catch {
+        filename = '';
+      }
+      if (!filename) return '';
+      const lower = filename.toLowerCase();
+      const folder = lower.indexOf('poster') >= 0 ? 'posters' : 'thumbs';
+      return r2 + '/' + folder + '/' + toWebpName(filename);
+    };
+
+    if (/^https?:\/\//i.test(u)) {
+      try {
+        const parsed = new URL(u);
+        const p = parsed.pathname || '';
+        if (p.indexOf('/uploads/') === 0) {
+          const r2u = buildR2FromUploadsPath(p);
+          if (r2u) return r2u;
+          if (ophim) return ophim + p;
+        }
+      } catch {
+        // ignore
+      }
+      return u;
+    }
+
+    if (u.startsWith('//')) return 'https:' + u;
+    if (u.startsWith('/uploads/')) {
+      const r2u = buildR2FromUploadsPath(u);
+      if (r2u) return r2u;
+      if (ophim) return ophim + u;
+    }
+    return u;
+  };
 
   // Load movie data
   useEffect(() => {
@@ -194,6 +251,8 @@ export default function MovieEdit() {
         country: typeof result.country === 'string' ? result.country.split(',').filter(Boolean) : result.country || [],
         director: typeof result.director === 'string' ? result.director.split(',').filter(Boolean) : result.director || [],
         actor: typeof result.actor === 'string' ? result.actor.split(',').filter(Boolean) : result.actor || [],
+        poster_url: normalizeMovieImageUrl(result.poster_url || ''),
+        thumb_url: normalizeMovieImageUrl(result.thumb_url || ''),
         year: result.year ? parseInt(result.year) : new Date().getFullYear(),
       };
 
@@ -318,7 +377,7 @@ export default function MovieEdit() {
   };
 
   const handlePosterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPosterPreview(e.target.value);
+    setPosterPreview(normalizeMovieImageUrl(e.target.value));
   };
 
   return (

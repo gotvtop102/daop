@@ -72,6 +72,8 @@ export default function MovieList() {
   const [total, setTotal] = useState(0);
   const [spreadsheetId, setSpreadsheetId] = useState<string>('');
   const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
+  const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
+  const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
 
   // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
@@ -80,14 +82,17 @@ export default function MovieList() {
       const { data: settings, error } = await supabase
         .from('site_settings')
         .select('key, value')
-        .in('key', ['google_sheets_id', 'google_service_account_key']);
+        .in('key', ['google_sheets_id', 'google_service_account_key', 'r2_img_domain', 'ophim_img_domain']);
       
       if (!error && settings) {
         const sheetId = settings.find(s => s.key === 'google_sheets_id')?.value;
         const svcKey = settings.find(s => s.key === 'google_service_account_key')?.value;
+        const r2Domain = settings.find(s => s.key === 'r2_img_domain')?.value;
+        const ophimDomain = settings.find(s => s.key === 'ophim_img_domain')?.value;
         if (sheetId) setSpreadsheetId(sheetId);
         if (svcKey) setServiceAccountKey(svcKey);
-        if (sheetId && svcKey) return;
+        if (r2Domain) setR2ImgDomain(r2Domain);
+        if (ophimDomain) setOphimImgDomain(ophimDomain);
       }
       
       // Fallback to localStorage
@@ -105,6 +110,57 @@ export default function MovieList() {
     };
     loadConfig();
   }, []);
+
+  const normalizeMovieImageUrl = (raw: string) => {
+    const u = String(raw || '').trim();
+    if (!u) return '';
+    const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
+    const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
+    const toWebpName = (filename: string) => {
+      const f = String(filename || '').trim();
+      if (!f) return '';
+      if (/\.gif$/i.test(f)) return f;
+      return f.replace(/\.(jpe?g|jpg|png|webp)$/i, '') + '.webp';
+    };
+    const buildR2FromUploadsPath = (uploadsPath: string) => {
+      const p = String(uploadsPath || '').trim();
+      if (!p || p.indexOf('/uploads/') !== 0) return '';
+      if (!r2) return '';
+      let filename = '';
+      try {
+        filename = p.split('/').pop() || '';
+      } catch {
+        filename = '';
+      }
+      if (!filename) return '';
+      const lower = filename.toLowerCase();
+      const folder = lower.indexOf('poster') >= 0 ? 'posters' : 'thumbs';
+      return r2 + '/' + folder + '/' + toWebpName(filename);
+    };
+
+    if (/^https?:\/\//i.test(u)) {
+      try {
+        const parsed = new URL(u);
+        const p = parsed.pathname || '';
+        if (p.indexOf('/uploads/') === 0) {
+          const r2u = buildR2FromUploadsPath(p);
+          if (r2u) return r2u;
+          if (ophim) return ophim + p;
+        }
+      } catch {
+        // ignore
+      }
+      return u;
+    }
+
+    if (u.startsWith('//')) return 'https:' + u;
+    if (u.startsWith('/uploads/')) {
+      const r2u = buildR2FromUploadsPath(u);
+      if (r2u) return r2u;
+      if (ophim) return ophim + u;
+    }
+    return u;
+  };
 
   // Load movies from Google Sheets via API
   const loadMovies = async (opts?: { nextPage?: number; nextPageSize?: number }) => {
@@ -208,12 +264,12 @@ export default function MovieList() {
   const columns = [
     {
       title: 'Poster',
-      dataIndex: 'poster_url',
+      dataIndex: 'thumb_url',
       key: 'poster',
       width: 80,
       render: (url: string, record: Movie) => (
         <Image
-          src={url || record.thumb_url}
+          src={normalizeMovieImageUrl(url || record.poster_url || '')}
           alt={record.title}
           width={60}
           height={90}

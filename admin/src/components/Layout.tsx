@@ -46,6 +46,7 @@ const items = [
       { key: '/static-pages', icon: <FileTextOutlined />, label: <Link to="/static-pages">Trang tĩnh</Link> },
     ],
   },
+  { key: '/settings', icon: <SettingOutlined />, label: <Link to="/settings">Cài đặt</Link> },
   {
     key: '/movies',
     icon: <VideoCameraOutlined />,
