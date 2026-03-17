@@ -117,6 +117,37 @@ export default function GitHubActions() {
     });
   };
 
+  const handleTriggerUploadR2 = async () => {
+    setTriggering('upload-movie-images-r2');
+    try {
+      const values = uploadForm.getFieldsValue();
+      const file: File | null = values.force_slugs_file || null;
+      const fileText = file ? await readTextFile(file).catch(() => '') : '';
+      const slugs = Array.from(new Set([...(parseSlugList(values.force_slugs) || []), ...parseSlugList(fileText)]));
+      const payload = {
+        ...values,
+        force_slugs: slugs.join('\n'),
+        reupload_existing: values.reupload_existing ? 'true' : 'false',
+      } as any;
+      delete payload.force_slugs_file;
+      const res = await fetch(`${API_URL}/api/trigger-action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'upload-movie-images-r2', ...payload }),
+      });
+      const data = await res.json().catch(async () => ({ error: await res.text() }));
+      if (res.ok && data?.ok) {
+        message.success(data?.message || 'Đã kích hoạt upload ảnh.');
+      } else {
+        message.error(data?.error || data?.message || `Lỗi ${res.status}`);
+      }
+    } catch (e: any) {
+      message.error(e?.message || 'Không kết nối được API.');
+    } finally {
+      setTriggering(null);
+    }
+  };
+
   const handleTriggerDeleteR2 = async () => {
     const PHRASE = 'XOA ANH R2';
     const values = await deleteForm.validateFields();
@@ -801,41 +832,7 @@ export default function GitHubActions() {
                       <Button
                         type="primary"
                         icon={triggering === 'upload-movie-images-r2' ? <Spin size="small" /> : <PlayCircleOutlined />}
-                        onClick={async () => {
-                          setTriggering('upload-movie-images-r2');
-                          try {
-                            const values = uploadForm.getFieldsValue();
-                            const file: File | null = values.force_slugs_file || null;
-                            const fileText = file ? await readTextFile(file).catch(() => '') : '';
-                            const slugs = Array.from(
-                              new Set([
-                                ...parseSlugList(values.force_slugs),
-                                ...parseSlugList(fileText),
-                              ])
-                            );
-                            const payload = {
-                              ...values,
-                              force_slugs: slugs.join('\n'),
-                              reupload_existing: values.reupload_existing ? 'true' : 'false',
-                            } as any;
-                            delete payload.force_slugs_file;
-                            const res = await fetch(`${API_URL}/api/trigger-action`, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ action: 'upload-movie-images-r2', ...payload }),
-                            });
-                            const data = await res.json().catch(async () => ({ error: await res.text() }));
-                            if (res.ok && data?.ok) {
-                              message.success(data?.message || 'Đã kích hoạt upload ảnh.');
-                            } else {
-                              message.error(data?.error || data?.message || `Lỗi ${res.status}`);
-                            }
-                          } catch (e: any) {
-                            message.error(e?.message || 'Không kết nối được API.');
-                          } finally {
-                            setTriggering(null);
-                          }
-                        }}
+                        onClick={handleTriggerUploadR2}
                         loading={triggering === 'upload-movie-images-r2'}
                         disabled={!!triggering}
                       >
