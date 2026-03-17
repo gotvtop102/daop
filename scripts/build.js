@@ -496,11 +496,13 @@ async function saveOphimIndex(index) {
 
 async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false) {
   const list = [];
+  const isPageRange = (OPHIM_START_PAGE > 1) || (OPHIM_END_PAGE > 0);
+  const effectiveMaxPages = isPageRange ? 0 : OPHIM_MAX_PAGES;
+  const effectiveMaxMovies = isPageRange ? 0 : OPHIM_MAX_MOVIES;
   const isPartialRange =
-    (OPHIM_START_PAGE > 1) ||
-    (OPHIM_END_PAGE > 0) ||
-    (OPHIM_MAX_PAGES > 0) ||
-    (OPHIM_MAX_MOVIES > 0);
+    isPageRange ||
+    (effectiveMaxPages > 0) ||
+    (effectiveMaxMovies > 0);
 
   const nextIndex = isPartialRange && prevIndex && typeof prevIndex === 'object'
     ? { ...prevIndex }
@@ -516,8 +518,8 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
     '   OPhim paging:',
     'start=', OPHIM_START_PAGE,
     'end=', OPHIM_END_PAGE,
-    'max_pages=', OPHIM_MAX_PAGES,
-    'max_movies=', OPHIM_MAX_MOVIES,
+    'max_pages=', effectiveMaxPages,
+    'max_movies=', effectiveMaxMovies,
     'direction=', (step === -1 ? 'backward' : 'forward'),
     'clean_old_data=', cleanOldData ? 1 : 0
   );
@@ -529,12 +531,12 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
     );
   }
   while (true) {
-    if (OPHIM_MAX_PAGES > 0 && fetchedPages >= OPHIM_MAX_PAGES) {
-      console.log('   OPhim: đạt giới hạn số trang:', OPHIM_MAX_PAGES, '(từ trang', OPHIM_START_PAGE, ')');
+    if (effectiveMaxPages > 0 && fetchedPages >= effectiveMaxPages) {
+      console.log('   OPhim: đạt giới hạn số trang:', effectiveMaxPages, '(từ trang', OPHIM_START_PAGE, ')');
       break;
     }
-    if (OPHIM_MAX_MOVIES > 0 && list.length >= OPHIM_MAX_MOVIES) {
-      console.log('   OPhim: đạt giới hạn số phim:', OPHIM_MAX_MOVIES);
+    if (effectiveMaxMovies > 0 && list.length >= effectiveMaxMovies) {
+      console.log('   OPhim: đạt giới hạn số phim:', effectiveMaxMovies);
       break;
     }
     if (step === 1) {
@@ -561,11 +563,10 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
     if (items.length === 0) break;
     console.log('   OPhim page', page, 'items:', items.length, 'total:', list.length);
     for (const item of items) {
-      if (OPHIM_MAX_MOVIES > 0 && list.length >= OPHIM_MAX_MOVIES) break;
       const slug = item?.slug;
       const rawId = item?._id || item?.id || '';
       const idStr = rawId ? String(rawId) : '';
-      if (!slug) continue;
+      if (!slug || !idStr) continue;
 
       const rawModified =
         (item?.modified && typeof item.modified === 'object' && item.modified.time)
@@ -2372,7 +2373,18 @@ function writeBatches(movies, prevLastModified, tmdbById, prevTmdbById) {
   if (!writeCore && writeTmdb) {
     forcedWindows = loadBatchWindowsOrThrow();
     if (forcedWindows.total !== sorted.length) {
-      throw new Error('TMDB_ONLY requires movie total to match existing batch windows: ' + forcedWindows.total + ' vs ' + sorted.length);
+      const windowsPath = path.join(batchDir, 'batch-windows.json');
+      throw new Error(
+        'TMDB_ONLY requires movie total to match existing batch windows: ' +
+          forcedWindows.total +
+          ' vs ' +
+          sorted.length +
+          '. This means your existing batches are out-of-sync with ' +
+          windowsPath +
+          '.\n' +
+          'Fix: run the CORE phase (TMDB_ONLY=0) to regenerate batches/windows, or ensure the TMDB_ONLY job uses the exact same public/data output (artifact) from the CORE job. ' +
+          'Do NOT mix an old batch-windows.json with a partially-updated batches folder.'
+      );
     }
   }
 
@@ -3228,8 +3240,24 @@ async function main() {
       throw new Error('TMDB_ONLY requires existing built movies in public/data/batches (prevMoviesById is empty). Run CORE/full build first.');
     }
 
-    const allMovies = Array.from(prevMoviesById.values());
+    let allMovies = Array.from(prevMoviesById.values());
     console.log('TMDB_ONLY: loaded movies from existing batches:', allMovies.length);
+    try {
+      const wins = loadBatchWindowsOrThrow();
+      if (wins && typeof wins.total === 'number' && wins.total > 0 && wins.total !== allMovies.length) {
+        const moviesLightPath = path.join(PUBLIC_DATA, 'movies-light.js');
+        if (await fs.pathExists(moviesLightPath)) {
+          try {
+            const mlRaw = await fs.readFile(moviesLightPath, 'utf8');
+            const light = parseWindowArray(mlRaw, 'moviesLight');
+            if (Array.isArray(light) && light.length === wins.total) {
+              allMovies = light;
+              console.log('TMDB_ONLY: fallback to movies-light.js:', allMovies.length);
+            }
+          } catch {}
+        }
+      }
+    } catch {}
 
     const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
     const shouldEnrich = (m) => {
