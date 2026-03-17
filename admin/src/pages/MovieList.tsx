@@ -74,7 +74,8 @@ export default function MovieList() {
   const loadMovies = async (opts?: { nextPage?: number; nextPageSize?: number }) => {
     setLoading(true);
     try {
-      const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const base = envBase || window.location.origin;
       const p = opts?.nextPage ?? page;
       const ps = opts?.nextPageSize ?? pageSize;
 
@@ -127,7 +128,8 @@ export default function MovieList() {
 
   const handleDelete = async (id: string) => {
     try {
-      const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const base = envBase || window.location.origin;
       const res = await fetch(`${base}/api/movies?action=delete&id=${id}`, {
         method: 'DELETE',
       });

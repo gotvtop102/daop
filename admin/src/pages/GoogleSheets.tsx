@@ -1,5 +1,6 @@
 import { Card, Typography, Alert, Space, Button, Form, Input, message } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 const { Title, Paragraph, Text, Link } = Typography as any;
 
@@ -8,6 +9,7 @@ export default function GoogleSheetsPage() {
 
   const [form] = Form.useForm();
   const [sheetId, setSheetId] = useState('');
+  const [savingSupabase, setSavingSupabase] = useState(false);
 
   useEffect(() => {
     try {
@@ -20,6 +22,24 @@ export default function GoogleSheetsPage() {
     } catch {
       // ignore
     }
+  }, [form]);
+
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('key, value')
+      .eq('key', 'google_sheets_id')
+      .maybeSingle()
+      .then((r) => {
+        if (r.error) return;
+        const v = String((r.data as any)?.value ?? '').trim();
+        if (!v) return;
+        setSheetId((curr) => {
+          if (String(curr || '').trim()) return curr;
+          form.setFieldsValue({ google_sheets_id: v });
+          return v;
+        });
+      });
   }, [form]);
 
   const sheetUrl = useMemo(() => {
@@ -39,6 +59,27 @@ export default function GoogleSheetsPage() {
       })
     );
     message.success('Đã lưu link Google Sheets (localStorage)');
+  };
+
+  const handleSaveToSupabase = async () => {
+    const id = String(sheetId || '').trim();
+    if (!id) {
+      message.error('Chưa có GOOGLE_SHEETS_ID');
+      return;
+    }
+    setSavingSupabase(true);
+    try {
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({ key: 'google_sheets_id', value: id, updated_at: now }, { onConflict: 'key' });
+      if (error) throw error;
+      message.success('Đã lưu GOOGLE_SHEETS_ID lên Supabase');
+    } catch (e: any) {
+      message.error(e?.message || 'Lưu Supabase thất bại');
+    } finally {
+      setSavingSupabase(false);
+    }
   };
 
   return (
@@ -76,6 +117,10 @@ export default function GoogleSheetsPage() {
 
             <Space wrap>
               <Button type="primary" htmlType="submit">
+                Lưu cấu hình
+              </Button>
+
+              <Button type="primary" loading={savingSupabase} onClick={handleSaveToSupabase} disabled={!sheetId}>
                 Lưu cấu hình
               </Button>
 

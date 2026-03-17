@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Tabs,
   Card,
@@ -11,8 +11,9 @@ import {
   Modal,
   Divider,
   Collapse,
+  Form,
 } from 'antd';
-import { CopyOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { CopyOutlined, DownloadOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 
 type ExportPayload = Record<string, any[]>;
@@ -67,7 +68,151 @@ export default function SupabaseTools() {
   const [importText, setImportText] = useState('');
   const [importing, setImporting] = useState(false);
 
+  // Supabase User config
+  const [userForm] = Form.useForm();
+  const [savingUserConfig, setSavingUserConfig] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', ['supabase_user_url', 'supabase_user_anon_key'])
+      .then((r: any) => {
+        if (r.error) return;
+        const data = (r.data ?? []).reduce((acc: Record<string, string>, row: any) => {
+          acc[row.key] = row.value;
+          return acc;
+        }, {});
+        userForm.setFieldsValue({
+          supabase_user_url: data.supabase_user_url || '',
+          supabase_user_anon_key: data.supabase_user_anon_key || '',
+        });
+      });
+  }, [userForm]);
+
+  const handleSaveUserConfig = async (values: any) => {
+    const url = String(values?.supabase_user_url || '').trim();
+    const key = String(values?.supabase_user_anon_key || '').trim();
+    if (!url || !key) {
+      message.error('Nhập đủ URL và Anon Key');
+      return;
+    }
+    setSavingUserConfig(true);
+    try {
+      const now = new Date().toISOString();
+      const { error } = await supabase.from('site_settings').upsert(
+        [
+          { key: 'supabase_user_url', value: url, updated_at: now },
+          { key: 'supabase_user_anon_key', value: key, updated_at: now },
+        ],
+        { onConflict: 'key' }
+      );
+      if (error) throw error;
+      message.success('Đã lưu cấu hình Supabase User');
+    } catch (e: any) {
+      message.error(e?.message || 'Lưu thất bại');
+    } finally {
+      setSavingUserConfig(false);
+    }
+  };
+
   const sqlBlocks = useMemo(() => {
+    const schemaUserSql = `-- Supabase User Project: Người dùng, lịch sử xem, yêu thích, đánh giá
+-- Chạy trong SQL Editor của project Supabase User (dành cho người dùng cuối)
+
+-- Bảng hồ sơ người dùng (bổ sung cho auth.users)
+create table if not exists public.user_profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  username text unique,
+  avatar_url text,
+  display_name text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Bảng lịch sử xem phim
+create table if not exists public.watch_history (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  movie_id text not null,
+  movie_slug text,
+  movie_title text,
+  episode_id text,
+  episode_name text,
+  server_slug text,
+  watched_at timestamptz default now(),
+  watch_duration integer default 0,
+  total_duration integer default 0,
+  is_completed boolean default false
+);
+
+-- Bảng yêu thích / bookmarks
+create table if not exists public.favorites (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  movie_id text not null,
+  movie_slug text,
+  movie_title text,
+  movie_thumb text,
+  created_at timestamptz default now(),
+  unique(user_id, movie_id)
+);
+
+-- Bảng đánh giá phim
+create table if not exists public.ratings (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  movie_id text not null,
+  movie_slug text,
+  rating integer not null check (rating >= 1 and rating <= 10),
+  review text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique(user_id, movie_id)
+);
+
+-- Bảng bình luận (nếu dùng custom comment thay vì Twikoo)
+create table if not exists public.comments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  movie_id text not null,
+  movie_slug text,
+  content text not null,
+  parent_id uuid references public.comments(id) on delete cascade,
+  is_approved boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- RLS cho User tables (chỉ user đó mới xem/ghi được dữ liệu của mình)
+alter table public.user_profiles enable row level security;
+alter table public.watch_history enable row level security;
+alter table public.favorites enable row level security;
+alter table public.ratings enable row level security;
+alter table public.comments enable row level security;
+
+-- Policy: user chỉ xem/ghi dữ liệu của chính mình
+create policy "Users can CRUD own data" on public.user_profiles
+  for all using (auth.uid() = id) with check (auth.uid() = id);
+
+create policy "Users can CRUD own history" on public.watch_history
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "Users can CRUD own favorites" on public.favorites
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "Users can CRUD own ratings" on public.ratings
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "Users can CRUD own comments" on public.comments
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Index cho performance
+create index if not exists idx_watch_history_user on public.watch_history(user_id, watched_at desc);
+create index if not exists idx_favorites_user on public.favorites(user_id, created_at desc);
+create index if not exists idx_ratings_user on public.ratings(user_id, created_at desc);
+create index if not exists idx_comments_movie on public.comments(movie_id, created_at desc);`;
+
     const schemaAdminSql = `-- Supabase Admin Project: Cấu hình website, quảng cáo, sections, donate, audit
 -- Chạy trong SQL Editor của project Supabase Admin
 
@@ -366,11 +511,14 @@ set raw_app_meta_data = jsonb_set(
 where email = 'admin@example.com';`;
 
     return [
-      { key: 'schema', title: 'Tạo bảng + RLS (Admin)', sql: schemaAdminSql },
-      { key: 'fix-rls', title: 'Fix RLS (Admin)', sql: fixRlsSql },
-      { key: 'audit', title: 'Triggers Audit Logs', sql: auditTriggersSql },
-      { key: 'seed-static', title: 'Seed Static Pages (mẫu)', sql: seedStaticPagesSql },
-      { key: 'set-admin', title: 'Set user role = admin', sql: setAdminRoleSql },
+      // Admin
+      { key: 'schema-admin', title: '[Admin] Tạo bảng + RLS', sql: schemaAdminSql },
+      { key: 'fix-rls', title: '[Admin] Fix RLS', sql: fixRlsSql },
+      { key: 'audit', title: '[Admin] Triggers Audit Logs', sql: auditTriggersSql },
+      { key: 'seed-static', title: '[Admin] Seed Static Pages', sql: seedStaticPagesSql },
+      { key: 'set-admin', title: '[Admin] Set user role = admin', sql: setAdminRoleSql },
+      // User
+      { key: 'schema-user', title: '[User] Tạo bảng + RLS', sql: schemaUserSql },
     ];
   }, []);
 
@@ -592,6 +740,37 @@ where email = 'admin@example.com';`;
                       Lưu ý: Sau khi import, nếu đây là dữ liệu dùng cho frontend thì cần chạy Build website.
                     </Typography.Text>
                   </Space>
+                </Card>
+              </Space>
+            ),
+          },
+          {
+            key: 'user-config',
+            label: 'Cấu hình User',
+            children: (
+              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Card title="Cấu hình Supabase User Project" bordered={false} style={{ borderRadius: 12 }}>
+                  <Form form={userForm} layout="vertical" onFinish={handleSaveUserConfig}>
+                    <Form.Item
+                      name="supabase_user_url"
+                      label="Supabase User URL"
+                      extra="URL dự án Supabase dành cho người dùng (ví dụ: https://xxxxx.supabase.co)"
+                      rules={[{ required: true, message: 'Nhập Supabase User URL' }]}
+                    >
+                      <Input placeholder="https://xxxxx.supabase.co" />
+                    </Form.Item>
+                    <Form.Item
+                      name="supabase_user_anon_key"
+                      label="Supabase User Anon Key"
+                      extra="Anon key dành cho người dùng (tìm trong Settings → API của project User)"
+                      rules={[{ required: true, message: 'Nhập Supabase User Anon Key' }]}
+                    >
+                      <Input.TextArea rows={3} placeholder="eyJhbGciOiJIUzI1NiIs..." />
+                    </Form.Item>
+                    <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={savingUserConfig}>
+                      Lưu cấu hình
+                    </Button>
+                  </Form>
                 </Card>
               </Space>
             ),
