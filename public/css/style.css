@@ -30,13 +30,14 @@ body.theme-light {
   --accent: #0969da;
   --accent-hover: #0550ae;
   --header-link-color: var(--text);
+  --light-surface: rgba(9, 105, 218, 0.08);
   background: var(--bg);
   color: var(--text);
 }
 
  body.theme-light .theme-toggle,
  body.theme-light .site-header-toggle {
-   background: rgba(255, 255, 255, 0.9);
+   background: var(--light-surface);
  }
 
  body.theme-light .site-logo {
@@ -47,8 +48,22 @@ body.theme-light {
    color: var(--text);
  }
 
+ body.theme-light .site-header.menu-open .site-nav-main a,
+ body.theme-light .site-header.menu-open .site-nav-actions a {
+   color: #fff;
+ }
+
+ body.theme-light .site-header.menu-open .site-nav-main a:hover,
+ body.theme-light .site-header.menu-open .site-nav-actions a:hover {
+   color: #fff;
+ }
+
  body.theme-light .watch-player-top {
-   background: rgba(255, 255, 255, 0.9);
+   background: var(--light-surface);
+ }
+
+ body.theme-light .md-hero .md-title {
+   color: #fff;
  }
 
  body.theme-light .site-footer {
@@ -72,11 +87,11 @@ body.theme-light {
  }
 
  body.theme-light .movie-detail-hero::after {
-   background: linear-gradient(90deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.82) 45%, rgba(255,255,255,0.55) 100%);
+   background: linear-gradient(90deg, rgba(9,105,218,0.08) 0%, rgba(9,105,218,0.06) 45%, rgba(9,105,218,0.03) 100%);
  }
 
  body.theme-light .episodes-ui {
-   background: rgba(255, 255, 255, 0.9);
+   background: var(--light-surface);
  }
 a {
   color: var(--link-color, var(--accent));
@@ -144,9 +159,6 @@ a:hover {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   transition: opacity 0.25s ease, transform 0.25s ease, border-color 0.2s ease, color 0.2s ease;
   touch-action: manipulation;
-}
-body.theme-light .theme-toggle {
-  background: rgba(255, 255, 255, 0.9);
 }
 .theme-toggle:hover {
   border-color: var(--accent);
