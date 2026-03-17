@@ -280,6 +280,22 @@ async function listMovies(
     );
   }
 
+  // Sort newest first so newly created items show up on page 1
+  const toTs = (v: any) => {
+    const s = String(v || '').trim();
+    if (!s) return 0;
+    const t = Date.parse(s);
+    return Number.isFinite(t) ? t : 0;
+  };
+  movies.sort((a: any, b: any) => {
+    const ta = Math.max(toTs(a.modified), toTs(a.update));
+    const tb = Math.max(toTs(b.modified), toTs(b.update));
+    if (ta !== tb) return tb - ta;
+    const ra = Number(a._rowIndex || 0);
+    const rb = Number(b._rowIndex || 0);
+    return rb - ra;
+  });
+
   const total = movies.length;
   const start = (page - 1) * limit;
   const paginated = movies.slice(start, start + limit);

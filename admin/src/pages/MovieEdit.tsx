@@ -363,8 +363,9 @@ export default function MovieEdit() {
       const tmdbData = {
         title: data.title || data.original_title,
         origin_name: data.original_title,
-        poster_url: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
-        thumb_url: data.backdrop_path ? `https://image.tmdb.org/t/p/w300${data.backdrop_path}` : '',
+        // Theo yêu cầu: ảnh dọc (poster_path) => thumb, ảnh ngang (backdrop_path) => poster
+        poster_url: data.backdrop_path ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}` : '',
+        thumb_url: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
         year: data.release_date ? parseInt(data.release_date.split('-')[0]) : new Date().getFullYear(),
         genre: data.genres?.map((g: any) => g.name) || [],
         country: data.production_countries?.map((c: any) => c.name) || [],
