@@ -1,4 +1,12 @@
 (function () {
+  function applyDefaultHeaderVisibility() {
+    try {
+      var s = (window.DAOP && window.DAOP.siteSettings) || {};
+      var hide = String(s.watch_hide_header_default || '').toLowerCase() === 'true';
+      document.body.classList.toggle('hide-header', !!hide);
+    } catch (e) {}
+  }
+
   function ensureSiteSettings(done) {
     try {
       window.DAOP = window.DAOP || {};
@@ -11,7 +19,24 @@
             if (window.DAOP.applySiteSettings) {
               try { window.DAOP.applySiteSettings(s); } catch (e) {}
             }
+            applyDefaultHeaderVisibility();
           }
+        })
+        .catch(function () {})
+        .finally(function () { if (done) done(); });
+    } catch (e) {
+      if (done) done();
+    }
+  }
+
+  function ensurePlayerSettings(done) {
+    try {
+      window.DAOP = window.DAOP || {};
+      if (window.DAOP.playerSettings) return done && done();
+      if (typeof window.DAOP.loadConfig !== 'function') return done && done();
+      window.DAOP.loadConfig('player-settings')
+        .then(function (s) {
+          if (s) window.DAOP.playerSettings = window.DAOP.playerSettings || s;
         })
         .catch(function () {})
         .finally(function () { if (done) done(); });
@@ -1016,6 +1041,7 @@
 
   function init() {
     ensureSiteSettings(function () {
+      ensurePlayerSettings(function () {
       var rootEl = document.getElementById('watch-page');
       if (!rootEl) rootEl = document.body;
 
@@ -1120,6 +1146,7 @@
             window.DAOP.renderAdsInDocument(rootEl);
           }
         });
+      });
       });
     });
   }

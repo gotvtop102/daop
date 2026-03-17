@@ -2979,12 +2979,12 @@ async function writeDefaultConfig() {
       twikoo_env_id: '',
       supabase_user_url: '',
       supabase_user_anon_key: '',
-      player_warning_enabled: 'true',
-      player_warning_text: 'Cảnh báo: Phim chứa hình ảnh đường lưỡi bò phi pháp xâm phạm chủ quyền biển đảo Việt Nam.',
       social_facebook: '',
       social_twitter: '',
       social_instagram: '',
       social_youtube: '',
+      detail_hide_header_default: 'false',
+      watch_hide_header_default: 'false',
       footer_content: '',
       tmdb_attribution: 'true',
       loading_screen_enabled: 'true',
@@ -3012,8 +3012,6 @@ async function writeDefaultConfig() {
     'player-settings.json': {
       available_players: { 'plyr': 'Plyr', 'videojs': 'Video.js', 'jwplayer': 'JWPlayer' },
       default_player: 'plyr',
-      warning_enabled_global: true,
-      warning_text: 'Cảnh báo: Phim chứa hình ảnh đường lưỡi bò phi pháp xâm phạm chủ quyền biển đảo Việt Nam.',
     },
     'preroll.json': [],
     'filter-order.json': {

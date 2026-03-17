@@ -4,7 +4,21 @@
 (function () {
   window.DAOP = window.DAOP || {};
   var overlay = null;
-  var defaultWarning = 'Cảnh báo: Phim chứa hình ảnh đường lưỡi bò phi pháp xâm phạm chủ quyền biển đảo Việt Nam.';
+
+  function ensurePlayerSettings(done) {
+    try {
+      if (window.DAOP && window.DAOP.playerSettings) return done && done();
+      if (!window.DAOP || typeof window.DAOP.loadConfig !== 'function') return done && done();
+      window.DAOP.loadConfig('player-settings')
+        .then(function (s) {
+          if (s) window.DAOP.playerSettings = window.DAOP.playerSettings || s;
+        })
+        .catch(function () {})
+        .finally(function () { if (done) done(); });
+    } catch (e) {
+      if (done) done();
+    }
+  }
 
   function loadScript(src) {
     return new Promise(function (resolve, reject) {
@@ -62,8 +76,6 @@
     var link = opts.link;
     var movie = opts.movie || {};
     var playerSettings = window.DAOP?.playerSettings || {};
-    var showWarning = movie.warning_enabled !== false && (playerSettings.warning_enabled_global !== false);
-    var warningText = movie.warning_text || playerSettings.warning_text || defaultWarning;
     var available = playerSettings.available_players && typeof playerSettings.available_players === 'object' ? playerSettings.available_players : {};
     var chosenPlayer = (playerSettings.default_player || 'plyr').toLowerCase();
     var chosenLabel = available[chosenPlayer] || chosenPlayer;
@@ -78,8 +90,7 @@
     overlay.innerHTML =
       '<button type="button" class="close-player" aria-label="Đóng">Đóng</button>' +
       playerLabelHtml +
-      playerHtml +
-      (showWarning ? '<p class="player-warning">' + (warningText || defaultWarning).replace(/</g, '&lt;') + '</p>' : '');
+      playerHtml;
     var video = document.getElementById('daop-video');
     if (video && isDirectStream && (chosenPlayer === 'plyr' || chosenPlayer === 'videojs')) {
       if (chosenPlayer === 'plyr') {
@@ -120,6 +131,8 @@
     if (overlay) overlay.remove();
     overlay = document.createElement('div');
     overlay.className = 'player-overlay';
+
+    ensurePlayerSettings(function () {
 
     if (preroll && preroll.video_url) {
       var skipAfter = Math.max(0, parseInt(preroll.skip_after, 10) || 0);
@@ -218,5 +231,6 @@
 
     document.body.appendChild(overlay);
     showMainContent(opts);
+    });
   };
 })();

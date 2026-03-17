@@ -90,7 +90,10 @@ export default function ServerSources() {
 
   return (
     <>
-      <h1>Nguồn server</h1>
+      <h1>Nguồn server (máy chủ)</h1>
+      <p style={{ color: '#666', marginBottom: 16 }}>
+        Sau khi lưu, cần chạy Build website để áp dụng danh sách server lên site.
+      </p>
       <div style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>Thêm nguồn</Button>
       </div>

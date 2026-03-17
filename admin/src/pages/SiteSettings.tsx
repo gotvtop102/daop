@@ -53,9 +53,9 @@ const SITE_SETTINGS_KEYS = [
   'twikoo_env_id',
   'supabase_user_url',
   'supabase_user_anon_key',
-  'player_warning_enabled',
-  'player_warning_text',
   'player_visible',
+  'detail_hide_header_default',
+  'watch_hide_header_default',
   'movie_detail_similar_limit',
   'social_facebook',
   'social_twitter',
@@ -117,9 +117,9 @@ export default function SiteSettings() {
         twikoo_env_id: data.twikoo_env_id ?? '',
         supabase_user_url: data.supabase_user_url ?? '',
         supabase_user_anon_key: data.supabase_user_anon_key ?? '',
-        player_warning_enabled: data.player_warning_enabled !== 'false',
-        player_warning_text: data.player_warning_text ?? 'Cảnh báo: Phim chứa hình ảnh đường lưỡi bò phi pháp xâm phạm chủ quyền biển đảo Việt Nam.',
         player_visible: data.player_visible !== 'false',
+        detail_hide_header_default: data.detail_hide_header_default === 'true',
+        watch_hide_header_default: data.watch_hide_header_default === 'true',
         movie_detail_similar_limit: data.movie_detail_similar_limit ?? '16',
         social_facebook: data.social_facebook ?? '',
         social_twitter: data.social_twitter ?? '',
@@ -394,11 +394,11 @@ export default function SiteSettings() {
                       <Switch />
                     </Form.Item>
                     <p style={{ color: '#666', fontSize: 12, marginTop: -8, marginBottom: 16 }}>Tắt = không hiển thị nút Xem / danh sách tập phát trên trang chi tiết phim.</p>
-                    <Form.Item name="player_warning_enabled" label="Hiển thị cảnh báo dưới player" valuePropName="checked">
+                    <Form.Item name="detail_hide_header_default" label="Mặc định ẩn Header ở trang chi tiết" valuePropName="checked">
                       <Switch />
                     </Form.Item>
-                    <Form.Item name="player_warning_text" label="Nội dung cảnh báo">
-                      <Input.TextArea rows={2} />
+                    <Form.Item name="watch_hide_header_default" label="Mặc định ẩn Header ở trang xem phim" valuePropName="checked">
+                      <Switch />
                     </Form.Item>
                     <Form.Item name="movie_detail_similar_limit" label="Số lượng phim đề xuất ở trang chi tiết (4–50)">
                       <Input type="number" min={4} max={50} placeholder="16" />

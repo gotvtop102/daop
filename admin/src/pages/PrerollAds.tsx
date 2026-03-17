@@ -110,11 +110,11 @@ export default function PrerollAds() {
     <>
       <h1>Quảng cáo Pre-roll</h1>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        Video quảng cáo hiển thị trước khi phát nội dung chính. Chọn theo trọng số (weight).
+        Sau khi lưu, cần chạy Build website để áp dụng lên player.
       </p>
       <div style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={openAdd}>
-          Thêm pre-roll
+          Thêm quảng cáo
         </Button>
       </div>
       <Table

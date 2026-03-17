@@ -112,6 +112,9 @@ export default function MenuBackground() {
     <>
       <h1>Ảnh nền menu mobile (12 mục)</h1>
       <p style={{ color: '#666', marginBottom: 16 }}>
+        Sau khi lưu, cần chạy Build website để áp dụng lên site.
+      </p>
+      <p style={{ color: '#666', marginBottom: 16 }}>
         Mỗi mục trong menu 3 gạch trên mobile có một ảnh nền riêng. Upload ảnh hoặc nhập link.
         Để tối ưu cho background: dùng ảnh đã xóa nền (PNG) hoặc công cụ như{' '}
         <a href="https://www.remove.bg" target="_blank" rel="noopener noreferrer">

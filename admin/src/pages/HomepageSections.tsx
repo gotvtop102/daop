@@ -240,7 +240,7 @@ export default function HomepageSections() {
     <>
       <h1>Homepage Sections</h1>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        Các section hiển thị trên trang chủ. Khi chưa có dữ liệu, bấm <strong>Thêm sections mặc định</strong> để tạo mẫu.
+        Sau khi lưu, cần chạy Build website để áp dụng sections lên trang chủ.
       </p>
       <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={openAdd}>

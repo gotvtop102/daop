@@ -496,7 +496,7 @@ export default function Slider() {
     <>
       <h1>Slider trang chủ</h1>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        Các slide hiển thị dạng carousel trên trang chủ. Lưu trong Cài đặt chung (site_settings).
+        Sau khi lưu, cần chạy Build website để áp dụng slider lên site.
       </p>
       <Card title="Thêm phim mới nhất" style={{ marginBottom: 16 }}>
         <p style={{ color: '#666', marginBottom: 8 }}>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, Form, Input, Switch, Button, message } from 'antd';
 import { supabase } from '../lib/supabase';
 
-const PLAYER_KEYS = ['available_players', 'default_player', 'warning_enabled_global', 'warning_text', 'link_type_labels'] as const;
+const PLAYER_KEYS = ['available_players', 'default_player', 'link_type_labels'] as const;
 
 function parseJsonSafe<T>(raw: unknown, fallback: T): T {
   if (raw == null) return fallback;
@@ -41,8 +41,6 @@ export default function PlayerSettings() {
       });
       form.setFieldsValue({
         default_player: data.default_player ?? 'plyr',
-        warning_enabled_global: data.warning_enabled_global !== false,
-        warning_text: typeof data.warning_text === 'string' ? data.warning_text : 'Cảnh báo: Phim chứa hình ảnh đường lưỡi bò phi pháp xâm phạm chủ quyền biển đảo Việt Nam.',
         available_players_json: JSON.stringify(available, null, 2),
         link_type_labels_json: JSON.stringify(linkTypeLabels, null, 2),
       });
@@ -69,8 +67,6 @@ export default function PlayerSettings() {
       const rows = [
         { key: 'available_players', value: available },
         { key: 'default_player', value: values.default_player ?? 'plyr' },
-        { key: 'warning_enabled_global', value: !!values.warning_enabled_global },
-        { key: 'warning_text', value: values.warning_text ?? '' },
         { key: 'link_type_labels', value: linkTypeLabels },
       ];
       for (const row of rows) {
@@ -101,12 +97,6 @@ export default function PlayerSettings() {
             <Input placeholder="plyr" />
           </Form.Item>
           <p style={{ color: '#666', fontSize: 12, marginTop: -8, marginBottom: 16 }}>Với link trực tiếp (m3u8/HLS): plyr hoặc videojs sẽ load thư viện tương ứng. Link iframe/embed thì luôn dùng iframe.</p>
-          <Form.Item name="warning_enabled_global" label="Bật cảnh báo toàn cục" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-          <Form.Item name="warning_text" label="Nội dung cảnh báo">
-            <Input.TextArea rows={3} />
-          </Form.Item>
           <Form.Item
             name="link_type_labels_json"
             label="Tên Máy chủ (JSON: key -> nhãn hiển thị cho loại link: m3u8, embed, backup, vip1..vip5)"

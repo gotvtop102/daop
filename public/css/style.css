@@ -50,6 +50,10 @@ body {
   min-height: 100vh;
 }
 
+body.hide-header .site-header {
+  display: none;
+}
+
 body.theme-light {
   --bg: var(--light-bg);
   --card: var(--light-card);

@@ -100,6 +100,9 @@ export default function DonateSettings() {
   return (
     <>
       <h1>Quản lý Donate</h1>
+      <p style={{ color: '#666', marginBottom: 16 }}>
+        Sau khi lưu, cần chạy Build website để áp dụng lên trang donate.
+      </p>
       <Card loading={loading}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item name="id" hidden><Input type="hidden" /></Form.Item>

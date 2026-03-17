@@ -86,6 +86,9 @@ export default function StaticPages() {
   return (
     <>
       <h1>Nội dung tĩnh</h1>
+      <p style={{ color: '#666', marginBottom: 16 }}>
+        Sau khi lưu, cần chạy Build website để xuất nội dung ra site.
+      </p>
       <Card loading={loading}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Tabs

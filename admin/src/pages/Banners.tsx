@@ -8,6 +8,7 @@ import {
   Modal,
   Form,
   Input,
+  Select,
   DatePicker,
   InputNumber,
   Switch,
@@ -29,11 +30,23 @@ type BannerRow = {
   priority: number | null;
 };
 
+const POSITION_PRESETS: Array<{ value: string; label: string }> = [
+  { value: 'home_top', label: 'Trang chủ - Top (home_top)' },
+  { value: 'home_mid', label: 'Trang chủ - Giữa (home_mid)' },
+  { value: 'category_top', label: 'Danh mục - Top (category_top)' },
+  { value: 'category_mid', label: 'Danh mục - Giữa (category_mid)' },
+  { value: 'detail_top', label: 'Chi tiết - Top (detail_top)' },
+  { value: 'detail_mid', label: 'Chi tiết - Giữa (detail_mid)' },
+  { value: 'watch_top', label: 'Xem phim - Top (watch_top)' },
+  { value: 'watch_mid', label: 'Xem phim - Giữa (watch_mid)' },
+];
+
 export default function Banners() {
   const [data, setData] = useState<BannerRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [positionOptions, setPositionOptions] = useState<Array<{ value: string; label: string }>>(POSITION_PRESETS);
   const [form] = Form.useForm();
 
   const loadData = async () => {
@@ -44,6 +57,13 @@ export default function Banners() {
       .order('priority', { ascending: false })
       .order('created_at', { ascending: false });
     setData((r.data as BannerRow[]) ?? []);
+    try {
+      const rows = (r.data as BannerRow[]) ?? [];
+      const extra = Array.from(new Set(rows.map((x) => String(x?.position || '').trim()).filter(Boolean)))
+        .filter((p) => !POSITION_PRESETS.some((o) => o.value === p))
+        .map((p) => ({ value: p, label: `Khác (${p})` }));
+      setPositionOptions([...POSITION_PRESETS, ...extra]);
+    } catch {}
     setLoading(false);
   };
 
@@ -129,6 +149,9 @@ export default function Banners() {
   return (
     <>
       <h1>Quản lý quảng cáo / Banner</h1>
+      <p style={{ color: '#666', marginBottom: 16 }}>
+        Sau khi lưu, cần chạy Build website để áp dụng banner lên site.
+      </p>
       <div style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={openAdd}>
           Thêm banner
@@ -254,7 +277,12 @@ export default function Banners() {
             <Input.TextArea rows={3} placeholder="<div>...</div>" />
           </Form.Item>
           <Form.Item name="position" label="Vị trí">
-            <Input placeholder="home_top, home_middle, detail_top, ..." />
+            <Select
+              options={positionOptions}
+              showSearch
+              optionFilterProp="label"
+              placeholder="Chọn vị trí"
+            />
           </Form.Item>
           <Form.Item name="priority" label="Ưu tiên">
             <InputNumber min={0} style={{ width: '100%' }} />
