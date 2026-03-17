@@ -118,7 +118,6 @@ export default function Layout() {
 
   const menuContent = (
     <>
-      <div style={{ height: 32, margin: 16, color: '#fff', fontWeight: 'bold' }}>DAOP Admin</div>
       <Menu
         theme="dark"
         selectedKeys={[location.pathname === '/ads' || location.pathname === '/giao-dien' || location.pathname.startsWith('/movies') ? location.pathname : location.pathname]}
@@ -133,6 +132,29 @@ export default function Layout() {
 
   return (
     <AntLayout style={{ minHeight: '100vh' }} className="admin-layout">
+      <Header className="admin-header">
+        <div className="admin-header-left">
+          {isMobile && (
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              onClick={() => setDrawerOpen(true)}
+              aria-label="Mở menu"
+              style={{ color: '#fff', fontSize: 18 }}
+            />
+          )}
+          <div className="admin-brand">DAOP Admin</div>
+        </div>
+        <div className="admin-header-actions">
+          <Button type="primary" size={isMobile ? 'small' : 'middle'} onClick={triggerBuild}>
+            {isMobile ? 'Build' : 'Build website'}
+          </Button>
+          <Button icon={<LogoutOutlined />} size={isMobile ? 'small' : 'middle'} onClick={handleLogout}>
+            {isMobile ? '' : 'Đăng xuất'}
+          </Button>
+        </div>
+      </Header>
+
       {isMobile ? (
         <Drawer
           title="Menu"
@@ -145,34 +167,25 @@ export default function Layout() {
         >
           {menuContent}
         </Drawer>
-      ) : (
-        <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} breakpoint="lg" collapsedWidth={80}>
-          {menuContent}
-        </Sider>
-      )}
+      ) : null}
+
       <AntLayout>
-        <Header className="admin-header">
-          {isMobile && (
-            <Button type="text" icon={<MenuOutlined />} onClick={() => setDrawerOpen(true)} aria-label="Mở menu" style={{ color: '#fff', fontSize: 18 }} />
-          )}
-          <div className="admin-header-actions">
-            <Button type="primary" size={isMobile ? 'small' : 'middle'} onClick={triggerBuild}>
-              {isMobile ? 'Build' : 'Build website'}
-            </Button>
-            <Button icon={<LogoutOutlined />} size={isMobile ? 'small' : 'middle'} onClick={handleLogout}>
-              {isMobile ? '' : 'Đăng xuất'}
-            </Button>
-          </div>
-        </Header>
-        <Content className="admin-content">
-          <Outlet />
-        </Content>
-        <Footer className="admin-footer">
-          Code made by <strong>GoTV Admin Tieucot</strong> - Telegram{' '}
-          <a href="https://t.me/tieucot520" target="_blank" rel="noopener noreferrer">
-            @tieucot520
-          </a>
-        </Footer>
+        {isMobile ? null : (
+          <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} breakpoint="lg" collapsedWidth={80}>
+            {menuContent}
+          </Sider>
+        )}
+        <AntLayout>
+          <Content className="admin-content">
+            <Outlet />
+          </Content>
+          <Footer className="admin-footer">
+            Code made by <strong>GoTV Admin Tieucot</strong> - Telegram{' '}
+            <a href="https://t.me/tieucot520" target="_blank" rel="noopener noreferrer">
+              @tieucot520
+            </a>
+          </Footer>
+        </AntLayout>
       </AntLayout>
     </AntLayout>
   );
