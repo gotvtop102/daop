@@ -131,7 +131,6 @@ export default function MovieEdit() {
         if (svcKey) setServiceAccountKey(svcKey);
         if (r2Domain) setR2ImgDomain(r2Domain);
         if (ophimDomain) setOphimImgDomain(ophimDomain);
-        if (sheetId && svcKey && r2Domain && ophimDomain) return;
       }
       
       try {
@@ -277,7 +276,15 @@ export default function MovieEdit() {
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const apiBase = base || window.location.origin;
-      const res = await fetch(`${apiBase}/api/movies?action=get&id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}&serviceAccountKey=${encodeURIComponent(serviceAccountKey)}`);
+      const url = new URL(`${apiBase}/api/movies`);
+      url.searchParams.append('action', 'get');
+      url.searchParams.append('id', movieId);
+      const res = await fetch(url.toString(), {
+        headers: {
+          'X-Spreadsheet-Id': spreadsheetId,
+          'X-Service-Account-Key': serviceAccountKey,
+        },
+      });
 
       if (!res.ok) {
         const err = await res.text();

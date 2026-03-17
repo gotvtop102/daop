@@ -107,15 +107,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Spreadsheet-Id, X-Service-Account-Key');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Lấy spreadsheetId và serviceAccountKey từ query params hoặc body, fallback về env
-  const spreadsheetId = String(req.query.spreadsheetId || req.body?.spreadsheetId || DEFAULT_SPREADSHEET_ID || '').trim();
-  const serviceAccountKey = String(req.query.serviceAccountKey || req.body?.serviceAccountKey || SERVICE_ACCOUNT_KEY || '').trim();
+  // Lấy spreadsheetId và serviceAccountKey từ headers / query params / body, fallback về env
+  const spreadsheetId = String(
+    (req.headers['x-spreadsheet-id'] as string) ||
+      req.query.spreadsheetId ||
+      req.body?.spreadsheetId ||
+      DEFAULT_SPREADSHEET_ID ||
+      ''
+  ).trim();
+  const serviceAccountKey = String(
+    (req.headers['x-service-account-key'] as string) ||
+      req.query.serviceAccountKey ||
+      req.body?.serviceAccountKey ||
+      SERVICE_ACCOUNT_KEY ||
+      ''
+  ).trim();
 
   if (!spreadsheetId) {
     return res.status(500).json({ error: 'Google Sheets ID not configured' });

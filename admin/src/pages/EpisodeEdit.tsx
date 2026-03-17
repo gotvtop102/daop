@@ -90,7 +90,6 @@ export default function EpisodeEdit() {
         const svcKey = settings.find(s => s.key === 'google_service_account_key')?.value;
         if (sheetId) setSpreadsheetId(sheetId);
         if (svcKey) setServiceAccountKey(svcKey);
-        if (sheetId && svcKey) return;
       }
       
       try {
@@ -128,7 +127,15 @@ export default function EpisodeEdit() {
       const base = envBase || window.location.origin;
 
       // First get movie info
-      const movieRes = await fetch(`${base}/api/movies?action=get&id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}&serviceAccountKey=${encodeURIComponent(serviceAccountKey)}`);
+      const movieUrl = new URL(`${base}/api/movies`);
+      movieUrl.searchParams.append('action', 'get');
+      movieUrl.searchParams.append('id', movieId);
+      const movieRes = await fetch(movieUrl.toString(), {
+        headers: {
+          'X-Spreadsheet-Id': spreadsheetId,
+          'X-Service-Account-Key': serviceAccountKey,
+        },
+      });
       if (movieRes.ok) {
         const movieData = await movieRes.json();
         if (movieData && !movieData.error) {
@@ -137,7 +144,15 @@ export default function EpisodeEdit() {
       }
 
       // Get episodes
-      const res = await fetch(`${base}/api/movies?action=episodes&movie_id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}&serviceAccountKey=${encodeURIComponent(serviceAccountKey)}`);
+      const epUrl = new URL(`${base}/api/movies`);
+      epUrl.searchParams.append('action', 'episodes');
+      epUrl.searchParams.append('movie_id', movieId);
+      const res = await fetch(epUrl.toString(), {
+        headers: {
+          'X-Spreadsheet-Id': spreadsheetId,
+          'X-Service-Account-Key': serviceAccountKey,
+        },
+      });
 
       if (!res.ok) {
         const err = await res.text();
