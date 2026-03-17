@@ -30,6 +30,10 @@ on:
         description: 'Xóa dữ liệu cũ trước khi build (true/false)'
         required: false
         default: 'false'
+
+concurrency:
+  group: update-data-main
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -105,7 +109,11 @@ jobs:
           git config user.email "actions@github.com"
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
           git status
-          git diff --staged --quiet || (git commit -m "chore: update data" && git push)
+          if ! git diff --staged --quiet; then
+            git pull --rebase origin main
+            git commit -m "chore: update data"
+            git push
+          fi
 
       - name: Build CORE (2-phase, skip TMDB)
         if: ${{ env.TWO_PHASE == 'true' }}
@@ -135,7 +143,11 @@ jobs:
           git config user.email "actions@github.com"
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
           git status
-          git diff --staged --quiet || (git commit -m "chore: update data (core)" && git push)
+          if ! git diff --staged --quiet; then
+            git pull --rebase origin main
+            git commit -m "chore: update data (core)"
+            git push
+          fi
 
       - name: Deploy CORE to Cloudflare Pages (2-phase)
         if: ${{ env.TWO_PHASE == 'true' && env.DEPLOY_AFTER_R2_UPLOAD != '1' }}
@@ -184,7 +196,11 @@ jobs:
           git config user.email "actions@github.com"
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
           git status
-          git diff --staged --quiet || (git commit -m "chore: update data (tmdb only)" && git push)
+          if ! git diff --staged --quiet; then
+            git pull --rebase origin main
+            git commit -m "chore: update data (tmdb only)"
+            git push
+          fi
 
       - name: Deploy TMDB to Cloudflare Pages (2-phase)
         if: ${{ env.TWO_PHASE == 'true' }}
