@@ -29,6 +29,7 @@ body.theme-light {
   --muted: #57606a;
   --accent: #0969da;
   --accent-hover: #0550ae;
+  --header-link-color: var(--text);
   background: var(--bg);
   color: var(--text);
 }
@@ -36,6 +37,14 @@ body.theme-light {
  body.theme-light .theme-toggle,
  body.theme-light .site-header-toggle {
    background: rgba(255, 255, 255, 0.9);
+ }
+
+ body.theme-light .site-logo {
+   text-shadow: none;
+ }
+
+ body.theme-light .site-nav a {
+   color: var(--text);
  }
 
  body.theme-light .watch-player-top {
