@@ -32,6 +32,35 @@ body.theme-light {
   background: var(--bg);
   color: var(--text);
 }
+
+ body.theme-light .theme-toggle,
+ body.theme-light .site-header-toggle {
+   background: rgba(255, 255, 255, 0.9);
+ }
+
+ body.theme-light .watch-player-top {
+   background: rgba(255, 255, 255, 0.9);
+ }
+
+ body.theme-light .site-footer {
+   color: var(--footer-text-color, var(--muted));
+ }
+
+ body.theme-light .site-footer .footer-links-col a {
+   color: var(--text);
+ }
+
+ body.theme-light #static-content {
+   color: var(--text);
+ }
+
+ body.theme-light #static-content a {
+   color: var(--accent);
+ }
+
+ body.theme-light #static-content a:hover {
+   color: var(--accent-hover);
+ }
 a {
   color: var(--link-color, var(--accent));
   text-decoration: none;
