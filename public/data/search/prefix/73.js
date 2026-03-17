@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["73"] = [{"id":"69454a48d88856be770e6ff1","title":"Điên Cuồng 731","origin_name":"731","slug":"dien-cuong-731","thumb":"/uploads/movies/dien-cuong-731-thumb.jpg","year":2025,"type":"single","episode_current":"Full","_t":"dien cuong 731 731 dien cuong 731"}];

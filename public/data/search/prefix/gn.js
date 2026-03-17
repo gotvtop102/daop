@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["gn"] = [{"id":"68ee6607a93d00297db4da9d","title":"GNOSIA","origin_name":"GNOSIA","slug":"gnosia","thumb":"/uploads/movies/gnosia-thumb.jpg","year":2025,"type":"hoathinh","episode_current":"Hoàn tất (12/12)","_t":"gnosia gnosia gnosia"}];
