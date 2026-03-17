@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ly"] = {"lying":{"id":"68e73b4254722ad3b856fe6d","i":173,"title":"Lying","origin_name":"Lying","slug":"lying","thumb":"/uploads/movies/lying-thumb.jpg","year":2025,"type":"series","episode_current":"Hoàn tất (24/24)"}};
