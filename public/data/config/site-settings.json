@@ -4,7 +4,7 @@
   "favicon_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771769477571-2nqdpe9u.png",
   "r2_img_domain": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev",
   "ophim_img_domain": "https://img.ophim.live",
-  "theme_light_bg": "#f2e9ff",
+  "theme_light_bg": "#c3a3f0",
   "home_prebuild_enabled": "true",
   "home_prebuild_limit": "24",
   "home_prebuild_enable_series": "true",
@@ -114,6 +114,9 @@
   "update_data_manual_two_phase": "1",
   "ophim_max_pages": "10",
   "ophim_max_movies": "1000",
+  "theme_border": "#30363d",
+  "theme_light_border": "#d0d7de",
+  "theme_light_surface": "rgba(9, 105, 218, 0.18)",
   "upload_r2_mode": "thumb,poster",
   "upload_r2_quality": "70",
   "upload_r2_thumb_quality": "",
@@ -132,5 +135,8 @@
   "update_data_two_phase": "1",
   "deploy_after_r2_upload": "1",
   "site_url": "https://3xtv.live/",
-  "upload_images_after_build": "1"
+  "theme_light_card": "#f7caf4",
+  "theme_light_muted": "#57606a",
+  "upload_images_after_build": "1",
+  "theme_light_text": "#1f2328"
 }
