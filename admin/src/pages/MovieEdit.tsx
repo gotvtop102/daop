@@ -27,6 +27,7 @@ import {
   PlayCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -106,13 +107,38 @@ export default function MovieEdit() {
   const [saving, setSaving] = useState(false);
   const [fetchingTMDB, setFetchingTMDB] = useState(false);
   const [posterPreview, setPosterPreview] = useState('');
+  const [spreadsheetId, setSpreadsheetId] = useState<string>('');
   const isNew = id === 'new';
+
+  // Load spreadsheetId from Supabase or localStorage
+  useEffect(() => {
+    const loadSheetId = async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'google_sheets_id')
+        .maybeSingle();
+      if (!error && data?.value) {
+        setSpreadsheetId(data.value);
+        return;
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
+        if (saved?.google_sheets_id) {
+          setSpreadsheetId(saved.google_sheets_id);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    loadSheetId();
+  }, []);
 
   // Load movie data
   useEffect(() => {
-    if (!isNew && id) {
+    if (!isNew && id && spreadsheetId) {
       loadMovie(id);
-    } else {
+    } else if (isNew) {
       // Set default values for new movie
       form.setFieldsValue({
         type: typeFromQuery,
@@ -126,13 +152,18 @@ export default function MovieEdit() {
         update: '',
       });
     }
-  }, [id, typeFromQuery]);
+  }, [id, typeFromQuery, spreadsheetId]);
 
   const loadMovie = async (movieId: string) => {
+    if (!spreadsheetId) {
+      message.error('Chưa cấu hình Google Sheets ID');
+      return;
+    }
     setLoading(true);
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-      const res = await fetch(`${base}/api/movies?action=get&id=${movieId}`);
+      const apiBase = base || window.location.origin;
+      const res = await fetch(`${apiBase}/api/movies?action=get&id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}`);
 
       if (!res.ok) {
         const err = await res.text();
@@ -225,21 +256,27 @@ export default function MovieEdit() {
   };
 
   const handleSave = async (values: MovieForm) => {
+    if (!spreadsheetId) {
+      message.error('Chưa cấu hình Google Sheets ID');
+      return;
+    }
     setSaving(true);
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const apiBase = base || window.location.origin;
 
       // Convert arrays to comma-separated strings
       const payload = {
         ...values,
         id: isNew ? undefined : id,
+        spreadsheetId,
         genre: Array.isArray(values.genre) ? values.genre.join(',') : values.genre,
         country: Array.isArray(values.country) ? values.country.join(',') : values.country,
         director: Array.isArray(values.director) ? values.director.join(',') : values.director,
         actor: Array.isArray(values.actor) ? values.actor.join(',') : values.actor,
       };
 
-      const res = await fetch(`${base}/api/movies?action=save`, {
+      const res = await fetch(`${apiBase}/api/movies?action=save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

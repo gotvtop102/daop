@@ -61,6 +61,26 @@ export default function GoogleSheetsPage() {
     message.success('Đã lưu link Google Sheets (localStorage)');
   };
 
+  const handleSaveAll = async (values: any) => {
+    await handleSaveConfig(values);
+    const id = String(values?.google_sheets_id || '').trim();
+    if (!id) return;
+
+    setSavingSupabase(true);
+    try {
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({ key: 'google_sheets_id', value: id, updated_at: now }, { onConflict: 'key' });
+      if (error) throw error;
+      message.success('Đã lưu GOOGLE_SHEETS_ID lên Supabase');
+    } catch (e: any) {
+      message.error(e?.message || 'Lưu Supabase thất bại');
+    } finally {
+      setSavingSupabase(false);
+    }
+  };
+
   const handleSaveToSupabase = async () => {
     const id = String(sheetId || '').trim();
     if (!id) {
@@ -98,7 +118,7 @@ export default function GoogleSheetsPage() {
           <Form
             form={form}
             layout="vertical"
-            onFinish={handleSaveConfig}
+            onFinish={handleSaveAll}
             initialValues={{
               google_sheets_id: '',
             }}
@@ -116,11 +136,7 @@ export default function GoogleSheetsPage() {
             </Form.Item>
 
             <Space wrap>
-              <Button type="primary" htmlType="submit">
-                Lưu cấu hình
-              </Button>
-
-              <Button type="primary" loading={savingSupabase} onClick={handleSaveToSupabase} disabled={!sheetId}>
+              <Button type="primary" htmlType="submit" loading={savingSupabase} disabled={!sheetId}>
                 Lưu cấu hình
               </Button>
 

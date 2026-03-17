@@ -190,7 +190,7 @@ export default function PlayerSettings() {
   const [configForm] = Form.useForm();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerType>('plyr');
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerType>('videojs');
   const [playerConfig, setPlayerConfig] = useState<PlayerConfig>(defaultPlayerConfig);
   const [linkTypeLabels, setLinkTypeLabels] = useState<Record<string, string>>({
     m3u8: 'M3U8',
@@ -227,7 +227,7 @@ export default function PlayerSettings() {
       settings[row.key] = row.value;
     }
 
-    const defaultPlayer = settings.default_player ?? 'plyr';
+    const defaultPlayer = settings.default_player ?? 'videojs';
     setSelectedPlayer(defaultPlayer as PlayerType);
 
     const config = parseJsonSafe<PlayerConfig>(settings.player_config, defaultPlayerConfig);
@@ -600,14 +600,8 @@ export default function PlayerSettings() {
                   onChange={(value) => setSelectedPlayer(value as PlayerType)}
                   options={AVAILABLE_PLAYERS.map((p) => ({
                     value: p.value,
-                    label: (
-                      <Space direction="vertical" size={0} style={{ width: '100%' }}>
-                        <Text strong>{p.label}</Text>
-                        <Text type="secondary" style={{ fontSize: 12 }}>{p.description}</Text>
-                      </Space>
-                    ),
+                    label: p.label,
                   }))}
-                  optionLabelProp="label"
                   style={{ width: '100%' }}
                 />
               </Form.Item>

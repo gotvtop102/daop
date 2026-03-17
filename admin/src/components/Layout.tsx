@@ -168,7 +168,7 @@ export default function Layout() {
           <Outlet />
         </Content>
         <Footer className="admin-footer">
-          Code make by <strong>GoTV Admin Tieucot</strong> - Telegram{' '}
+          Code made by <strong>GoTV Admin Tieucot</strong> - Telegram{' '}
           <a href="https://t.me/tieucot520" target="_blank" rel="noopener noreferrer">
             @tieucot520
           </a>

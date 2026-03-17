@@ -26,6 +26,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -72,20 +73,50 @@ export default function EpisodeEdit() {
   const [servers, setServers] = useState<Server[]>([]);
   const [activeServer, setActiveServer] = useState('0');
   const [movieTitle, setMovieTitle] = useState('');
+  const [spreadsheetId, setSpreadsheetId] = useState<string>('');
+
+  // Load spreadsheetId from Supabase or localStorage
+  useEffect(() => {
+    const loadSheetId = async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'google_sheets_id')
+        .maybeSingle();
+      if (!error && data?.value) {
+        setSpreadsheetId(data.value);
+        return;
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
+        if (saved?.google_sheets_id) {
+          setSpreadsheetId(saved.google_sheets_id);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    loadSheetId();
+  }, []);
 
   useEffect(() => {
-    if (id) {
+    if (id && spreadsheetId) {
       loadEpisodes(id);
     }
-  }, [id]);
+  }, [id, spreadsheetId]);
 
   const loadEpisodes = async (movieId: string) => {
+    if (!spreadsheetId) {
+      message.error('Chưa cấu hình Google Sheets ID');
+      return;
+    }
     setLoading(true);
     try {
-      const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const base = envBase || window.location.origin;
 
       // First get movie info
-      const movieRes = await fetch(`${base}/api/movies?action=get&id=${movieId}`);
+      const movieRes = await fetch(`${base}/api/movies?action=get&id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}`);
       if (movieRes.ok) {
         const movieData = await movieRes.json();
         if (movieData && !movieData.error) {
@@ -94,7 +125,7 @@ export default function EpisodeEdit() {
       }
 
       // Get episodes
-      const res = await fetch(`${base}/api/movies?action=episodes&movie_id=${movieId}`);
+      const res = await fetch(`${base}/api/movies?action=episodes&movie_id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}`);
 
       if (!res.ok) {
         const err = await res.text();
@@ -144,9 +175,18 @@ export default function EpisodeEdit() {
   };
 
   const handleSave = async () => {
+    if (!spreadsheetId) {
+      message.error('Chưa cấu hình Google Sheets ID');
+      return;
+    }
+    if (!id) {
+      message.error('Thiếu movie ID');
+      return;
+    }
     setSaving(true);
     try {
-      const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const base = envBase || window.location.origin;
 
       // Flatten all episodes from all servers
       const allEpisodes: Episode[] = [];
@@ -163,7 +203,7 @@ export default function EpisodeEdit() {
       const res = await fetch(`${base}/api/movies?action=episodes&movie_id=${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(allEpisodes),
+        body: JSON.stringify({ spreadsheetId, episodes: allEpisodes }),
       });
 
       if (!res.ok) {

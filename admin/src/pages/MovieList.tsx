@@ -24,6 +24,7 @@ import {
   PlayCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -69,9 +70,40 @@ export default function MovieList() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const [total, setTotal] = useState(0);
+  const [spreadsheetId, setSpreadsheetId] = useState<string>('');
+
+  // Load spreadsheetId from Supabase or localStorage
+  useEffect(() => {
+    const loadSheetId = async () => {
+      // Try Supabase first
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'google_sheets_id')
+        .maybeSingle();
+      if (!error && data?.value) {
+        setSpreadsheetId(data.value);
+        return;
+      }
+      // Fallback to localStorage
+      try {
+        const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
+        if (saved?.google_sheets_id) {
+          setSpreadsheetId(saved.google_sheets_id);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    loadSheetId();
+  }, []);
 
   // Load movies from Google Sheets via API
   const loadMovies = async (opts?: { nextPage?: number; nextPageSize?: number }) => {
+    if (!spreadsheetId) {
+      message.error('Chưa cấu hình Google Sheets ID. Vui lòng vào Google Sheets để thiết lập.');
+      return;
+    }
     setLoading(true);
     try {
       const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -81,6 +113,7 @@ export default function MovieList() {
 
       const url = new URL(`${base}/api/movies`);
       url.searchParams.append('action', 'list');
+      url.searchParams.append('spreadsheetId', spreadsheetId);
       url.searchParams.append('type', TYPE_MAP[category]);
       url.searchParams.append('page', String(p));
       url.searchParams.append('limit', String(ps));
@@ -127,10 +160,14 @@ export default function MovieList() {
   const filteredMovies = useMemo(() => movies, [movies]);
 
   const handleDelete = async (id: string) => {
+    if (!spreadsheetId) {
+      message.error('Chưa cấu hình Google Sheets ID');
+      return;
+    }
     try {
       const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const base = envBase || window.location.origin;
-      const res = await fetch(`${base}/api/movies?action=delete&id=${id}`, {
+      const res = await fetch(`${base}/api/movies?action=delete&id=${id}&spreadsheetId=${encodeURIComponent(spreadsheetId)}`, {
         method: 'DELETE',
       });
 

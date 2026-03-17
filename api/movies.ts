@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
+const DEFAULT_SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
 const SERVICE_ACCOUNT_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
 
 function normalizeHeader(h: any) {
@@ -59,7 +59,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  if (!SPREADSHEET_ID) {
+  // Lấy spreadsheetId từ query params hoặc body, fallback về env
+  const spreadsheetId = String(req.query.spreadsheetId || req.body?.spreadsheetId || DEFAULT_SPREADSHEET_ID || '').trim();
+
+  if (!spreadsheetId) {
     return res.status(500).json({ error: 'Google Sheets ID not configured' });
   }
 
@@ -70,14 +73,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     switch (action) {
       case 'list': {
         const { type, page = '1', limit = '50', search = '' } = req.query;
-        const result = await listMovies(sheets, type as string, parseInt(page as string), parseInt(limit as string), search as string);
+        const result = await listMovies(sheets, spreadsheetId, type as string, parseInt(page as string), parseInt(limit as string), search as string);
         return res.status(200).json(result);
       }
 
       case 'get': {
         const { id } = req.query;
         if (!id) return res.status(400).json({ error: 'Missing movie ID' });
-        const movie = await getMovie(sheets, id as string);
+        const movie = await getMovie(sheets, spreadsheetId, id as string);
         return res.status(200).json(movie);
       }
 
@@ -85,7 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
-        const result = await saveMovie(sheets, req.body);
+        const result = await saveMovie(sheets, spreadsheetId, req.body);
         return res.status(200).json(result);
       }
 
@@ -95,7 +98,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         const { id } = req.query;
         if (!id) return res.status(400).json({ error: 'Missing movie ID' });
-        const result = await deleteMovie(sheets, id as string);
+        const result = await deleteMovie(sheets, spreadsheetId, id as string);
         return res.status(200).json(result);
       }
 
@@ -104,12 +107,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!movie_id) return res.status(400).json({ error: 'Missing movie_id' });
 
         if (req.method === 'GET') {
-          const episodes = await getEpisodes(sheets, movie_id as string);
+          const episodes = await getEpisodes(sheets, spreadsheetId, movie_id as string);
           return res.status(200).json(episodes);
         }
 
         if (req.method === 'POST') {
-          const result = await saveEpisodes(sheets, movie_id as string, req.body);
+          // Support both formats: direct array or { episodes: [...] }
+          const body = req.body;
+          const episodes = Array.isArray(body) ? body : (body?.episodes || []);
+          const result = await saveEpisodes(sheets, spreadsheetId, movie_id as string, episodes);
           return res.status(200).json(result);
         }
 
@@ -131,13 +137,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 // List movies from Google Sheets
 async function listMovies(
   sheets: any,
+  spreadsheetId: string,
   type?: string,
   page: number = 1,
   limit: number = 50,
   search: string = ''
 ) {
   const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
+    spreadsheetId,
     range: 'movies!A1:Z1000',
   });
 
@@ -188,9 +195,9 @@ async function listMovies(
 }
 
 // Get single movie
-async function getMovie(sheets: any, id: string) {
+async function getMovie(sheets: any, spreadsheetId: string, id: string) {
   const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
+    spreadsheetId,
     range: 'movies!A1:Z1000',
   });
 
@@ -219,9 +226,9 @@ async function getMovie(sheets: any, id: string) {
 }
 
 // Save movie (create or update)
-async function saveMovie(sheets: any, movieData: any) {
+async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
   const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
+    spreadsheetId,
     range: 'movies!A1:Z1000',
   });
 
@@ -271,7 +278,7 @@ async function saveMovie(sheets: any, movieData: any) {
   if (isNew) {
     // Append new row
     await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
+      spreadsheetId,
       range: 'movies!A1',
       valueInputOption: 'RAW',
       requestBody: { values: [rowData] },
@@ -287,7 +294,7 @@ async function saveMovie(sheets: any, movieData: any) {
 
     const actualRow = rowIndex + 2; // +1 for header, +1 for 1-based indexing
     await sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
+      spreadsheetId,
       range: `movies!A${actualRow}:${String.fromCharCode(65 + headers.length - 1)}${actualRow}`,
       valueInputOption: 'RAW',
       requestBody: { values: [rowData] },
@@ -298,16 +305,16 @@ async function saveMovie(sheets: any, movieData: any) {
 }
 
 // Delete movie
-async function deleteMovie(sheets: any, id: string) {
+async function deleteMovie(sheets: any, spreadsheetId: string, id: string) {
   // Note: Actual deletion from sheet requires more complex batchUpdate
   // For now, we'll just mark it as deleted or filter it out
-  const movie = await getMovie(sheets, id);
+  const movie = await getMovie(sheets, spreadsheetId, id);
   if (!movie) return { success: false, error: 'Movie not found' };
 
   // Mark as deleted by clearing the row
   const actualRow = movie._rowIndex;
   await sheets.spreadsheets.values.clear({
-    spreadsheetId: SPREADSHEET_ID,
+    spreadsheetId,
     range: `movies!A${actualRow}:Z${actualRow}`,
   });
 
@@ -315,9 +322,9 @@ async function deleteMovie(sheets: any, id: string) {
 }
 
 // Get episodes for a movie
-async function getEpisodes(sheets: any, movieId: string) {
+async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string) {
   const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
+    spreadsheetId,
     range: 'episodes!A1:Z2000',
   });
 
@@ -346,14 +353,14 @@ async function getEpisodes(sheets: any, movieId: string) {
 }
 
 // Save episodes for a movie
-async function saveEpisodes(sheets: any, movieId: string, episodes: any[]) {
+async function saveEpisodes(sheets: any, spreadsheetId: string, movieId: string, episodes: any[]) {
   // First, get current episodes
-  const currentEpisodes = await getEpisodes(sheets, movieId);
+  const currentEpisodes = await getEpisodes(sheets, spreadsheetId, movieId);
 
   // Delete existing episodes for this movie
   if (currentEpisodes.length > 0) {
     const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
+      spreadsheetId,
       range: 'episodes!A1:Z2000',
     });
     const rows = response.data.values || [];
@@ -373,7 +380,7 @@ async function saveEpisodes(sheets: any, movieId: string, episodes: any[]) {
     // Clear rows (reverse order to avoid shifting)
     for (const rowNum of rowsToDelete.reverse()) {
       await sheets.spreadsheets.values.clear({
-        spreadsheetId: SPREADSHEET_ID,
+        spreadsheetId,
         range: `episodes!A${rowNum}:Z${rowNum}`,
       });
     }
@@ -406,7 +413,7 @@ async function saveEpisodes(sheets: any, movieId: string, episodes: any[]) {
 
   if (newRows.length > 0) {
     await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
+      spreadsheetId,
       range: 'episodes!A1',
       valueInputOption: 'RAW',
       requestBody: { values: newRows },
