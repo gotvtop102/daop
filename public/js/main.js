@@ -165,6 +165,15 @@
     return 'xs';
   }
 
+  function splitPositions(v) {
+    if (!v) return [];
+    if (Array.isArray(v)) return v.map(function (x) { return String(x || '').trim(); }).filter(Boolean);
+    return String(v)
+      .split(',')
+      .map(function (x) { return String(x || '').trim(); })
+      .filter(Boolean);
+  }
+
   function pickBannerByPosition(banners, position) {
     var pos = String(position || '').trim();
     if (!pos) return null;
@@ -172,7 +181,10 @@
     for (var i = 0; i < list.length; i++) {
       var b = list[i];
       if (!b) continue;
-      if (String(b.position || '').trim() === pos) return b;
+      var positions = splitPositions(b.position);
+      for (var j = 0; j < positions.length; j++) {
+        if (positions[j] === pos) return b;
+      }
     }
     return null;
   }

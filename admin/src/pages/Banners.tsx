@@ -30,6 +30,20 @@ type BannerRow = {
   priority: number | null;
 };
 
+function splitPositions(v: any): string[] {
+  if (!v) return [];
+  if (Array.isArray(v)) return v.map((x) => String(x || '').trim()).filter(Boolean);
+  return String(v)
+    .split(',')
+    .map((x) => String(x || '').trim())
+    .filter(Boolean);
+}
+
+function joinPositions(arr: any): string {
+  const list = splitPositions(arr);
+  return list.join(',');
+}
+
 const POSITION_PRESETS: Array<{ value: string; label: string }> = [
   { value: 'home_top', label: 'Trang chủ - Top (home_top)' },
   { value: 'home_mid', label: 'Trang chủ - Giữa (home_mid)' },
@@ -59,7 +73,8 @@ export default function Banners() {
     setData((r.data as BannerRow[]) ?? []);
     try {
       const rows = (r.data as BannerRow[]) ?? [];
-      const extra = Array.from(new Set(rows.map((x) => String(x?.position || '').trim()).filter(Boolean)))
+      const allPositions = rows.flatMap((x) => splitPositions(x?.position));
+      const extra = Array.from(new Set(allPositions))
         .filter((p) => !POSITION_PRESETS.some((o) => o.value === p))
         .map((p) => ({ value: p, label: `Khác (${p})` }));
       setPositionOptions([...POSITION_PRESETS, ...extra]);
@@ -87,6 +102,7 @@ export default function Banners() {
     form.setFieldsValue({
       is_active: true,
       priority: 0,
+      position: ['home_top'],
     });
     setModalVisible(true);
   };
@@ -94,7 +110,10 @@ export default function Banners() {
   const openEdit = (row: BannerRow) => {
     setEditingId(row.id);
     const { start_date, end_date, ...rest } = row;
-    form.setFieldsValue(rest);
+    form.setFieldsValue({
+      ...rest,
+      position: splitPositions(row.position),
+    });
     setModalVisible(true);
   };
 
@@ -112,12 +131,13 @@ export default function Banners() {
 
   const handleSubmit = async (values: any) => {
     try {
+      const posList = splitPositions(values.position);
       const toSave: any = {
         title: values.title,
         image_url: values.image_url || null,
         link_url: values.link_url || null,
         html_code: values.html_code || null,
-        position: values.position || 'home_top',
+        position: joinPositions(posList.length ? posList : ['home_top']),
         is_active: !!values.is_active,
         priority: typeof values.priority === 'number' ? values.priority : 0,
         start_date:
@@ -180,7 +200,22 @@ export default function Banners() {
               ),
           },
           { title: 'Tiêu đề', dataIndex: 'title', key: 'title' },
-          { title: 'Vị trí', dataIndex: 'position', key: 'position' },
+          {
+            title: 'Vị trí',
+            dataIndex: 'position',
+            key: 'position',
+            render: (v: string) => {
+              const list = splitPositions(v);
+              if (!list.length) return '-';
+              return (
+                <Space wrap>
+                  {list.map((p) => (
+                    <Tag key={p}>{p}</Tag>
+                  ))}
+                </Space>
+              );
+            },
+          },
           { title: 'Ưu tiên', dataIndex: 'priority', key: 'priority', width: 80 },
           {
             title: 'Trạng thái',
@@ -279,9 +314,11 @@ export default function Banners() {
           <Form.Item name="position" label="Vị trí">
             <Select
               options={positionOptions}
+              mode="tags"
+              tokenSeparators={[',']}
               showSearch
               optionFilterProp="label"
-              placeholder="Chọn vị trí"
+              placeholder="Chọn một hoặc nhiều vị trí"
             />
           </Form.Item>
           <Form.Item name="priority" label="Ưu tiên">
