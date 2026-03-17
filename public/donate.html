@@ -78,32 +78,77 @@
           '<p>Đã quyên góp: ' + cur + ' ' + (d.target_currency || 'VND') + '</p>' +
           (goal ? '<div style="background:#30363d;border-radius:8px;height:12px;"><div style="width:' + pct + '%;height:100%;background:#58a6ff;border-radius:8px;"></div></div>' : '');
       }
-      var html = '';
+      var parts = [];
+
       if (d.paypal_link) {
         var pp = normalizeUrl(d.paypal_link);
-        html += '<p>PayPal: <a href="' + escapeHtml(pp) + '" target="_blank" rel="noopener">Link donate PayPal</a></p>';
+        parts.push(
+          '<section style="margin:16px 0;">' +
+          '<h3 style="margin:0 0 8px;">PayPal</h3>' +
+          '<ul style="margin:0;padding-left:18px;">' +
+          '<li><a href="' + escapeHtml(pp) + '" target="_blank" rel="noopener">Link donate PayPal</a></li>' +
+          '</ul>' +
+          '</section>'
+        );
       }
+
       if (d.methods && d.methods.length) {
+        var items = '';
         d.methods.forEach(function(m){
           if (!m) return;
           var label = escapeHtml(m.label || 'Donate');
           var url = normalizeUrl(m.url);
           var note = escapeHtml(m.note || '');
-          var line = '<p>' + label + ': ';
-          if (url) line += '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>';
-          else line += '<span>' + (note ? note : 'Chưa cấu hình') + '</span>';
-          if (note && url) line += ' <span style="color:#8b949e">(' + note + ')</span>';
-          line += '</p>';
-          html += line;
+          var right = '';
+          if (url) right = '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>';
+          else right = '<span style="color:#8b949e">' + (note ? note : 'Chưa cấu hình') + '</span>';
+          var noteLine = note && url ? '<div style="color:#8b949e;font-size:0.95em;margin-top:2px;">' + note + '</div>' : '';
+          items += '<li><div><strong>' + label + '</strong>: ' + right + '</div>' + noteLine + '</li>';
         });
+        if (items) {
+          parts.push(
+            '<section style="margin:16px 0;">' +
+            '<h3 style="margin:0 0 8px;">Phương thức Donate</h3>' +
+            '<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;">' + items + '</ul>' +
+            '</section>'
+          );
+        }
       }
+
       if (d.bank_info && d.bank_info.length) {
-        d.bank_info.forEach(function(b){ html += '<p>Chuyển khoản: ' + (b.bank_name || '') + ' - ' + (b.account_number || '') + ' - ' + (b.account_name || '') + '</p>'; });
+        var bankItems = '';
+        d.bank_info.forEach(function(b){
+          if (!b) return;
+          bankItems += '<li><strong>' + escapeHtml(b.bank_name || '') + '</strong>: ' +
+            escapeHtml(b.account_number || '') + ' - ' + escapeHtml(b.account_name || '') + '</li>';
+        });
+        if (bankItems) {
+          parts.push(
+            '<section style="margin:16px 0;">' +
+            '<h3 style="margin:0 0 8px;">Chuyển khoản</h3>' +
+            '<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;">' + bankItems + '</ul>' +
+            '</section>'
+          );
+        }
       }
+
       if (d.crypto_addresses && d.crypto_addresses.length) {
-        d.crypto_addresses.forEach(function(c){ html += '<p>Crypto: ' + (c.symbol || '') + ' - ' + (c.address || '') + '</p>'; });
+        var cryptoItems = '';
+        d.crypto_addresses.forEach(function(c){
+          if (!c) return;
+          cryptoItems += '<li><strong>' + escapeHtml(c.symbol || '') + '</strong>: <span style="word-break:break-all;">' + escapeHtml(c.address || '') + '</span></li>';
+        });
+        if (cryptoItems) {
+          parts.push(
+            '<section style="margin:16px 0;">' +
+            '<h3 style="margin:0 0 8px;">Crypto Address</h3>' +
+            '<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;">' + cryptoItems + '</ul>' +
+            '</section>'
+          );
+        }
       }
-      if (methods) methods.innerHTML = html || '<p>Chưa cấu hình phương thức donate.</p>';
+
+      if (methods) methods.innerHTML = parts.join('') || '<p>Chưa cấu hình phương thức donate.</p>';
     }).catch(function(){
       document.getElementById('donate-target').innerHTML = '<p>Chưa cấu hình donate.</p>';
       document.getElementById('donate-methods').innerHTML = '';

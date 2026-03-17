@@ -77,24 +77,32 @@ export default function DonateSettings() {
                   <Button onClick={() => add({ label: '', url: '', note: '' })}>Thêm phương thức</Button>
                 </div>
                 <div style={{ height: 12 }} />
-                {fields.map((field) => (
-                  <Card key={field.key} size="small" style={{ marginBottom: 12 }}>
-                    <Space direction="vertical" style={{ width: '100%' }}>
-                      <Form.Item {...field} name={[field.name, 'label']} label="Tên phương thức">
-                        <Input placeholder="MoMo / ZaloPay / VietQR / Custom..." />
+                <Card size="small">
+                  <div style={{ display: 'flex', gap: 12, fontWeight: 600, padding: '4px 0' }}>
+                    <div style={{ flex: 2 }}>Tên</div>
+                    <div style={{ flex: 4 }}>Link / QR</div>
+                    <div style={{ flex: 3 }}>Ghi chú</div>
+                    <div style={{ width: 80 }}></div>
+                  </div>
+                  <div style={{ height: 8 }} />
+                  {fields.map((field) => (
+                    <div key={field.key} style={{ display: 'flex', gap: 12, marginBottom: 10, alignItems: 'flex-start' }}>
+                      <Form.Item {...field} name={[field.name, 'label']} style={{ flex: 2, marginBottom: 0 }}>
+                        <Input placeholder="Bitcoin (BTC) / Custom..." />
                       </Form.Item>
-                      <Form.Item {...field} name={[field.name, 'url']} label="Link (hoặc link ảnh QR)">
+                      <Form.Item {...field} name={[field.name, 'url']} style={{ flex: 4, marginBottom: 0 }}>
                         <Input placeholder="https://..." />
                       </Form.Item>
-                      <Form.Item {...field} name={[field.name, 'note']} label="Ghi chú (tuỳ chọn)">
-                        <Input placeholder="VD: Nội dung chuyển khoản, username, ..." />
+                      <Form.Item {...field} name={[field.name, 'note']} style={{ flex: 3, marginBottom: 0 }}>
+                        <Input placeholder="Ghi chú" />
                       </Form.Item>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <div style={{ width: 80, display: 'flex', justifyContent: 'flex-end' }}>
                         <Button danger onClick={() => remove(field.name)}>Xoá</Button>
                       </div>
-                    </Space>
-                  </Card>
-                ))}
+                    </div>
+                  ))}
+                  {!fields.length ? <div style={{ color: '#8b949e' }}>Chưa có phương thức nào.</div> : null}
+                </Card>
               </>
             )}
           </Form.List>

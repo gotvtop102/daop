@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Form, Input, Button, message } from 'antd';
+import { Card, Form, Input, Button, message, Tabs } from 'antd';
 import { supabase } from '../lib/supabase';
 
 const THEME_KEYS = [
@@ -180,128 +180,164 @@ export default function ThemeSettings() {
       </p>
       <Card loading={loading}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
-          <h3 style={{ marginTop: 0, marginBottom: 12 }}>Dark theme (nền tối)</h3>
-          <Form.Item name="theme_primary" label={LABELS.theme_primary}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_primary} />
-          </Form.Item>
-          <Form.Item name="theme_bg" label={LABELS.theme_bg}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_bg} />
-          </Form.Item>
-          <Form.Item name="theme_card" label={LABELS.theme_card}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_card} />
-          </Form.Item>
-          <Form.Item name="theme_border" label={LABELS.theme_border}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_border} />
-          </Form.Item>
-          <Form.Item name="theme_text" label={LABELS.theme_text}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_text} />
-          </Form.Item>
-          <Form.Item name="theme_muted" label={LABELS.theme_muted}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_muted} />
-          </Form.Item>
-          <Form.Item name="theme_accent" label={LABELS.theme_accent}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_accent} />
-          </Form.Item>
+          <Tabs
+            defaultActiveKey="dark"
+            items={[
+              {
+                key: 'dark',
+                label: 'Nền tối (Dark)',
+                children: (
+                  <>
+                    <h3 style={{ marginTop: 0, marginBottom: 12 }}>Màu nền &amp; chung</h3>
+                    <Form.Item name="theme_primary" label={LABELS.theme_primary}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_primary} />
+                    </Form.Item>
+                    <Form.Item name="theme_bg" label={LABELS.theme_bg}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_bg} />
+                    </Form.Item>
+                    <Form.Item name="theme_card" label={LABELS.theme_card}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_card} />
+                    </Form.Item>
+                    <Form.Item name="theme_border" label={LABELS.theme_border}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_border} />
+                    </Form.Item>
+                    <Form.Item name="theme_text" label={LABELS.theme_text}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_text} />
+                    </Form.Item>
+                    <Form.Item name="theme_muted" label={LABELS.theme_muted}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_muted} />
+                    </Form.Item>
+                    <Form.Item name="theme_accent" label={LABELS.theme_accent}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_accent} />
+                    </Form.Item>
 
-          <h3 style={{ marginTop: 24, marginBottom: 12 }}>Light theme (nền sáng)</h3>
-          <Form.Item name="theme_light_bg" label={LABELS.theme_light_bg}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_light_bg} />
-          </Form.Item>
-          <Form.Item name="theme_light_card" label={LABELS.theme_light_card}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_light_card} />
-          </Form.Item>
-          <Form.Item name="theme_light_border" label={LABELS.theme_light_border}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_light_border} />
-          </Form.Item>
-          <Form.Item name="theme_light_text" label={LABELS.theme_light_text}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_light_text} />
-          </Form.Item>
-          <Form.Item name="theme_light_muted" label={LABELS.theme_light_muted}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_light_muted} />
-          </Form.Item>
-          <Form.Item name="theme_light_surface" label={LABELS.theme_light_surface}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_light_surface} placeholder="vd: rgba(9,105,218,0.12) hoặc #dbeafe" />
-          </Form.Item>
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Link</h3>
+                    <Form.Item name="theme_link" label={LABELS.theme_link}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_link} />
+                    </Form.Item>
 
-          <Form.Item name="theme_link_light" label={LABELS.theme_link_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_link_light} />
-          </Form.Item>
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Header (menu)</h3>
+                    <Form.Item name="theme_header_logo" label={LABELS.theme_header_logo}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_header_logo} />
+                    </Form.Item>
+                    <Form.Item name="theme_header_link" label={LABELS.theme_header_link}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_header_link} />
+                    </Form.Item>
 
-          <h3 style={{ marginTop: 24, marginBottom: 12 }}>Chung &amp; theo khu vực</h3>
-          <Form.Item name="theme_link" label={LABELS.theme_link}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_link} />
-          </Form.Item>
-          <h3 style={{ marginTop: 24, marginBottom: 12 }}>Header (menu)</h3>
-          <Form.Item name="theme_header_logo" label={LABELS.theme_header_logo}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_header_logo} />
-          </Form.Item>
-          <Form.Item name="theme_header_logo_light" label={LABELS.theme_header_logo_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_header_logo_light} />
-          </Form.Item>
-          <Form.Item name="theme_header_link" label={LABELS.theme_header_link}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_header_link} />
-          </Form.Item>
-          <Form.Item name="theme_header_link_light" label={LABELS.theme_header_link_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_header_link_light} />
-          </Form.Item>
-          <h3 style={{ marginTop: 24, marginBottom: 12 }}>Footer</h3>
-          <Form.Item name="theme_footer_text" label={LABELS.theme_footer_text}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_footer_text} />
-          </Form.Item>
-          <Form.Item name="theme_footer_text_light" label={LABELS.theme_footer_text_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_footer_text_light} />
-          </Form.Item>
-          <h3 style={{ marginTop: 24, marginBottom: 12 }}>Section &amp; Bộ lọc &amp; Phân trang</h3>
-          <Form.Item name="theme_section_title" label={LABELS.theme_section_title}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_section_title} />
-          </Form.Item>
-          <Form.Item name="theme_section_title_light" label={LABELS.theme_section_title_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_section_title_light} />
-          </Form.Item>
-          <Form.Item name="theme_filter_label" label={LABELS.theme_filter_label}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_filter_label} />
-          </Form.Item>
-          <Form.Item name="theme_filter_label_light" label={LABELS.theme_filter_label_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_filter_label_light} />
-          </Form.Item>
-          <Form.Item name="theme_pagination" label={LABELS.theme_pagination}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_pagination} />
-          </Form.Item>
-          <Form.Item name="theme_pagination_light" label={LABELS.theme_pagination_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_pagination_light} />
-          </Form.Item>
-          <h3 style={{ marginTop: 24, marginBottom: 12 }}>Slider trang chủ</h3>
-          <Form.Item name="theme_slider_title" label={LABELS.theme_slider_title}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_slider_title} />
-          </Form.Item>
-          <Form.Item name="theme_slider_title_light" label={LABELS.theme_slider_title_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_slider_title_light} />
-          </Form.Item>
-          <Form.Item name="theme_slider_meta" label={LABELS.theme_slider_meta}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_slider_meta} placeholder="vd: rgba(255,255,255,0.75) hoặc #ccc" />
-          </Form.Item>
-          <Form.Item name="theme_slider_meta_light" label={LABELS.theme_slider_meta_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_slider_meta_light} placeholder="vd: rgba(255,255,255,0.75) hoặc #ccc" />
-          </Form.Item>
-          <Form.Item name="theme_slider_desc" label={LABELS.theme_slider_desc}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_slider_desc} placeholder="vd: rgba(255,255,255,0.7) hoặc #aaa" />
-          </Form.Item>
-          <Form.Item name="theme_slider_desc_light" label={LABELS.theme_slider_desc_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_slider_desc_light} placeholder="vd: rgba(0,0,0,0.7) hoặc #57606a" />
-          </Form.Item>
-          <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
-          <Form.Item name="theme_movie_card_title" label={LABELS.theme_movie_card_title}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_title} />
-          </Form.Item>
-          <Form.Item name="theme_movie_card_title_light" label={LABELS.theme_movie_card_title_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_title_light} />
-          </Form.Item>
-          <Form.Item name="theme_movie_card_meta" label={LABELS.theme_movie_card_meta}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_meta} />
-          </Form.Item>
-          <Form.Item name="theme_movie_card_meta_light" label={LABELS.theme_movie_card_meta_light}>
-            <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_meta_light} />
-          </Form.Item>
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Footer</h3>
+                    <Form.Item name="theme_footer_text" label={LABELS.theme_footer_text}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_footer_text} />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Section &amp; Bộ lọc &amp; Phân trang</h3>
+                    <Form.Item name="theme_section_title" label={LABELS.theme_section_title}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_section_title} />
+                    </Form.Item>
+                    <Form.Item name="theme_filter_label" label={LABELS.theme_filter_label}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_filter_label} />
+                    </Form.Item>
+                    <Form.Item name="theme_pagination" label={LABELS.theme_pagination}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_pagination} />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Slider trang chủ</h3>
+                    <Form.Item name="theme_slider_title" label={LABELS.theme_slider_title}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_title} />
+                    </Form.Item>
+                    <Form.Item name="theme_slider_meta" label={LABELS.theme_slider_meta}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_meta} placeholder="vd: rgba(255,255,255,0.75) hoặc #ccc" />
+                    </Form.Item>
+                    <Form.Item name="theme_slider_desc" label={LABELS.theme_slider_desc}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_desc} placeholder="vd: rgba(255,255,255,0.7) hoặc #aaa" />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
+                    <Form.Item name="theme_movie_card_title" label={LABELS.theme_movie_card_title}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_title} />
+                    </Form.Item>
+                    <Form.Item name="theme_movie_card_meta" label={LABELS.theme_movie_card_meta}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_meta} />
+                    </Form.Item>
+                  </>
+                ),
+              },
+              {
+                key: 'light',
+                label: 'Nền sáng (Light)',
+                children: (
+                  <>
+                    <h3 style={{ marginTop: 0, marginBottom: 12 }}>Màu nền &amp; chung</h3>
+                    <Form.Item name="theme_light_bg" label={LABELS.theme_light_bg}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_light_bg} />
+                    </Form.Item>
+                    <Form.Item name="theme_light_card" label={LABELS.theme_light_card}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_light_card} />
+                    </Form.Item>
+                    <Form.Item name="theme_light_border" label={LABELS.theme_light_border}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_light_border} />
+                    </Form.Item>
+                    <Form.Item name="theme_light_text" label={LABELS.theme_light_text}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_light_text} />
+                    </Form.Item>
+                    <Form.Item name="theme_light_muted" label={LABELS.theme_light_muted}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_light_muted} />
+                    </Form.Item>
+                    <Form.Item name="theme_light_surface" label={LABELS.theme_light_surface}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_light_surface} placeholder="vd: rgba(9,105,218,0.12) hoặc #dbeafe" />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Link</h3>
+                    <Form.Item name="theme_link_light" label={LABELS.theme_link_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_link_light} />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Header (menu)</h3>
+                    <Form.Item name="theme_header_logo_light" label={LABELS.theme_header_logo_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_header_logo_light} />
+                    </Form.Item>
+                    <Form.Item name="theme_header_link_light" label={LABELS.theme_header_link_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_header_link_light} />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Footer</h3>
+                    <Form.Item name="theme_footer_text_light" label={LABELS.theme_footer_text_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_footer_text_light} />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Section &amp; Bộ lọc &amp; Phân trang</h3>
+                    <Form.Item name="theme_section_title_light" label={LABELS.theme_section_title_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_section_title_light} />
+                    </Form.Item>
+                    <Form.Item name="theme_filter_label_light" label={LABELS.theme_filter_label_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_filter_label_light} />
+                    </Form.Item>
+                    <Form.Item name="theme_pagination_light" label={LABELS.theme_pagination_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_pagination_light} />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Slider trang chủ</h3>
+                    <Form.Item name="theme_slider_title_light" label={LABELS.theme_slider_title_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_title_light} />
+                    </Form.Item>
+                    <Form.Item name="theme_slider_meta_light" label={LABELS.theme_slider_meta_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_meta_light} placeholder="vd: rgba(0,0,0,0.75) hoặc #57606a" />
+                    </Form.Item>
+                    <Form.Item name="theme_slider_desc_light" label={LABELS.theme_slider_desc_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_desc_light} placeholder="vd: rgba(0,0,0,0.7) hoặc #57606a" />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
+                    <Form.Item name="theme_movie_card_title_light" label={LABELS.theme_movie_card_title_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_title_light} />
+                    </Form.Item>
+                    <Form.Item name="theme_movie_card_meta_light" label={LABELS.theme_movie_card_meta_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_meta_light} />
+                    </Form.Item>
+                  </>
+                ),
+              },
+            ]}
+          />
           <Form.Item>
             <Button type="primary" htmlType="submit">Lưu</Button>
           </Form.Item>
