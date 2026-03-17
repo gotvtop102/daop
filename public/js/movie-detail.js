@@ -514,7 +514,6 @@
       '    <div class="md-hero">' +
       '      <div class="md-hero-bg" id="md-hero-bg" style="background-image:url(' + esc(posterBg || poster) + ')"></div>' +
       '      <div class="md-hero-inner">' +
-      '        <div class="md-poster">' +
       '        <div class="md-thumb"><img decoding="async" fetchpriority="high" src="' + esc(thumbMain || poster) + '"' + imgOnErrorAttr(thumbOphim || posterOphim, poster, defaultPoster) + ' alt=""></div>' +
       '        <div class="md-hero-meta">' +
       '          <div class="md-title">' + title + '</div>' +
