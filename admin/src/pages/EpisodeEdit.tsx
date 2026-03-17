@@ -127,14 +127,15 @@ export default function EpisodeEdit() {
       const base = envBase || window.location.origin;
 
       // First get movie info
-      const movieUrl = new URL(`${base}/api/movies`);
-      movieUrl.searchParams.append('action', 'get');
-      movieUrl.searchParams.append('id', movieId);
-      const movieRes = await fetch(movieUrl.toString(), {
-        headers: {
-          'X-Spreadsheet-Id': spreadsheetId,
-          'X-Service-Account-Key': serviceAccountKey,
-        },
+      const movieRes = await fetch(`${base}/api/movies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'get',
+          id: movieId,
+          spreadsheetId,
+          serviceAccountKey,
+        }),
       });
       if (movieRes.ok) {
         const movieData = await movieRes.json();
@@ -144,14 +145,15 @@ export default function EpisodeEdit() {
       }
 
       // Get episodes
-      const epUrl = new URL(`${base}/api/movies`);
-      epUrl.searchParams.append('action', 'episodes');
-      epUrl.searchParams.append('movie_id', movieId);
-      const res = await fetch(epUrl.toString(), {
-        headers: {
-          'X-Spreadsheet-Id': spreadsheetId,
-          'X-Service-Account-Key': serviceAccountKey,
-        },
+      const res = await fetch(`${base}/api/movies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'episodes',
+          movie_id: movieId,
+          spreadsheetId,
+          serviceAccountKey,
+        }),
       });
 
       if (!res.ok) {

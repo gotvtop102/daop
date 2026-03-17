@@ -276,14 +276,15 @@ export default function MovieEdit() {
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const apiBase = base || window.location.origin;
-      const url = new URL(`${apiBase}/api/movies`);
-      url.searchParams.append('action', 'get');
-      url.searchParams.append('id', movieId);
-      const res = await fetch(url.toString(), {
-        headers: {
-          'X-Spreadsheet-Id': spreadsheetId,
-          'X-Service-Account-Key': serviceAccountKey,
-        },
+      const res = await fetch(`${apiBase}/api/movies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'get',
+          id: movieId,
+          spreadsheetId,
+          serviceAccountKey,
+        }),
       });
 
       if (!res.ok) {

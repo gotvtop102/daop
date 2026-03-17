@@ -135,7 +135,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const sheets = await getSheetsClient(serviceAccountKey);
-    const { action } = req.query;
+    const action = String((req.query as any)?.action || (req.body as any)?.action || '').trim();
 
     switch (action) {
       case 'list': {
@@ -145,7 +145,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'get': {
-        const { id } = req.query;
+        const id = (req.query as any)?.id || (req.body as any)?.id;
         if (!id) return res.status(400).json({ error: 'Missing movie ID' });
         const movie = await getMovie(sheets, spreadsheetId, id as string);
         return res.status(200).json(movie);
@@ -170,7 +170,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'episodes': {
-        const { movie_id } = req.query;
+        const movie_id = (req.query as any)?.movie_id || (req.body as any)?.movie_id;
         if (!movie_id) return res.status(400).json({ error: 'Missing movie_id' });
 
         if (req.method === 'GET') {
@@ -179,9 +179,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         if (req.method === 'POST') {
-          // Support both formats: direct array or { episodes: [...] }
-          const body = req.body;
-          const episodes = Array.isArray(body) ? body : (body?.episodes || []);
+          // Support 2 modes:
+          // - Read mode: POST with no episodes => return episodes (useful when client wants to send credentials via body)
+          // - Write mode: POST with episodes => save
+          const body = req.body as any;
+          const rawEpisodes = Array.isArray(body) ? body : body?.episodes;
+          if (!rawEpisodes) {
+            const episodes = await getEpisodes(sheets, spreadsheetId, movie_id as string);
+            return res.status(200).json(episodes);
+          }
+          const episodes = Array.isArray(rawEpisodes) ? rawEpisodes : [];
           const result = await saveEpisodes(sheets, spreadsheetId, movie_id as string, episodes);
           return res.status(200).json(result);
         }
