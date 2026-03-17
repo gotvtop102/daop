@@ -5,6 +5,129 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Liên hệ | GoTV</title>
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .static-page-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .static-page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #ffd700 0%, #ff6b6b 50%, #4ecdc4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .static-content-card {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    .static-content-card h2 {
+      color: #ffd700;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+    }
+    .static-content-card h2:first-child {
+      margin-top: 0;
+    }
+    .static-content-card h3 {
+      color: #4ecdc4;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .static-content-card h4 {
+      color: #ff6b6b;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .static-content-card p {
+      color: #e0e0e0;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .static-content-card ul, .static-content-card ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .static-content-card ul {
+      list-style: none;
+    }
+    .static-content-card ul li {
+      color: #e0e0e0;
+      line-height: 1.8;
+      margin-bottom: 0.5rem;
+      position: relative;
+      padding-left: 1.5rem;
+    }
+    .static-content-card ul li::before {
+      content: "✦";
+      color: #ffd700;
+      position: absolute;
+      left: 0;
+      font-size: 0.8rem;
+    }
+    .static-content-card ol li {
+      color: #e0e0e0;
+      line-height: 1.8;
+      margin-bottom: 0.75rem;
+      padding-left: 0.5rem;
+    }
+    .static-content-card ol li::marker {
+      color: #ffd700;
+      font-weight: 600;
+    }
+    .static-content-card a {
+      color: #4ecdc4;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .static-content-card a:hover {
+      color: #ffd700;
+      text-decoration: underline;
+    }
+    .static-content-card strong {
+      color: #ffd700;
+      font-weight: 600;
+    }
+    .static-content-card blockquote {
+      background: rgba(255, 215, 0, 0.1);
+      border-left: 4px solid #ffd700;
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+    }
+    .static-content-card blockquote p {
+      margin-bottom: 0;
+      color: #f0f0f0;
+    }
+    @media (max-width: 768px) {
+      .static-page-title {
+        font-size: 1.75rem;
+      }
+      .static-content-card {
+        padding: 1.25rem;
+      }
+      .static-content-card h2 {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="loading-screen" class="loading-screen" aria-hidden="false"><div class="loading-screen-inner"><div class="loading-screen-logo">GoTV</div><p class="loading-screen-text">Loading...</p></div></div>
@@ -31,9 +154,9 @@
       </div>
     </nav>
   </header>
-  <main class="container">
-    <h1>Liên hệ</h1>
-    <div id="static-content">Đang tải...</div>
+  <main class="static-page-wrapper">
+    <h1 class="static-page-title">Liên hệ</h1>
+    <div id="static-content" class="static-content-card">Đang tải...</div>
   </main>
   <footer class="site-footer">
     <div class="footer-vietnam-wrap"><div class="footer-vietnam-banner"><span class="footer-flag" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" preserveAspectRatio="xMidYMid meet"><rect width="30" height="20" fill="#DA251D"/><path fill="#FFFF00" d="M15 4l2.47 7.6H25l-6.23 4.5 2.36 7.3L15 16.2l-6.13 4.2 2.36-7.3L5 11.6h7.53z"/></svg></span> Trường Sa &amp; Hoàng Sa là của Việt Nam!</div></div>
@@ -55,8 +178,8 @@
     fetch('/data/config/static-pages.json').then(function(r){ return r.json(); }).then(function(pages){
       var p = Array.isArray(pages) ? pages.find(function(x){ return x.page_key === 'contact'; }) : null;
       var el = document.getElementById('static-content');
-      if (el) el.innerHTML = (p && p.content) ? p.content : '<p>Nội dung trang liên hệ.</p>';
-    }).catch(function(){ document.getElementById('static-content').innerHTML = '<p>Nội dung trang liên hệ.</p>'; });
+      if (el) el.innerHTML = (p && p.content) ? p.content : '<p style="text-align:center;color:#999;">Nội dung đang được cập nhật...</p>';
+    }).catch(function(){ document.getElementById('static-content').innerHTML = '<p style="text-align:center;color:#999;">Nội dung đang được cập nhật...</p>'; });
   </script>
 </body>
 </html>

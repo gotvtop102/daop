@@ -548,6 +548,8 @@ export default function GitHubActions() {
       <Tabs
         style={{ marginTop: 24 }}
         defaultActiveKey="progress"
+        more={{ icon: null, tooltip: 'Thêm' }}
+        tabBarStyle={{ overflow: 'hidden' }}
         items={[
           {
             key: 'progress',
@@ -616,7 +618,7 @@ export default function GitHubActions() {
                   <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
                     Chỉ chọn khoảng trang để lấy. API mặc định: 24 phim/trang, trang 1 là mới nhất. Lấy theo kiểu lùi và kết thúc ở trang 1.
                   </Text>
-                  <Form form={form} layout="inline" initialValues={updateSettings}>
+                  <Form form={form} layout="vertical" initialValues={updateSettings} style={{ maxWidth: '100%' }}>
                     <Text strong style={{ width: '100%', marginBottom: 8 }}>Chế độ chạy:</Text>
                     <Form.Item style={{ marginBottom: 8 }}>
                       <Radio.Group
@@ -662,11 +664,11 @@ export default function GitHubActions() {
                     </Form.Item>
 
                     <Text strong style={{ width: '100%' }}>Thủ công (khi bấm Kích hoạt):</Text>
-                    <Form.Item name="start_page" label="Trang bắt đầu" rules={[{ required: true }]}>
-                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: 120 }} />
+                    <Form.Item name="start_page" label="Trang bắt đầu" rules={[{ required: true }]} style={{ marginBottom: 8 }}>
+                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
                     </Form.Item>
-                    <Form.Item name="end_page" label="Trang kết thúc">
-                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: 120 }} />
+                    <Form.Item name="end_page" label="Trang kết thúc" style={{ marginBottom: 8 }}>
+                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
                     </Form.Item>
                     <Form.Item>
                       <Button icon={<SaveOutlined />} onClick={handleSaveUpdateSettings} loading={savingSettings}>
@@ -674,11 +676,11 @@ export default function GitHubActions() {
                       </Button>
                     </Form.Item>
                     <Text strong style={{ width: '100%', marginTop: 16 }}>Tự động (0h, 6h, 12h, 18h):</Text>
-                    <Form.Item name="auto_start_page" label="Auto: Trang bắt đầu">
-                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: 140 }} />
+                    <Form.Item name="auto_start_page" label="Auto: Trang bắt đầu" style={{ marginBottom: 8 }}>
+                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
                     </Form.Item>
-                    <Form.Item name="auto_end_page" label="Auto: Trang kết thúc">
-                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: 140 }} />
+                    <Form.Item name="auto_end_page" label="Auto: Trang kết thúc" style={{ marginBottom: 8 }}>
+                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
                     </Form.Item>
                     <Form.Item>
                       <Space direction="vertical" size={4}>
@@ -770,53 +772,54 @@ export default function GitHubActions() {
                 >
                   <Space wrap align="start">
                     <Form.Item name="mode" label="Mode (thumb, poster, thumb,poster)">
-                      <Input style={{ width: 220 }} placeholder="thumb,poster" />
+                      <Input style={{ width: '100%', maxWidth: 220 }} placeholder="thumb,poster" />
                     </Form.Item>
 
                     <Form.Item name="quality" label="Quality (1-100)">
-                      <InputNumber min={1} max={100} style={{ width: 140 }} />
+                      <InputNumber min={1} max={100} style={{ width: '100%', maxWidth: 140 }} />
                     </Form.Item>
 
                     <Form.Item name="thumb_quality" label="Thumb quality (override)">
-                      <Input style={{ width: 190 }} placeholder="" />
+                      <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
                     </Form.Item>
 
                     <Form.Item name="poster_quality" label="Poster quality (override)">
-                      <Input style={{ width: 190 }} placeholder="" />
+                      <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
                     </Form.Item>
 
                     <Form.Item name="thumb_width" label="Thumb width">
-                      <InputNumber min={0} style={{ width: 140 }} />
+                      <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
                     </Form.Item>
 
                     <Form.Item name="thumb_height" label="Thumb height">
-                      <InputNumber min={0} style={{ width: 140 }} />
+                      <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
                     </Form.Item>
 
                     <Form.Item name="poster_width" label="Poster width">
-                      <InputNumber min={0} style={{ width: 140 }} />
+                      <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
                     </Form.Item>
 
                     <Form.Item name="poster_height" label="Poster height">
-                      <InputNumber min={0} style={{ width: 140 }} />
+                      <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
                     </Form.Item>
 
                     <Form.Item name="limit" label="Limit (0 = no limit)">
-                      <InputNumber min={0} style={{ width: 170 }} />
+                      <InputNumber min={0} style={{ width: '100%', maxWidth: 170 }} />
                     </Form.Item>
 
                     <Form.Item name="concurrency" label="Concurrency (1-32)">
-                      <InputNumber min={1} max={32} style={{ width: 190 }} />
+                      <InputNumber min={1} max={32} style={{ width: '100%', maxWidth: 190 }} />
                     </Form.Item>
 
-                    <Form.Item name="force_slugs" label="Force slugs (comma/newline separated)">
-                      <Input.TextArea style={{ width: 360 }} rows={3} placeholder="slug-1\nslug-2" />
+                    <Form.Item name="force_slugs" label="Force slugs (comma/newline separated)" style={{ minWidth: 0, flex: 1 }}>
+                      <Input.TextArea style={{ width: '100%', minWidth: 0 }} rows={3} placeholder="slug-1\nslug-2" />
                     </Form.Item>
 
-                    <Form.Item name="force_slugs_file" label="File danh sách slug (.txt/.csv)">
+                    <Form.Item name="force_slugs_file" label="File danh sách slug (.txt/.csv)" style={{ minWidth: 0, flex: 1 }}>
                       <input
                         type="file"
                         accept=".txt,.csv,text/plain,text/csv"
+                        style={{ width: '100%' }}
                         onChange={(e) => {
                           const f = (e.target && (e.target as HTMLInputElement).files && (e.target as HTMLInputElement).files?.[0]) || null;
                           uploadForm.setFieldsValue({ force_slugs_file: f });

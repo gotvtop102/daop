@@ -903,7 +903,14 @@
 
     function shouldDefaultHide() {
       var p = window.location && window.location.pathname ? window.location.pathname : '';
-      return p.indexOf('/phim/') === 0 || p.indexOf('/xem-phim/') === 0;
+      var s = (window.DAOP && window.DAOP.siteSettings) || {};
+      if (p.indexOf('/phim/') === 0) {
+        return String(s.detail_hide_header_default || '').toLowerCase() === 'true';
+      }
+      if (p.indexOf('/xem-phim/') === 0) {
+        return String(s.watch_hide_header_default || '').toLowerCase() === 'true';
+      }
+      return false;
     }
 
     if (shouldDefaultHide()) {

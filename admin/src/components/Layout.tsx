@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Layout as AntLayout, Menu, Button, message, Drawer, Grid } from 'antd';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
+import { LogoutOutlined, MenuOutlined, SafetyOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import {
   DashboardOutlined,
@@ -13,9 +13,10 @@ import {
   FileTextOutlined,
   AuditOutlined,
   ThunderboltOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
 
-const { Header, Sider, Content } = AntLayout;
+const { Header, Sider, Content, Footer } = AntLayout;
 const { useBreakpoint } = Grid;
 
 const items = [
@@ -29,19 +30,27 @@ const items = [
       { key: '/preroll', icon: <PlaySquareOutlined />, label: <Link to="/preroll">Pre-roll</Link> },
     ],
   },
-  { key: '/slider', icon: <PictureOutlined />, label: <Link to="/slider">Slider</Link> },
-  { key: '/menu-background', icon: <PictureOutlined />, label: <Link to="/menu-background">Nền menu</Link> },
-  { key: '/filter-order', icon: <AppstoreOutlined />, label: <Link to="/filter-order">Sắp xếp bộ lọc</Link> },
-  { key: '/homepage-sections', icon: <AppstoreOutlined />, label: <Link to="/homepage-sections">Sections</Link> },
-  { key: '/category-page-settings', icon: <AppstoreOutlined />, label: <Link to="/category-page-settings">Trang danh mục</Link> },
+  {
+    key: '/giao-dien',
+    icon: <AppstoreOutlined />,
+    label: 'Giao diện',
+    children: [
+      { key: '/slider', icon: <PictureOutlined />, label: <Link to="/slider">Slider</Link> },
+      { key: '/menu-background', icon: <PictureOutlined />, label: <Link to="/menu-background">Nền menu</Link> },
+      { key: '/filter-order', icon: <AppstoreOutlined />, label: <Link to="/filter-order">Sắp xếp bộ lọc</Link> },
+      { key: '/homepage-sections', icon: <AppstoreOutlined />, label: <Link to="/homepage-sections">Sections</Link> },
+      { key: '/category-page-settings', icon: <AppstoreOutlined />, label: <Link to="/category-page-settings">Trang danh mục</Link> },
+      { key: '/theme', icon: <SettingOutlined />, label: <Link to="/theme">Theme</Link> },
+      { key: '/static-pages', icon: <FileTextOutlined />, label: <Link to="/static-pages">Trang tĩnh</Link> },
+    ],
+  },
   { key: '/google-sheets', icon: <FileTextOutlined />, label: <Link to="/google-sheets">Google Sheets</Link> },
   { key: '/settings', icon: <SettingOutlined />, label: <Link to="/settings">Cài đặt</Link> },
-  { key: '/theme', icon: <SettingOutlined />, label: <Link to="/theme">Theme</Link> },
   { key: '/player-settings', icon: <PlaySquareOutlined />, label: <Link to="/player-settings">Player</Link> },
   { key: '/donate', icon: <DollarOutlined />, label: <Link to="/donate">Donate</Link> },
-  { key: '/static-pages', icon: <FileTextOutlined />, label: <Link to="/static-pages">Trang tĩnh</Link> },
   { key: '/github-actions', icon: <ThunderboltOutlined />, label: <Link to="/github-actions">GitHub Actions</Link> },
   { key: '/audit-logs', icon: <AuditOutlined />, label: <Link to="/audit-logs">Audit</Link> },
+  { key: '/supabase-tools', icon: <ToolOutlined />, label: <Link to="/supabase-tools">Supabase Tools</Link> },
 ];
 
 export default function Layout() {
@@ -58,7 +67,10 @@ export default function Layout() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (location.pathname === '/ads' || location.pathname === '/banners' || location.pathname === '/preroll') {
+    const giaoDienPaths = ['/slider', '/menu-background', '/filter-order', '/homepage-sections', '/category-page-settings', '/theme', '/static-pages'];
+    if (giaoDienPaths.includes(location.pathname)) {
+      setOpenKeys(['/giao-dien']);
+    } else if (location.pathname === '/ads' || location.pathname === '/banners' || location.pathname === '/preroll') {
       setOpenKeys(['/ads']);
     } else {
       setOpenKeys([]);
@@ -94,7 +106,7 @@ export default function Layout() {
       <div style={{ height: 32, margin: 16, color: '#fff', fontWeight: 'bold' }}>DAOP Admin</div>
       <Menu
         theme="dark"
-        selectedKeys={[location.pathname === '/ads' ? '/ads' : location.pathname]}
+        selectedKeys={[location.pathname === '/ads' || location.pathname === '/giao-dien' ? location.pathname : location.pathname]}
         openKeys={openKeys}
         onOpenChange={(keys) => setOpenKeys(keys as string[])}
         mode="inline"
@@ -140,6 +152,12 @@ export default function Layout() {
         <Content className="admin-content">
           <Outlet />
         </Content>
+        <Footer className="admin-footer">
+          Code make by <strong>GoTV Admin Tieucot</strong> - Telegram{' '}
+          <a href="https://t.me/tieucot520" target="_blank" rel="noopener noreferrer">
+            @tieucot520
+          </a>
+        </Footer>
       </AntLayout>
     </AntLayout>
   );

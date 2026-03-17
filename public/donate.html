@@ -5,6 +5,120 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Donate | GoTV</title>
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .static-page-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .static-page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #ffd700 0%, #ff6b6b 50%, #4ecdc4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .donate-card {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1.5rem;
+    }
+    .donate-progress-container {
+      margin: 1.5rem 0;
+    }
+    .donate-progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      color: #e0e0e0;
+      font-weight: 500;
+    }
+    .donate-progress-bar {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      height: 16px;
+      overflow: hidden;
+    }
+    .donate-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ffd700, #ff6b6b);
+      border-radius: 12px;
+      transition: width 0.5s ease;
+    }
+    .donate-amount {
+      color: #ffd700;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    .donate-section {
+      margin: 1.5rem 0;
+    }
+    .donate-section h3 {
+      color: #ffd700;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+    }
+    .donate-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .donate-section li {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      border: 1px solid rgba(255, 215, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+    .donate-section li:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 215, 0, 0.2);
+    }
+    .donate-section li strong {
+      color: #4ecdc4;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    .donate-section a {
+      color: #4ecdc4;
+      text-decoration: none;
+      word-break: break-all;
+      transition: color 0.2s ease;
+    }
+    .donate-section a:hover {
+      color: #ffd700;
+      text-decoration: underline;
+    }
+    .donate-note {
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    .donate-crypto-address {
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #e0e0e0;
+      word-break: break-all;
+    }
+    @media (max-width: 768px) {
+      .static-page-title {
+        font-size: 1.75rem;
+      }
+      .donate-card {
+        padding: 1.25rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="loading-screen" class="loading-screen" aria-hidden="false"><div class="loading-screen-inner"><div class="loading-screen-logo">GoTV</div><p class="loading-screen-text">Loading...</p></div></div>
@@ -31,9 +145,9 @@
       </div>
     </nav>
   </header>
-  <main class="container">
-    <h1>Donate</h1>
-    <div id="donate-target"></div>
+  <main class="static-page-wrapper">
+    <h1 class="static-page-title">❤️ Donate</h1>
+    <div id="donate-target" class="donate-card">Đang tải...</div>
     <div id="donate-methods"></div>
   </main>
   <footer class="site-footer">
@@ -74,9 +188,10 @@
         var cur = Number(d.current_amount) || 0;
         var goal = Number(d.target_amount) || 0;
         var pct = goal ? Math.min(100, (cur / goal) * 100) : 0;
-        target.innerHTML = '<p>Mục tiêu: ' + (goal || 0) + ' ' + (d.target_currency || 'VND') + '</p>' +
-          '<p>Đã quyên góp: ' + cur + ' ' + (d.target_currency || 'VND') + '</p>' +
-          (goal ? '<div style="background:#30363d;border-radius:8px;height:12px;"><div style="width:' + pct + '%;height:100%;background:#58a6ff;border-radius:8px;"></div></div>' : '');
+        target.innerHTML = '<div class="donate-progress-container">' +
+          '<div class="donate-progress-label"><span>Mục tiêu: ' + (goal || 0).toLocaleString() + ' ' + (d.target_currency || 'VND') + '</span><span class="donate-amount">' + cur.toLocaleString() + ' ' + (d.target_currency || 'VND') + '</span></div>' +
+          (goal ? '<div class="donate-progress-bar"><div class="donate-progress-fill" style="width:' + pct + '%"></div></div>' : '') +
+          '</div>';
       }
       var parts = [];
 
@@ -111,19 +226,15 @@
 
         if (!url && !note) return;
 
-        var right = '';
-        if (url) right = '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>';
-        else right = '<span style="color:#8b949e">' + note + '</span>';
-        var noteLine = note && url ? '<div style="color:#8b949e;font-size:0.95em;margin-top:2px;">' + note + '</div>' : '';
-        items += '<li><div><strong>' + labelText + '</strong>: ' + right + '</div>' + noteLine + '</li>';
+        items += '<li><strong>' + labelText + '</strong>' + (url ? '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>' : '') + (note ? '<div class="donate-note">' + note + '</div>' : '') + '</li>';
       });
 
       if (items) {
         parts.push(
-          '<section style="margin:16px 0;">' +
-          '<h3 style="margin:0 0 8px;">Phương thức Donate</h3>' +
-          '<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;">' + items + '</ul>' +
-          '</section>'
+          '<div class="donate-card donate-section">' +
+          '<h3>Phương thức Donate</h3>' +
+          '<ul>' + items + '</ul>' +
+          '</div>'
         );
       }
 
@@ -136,10 +247,10 @@
         });
         if (bankItems) {
           parts.push(
-            '<section style="margin:16px 0;">' +
-            '<h3 style="margin:0 0 8px;">Chuyển khoản</h3>' +
-            '<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;">' + bankItems + '</ul>' +
-            '</section>'
+            '<div class="donate-card donate-section">' +
+            '<h3>Chuyển khoản ngân hàng</h3>' +
+            '<ul>' + bankItems + '</ul>' +
+            '</div>'
           );
         }
       }
@@ -152,17 +263,17 @@
         });
         if (cryptoItems) {
           parts.push(
-            '<section style="margin:16px 0;">' +
-            '<h3 style="margin:0 0 8px;">Crypto Address</h3>' +
-            '<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;">' + cryptoItems + '</ul>' +
-            '</section>'
+            '<div class="donate-card donate-section">' +
+            '<h3>Địa chỉ Crypto</h3>' +
+            '<ul>' + cryptoItems + '</ul>' +
+            '</div>'
           );
         }
       }
 
-      if (methods) methods.innerHTML = parts.join('') || '<p>Chưa cấu hình phương thức donate.</p>';
+      if (methods) methods.innerHTML = parts.join('') || '<div class="donate-card"><p style="text-align:center;color:#999;">Chưa cấu hình phương thức donate.</p></div>';
     }).catch(function(){
-      document.getElementById('donate-target').innerHTML = '<p>Chưa cấu hình donate.</p>';
+      document.getElementById('donate-target').innerHTML = '<div class="donate-card"><p style="text-align:center;color:#999;">Chưa cấu hình donate.</p></div>';
       document.getElementById('donate-methods').innerHTML = '';
     });
   </script>

@@ -110,8 +110,13 @@ jobs:
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           git status
           if ! git diff --staged --quiet; then
-            git pull --rebase origin main
+            # Commit trước để tránh lỗi "cannot pull with rebase: Your index contains uncommitted changes"
             git commit -m "chore: update data"
+            # Stash để pull an toàn, sau đó unstash
+            git stash push -m "temp"
+            git pull --rebase origin main
+            git stash pop
+            # Commit lại nếu có conflicts resolved
             git push
           fi
 
@@ -144,8 +149,10 @@ jobs:
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           git status
           if ! git diff --staged --quiet; then
-            git pull --rebase origin main
             git commit -m "chore: update data (core)"
+            git stash push -m "temp"
+            git pull --rebase origin main
+            git stash pop
             git push
           fi
 
@@ -197,8 +204,10 @@ jobs:
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           git status
           if ! git diff --staged --quiet; then
-            git pull --rebase origin main
             git commit -m "chore: update data (tmdb only)"
+            git stash push -m "temp"
+            git pull --rebase origin main
+            git stash pop
             git push
           fi
 

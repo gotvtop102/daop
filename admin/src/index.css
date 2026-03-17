@@ -2,6 +2,9 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ro
 #root { min-height: 100vh; }
 
 /* Admin layout: header & content responsive */
+.admin-layout {
+  position: relative;
+}
 .admin-header {
   padding: 0 12px !important;
   display: flex !important;
@@ -9,6 +12,26 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ro
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: #001529 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.admin-footer {
+  padding: 16px 24px;
+  background: #001529;
+  color: rgba(255,255,255,0.65);
+  text-align: center;
+  font-size: 13px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.admin-footer a {
+  color: #58a6ff;
+  text-decoration: none;
+}
+.admin-footer a:hover {
+  color: #79b8ff;
 }
 .admin-header .admin-header-actions {
   display: flex;
@@ -46,8 +69,114 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ro
 /* Login page: full width card on mobile */
 .login-page {
   padding: 12px !important;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%) !important;
+  position: relative;
+  overflow: hidden;
+}
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(88, 166, 255, 0.1) 0%, transparent 50%);
+  animation: pulse 15s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
 }
 .login-card {
   width: 100% !important;
-  max-width: 360px !important;
+  max-width: 400px !important;
+  background: rgba(22, 27, 34, 0.95) !important;
+  border: 1px solid rgba(48, 54, 61, 0.8) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) !important;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+}
+.login-card .ant-card-head {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(48, 54, 61, 0.6) !important;
+  padding: 24px 24px 0 24px !important;
+}
+.login-card .ant-card-head-title {
+  color: #e6edf3 !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  text-align: center;
+  padding: 0 !important;
+}
+.login-card .ant-card-body {
+  padding: 24px !important;
+}
+.login-card .ant-form-item-label > label {
+  color: #8b949e !important;
+}
+.login-card .ant-input,
+.login-card .ant-input-password {
+  background: #21262d !important;
+  border-color: #30363d !important;
+  color: #e6edf3 !important;
+}
+.login-card .ant-input::placeholder,
+.login-card .ant-input-password input::placeholder {
+  color: #6e7681 !important;
+}
+.login-card .ant-input:focus,
+.login-card .ant-input-password:focus-within {
+  border-color: #58a6ff !important;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1) !important;
+}
+.login-card .ant-btn-primary {
+  background: linear-gradient(90deg, #238636, #2ea043) !important;
+  border-color: transparent !important;
+  height: 44px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3) !important;
+}
+.login-card .ant-btn-primary:hover {
+  background: linear-gradient(90deg, #2ea043, #3fb950) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(35, 134, 54, 0.4) !important;
+}
+.login-card .ant-btn-primary:active {
+  transform: translateY(0);
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 8px;
+}
+.login-logo-icon {
+  font-size: 48px;
+  color: #58a6ff;
+  margin-bottom: 8px;
+}
+.login-subtitle {
+  text-align: center;
+  color: #8b949e;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.login-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(48, 54, 61, 0.6);
+  color: #6e7681;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.login-footer a {
+  color: #58a6ff;
+  text-decoration: none;
+}
+.login-footer a:hover {
+  color: #79b8ff;
+  text-decoration: underline;
 }

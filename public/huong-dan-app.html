@@ -5,6 +5,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hướng dẫn cài app | GoTV</title>
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .app-guide-section {
+      background: #1a1a2e;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid #2d2d44;
+    }
+    .app-guide-section h2 {
+      color: #ffd700;
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 1.25rem;
+    }
+    .app-guide-section h3 {
+      color: #fff;
+      margin-top: 20px;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+    .app-guide-section ol,
+    .app-guide-section ul {
+      padding-left: 20px;
+      line-height: 1.8;
+    }
+    .app-guide-section li {
+      margin-bottom: 8px;
+    }
+    .app-guide-section p {
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .app-guide-section strong {
+      color: #4fc3f7;
+    }
+    .app-guide-section a {
+      color: #4fc3f7;
+      text-decoration: underline;
+    }
+    .app-guide-section a:hover {
+      color: #ffd700;
+    }
+    .download-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      color: #fff;
+    }
+    .download-btn--ios {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .download-btn--tv {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    .note-box {
+      background: rgba(255, 215, 0, 0.1);
+      border-left: 4px solid #ffd700;
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+    .warning-box {
+      background: rgba(244, 67, 54, 0.1);
+      border-left: 4px solid #f44336;
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+    .platform-icon {
+      font-size: 1.5rem;
+      margin-right: 8px;
+    }
+  </style>
 </head>
 <body>
   <div id="loading-screen" class="loading-screen" aria-hidden="false"><div class="loading-screen-inner"><div class="loading-screen-logo">GoTV</div><p class="loading-screen-text">Loading...</p></div></div>
@@ -33,8 +123,133 @@
   </header>
   <main class="container">
     <h1>Hướng dẫn cài đặt ứng dụng</h1>
-    <div id="app-guide-content">Đang tải...</div>
-    <p><a href="#" id="apk-link">Tải APK (Android)</a> | <a href="#" id="testflight-link">TestFlight (iOS)</a></p>
+    
+    <!-- Nội dung tùy chỉnh từ admin -->
+    <div id="app-guide-content"></div>
+
+    <!-- Android Phone -->
+    <div class="app-guide-section">
+      <h2><span class="platform-icon">📱</span>1. Cài đặt trên điện thoại Android (APK)</h2>
+      
+      <h3>Bước 1: Tải file APK</h3>
+      <p>Nhấn vào nút bên dưới để tải file APK về điện thoại:</p>
+      <div class="download-buttons">
+        <a href="#" id="apk-link" class="download-btn">
+          📥 Tải APK (Android)
+        </a>
+      </div>
+
+      <h3>Bước 2: Cho phép cài đặt từ nguồn không xác định</h3>
+      <ol>
+        <li>Mở <strong>Cài đặt</strong> (Settings) trên điện thoại</li>
+        <li>Tìm và chọn <strong>Bảo mật</strong> (Security) hoặc <strong>Ứng dụng</strong> (Apps)</li>
+        <li>Bật tùy chọn <strong>"Cho phép cài đặt ứng dụng từ nguồn không xác định"</strong> (Install unknown apps)</li>
+        <li>Chọn trình duyệt bạn dùng để tải APK (Chrome, Safari...) và bật cho phép</li>
+      </ol>
+
+      <h3>Bước 3: Cài đặt ứng dụng</h3>
+      <ol>
+        <li>Mở file APK đã tải trong thông báo tải xuống hoặc vào <strong>Files/Download</strong></li>
+        <li>Chạm vào file APK và chọn <strong>Cài đặt</strong> (Install)</li>
+        <li>Đợi quá trình cài đặt hoàn tất</li>
+        <li>Mở ứng dụng và đăng nhập tài khoản để sử dụng</li>
+      </ol>
+
+      <div class="warning-box">
+        <strong>Lưu ý:</strong> Một số điện thoại Samsung, Xiaomi, OPPO, Vivo có thể hiển thị cảnh báo bảo mật. Hãy chọn "Cài đặt bất chấp" hoặc "Tiếp tục cài đặt" để hoàn tất.
+      </div>
+    </div>
+
+    <!-- Android TV -->
+    <div class="app-guide-section">
+      <h2><span class="platform-icon">📺</span>2. Cài đặt trên Android TV</h2>
+      
+      <h3>Cách 1: Cài qua USB (Khuyên dùng)</h3>
+      <ol>
+        <li>Tải file APK trên máy tính/điện thoại</li>
+        <li>Chép file APK vào USB</li>
+        <li>Cắm USB vào Android TV</li>
+        <li>Trên TV, mở <strong>File Manager</strong> hoặc <strong>Quản lý file</strong></li>
+        <li>Tìm và chọn file APK từ USB</li>
+        <li>Chọn <strong>Cài đặt</strong></li>
+      </ol>
+
+      <h3>Cách 2: Cài qua ứng dụng Send Files to TV</h3>
+      <ol>
+        <li>Cài ứng dụng <strong>Send Files to TV</strong> từ CH Play trên cả TV và điện thoại</li>
+        <li>Tải APK GoTV trên điện thoại</li>
+        <li>Mở app Send Files to TV trên điện thoại, chọn file APK và gửi đến TV</li>
+        <li>Trên TV, chấp nhận file và cài đặt</li>
+      </ol>
+
+      <h3>Cách 3: Dùng ADB (dành cho người dùng nâng cao)</h3>
+      <ol>
+        <li>Bật <strong>Developer Options</strong> và <strong>USB Debugging</strong> trên TV</li>
+        <li>Kết nối TV và máy tính cùng mạng WiFi</li>
+        <li>Dùng lệnh ADB: <code>adb connect [IP_TV]</code></li>
+        <li>Cài APK: <code>adb install gotv.apk</code></li>
+      </ol>
+
+      <div class="note-box">
+        <strong>Mẹo:</strong> Một số Android TV (Sony, TCL, Google TV) có thể cần bật "Unknown sources" trong Settings > Security & Restrictions.
+      </div>
+    </div>
+
+    <!-- iOS TestFlight -->
+    <div class="app-guide-section">
+      <h2><span class="platform-icon">🍎</span>3. Cài đặt trên iOS qua TestFlight</h2>
+      
+      <h3>Bước 1: Cài đặt TestFlight</h3>
+      <ol>
+        <li>Mở <strong>App Store</strong> trên iPhone/iPad</li>
+        <li>Tìm kiếm <strong>TestFlight</strong></li>
+        <li>Cài đặt ứng dụng TestFlight (miễn phí, của Apple)</li>
+      </ol>
+
+      <h3>Bước 2: Tham gia thử nghiệm GoTV</h3>
+      <p>Nhấn vào liên kết TestFlight bên dưới hoặc nhập mã thử nghiệm:</p>
+      <div class="download-buttons">
+        <a href="#" id="testflight-link" class="download-btn download-btn--ios">
+          🍎 Tải qua TestFlight
+        </a>
+      </div>
+      <ol>
+        <li>Nhấn vào liên kết TestFlight hoặc mở TestFlight app</li>
+        <li>Chọn <strong>Accept</strong> (Chấp nhận) để tham gia thử nghiệm</li>
+        <li>Chọn <strong>Install</strong> (Cài đặt) để tải GoTV</li>
+        <li>Đợi tải xong và mở ứng dụng</li>
+      </ol>
+
+      <h3>Bước 3: Cập nhật ứng dụng</h3>
+      <p>Khi có phiên bản mới, bạn sẽ nhận thông báo trong TestFlight. Mở TestFlight và chọn <strong>Update</strong> để cập nhật.</p>
+
+      <div class="note-box">
+        <strong>Lưu ý quan trọng:</strong>
+        <ul>
+          <li>TestFlight chỉ hỗ trợ iOS 12.0 trở lên</li>
+          <li>Phiên bản TestFlight có thời hạn 90 ngày, sau đó cần cập nhật</li>
+          <li>Số lượng người thử nghiệm có giới hạn, nếu đầy bạn cần chờ slot mở</li>
+          <li>Một số tính năng trong bản TestFlight có thể khác bản chính thức</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="app-guide-section">
+      <h2><span class="platform-icon">❓</span>Câu hỏi thường gặp</h2>
+      
+      <h3>APK bị báo virus?</h3>
+      <p>Đây là cảnh báo sai do ứng dụng chưa có trên CH Play. GoTV APK an toàn, bạn có thể quét bằng VirusTotal để kiểm chứng.</p>
+
+      <h3>Không cài được trên Android 14+?</h3>
+      <p>Android 14 yêu cầu cấp quyền riêng cho từng trình duyệt. Vào <strong>Settings > Apps > Special app access > Install unknown apps</strong>, chọn Chrome và bật "Allow from this source".</p>
+
+      <h3>TestFlight báo "This beta is full"?</h3>
+      <p>Slot thử nghiệm đã đầy. Vui lòng liên hệ admin hoặc đợi thêm slot mở ra.</p>
+
+      <h3>Android TV không nhận file APK?</h3>
+      <p>Một số TV cần cài thêm <strong>File Commander</strong> hoặc <strong>X-plore File Manager</strong> từ CH Play để đọc file APK.</p>
+    </div>
   </main>
   <footer class="site-footer">
     <div class="footer-vietnam-wrap"><div class="footer-vietnam-banner"><span class="footer-flag" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" preserveAspectRatio="xMidYMid meet"><rect width="30" height="20" fill="#DA251D"/><path fill="#FFFF00" d="M15 4l2.47 7.6H25l-6.23 4.5 2.36 7.3L15 16.2l-6.13 4.2 2.36-7.3L5 11.6h7.53z"/></svg></span> Trường Sa &amp; Hoàng Sa là của Việt Nam!</div></div>
@@ -56,10 +271,20 @@
     fetch('/data/config/static-pages.json').then(function(r){ return r.json(); }).then(function(pages){
       var app = Array.isArray(pages) ? pages.find(function(p){ return p.page_key === 'app_guide'; }) : null;
       var el = document.getElementById('app-guide-content');
-      if (el) el.innerHTML = (app && app.content) ? app.content : '<p>Hướng dẫn tải APK, TestFlight và cài đặt.</p>';
-      if (app && app.apk_link) document.getElementById('apk-link').href = app.apk_link;
-      if (app && app.testflight_link) document.getElementById('testflight-link').href = app.testflight_link;
-    }).catch(function(){ document.getElementById('app-guide-content').innerHTML = '<p>Hướng dẫn cài đặt ứng dụng.</p>'; });
+      if (el && app && app.content) {
+        el.innerHTML = '<div class="app-guide-section">' + app.content + '</div>';
+      }
+      if (app && app.apk_link) {
+        var apkBtn = document.getElementById('apk-link');
+        if (apkBtn) apkBtn.href = app.apk_link;
+      }
+      if (app && app.testflight_link) {
+        var iosBtn = document.getElementById('testflight-link');
+        if (iosBtn) iosBtn.href = app.testflight_link;
+      }
+    }).catch(function(){
+      console.log('Không thể tải cấu hình tùy chỉnh');
+    });
   </script>
 </body>
 </html>
