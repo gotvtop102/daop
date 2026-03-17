@@ -419,13 +419,6 @@ async function loadPreviousBuiltMoviesById() {
     const batchDir = path.join(PUBLIC_DATA, 'batches');
     if (!(await fs.pathExists(batchDir))) return new Map();
     const byId = new Map();
-    if (await fs.pathExists(moviesLightPath)) {
-      const mlRaw = await fs.readFile(moviesLightPath, 'utf8');
-      const light = parseWindowArray(mlRaw, 'moviesLight');
-      for (const m of light || []) {
-        if (m && m.id != null) byId.set(String(m.id), { ...m, episodes: [] });
-      }
-    }
     const files = (await fs.readdir(batchDir)).filter((f) => /^batch_\d+_\d+\.js$/i.test(f));
     for (const f of files) {
       try {
@@ -437,6 +430,21 @@ async function loadPreviousBuiltMoviesById() {
           const cur = byId.get(idStr);
           if (cur) byId.set(idStr, { ...cur, ...bm });
           else byId.set(idStr, bm);
+        }
+      } catch {}
+    }
+    // movies-light.js (nếu có) chỉ dùng để bổ sung field cho các phim đã tồn tại trong batch.
+    // Tránh trường hợp movies-light.js còn giữ id cũ nhưng batch/index đã bị dọn, gây lệch filters vs idIndex.
+    if (await fs.pathExists(moviesLightPath)) {
+      try {
+        const mlRaw = await fs.readFile(moviesLightPath, 'utf8');
+        const light = parseWindowArray(mlRaw, 'moviesLight');
+        for (const m of light || []) {
+          const idStr = m && m.id != null ? String(m.id) : '';
+          if (!idStr) continue;
+          const cur = byId.get(idStr);
+          if (!cur) continue;
+          byId.set(idStr, { ...m, ...cur });
         }
       } catch {}
     }
