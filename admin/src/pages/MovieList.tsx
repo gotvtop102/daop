@@ -272,6 +272,11 @@ export default function MovieList() {
 
   const filteredMovies = useMemo(() => movies, [movies]);
 
+  const openInNewTab = (path: string) => {
+    const url = `${window.location.origin}${path}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   const handleDelete = async (id: string) => {
     if (!spreadsheetId) {
       message.error('Chưa cấu hình Google Sheets ID');
@@ -370,7 +375,7 @@ export default function MovieList() {
               type="primary"
               icon={<EditOutlined />}
               size="small"
-              onClick={() => navigate(`/movies/edit/${record.id}?type=${category}`)}
+              onClick={() => openInNewTab(`/movies/edit/${record.id}?type=${category}`)}
             >
               Sửa
             </Button>
@@ -379,7 +384,7 @@ export default function MovieList() {
             <Button
               icon={<LinkOutlined />}
               size="small"
-              onClick={() => navigate(`/movies/episodes/${record.id}?type=${category}`)}
+              onClick={() => openInNewTab(`/movies/episodes/${record.id}?type=${category}`)}
             >
               Link
             </Button>
@@ -410,7 +415,7 @@ export default function MovieList() {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => navigate(`/movies/edit/new?type=${category}`)}
+              onClick={() => openInNewTab(`/movies/edit/new?type=${category}`)}
             >
               Thêm phim mới
             </Button>
@@ -455,6 +460,7 @@ export default function MovieList() {
           current: page,
           pageSize: pageSize,
           total: total,
+          showQuickJumper: true,
           showSizeChanger: true,
           showTotal: (t) => `Tổng ${t} phim`,
           onChange: (p, ps) => {

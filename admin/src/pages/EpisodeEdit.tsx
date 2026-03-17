@@ -72,6 +72,8 @@ export default function EpisodeEdit() {
   const [saving, setSaving] = useState(false);
   const [servers, setServers] = useState<Server[]>([]);
   const [activeServer, setActiveServer] = useState('0');
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const [episodePages, setEpisodePages] = useState<Record<string, number>>({});
   const [movieTitle, setMovieTitle] = useState('');
   const [spreadsheetId, setSpreadsheetId] = useState<string>('');
   const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
@@ -107,6 +109,7 @@ export default function EpisodeEdit() {
   useEffect(() => {
     if (!configReady || !spreadsheetId) return; // Wait for config
     if (id && spreadsheetId && serviceAccountKey) {
+      setInitialLoadDone(false);
       loadEpisodes(id);
     }
   }, [id, spreadsheetId, serviceAccountKey, configReady]);
@@ -200,6 +203,7 @@ export default function EpisodeEdit() {
       setServers([{ server_slug: 'vietsub-1', server_name: 'Vietsub #1', episodes: [] }]);
     } finally {
       setLoading(false);
+      setInitialLoadDone(true);
     }
   };
 
@@ -535,7 +539,9 @@ export default function EpisodeEdit() {
         </Col>
       </Row>
 
-      {servers.length === 0 ? (
+      {!initialLoadDone ? (
+        <Card loading style={{ minHeight: 200 }} />
+      ) : servers.length === 0 ? (
         <Card>
           <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
             <PlayCircleOutlined style={{ fontSize: 48, marginBottom: 16 }} />
@@ -608,9 +614,31 @@ export default function EpisodeEdit() {
               >
                 <Table
                   columns={columns(serverIndex)}
-                  dataSource={server.episodes}
+                  dataSource={
+                    typeFromQuery === 'series'
+                      ? server.episodes.slice(
+                          ((episodePages[String(serverIndex)] || 1) - 1) * 10,
+                          ((episodePages[String(serverIndex)] || 1) - 1) * 10 + 10
+                        )
+                      : server.episodes
+                  }
                   rowKey={(r: any, idx?: number) => `${serverIndex}-${idx ?? 0}-${r.episode_code || ''}`}
-                  pagination={false}
+                  pagination={
+                    typeFromQuery === 'series'
+                      ? {
+                          current: episodePages[String(serverIndex)] || 1,
+                          pageSize: 10,
+                          total: server.episodes.length,
+                          showQuickJumper: true,
+                          showSizeChanger: false,
+                          onChange: (p) =>
+                            setEpisodePages((prev) => ({
+                              ...prev,
+                              [String(serverIndex)]: p,
+                            })),
+                        }
+                      : false
+                  }
                   size="small"
                   scroll={{ x: 1800 }}
                   locale={{
