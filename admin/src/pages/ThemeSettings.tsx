@@ -3,8 +3,9 @@ import { Card, Form, Input, Button, message } from 'antd';
 import { supabase } from '../lib/supabase';
 
 const THEME_KEYS = [
-  'theme_primary', 'theme_bg', 'theme_card', 'theme_accent',
+  'theme_primary', 'theme_bg', 'theme_card', 'theme_border', 'theme_accent',
   'theme_text', 'theme_muted',
+  'theme_light_bg', 'theme_light_card', 'theme_light_border', 'theme_light_text', 'theme_light_muted', 'theme_light_surface',
   'theme_header_logo', 'theme_header_link',
   'theme_footer_text', 'theme_section_title', 'theme_filter_label',
   'theme_pagination', 'theme_link',
@@ -16,9 +17,16 @@ const DEFAULTS: Record<string, string> = {
   theme_primary: '#58a6ff',
   theme_bg: '#0d1117',
   theme_card: '#161b22',
+  theme_border: '#30363d',
   theme_accent: '#58a6ff',
   theme_text: '#e6edf3',
   theme_muted: '#8b949e',
+  theme_light_bg: '#eef2f5',
+  theme_light_card: '#ffffff',
+  theme_light_border: '#d0d7de',
+  theme_light_text: '#1f2328',
+  theme_light_muted: '#57606a',
+  theme_light_surface: 'rgba(9, 105, 218, 0.18)',
   theme_header_logo: '#e6edf3',
   theme_header_link: '#e6edf3',
   theme_footer_text: '#8b949e',
@@ -37,9 +45,16 @@ const LABELS: Record<string, string> = {
   theme_primary: 'Màu chủ đạo (nút)',
   theme_bg: 'Màu nền trang',
   theme_card: 'Màu thẻ / header',
+  theme_border: 'Màu viền (border)',
   theme_accent: 'Màu nhấn (hover)',
   theme_text: 'Chữ chính (body)',
   theme_muted: 'Chữ phụ (mờ, nhạt)',
+  theme_light_bg: 'Light theme: nền trang',
+  theme_light_card: 'Light theme: thẻ / header',
+  theme_light_border: 'Light theme: viền (border)',
+  theme_light_text: 'Light theme: chữ chính',
+  theme_light_muted: 'Light theme: chữ phụ (muted)',
+  theme_light_surface: 'Light theme: nền ô nổi (surface)',
   theme_header_logo: 'Header: màu logo/tên site',
   theme_header_link: 'Header: màu link menu',
   theme_footer_text: 'Footer: màu chữ',
@@ -61,7 +76,7 @@ function normalizePickerHex(v: string) {
   return '#000000';
 }
 
-function ColorValueInput({ value, onChange, placeholder }: { value?: string; onChange?: (v: string) => void; placeholder?: string }) {
+function ColorValueInput({ value, onChange, placeholder, defaultValue }: { value?: string; onChange?: (v: string) => void; placeholder?: string; defaultValue?: string }) {
   const raw = String(value || '');
   const picker = normalizePickerHex(raw);
   return (
@@ -78,6 +93,12 @@ function ColorValueInput({ value, onChange, placeholder }: { value?: string; onC
         onChange={(e) => onChange && onChange(e.target.value)}
         style={{ width: 320 }}
       />
+      <Button
+        onClick={() => onChange && onChange(String(defaultValue || ''))}
+        style={{ height: 32 }}
+      >
+        Mặc định
+      </Button>
     </Input.Group>
   );
 }
@@ -132,64 +153,86 @@ export default function ThemeSettings() {
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <h3 style={{ marginTop: 0, marginBottom: 12 }}>Nền &amp; chung</h3>
           <Form.Item name="theme_primary" label={LABELS.theme_primary}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_primary} />
           </Form.Item>
           <Form.Item name="theme_bg" label={LABELS.theme_bg}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_bg} />
           </Form.Item>
           <Form.Item name="theme_card" label={LABELS.theme_card}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_card} />
+          </Form.Item>
+          <Form.Item name="theme_border" label={LABELS.theme_border}>
+            <ColorValueInput defaultValue={DEFAULTS.theme_border} />
           </Form.Item>
           <Form.Item name="theme_accent" label={LABELS.theme_accent}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_accent} />
+          </Form.Item>
+          <h3 style={{ marginTop: 24, marginBottom: 12 }}>Light theme (nền sáng)</h3>
+          <Form.Item name="theme_light_bg" label={LABELS.theme_light_bg}>
+            <ColorValueInput defaultValue={DEFAULTS.theme_light_bg} />
+          </Form.Item>
+          <Form.Item name="theme_light_card" label={LABELS.theme_light_card}>
+            <ColorValueInput defaultValue={DEFAULTS.theme_light_card} />
+          </Form.Item>
+          <Form.Item name="theme_light_border" label={LABELS.theme_light_border}>
+            <ColorValueInput defaultValue={DEFAULTS.theme_light_border} />
+          </Form.Item>
+          <Form.Item name="theme_light_text" label={LABELS.theme_light_text}>
+            <ColorValueInput defaultValue={DEFAULTS.theme_light_text} />
+          </Form.Item>
+          <Form.Item name="theme_light_muted" label={LABELS.theme_light_muted}>
+            <ColorValueInput defaultValue={DEFAULTS.theme_light_muted} />
+          </Form.Item>
+          <Form.Item name="theme_light_surface" label={LABELS.theme_light_surface}>
+            <ColorValueInput defaultValue={DEFAULTS.theme_light_surface} placeholder="vd: rgba(9,105,218,0.12) hoặc #dbeafe" />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Màu chữ toàn site</h3>
           <Form.Item name="theme_text" label={LABELS.theme_text}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_text} />
           </Form.Item>
           <Form.Item name="theme_muted" label={LABELS.theme_muted}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_muted} />
           </Form.Item>
           <Form.Item name="theme_link" label={LABELS.theme_link}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_link} />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Header (menu)</h3>
           <Form.Item name="theme_header_logo" label={LABELS.theme_header_logo}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_header_logo} />
           </Form.Item>
           <Form.Item name="theme_header_link" label={LABELS.theme_header_link}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_header_link} />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Footer</h3>
           <Form.Item name="theme_footer_text" label={LABELS.theme_footer_text}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_footer_text} />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Section &amp; Bộ lọc &amp; Phân trang</h3>
           <Form.Item name="theme_section_title" label={LABELS.theme_section_title}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_section_title} />
           </Form.Item>
           <Form.Item name="theme_filter_label" label={LABELS.theme_filter_label}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_filter_label} />
           </Form.Item>
           <Form.Item name="theme_pagination" label={LABELS.theme_pagination}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_pagination} />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Slider trang chủ</h3>
           <Form.Item name="theme_slider_title" label={LABELS.theme_slider_title}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_slider_title} />
           </Form.Item>
           <Form.Item name="theme_slider_meta" label={LABELS.theme_slider_meta}>
-            <ColorValueInput placeholder="vd: rgba(255,255,255,0.75) hoặc #ccc" />
+            <ColorValueInput defaultValue={DEFAULTS.theme_slider_meta} placeholder="vd: rgba(255,255,255,0.75) hoặc #ccc" />
           </Form.Item>
           <Form.Item name="theme_slider_desc" label={LABELS.theme_slider_desc}>
-            <ColorValueInput placeholder="vd: rgba(255,255,255,0.7) hoặc #aaa" />
+            <ColorValueInput defaultValue={DEFAULTS.theme_slider_desc} placeholder="vd: rgba(255,255,255,0.7) hoặc #aaa" />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
           <Form.Item name="theme_movie_card_title" label={LABELS.theme_movie_card_title}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_title} />
           </Form.Item>
           <Form.Item name="theme_movie_card_meta" label={LABELS.theme_movie_card_meta}>
-            <ColorValueInput />
+            <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_meta} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">Lưu</Button>

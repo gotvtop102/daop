@@ -1269,9 +1269,15 @@
     if (settings.theme_accent) root.style.setProperty('--accent-hover', settings.theme_accent);
     if (settings.theme_bg) root.style.setProperty('--bg', settings.theme_bg);
     if (settings.theme_light_bg) root.style.setProperty('--light-bg', settings.theme_light_bg);
+    if (settings.theme_border) root.style.setProperty('--border', settings.theme_border);
     if (settings.theme_card) root.style.setProperty('--card', settings.theme_card);
     if (settings.theme_text) root.style.setProperty('--text', settings.theme_text);
     if (settings.theme_muted) root.style.setProperty('--muted', settings.theme_muted);
+    if (settings.theme_light_card) root.style.setProperty('--light-card', settings.theme_light_card);
+    if (settings.theme_light_border) root.style.setProperty('--light-border', settings.theme_light_border);
+    if (settings.theme_light_text) root.style.setProperty('--light-text', settings.theme_light_text);
+    if (settings.theme_light_muted) root.style.setProperty('--light-muted', settings.theme_light_muted);
+    if (settings.theme_light_surface) root.style.setProperty('--light-surface', settings.theme_light_surface);
     if (settings.theme_link) root.style.setProperty('--link-color', settings.theme_link);
     if (settings.theme_header_logo) root.style.setProperty('--header-logo-color', settings.theme_header_logo);
     if (settings.theme_header_link) root.style.setProperty('--header-link-color', settings.theme_header_link);

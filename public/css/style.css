@@ -8,6 +8,11 @@
   --accent: #58a6ff;
   --accent-hover: #79b8ff;
   --light-bg: #eef2f5;
+  --light-card: #ffffff;
+  --light-border: #d0d7de;
+  --light-text: #1f2328;
+  --light-muted: #57606a;
+  --light-surface: rgba(9, 105, 218, 0.18);
 }
 
 * {
@@ -23,14 +28,11 @@ body {
 
 body.theme-light {
   --bg: var(--light-bg);
-  --card: #ffffff;
-  --border: #d0d7de;
-  --text: #1f2328;
-  --muted: #57606a;
-  --accent: #0969da;
-  --accent-hover: #0550ae;
+  --card: var(--light-card);
+  --border: var(--light-border);
+  --text: var(--light-text);
+  --muted: var(--light-muted);
   --header-link-color: var(--text);
-  --light-surface: rgba(9, 105, 218, 0.08);
   background: var(--bg);
   color: var(--text);
 }
