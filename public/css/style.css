@@ -70,6 +70,14 @@ body.theme-light {
  body.theme-light #static-content a:hover {
    color: var(--accent-hover);
  }
+
+ body.theme-light .movie-detail-hero::after {
+   background: linear-gradient(90deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.82) 45%, rgba(255,255,255,0.55) 100%);
+ }
+
+ body.theme-light .episodes-ui {
+   background: rgba(255, 255, 255, 0.9);
+ }
 a {
   color: var(--link-color, var(--accent));
   text-decoration: none;
