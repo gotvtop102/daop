@@ -187,7 +187,7 @@ export default function MovieList() {
           </Space>
           <Space size={4} wrap>
             {record.genre?.map((g) => (
-              <Tag key={g} size="small">
+              <Tag key={g}>
                 {g}
               </Tag>
             ))}

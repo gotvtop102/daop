@@ -536,7 +536,7 @@ export default function EpisodeEdit() {
                 <Table
                   columns={columns(serverIndex)}
                   dataSource={server.episodes}
-                  rowKey={(r: any, idx: number) => `${serverIndex}-${idx}-${r.episode_code || ''}`}
+                  rowKey={(r: any, idx?: number) => `${serverIndex}-${idx ?? 0}-${r.episode_code || ''}`}
                   pagination={false}
                   size="small"
                   scroll={{ x: 1800 }}
