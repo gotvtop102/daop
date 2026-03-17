@@ -13,14 +13,68 @@ function normalizeHeader(h: any) {
     .replace(/\s+/g, '_');
 }
 
-async function loadServiceAccountCredentials() {
-  // Theo docs: GOOGLE_SERVICE_ACCOUNT_KEY là đường dẫn file JSON
-  // Nhưng để tương thích, nếu env là JSON string thì vẫn parse được.
-  if (!SERVICE_ACCOUNT_KEY) {
+async function getSheetIdByTitle(sheets: any, spreadsheetId: string, title: string): Promise<number> {
+  const t = String(title || '').trim().toLowerCase();
+  const meta = await sheets.spreadsheets.get({ spreadsheetId });
+  const found = (meta.data.sheets || []).find((s: any) => String(s?.properties?.title || '').trim().toLowerCase() === t);
+  const sheetId = found?.properties?.sheetId;
+  if (typeof sheetId !== 'number') {
+    throw new Error(`Sheet tab not found: ${title}`);
+  }
+  return sheetId;
+}
+
+async function deleteRows(sheets: any, spreadsheetId: string, sheetTitle: string, startRow: number, endRow: number) {
+  // Google Sheets API uses 0-based indices, endIndex is exclusive.
+  // Row 1 = header => index 0. We only allow deleting from row 2 (index 1).
+  const safeStartRow = Math.max(2, Math.floor(startRow));
+  const safeEndRow = Math.max(safeStartRow, Math.floor(endRow));
+
+  const sheetId = await getSheetIdByTitle(sheets, spreadsheetId, sheetTitle);
+  const startIndex = safeStartRow - 1;
+  const endIndex = safeEndRow;
+  const deletedCount = endIndex - startIndex;
+
+  if (deletedCount <= 0) {
+    return { success: true, deleted: 0 };
+  }
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId,
+              dimension: 'ROWS',
+              startIndex,
+              endIndex,
+            },
+          },
+        },
+      ],
+    },
+  });
+
+  return {
+    success: true,
+    sheet: sheetTitle,
+    startRow: safeStartRow,
+    endRow: safeEndRow,
+    deleted: deletedCount,
+  };
+}
+
+async function loadServiceAccountCredentials(serviceAccountKey?: string) {
+  // Ưu tiên key từ parameter (query/body), sau đó fallback về env
+  const key = serviceAccountKey || SERVICE_ACCOUNT_KEY;
+  
+  if (!key) {
     throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY not configured');
   }
 
-  const raw = String(SERVICE_ACCOUNT_KEY).trim();
+  const raw = String(key).trim();
   if (raw.startsWith('{')) {
     return JSON.parse(raw);
   }
@@ -31,8 +85,8 @@ async function loadServiceAccountCredentials() {
 }
 
 // Initialize Google Sheets API
-const getSheetsClient = async () => {
-  const credentials = await loadServiceAccountCredentials();
+const getSheetsClient = async (serviceAccountKey?: string) => {
+  const credentials = await loadServiceAccountCredentials(serviceAccountKey);
   const auth = new google.auth.GoogleAuth({
     credentials,
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
@@ -59,15 +113,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  // Lấy spreadsheetId từ query params hoặc body, fallback về env
+  // Lấy spreadsheetId và serviceAccountKey từ query params hoặc body, fallback về env
   const spreadsheetId = String(req.query.spreadsheetId || req.body?.spreadsheetId || DEFAULT_SPREADSHEET_ID || '').trim();
+  const serviceAccountKey = String(req.query.serviceAccountKey || req.body?.serviceAccountKey || SERVICE_ACCOUNT_KEY || '').trim();
 
   if (!spreadsheetId) {
     return res.status(500).json({ error: 'Google Sheets ID not configured' });
   }
 
   try {
-    const sheets = await getSheetsClient();
+    const sheets = await getSheetsClient(serviceAccountKey);
     const { action } = req.query;
 
     switch (action) {
@@ -120,6 +175,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         return res.status(405).json({ error: 'Method not allowed' });
+      }
+
+      case 'deleteRows': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        const sheet = String(req.body?.sheet || req.query.sheet || 'movies').trim();
+        const startRow = Number(req.body?.startRow ?? req.query.startRow);
+        const endRow = Number(req.body?.endRow ?? req.query.endRow);
+        if (!sheet) return res.status(400).json({ error: 'Missing sheet' });
+        if (!Number.isFinite(startRow) || startRow < 2) {
+          return res.status(400).json({ error: 'startRow must be a number >= 2 (row 1 is header)' });
+        }
+        if (!Number.isFinite(endRow) || endRow < startRow) {
+          return res.status(400).json({ error: 'endRow must be a number >= startRow' });
+        }
+
+        const result = await deleteRows(sheets, spreadsheetId, sheet, startRow, endRow);
+        return res.status(200).json(result);
       }
 
       default:

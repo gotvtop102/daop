@@ -71,37 +71,49 @@ export default function MovieList() {
   const [pageSize, setPageSize] = useState(12);
   const [total, setTotal] = useState(0);
   const [spreadsheetId, setSpreadsheetId] = useState<string>('');
+  const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
 
-  // Load spreadsheetId from Supabase or localStorage
+  // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
-    const loadSheetId = async () => {
+    const loadConfig = async () => {
       // Try Supabase first
-      const { data, error } = await supabase
+      const { data: settings, error } = await supabase
         .from('site_settings')
-        .select('value')
-        .eq('key', 'google_sheets_id')
-        .maybeSingle();
-      if (!error && data?.value) {
-        setSpreadsheetId(data.value);
-        return;
+        .select('key, value')
+        .in('key', ['google_sheets_id', 'google_service_account_key']);
+      
+      if (!error && settings) {
+        const sheetId = settings.find(s => s.key === 'google_sheets_id')?.value;
+        const svcKey = settings.find(s => s.key === 'google_service_account_key')?.value;
+        if (sheetId) setSpreadsheetId(sheetId);
+        if (svcKey) setServiceAccountKey(svcKey);
+        if (sheetId && svcKey) return;
       }
+      
       // Fallback to localStorage
       try {
         const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
-        if (saved?.google_sheets_id) {
+        if (saved?.google_sheets_id && !spreadsheetId) {
           setSpreadsheetId(saved.google_sheets_id);
+        }
+        if (saved?.google_service_account_key && !serviceAccountKey) {
+          setServiceAccountKey(saved.google_service_account_key);
         }
       } catch {
         // ignore
       }
     };
-    loadSheetId();
+    loadConfig();
   }, []);
 
   // Load movies from Google Sheets via API
   const loadMovies = async (opts?: { nextPage?: number; nextPageSize?: number }) => {
     if (!spreadsheetId) {
       message.error('Chưa cấu hình Google Sheets ID. Vui lòng vào Google Sheets để thiết lập.');
+      return;
+    }
+    if (!serviceAccountKey) {
+      message.error('Chưa cấu hình Service Account Key. Vui lòng vào Google Sheets để thiết lập.');
       return;
     }
     setLoading(true);
@@ -114,6 +126,7 @@ export default function MovieList() {
       const url = new URL(`${base}/api/movies`);
       url.searchParams.append('action', 'list');
       url.searchParams.append('spreadsheetId', spreadsheetId);
+      url.searchParams.append('serviceAccountKey', serviceAccountKey);
       url.searchParams.append('type', TYPE_MAP[category]);
       url.searchParams.append('page', String(p));
       url.searchParams.append('limit', String(ps));
@@ -164,10 +177,14 @@ export default function MovieList() {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
+    if (!serviceAccountKey) {
+      message.error('Chưa cấu hình Service Account Key');
+      return;
+    }
     try {
       const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const base = envBase || window.location.origin;
-      const res = await fetch(`${base}/api/movies?action=delete&id=${id}&spreadsheetId=${encodeURIComponent(spreadsheetId)}`, {
+      const res = await fetch(`${base}/api/movies?action=delete&id=${id}&spreadsheetId=${encodeURIComponent(spreadsheetId)}&serviceAccountKey=${encodeURIComponent(serviceAccountKey)}`, {
         method: 'DELETE',
       });
 

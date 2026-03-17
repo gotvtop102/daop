@@ -108,35 +108,39 @@ export default function MovieEdit() {
   const [fetchingTMDB, setFetchingTMDB] = useState(false);
   const [posterPreview, setPosterPreview] = useState('');
   const [spreadsheetId, setSpreadsheetId] = useState<string>('');
+  const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
   const isNew = id === 'new';
 
-  // Load spreadsheetId from Supabase or localStorage
+  // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
-    const loadSheetId = async () => {
-      const { data, error } = await supabase
+    const loadConfig = async () => {
+      const { data: settings, error } = await supabase
         .from('site_settings')
-        .select('value')
-        .eq('key', 'google_sheets_id')
-        .maybeSingle();
-      if (!error && data?.value) {
-        setSpreadsheetId(data.value);
-        return;
+        .select('key, value')
+        .in('key', ['google_sheets_id', 'google_service_account_key']);
+      
+      if (!error && settings) {
+        const sheetId = settings.find(s => s.key === 'google_sheets_id')?.value;
+        const svcKey = settings.find(s => s.key === 'google_service_account_key')?.value;
+        if (sheetId) setSpreadsheetId(sheetId);
+        if (svcKey) setServiceAccountKey(svcKey);
+        if (sheetId && svcKey) return;
       }
+      
       try {
         const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
-        if (saved?.google_sheets_id) {
-          setSpreadsheetId(saved.google_sheets_id);
-        }
+        if (saved?.google_sheets_id) setSpreadsheetId(saved.google_sheets_id);
+        if (saved?.google_service_account_key) setServiceAccountKey(saved.google_service_account_key);
       } catch {
         // ignore
       }
     };
-    loadSheetId();
+    loadConfig();
   }, []);
 
   // Load movie data
   useEffect(() => {
-    if (!isNew && id && spreadsheetId) {
+    if (!isNew && id && spreadsheetId && serviceAccountKey) {
       loadMovie(id);
     } else if (isNew) {
       // Set default values for new movie
@@ -152,18 +156,22 @@ export default function MovieEdit() {
         update: '',
       });
     }
-  }, [id, typeFromQuery, spreadsheetId]);
+  }, [id, typeFromQuery, spreadsheetId, serviceAccountKey]);
 
   const loadMovie = async (movieId: string) => {
     if (!spreadsheetId) {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
+    if (!serviceAccountKey) {
+      message.error('Chưa cấu hình Service Account Key');
+      return;
+    }
     setLoading(true);
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const apiBase = base || window.location.origin;
-      const res = await fetch(`${apiBase}/api/movies?action=get&id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}`);
+      const res = await fetch(`${apiBase}/api/movies?action=get&id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}&serviceAccountKey=${encodeURIComponent(serviceAccountKey)}`);
 
       if (!res.ok) {
         const err = await res.text();
@@ -260,6 +268,10 @@ export default function MovieEdit() {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
+    if (!serviceAccountKey) {
+      message.error('Chưa cấu hình Service Account Key');
+      return;
+    }
     setSaving(true);
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -270,6 +282,7 @@ export default function MovieEdit() {
         ...values,
         id: isNew ? undefined : id,
         spreadsheetId,
+        serviceAccountKey,
         genre: Array.isArray(values.genre) ? values.genre.join(',') : values.genre,
         country: Array.isArray(values.country) ? values.country.join(',') : values.country,
         director: Array.isArray(values.director) ? values.director.join(',') : values.director,

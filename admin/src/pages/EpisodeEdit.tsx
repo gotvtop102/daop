@@ -74,40 +74,48 @@ export default function EpisodeEdit() {
   const [activeServer, setActiveServer] = useState('0');
   const [movieTitle, setMovieTitle] = useState('');
   const [spreadsheetId, setSpreadsheetId] = useState<string>('');
+  const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
 
-  // Load spreadsheetId from Supabase or localStorage
+  // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
-    const loadSheetId = async () => {
-      const { data, error } = await supabase
+    const loadConfig = async () => {
+      const { data: settings, error } = await supabase
         .from('site_settings')
-        .select('value')
-        .eq('key', 'google_sheets_id')
-        .maybeSingle();
-      if (!error && data?.value) {
-        setSpreadsheetId(data.value);
-        return;
+        .select('key, value')
+        .in('key', ['google_sheets_id', 'google_service_account_key']);
+      
+      if (!error && settings) {
+        const sheetId = settings.find(s => s.key === 'google_sheets_id')?.value;
+        const svcKey = settings.find(s => s.key === 'google_service_account_key')?.value;
+        if (sheetId) setSpreadsheetId(sheetId);
+        if (svcKey) setServiceAccountKey(svcKey);
+        if (sheetId && svcKey) return;
       }
+      
       try {
         const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
-        if (saved?.google_sheets_id) {
-          setSpreadsheetId(saved.google_sheets_id);
-        }
+        if (saved?.google_sheets_id) setSpreadsheetId(saved.google_sheets_id);
+        if (saved?.google_service_account_key) setServiceAccountKey(saved.google_service_account_key);
       } catch {
         // ignore
       }
     };
-    loadSheetId();
+    loadConfig();
   }, []);
 
   useEffect(() => {
-    if (id && spreadsheetId) {
+    if (id && spreadsheetId && serviceAccountKey) {
       loadEpisodes(id);
     }
-  }, [id, spreadsheetId]);
+  }, [id, spreadsheetId, serviceAccountKey]);
 
   const loadEpisodes = async (movieId: string) => {
     if (!spreadsheetId) {
       message.error('Chưa cấu hình Google Sheets ID');
+      return;
+    }
+    if (!serviceAccountKey) {
+      message.error('Chưa cấu hình Service Account Key');
       return;
     }
     setLoading(true);
@@ -116,7 +124,7 @@ export default function EpisodeEdit() {
       const base = envBase || window.location.origin;
 
       // First get movie info
-      const movieRes = await fetch(`${base}/api/movies?action=get&id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}`);
+      const movieRes = await fetch(`${base}/api/movies?action=get&id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}&serviceAccountKey=${encodeURIComponent(serviceAccountKey)}`);
       if (movieRes.ok) {
         const movieData = await movieRes.json();
         if (movieData && !movieData.error) {
@@ -125,7 +133,7 @@ export default function EpisodeEdit() {
       }
 
       // Get episodes
-      const res = await fetch(`${base}/api/movies?action=episodes&movie_id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}`);
+      const res = await fetch(`${base}/api/movies?action=episodes&movie_id=${movieId}&spreadsheetId=${encodeURIComponent(spreadsheetId)}&serviceAccountKey=${encodeURIComponent(serviceAccountKey)}`);
 
       if (!res.ok) {
         const err = await res.text();
@@ -179,6 +187,10 @@ export default function EpisodeEdit() {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
+    if (!serviceAccountKey) {
+      message.error('Chưa cấu hình Service Account Key');
+      return;
+    }
     if (!id) {
       message.error('Thiếu movie ID');
       return;
@@ -203,7 +215,7 @@ export default function EpisodeEdit() {
       const res = await fetch(`${base}/api/movies?action=episodes&movie_id=${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spreadsheetId, episodes: allEpisodes }),
+        body: JSON.stringify({ spreadsheetId, serviceAccountKey, episodes: allEpisodes }),
       });
 
       if (!res.ok) {

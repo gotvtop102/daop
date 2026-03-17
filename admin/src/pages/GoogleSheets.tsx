@@ -1,4 +1,4 @@
-import { Card, Typography, Alert, Space, Button, Form, Input, message } from 'antd';
+import { Card, Typography, Alert, Space, Button, Form, Input, message, InputNumber, Select, Radio } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
@@ -8,8 +8,10 @@ export default function GoogleSheetsPage() {
   const docsUrl = 'https://github.com/daop-movie/docs/google-sheets'; // chỉnh lại nếu repo khác
 
   const [form] = Form.useForm();
+  const [deleteForm] = Form.useForm();
   const [sheetId, setSheetId] = useState('');
   const [savingSupabase, setSavingSupabase] = useState(false);
+  const [deletingRows, setDeletingRows] = useState(false);
 
   useEffect(() => {
     try {
@@ -81,6 +83,67 @@ export default function GoogleSheetsPage() {
     }
   };
 
+  const handleDeleteRows = async (values: any) => {
+    const spreadsheetId = String(sheetId || '').trim();
+    if (!spreadsheetId) {
+      message.error('Chưa có GOOGLE_SHEETS_ID');
+      return;
+    }
+
+    const sheet = String(values?.sheet || 'movies').trim();
+    const mode = String(values?.mode || 'range');
+    const startRow = Number(values?.startRow);
+    const endRowRaw = values?.endRow;
+    const countRaw = values?.count;
+
+    if (!Number.isFinite(startRow) || startRow < 2) {
+      message.error('Dòng bắt đầu phải >= 2 (dòng 1 là header)');
+      return;
+    }
+
+    let endRow = startRow;
+    if (mode === 'single') {
+      endRow = startRow;
+    } else if (mode === 'count') {
+      const count = Number(countRaw);
+      if (!Number.isFinite(count) || count <= 0) {
+        message.error('Số dòng cần xóa phải > 0');
+        return;
+      }
+      endRow = startRow + Math.floor(count) - 1;
+    } else {
+      const end = Number(endRowRaw);
+      if (!Number.isFinite(end) || end < startRow) {
+        message.error('Dòng kết thúc phải >= dòng bắt đầu');
+        return;
+      }
+      endRow = Math.floor(end);
+    }
+
+    if (!confirm(`Xóa dữ liệu từ dòng ${startRow} đến ${endRow} trong tab "${sheet}"? Hành động này không thể hoàn tác.`)) {
+      return;
+    }
+
+    setDeletingRows(true);
+    try {
+      const apiBase = ((import.meta as any).env?.VITE_API_URL || window.location.origin).replace(/\/$/, '');
+      const res = await fetch(`${apiBase}/api/movies?action=deleteRows`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spreadsheetId, sheet, startRow, endRow }),
+      });
+      const data = await res.json().catch(async () => ({ error: await res.text() }));
+      if (!res.ok) {
+        throw new Error(data?.error || data?.message || `Lỗi ${res.status}`);
+      }
+      message.success(`Đã xóa ${data?.deleted ?? 0} dòng (${data?.startRow}→${data?.endRow})`);
+    } catch (e: any) {
+      message.error(e?.message || 'Xóa thất bại');
+    } finally {
+      setDeletingRows(false);
+    }
+  };
+
   const handleSaveToSupabase = async () => {
     const id = String(sheetId || '').trim();
     if (!id) {
@@ -149,6 +212,72 @@ export default function GoogleSheetsPage() {
               >
                 Mở Google Sheet
               </Button>
+            </Space>
+          </Form>
+        </Card>
+
+        <Card title="Xóa dòng dữ liệu trong Google Sheets">
+          <Paragraph>
+            <Text type="secondary">
+              Xóa dòng dữ liệu đã nhập trong tab <Text code>movies</Text> hoặc <Text code>episodes</Text>. Không xóa dòng
+              header (dòng 1). Dòng bắt đầu tối thiểu là 2.
+            </Text>
+          </Paragraph>
+          <Form
+            form={deleteForm}
+            layout="vertical"
+            initialValues={{ sheet: 'movies', mode: 'range', startRow: 2, endRow: 2, count: 1 }}
+            onFinish={handleDeleteRows}
+          >
+            <Space wrap align="start" style={{ width: '100%' }}>
+              <Form.Item name="sheet" label="Tab">
+                <Select
+                  style={{ width: 160 }}
+                  options={[
+                    { value: 'movies', label: 'movies' },
+                    { value: 'episodes', label: 'episodes' },
+                  ]}
+                />
+              </Form.Item>
+
+              <Form.Item name="mode" label="Kiểu xóa">
+                <Radio.Group>
+                  <Radio value="single">1 dòng</Radio>
+                  <Radio value="range">Khoảng dòng</Radio>
+                  <Radio value="count">Từ dòng + số dòng</Radio>
+                </Radio.Group>
+              </Form.Item>
+
+              <Form.Item name="startRow" label="Từ dòng" rules={[{ required: true }]}>
+                <InputNumber min={2} style={{ width: 120 }} />
+              </Form.Item>
+
+              <Form.Item shouldUpdate noStyle>
+                {() => {
+                  const mode = deleteForm.getFieldValue('mode');
+                  if (mode === 'count') {
+                    return (
+                      <Form.Item name="count" label="Số dòng" rules={[{ required: true }]}>
+                        <InputNumber min={1} style={{ width: 120 }} />
+                      </Form.Item>
+                    );
+                  }
+                  if (mode === 'range') {
+                    return (
+                      <Form.Item name="endRow" label="Đến dòng" rules={[{ required: true }]}>
+                        <InputNumber min={2} style={{ width: 120 }} />
+                      </Form.Item>
+                    );
+                  }
+                  return null;
+                }}
+              </Form.Item>
+
+              <Form.Item label=" ">
+                <Button danger type="primary" htmlType="submit" loading={deletingRows} disabled={!sheetId}>
+                  Xóa dữ liệu
+                </Button>
+              </Form.Item>
             </Space>
           </Form>
         </Card>
