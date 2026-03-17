@@ -5,13 +5,14 @@
   "current_amount": 1,
   "paypal_link": "",
   "methods": [
-    { "label": "Bitcoin (BTC)", "url": "", "note": "" },
-    { "label": "Ethereum (ETH)", "url": "", "note": "" },
-    { "label": "Litecoin (LTC)", "url": "", "note": "" },
-    { "label": "USDT (TRC20)", "url": "", "note": "" },
-    { "label": "USDT (ERC20)", "url": "", "note": "" },
-    { "label": "BNB (BEP20)", "url": "", "note": "" },
-    { "label": "Solana (SOL)", "url": "", "note": "" }
+    { "type": "paypal", "custom_label": "", "url": "", "note": "" },
+    { "type": "btc", "custom_label": "", "url": "", "note": "" },
+    { "type": "eth", "custom_label": "", "url": "", "note": "" },
+    { "type": "ltc", "custom_label": "", "url": "", "note": "" },
+    { "type": "usdt_trc20", "custom_label": "", "url": "", "note": "" },
+    { "type": "usdt_erc20", "custom_label": "", "url": "", "note": "" },
+    { "type": "bnb_bep20", "custom_label": "", "url": "", "note": "" },
+    { "type": "sol", "custom_label": "", "url": "", "note": "" }
   ],
   "bank_info": [],
   "crypto_addresses": [],

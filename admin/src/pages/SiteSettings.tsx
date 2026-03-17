@@ -28,7 +28,6 @@ const SITE_SETTINGS_KEYS = [
   'favicon_url',
   'r2_img_domain',
   'ophim_img_domain',
-  'theme_light_bg',
   'home_prebuild_enabled',
   'home_prebuild_limit',
   'home_prebuild_enable_series',
@@ -93,7 +92,6 @@ export default function SiteSettings() {
         favicon_url: data.favicon_url ?? '',
         r2_img_domain: data.r2_img_domain ?? 'https://pub-62eef44669df48e4bca5388a38e69522.r2.dev',
         ophim_img_domain: data.ophim_img_domain ?? 'https://img.ophim.live',
-        theme_light_bg: data.theme_light_bg ?? '#eef2f5',
         home_prebuild_enabled: data.home_prebuild_enabled !== 'false',
         home_prebuild_limit: data.home_prebuild_limit ?? '24',
         home_prebuild_enable_series: data.home_prebuild_enable_series !== 'false',
@@ -396,22 +394,6 @@ export default function SiteSettings() {
                       <Switch />
                     </Form.Item>
                     <p style={{ color: '#666', fontSize: 12, marginTop: -8, marginBottom: 16 }}>Tắt = không hiển thị nút Xem / danh sách tập phát trên trang chi tiết phim.</p>
-                    <Form.Item name="theme_light_bg" label="Màu nền sáng">
-                      <Select
-                        options={[
-                          { label: 'Xám trắng dịu', value: '#eef2f5' },
-                          { label: 'Xám dịu', value: '#e5e7eb' },
-                          { label: 'Vàng nhạt dịu', value: '#f6f2e8' },
-                          { label: 'Xanh nhạt dịu', value: '#e8f3ff' },
-                          { label: 'Hồng nhạt dịu', value: '#fde7f3' },
-                          { label: 'Xanh lá nhạt dịu', value: '#e9f7ef' },
-                          { label: 'Xanh dương nhạt dịu', value: '#e6f0ff' },
-                          { label: 'Đỏ nhạt dịu', value: '#ffe8e8' },
-                          { label: 'Tím nhạt dịu', value: '#f2e9ff' },
-                          { label: 'Cam nhạt dịu', value: '#fff1e6' },
-                        ]}
-                      />
-                    </Form.Item>
                     <Form.Item name="player_warning_enabled" label="Hiển thị cảnh báo dưới player" valuePropName="checked">
                       <Switch />
                     </Form.Item>

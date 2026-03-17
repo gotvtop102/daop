@@ -1,6 +1,40 @@
 import { useEffect, useState } from 'react';
-import { Card, Form, Input, InputNumber, Button, message, Space } from 'antd';
+import { Card, Form, Input, InputNumber, Button, message, Select } from 'antd';
 import { supabase } from '../lib/supabase';
+
+const METHOD_PRESETS: Array<{ value: string; label: string }> = [
+  { value: 'paypal', label: 'PayPal' },
+  { value: 'btc', label: 'Bitcoin (BTC)' },
+  { value: 'eth', label: 'Ethereum (ETH)' },
+  { value: 'ltc', label: 'Litecoin (LTC)' },
+  { value: 'usdt_trc20', label: 'USDT (TRC20)' },
+  { value: 'usdt_erc20', label: 'USDT (ERC20)' },
+  { value: 'bnb_bep20', label: 'BNB (BEP20)' },
+  { value: 'sol', label: 'Solana (SOL)' },
+  { value: 'custom', label: 'Custom' },
+];
+
+function normalizeMethods(input: any): any[] {
+  const raw = Array.isArray(input) ? input : [];
+  return raw.map((m) => {
+    if (!m) return { type: 'custom', custom_label: '', url: '', note: '' };
+    if (typeof m.type === 'string') {
+      return {
+        type: m.type,
+        custom_label: typeof m.custom_label === 'string' ? m.custom_label : '',
+        url: typeof m.url === 'string' ? m.url : '',
+        note: typeof m.note === 'string' ? m.note : '',
+      };
+    }
+    const label = typeof m.label === 'string' ? m.label : '';
+    return {
+      type: 'custom',
+      custom_label: label,
+      url: typeof m.url === 'string' ? m.url : '',
+      note: typeof m.note === 'string' ? m.note : '',
+    };
+  });
+}
 
 export default function DonateSettings() {
   const [form] = Form.useForm();
@@ -10,20 +44,28 @@ export default function DonateSettings() {
     (async () => {
       try {
         const r = await supabase.from('donate_settings').select('*').limit(1).maybeSingle();
-        if (r.data) form.setFieldsValue(r.data);
-        else form.setFieldsValue({
+        if (r.data) {
+          const base: any = { ...r.data };
+          const methods = normalizeMethods(base.methods);
+          const hasPaypal = methods.some((m) => m && m.type === 'paypal');
+          if (base.paypal_link && !hasPaypal) {
+            methods.unshift({ type: 'paypal', custom_label: '', url: String(base.paypal_link), note: '' });
+          }
+          base.methods = methods;
+          form.setFieldsValue(base);
+        } else form.setFieldsValue({
           target_amount: 0,
           current_amount: 0,
           target_currency: 'VND',
-          paypal_link: '',
           methods: [
-            { label: 'Bitcoin (BTC)', url: '', note: '' },
-            { label: 'Ethereum (ETH)', url: '', note: '' },
-            { label: 'Litecoin (LTC)', url: '', note: '' },
-            { label: 'USDT (TRC20)', url: '', note: '' },
-            { label: 'USDT (ERC20)', url: '', note: '' },
-            { label: 'BNB (BEP20)', url: '', note: '' },
-            { label: 'Solana (SOL)', url: '', note: '' },
+            { type: 'paypal', custom_label: '', url: '', note: '' },
+            { type: 'btc', custom_label: '', url: '', note: '' },
+            { type: 'eth', custom_label: '', url: '', note: '' },
+            { type: 'ltc', custom_label: '', url: '', note: '' },
+            { type: 'usdt_trc20', custom_label: '', url: '', note: '' },
+            { type: 'usdt_erc20', custom_label: '', url: '', note: '' },
+            { type: 'bnb_bep20', custom_label: '', url: '', note: '' },
+            { type: 'sol', custom_label: '', url: '', note: '' },
           ],
         });
       } catch {
@@ -37,6 +79,10 @@ export default function DonateSettings() {
   const onFinish = async (values: any) => {
     try {
       const { id, ...rest } = values;
+      const methods = normalizeMethods(rest.methods);
+      const paypal = methods.find((m) => m && m.type === 'paypal');
+      rest.methods = methods;
+      rest.paypal_link = paypal && paypal.url ? paypal.url : '';
       if (id) {
         const { error } = await supabase.from('donate_settings').upsert({ id, ...rest }, { onConflict: 'id' });
         if (error) throw error;
@@ -66,31 +112,45 @@ export default function DonateSettings() {
           <Form.Item name="current_amount" label="Đã quyên góp">
             <InputNumber min={0} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="paypal_link" label="Link PayPal">
-            <Input placeholder="https://..." />
-          </Form.Item>
           <Form.List name="methods">
             {(fields, { add, remove }) => (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <h3 style={{ margin: 0 }}>Các phương thức Donate (phổ biến + Custom)</h3>
-                  <Button onClick={() => add({ label: '', url: '', note: '' })}>Thêm phương thức</Button>
+                  <Button onClick={() => add({ type: 'custom', custom_label: '', url: '', note: '' })}>Thêm phương thức</Button>
                 </div>
                 <div style={{ height: 12 }} />
                 <Card size="small">
                   <div style={{ display: 'flex', gap: 12, fontWeight: 600, padding: '4px 0' }}>
-                    <div style={{ flex: 2 }}>Tên</div>
-                    <div style={{ flex: 4 }}>Link / QR</div>
+                    <div style={{ flex: 2 }}>Phương thức</div>
+                    <div style={{ flex: 2 }}>Tên Custom</div>
+                    <div style={{ flex: 3 }}>Link / QR</div>
                     <div style={{ flex: 3 }}>Ghi chú</div>
                     <div style={{ width: 80 }}></div>
                   </div>
                   <div style={{ height: 8 }} />
                   {fields.map((field) => (
                     <div key={field.key} style={{ display: 'flex', gap: 12, marginBottom: 10, alignItems: 'flex-start' }}>
-                      <Form.Item {...field} name={[field.name, 'label']} style={{ flex: 2, marginBottom: 0 }}>
-                        <Input placeholder="Bitcoin (BTC) / Custom..." />
+                      <Form.Item {...field} name={[field.name, 'type']} style={{ flex: 2, marginBottom: 0 }}>
+                        <Select options={METHOD_PRESETS} />
                       </Form.Item>
-                      <Form.Item {...field} name={[field.name, 'url']} style={{ flex: 4, marginBottom: 0 }}>
+
+                      <Form.Item
+                        noStyle
+                        shouldUpdate={(prev: any, next: any) => prev?.methods?.[field.name]?.type !== next?.methods?.[field.name]?.type}
+                      >
+                        {({ getFieldValue }: any) => {
+                          const t = getFieldValue(['methods', field.name, 'type']);
+                          const disabled = t !== 'custom';
+                          return (
+                            <Form.Item {...field} name={[field.name, 'custom_label']} style={{ flex: 2, marginBottom: 0 }}>
+                              <Input placeholder="Nhập tên" disabled={disabled} />
+                            </Form.Item>
+                          );
+                        }}
+                      </Form.Item>
+
+                      <Form.Item {...field} name={[field.name, 'url']} style={{ flex: 3, marginBottom: 0 }}>
                         <Input placeholder="https://..." />
                       </Form.Item>
                       <Form.Item {...field} name={[field.name, 'note']} style={{ flex: 3, marginBottom: 0 }}>

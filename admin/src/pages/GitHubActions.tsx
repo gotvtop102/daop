@@ -504,6 +504,9 @@ export default function GitHubActions() {
   const extraFiltered = EXTRA_ACTIONS.filter((a) => !apiIds.has(a.id));
   const allList = [...triggerableList, ...extraFiltered];
 
+  const updateDataExcludeIds = new Set(['upload-movie-images-r2', 'delete-movie-images-r2']);
+  const updateDataTriggerList = allList.filter((a: ActionItem) => !updateDataExcludeIds.has(a.id));
+
   return (
     <>
       <h1>GitHub Actions</h1>
@@ -574,89 +577,129 @@ export default function GitHubActions() {
             ),
           },
           {
-            key: 'settings',
-            label: 'Cài đặt',
+            key: 'update-data',
+            label: 'Update Data',
             children: (
-              <Card title="Cài đặt Update data">
-                <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                  Chỉ chọn khoảng trang để lấy. API mặc định: 24 phim/trang, trang 1 là mới nhất. Lấy theo kiểu lùi và kết thúc ở trang 1.
-                </Text>
-                <Form form={form} layout="inline" initialValues={updateSettings}>
-                  <Text strong style={{ width: '100%', marginBottom: 8 }}>Chế độ chạy:</Text>
-                  <Form.Item style={{ marginBottom: 8 }}>
-                    <Radio.Group
-                      value={twoPhase ? '2' : '1'}
-                      onChange={(e: RadioChangeEvent) => setTwoPhase(e.target.value === '2')}
-                      optionType="button"
-                      buttonStyle="solid"
-                    >
-                      <Radio.Button value="1">1 pha (full)</Radio.Button>
-                      <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
-                    </Radio.Group>
-                  </Form.Item>
+              <>
+                <Card title="Cài đặt Update data">
+                  <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+                    Chỉ chọn khoảng trang để lấy. API mặc định: 24 phim/trang, trang 1 là mới nhất. Lấy theo kiểu lùi và kết thúc ở trang 1.
+                  </Text>
+                  <Form form={form} layout="inline" initialValues={updateSettings}>
+                    <Text strong style={{ width: '100%', marginBottom: 8 }}>Chế độ chạy:</Text>
+                    <Form.Item style={{ marginBottom: 8 }}>
+                      <Radio.Group
+                        value={twoPhase ? '2' : '1'}
+                        onChange={(e: RadioChangeEvent) => setTwoPhase(e.target.value === '2')}
+                        optionType="button"
+                        buttonStyle="solid"
+                      >
+                        <Radio.Button value="1">1 pha (full)</Radio.Button>
+                        <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
+                      </Radio.Group>
+                    </Form.Item>
 
-                  <Text strong style={{ width: '100%', marginBottom: 8 }}>Tự động (schedule):</Text>
-                  <Form.Item style={{ marginBottom: 8 }}>
-                    <Radio.Group
-                      value={autoTwoPhase ? '2' : '1'}
-                      onChange={(e: RadioChangeEvent) => setAutoTwoPhase(e.target.value === '2')}
-                      optionType="button"
-                      buttonStyle="solid"
-                    >
-                      <Radio.Button value="1">1 pha (full)</Radio.Button>
-                      <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
-                    </Radio.Group>
-                  </Form.Item>
+                    <Text strong style={{ width: '100%', marginBottom: 8 }}>Tự động (schedule):</Text>
+                    <Form.Item style={{ marginBottom: 8 }}>
+                      <Radio.Group
+                        value={autoTwoPhase ? '2' : '1'}
+                        onChange={(e: RadioChangeEvent) => setAutoTwoPhase(e.target.value === '2')}
+                        optionType="button"
+                        buttonStyle="solid"
+                      >
+                        <Radio.Button value="1">1 pha (full)</Radio.Button>
+                        <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
+                      </Radio.Group>
+                    </Form.Item>
 
-                  <Form.Item style={{ marginBottom: 8 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                      <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                        Tự động upload ảnh lên R2 sau khi Update data:
-                      </Text>
-                      <Switch checked={autoUploadImagesAfterBuild} onChange={setAutoUploadImagesAfterBuild} />
-                    </div>
-                  </Form.Item>
+                    <Form.Item style={{ marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                        <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                          Tự động upload ảnh lên R2 sau khi Update data:
+                        </Text>
+                        <Switch checked={autoUploadImagesAfterBuild} onChange={setAutoUploadImagesAfterBuild} />
+                      </div>
+                    </Form.Item>
 
-                  <Form.Item style={{ marginBottom: 8 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                      <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                        Chỉ deploy Cloudflare sau khi upload ảnh R2 xong (khi chạy 2 pha):
-                      </Text>
-                      <Switch checked={deployAfterR2Upload} onChange={setDeployAfterR2Upload} />
-                    </div>
-                  </Form.Item>
+                    <Form.Item style={{ marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                        <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                          Chỉ deploy Cloudflare sau khi upload ảnh R2 xong (khi chạy 2 pha):
+                        </Text>
+                        <Switch checked={deployAfterR2Upload} onChange={setDeployAfterR2Upload} />
+                      </div>
+                    </Form.Item>
 
-                  <Text strong style={{ width: '100%' }}>Thủ công (khi bấm Kích hoạt):</Text>
-                  <Form.Item name="start_page" label="Trang bắt đầu" rules={[{ required: true }]}>
-                    <InputNumber min={1} max={100000} placeholder="1" style={{ width: 120 }} />
-                  </Form.Item>
-                  <Form.Item name="end_page" label="Trang kết thúc">
-                    <InputNumber min={1} max={100000} placeholder="1" style={{ width: 120 }} />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button icon={<SaveOutlined />} onClick={handleSaveUpdateSettings} loading={savingSettings}>
-                      Lưu mặc định
-                    </Button>
-                  </Form.Item>
-                  <Text strong style={{ width: '100%', marginTop: 16 }}>Tự động (0h, 6h, 12h, 18h):</Text>
-                  <Form.Item name="auto_start_page" label="Auto: Trang bắt đầu">
-                    <InputNumber min={1} max={100000} placeholder="1" style={{ width: 140 }} />
-                  </Form.Item>
-                  <Form.Item name="auto_end_page" label="Auto: Trang kết thúc">
-                    <InputNumber min={1} max={100000} placeholder="1" style={{ width: 140 }} />
-                  </Form.Item>
-                  <Form.Item>
-                    <Space direction="vertical" size={4}>
-                      <Button onClick={handleFetchTotalPages} loading={fetchingTotalPages}>
-                        Lấy tổng số trang/phim
+                    <Text strong style={{ width: '100%' }}>Thủ công (khi bấm Kích hoạt):</Text>
+                    <Form.Item name="start_page" label="Trang bắt đầu" rules={[{ required: true }]}>
+                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: 120 }} />
+                    </Form.Item>
+                    <Form.Item name="end_page" label="Trang kết thúc">
+                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: 120 }} />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button icon={<SaveOutlined />} onClick={handleSaveUpdateSettings} loading={savingSettings}>
+                        Lưu mặc định
                       </Button>
-                      {totalMovies != null && totalPages != null && (
-                        <Text type="secondary">Tổng phim: {totalMovies} • Tổng trang: {totalPages}</Text>
+                    </Form.Item>
+                    <Text strong style={{ width: '100%', marginTop: 16 }}>Tự động (0h, 6h, 12h, 18h):</Text>
+                    <Form.Item name="auto_start_page" label="Auto: Trang bắt đầu">
+                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: 140 }} />
+                    </Form.Item>
+                    <Form.Item name="auto_end_page" label="Auto: Trang kết thúc">
+                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: 140 }} />
+                    </Form.Item>
+                    <Form.Item>
+                      <Space direction="vertical" size={4}>
+                        <Button onClick={handleFetchTotalPages} loading={fetchingTotalPages}>
+                          Lấy tổng số trang/phim
+                        </Button>
+                        {totalMovies != null && totalPages != null && (
+                          <Text type="secondary">Tổng phim: {totalMovies} • Tổng trang: {totalPages}</Text>
+                        )}
+                      </Space>
+                    </Form.Item>
+                  </Form>
+                </Card>
+
+                <div style={{ marginTop: 16 }}>
+                  {loading ? (
+                    <Spin tip="Đang tải danh sách..." />
+                  ) : (
+                    <List
+                      grid={{ gutter: 16, xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }}
+                      dataSource={updateDataTriggerList}
+                      renderItem={(item: ActionItem & { triggerable?: boolean; danger?: boolean }) => (
+                        <List.Item>
+                          <Card
+                            title={item.name}
+                            extra={
+                              item.triggerable !== false ? (
+                                <Button
+                                  type={item.danger ? 'default' : 'primary'}
+                                  danger={!!item.danger}
+                                  icon={triggering === item.id ? <Spin size="small" /> : item.danger ? <DeleteOutlined /> : <PlayCircleOutlined />}
+                                  onClick={() => handleTrigger(item.id)}
+                                  loading={triggering === item.id}
+                                  disabled={!!triggering}
+                                >
+                                  {item.danger ? 'Clean & Build' : 'Kích hoạt'}
+                                </Button>
+                              ) : (
+                                <Button type="text" icon={<InfoCircleOutlined />} disabled>
+                                  Tự động (push main)
+                                </Button>
+                              )
+                            }
+                          >
+                            <Text type="secondary">{item.description}</Text>
+                          </Card>
+                        </List.Item>
                       )}
-                    </Space>
-                  </Form.Item>
-                </Form>
-              </Card>
+                    />
+                  )}
+                </div>
+              </>
             ),
           },
           {
@@ -878,49 +921,6 @@ export default function GitHubActions() {
                   </Form.Item>
                 </Form>
               </Card>
-            ),
-          },
-          {
-            key: 'triggers',
-            label: 'Kích hoạt workflows',
-            children: (
-              <div>
-                {loading ? (
-                  <Spin tip="Đang tải danh sách..." />
-                ) : (
-                  <List
-                    grid={{ gutter: 16, xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }}
-                    dataSource={allList}
-                    renderItem={(item: ActionItem & { triggerable?: boolean; danger?: boolean }) => (
-                      <List.Item>
-                        <Card
-                          title={item.name}
-                          extra={
-                            item.triggerable !== false ? (
-                              <Button
-                                type={item.danger ? 'default' : 'primary'}
-                                danger={!!item.danger}
-                                icon={triggering === item.id ? <Spin size="small" /> : item.danger ? <DeleteOutlined /> : <PlayCircleOutlined />}
-                                onClick={() => handleTrigger(item.id)}
-                                loading={triggering === item.id}
-                                disabled={!!triggering}
-                              >
-                                {item.danger ? 'Clean & Build' : 'Kích hoạt'}
-                              </Button>
-                            ) : (
-                              <Button type="text" icon={<InfoCircleOutlined />} disabled>
-                                Tự động (push main)
-                              </Button>
-                            )
-                          }
-                        >
-                          <Text type="secondary">{item.description}</Text>
-                        </Card>
-                      </List.Item>
-                    )}
-                  />
-                )}
-              </div>
             ),
           },
         ]}
