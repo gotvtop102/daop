@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import AuthGuard from './components/AuthGuard';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Ads from './pages/Ads';
 import Banners from './pages/Banners';
 import HomepageSections from './pages/HomepageSections';
 import SiteSettings from './pages/SiteSettings';
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<AuthGuard><Layout /></AuthGuard>}>
           <Route index element={<Dashboard />} />
+          <Route path="ads" element={<Ads />} />
           <Route path="banners" element={<Banners />} />
           <Route path="slider" element={<Slider />} />
           <Route path="menu-background" element={<MenuBackground />} />

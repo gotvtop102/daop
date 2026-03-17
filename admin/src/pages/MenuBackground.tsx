@@ -112,7 +112,7 @@ export default function MenuBackground() {
     <>
       <h1>Ảnh nền menu mobile (12 mục)</h1>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        Mỗi mục trong menu 3 gạch trên mobile có một ảnh nền riêng (độ trong suốt 20%). Upload ảnh hoặc nhập link.
+        Mỗi mục trong menu 3 gạch trên mobile có một ảnh nền riêng. Upload ảnh hoặc nhập link.
         Để tối ưu cho background: dùng ảnh đã xóa nền (PNG) hoặc công cụ như{' '}
         <a href="https://www.remove.bg" target="_blank" rel="noopener noreferrer">
           remove.bg
@@ -127,7 +127,7 @@ export default function MenuBackground() {
             </Form.Item>
           ))}
           <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ color: '#666' }}>Upload ảnh cho từng ô: chọn file rồi chọn số thứ tự (1–10) để gán:</span>
+            <span style={{ color: '#666' }}>Upload ảnh cho từng ô: chọn file rồi chọn số thứ tự (1–12 để gán:</span>
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"

@@ -269,6 +269,7 @@
   CategoryPage.prototype.renderPage = function () {
     var grid = document.getElementById(this.gridId);
     if (!grid) return;
+    var topSlot = document.getElementById('category-ad-top');
     var perPage = this.itemsPerPage;
     var start = (this.currentPage - 1) * perPage;
     var slice = this.filteredIds.slice(start, start + perPage);
@@ -298,10 +299,29 @@
       }))
         .then(function (movies) {
           if (seq !== self._renderSeq) return;
-          var html2 = (movies || []).map(function (m) {
-            return m ? render(m, baseUrl, { usePoster: usePoster }) : '';
-          }).join('');
+          var list = (movies || []).filter(Boolean);
+          var html2 = '';
+          var midEvery = 12;
+          var midAfter = 8;
+          if (self && self.itemsPerPage && self.itemsPerPage <= 18) {
+            midAfter = 6;
+            midEvery = 10;
+          }
+          for (var i = 0; i < list.length; i++) {
+            html2 += render(list[i], baseUrl, { usePoster: usePoster });
+            var idx1 = i + 1;
+            if (idx1 === midAfter || (idx1 > midAfter && ((idx1 - midAfter) % midEvery === 0))) {
+              html2 += '<div class="ad-slot ad-slot--grid" data-ad-position="category_mid"></div>';
+            }
+          }
           grid.innerHTML = html2 || '<p>Không có phim nào.</p>';
+
+          if (topSlot && window.DAOP && typeof window.DAOP.renderAdSlot === 'function') {
+            window.DAOP.renderAdSlot(topSlot, 'category_top');
+          }
+          if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+            window.DAOP.renderAdsInDocument(grid);
+          }
         })
         .catch(function () {
           if (seq !== self._renderSeq) return;

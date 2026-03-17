@@ -243,7 +243,21 @@
 
     function rerenderCards() {
       var list = (listRef && listRef.list) ? listRef.list : [];
-      gridEl.innerHTML = list.map(function (m) { return render(m, baseUrl, { usePoster: usePoster }); }).join('');
+      var html = '';
+      var midAfter = 8;
+      var midEvery = 12;
+      for (var i = 0; i < list.length; i++) {
+        html += render(list[i], baseUrl, { usePoster: usePoster });
+        var idx1 = i + 1;
+        if (idx1 === midAfter || (idx1 > midAfter && ((idx1 - midAfter) % midEvery === 0))) {
+          html += '<div class="ad-slot ad-slot--grid" data-ad-position="detail_mid"></div>';
+        }
+      }
+      gridEl.innerHTML = html;
+
+      if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+        window.DAOP.renderAdsInDocument(gridEl);
+      }
     }
 
     var extraOpts = '<option value="6"' + (gridColumnsExtra === 6 ? ' selected' : '') + '>6</option>' +
@@ -392,37 +406,44 @@
     var year = esc(light.year || '');
     var metaLine = year + (light.episode_current ? ' • ' + esc(light.episode_current) + ' tập' : '');
     var html = '' +
-      '<div class="md-page">' +
-      '  <div class="md-hero">' +
-      '    <div class="md-hero-bg" id="md-hero-bg" style="background-image:url(' + esc(posterBg || posterUrl) + ')"></div>' +
-      '    <div class="md-hero-inner">' +
-      '      <div class="md-thumb"><img decoding="async" fetchpriority="high" src="' + esc(thumbMain || posterUrl) + '"' + imgOnErrorAttr(thumbOphim || posterOphimUrl, posterUrl, defaultPoster) + ' alt=""></div>' +
-      '      <div class="md-hero-meta">' +
-      '        <div class="md-title">' + title + '</div>' +
+      '<div class="movie-detail-wrap">' +
+      '<div class="ad-slot" data-ad-position="detail_top"></div>' +
+      '  <div class="md-page">' +
+      '    <div class="md-hero">' +
+      '      <div class="md-hero-bg" id="md-hero-bg" style="background-image:url(' + esc(posterBg || posterUrl) + ')"></div>' +
+      '      <div class="md-hero-inner">' +
+      '        <div class="md-thumb"><img decoding="async" fetchpriority="high" src="' + esc(thumbMain || posterUrl) + '"' + imgOnErrorAttr(thumbOphim || posterOphimUrl, posterUrl, defaultPoster) + ' alt=""></div>' +
+      '        <div class="md-hero-meta">' +
+      '          <div class="md-title">' + title + '</div>' +
       (origin ? '        <div class="md-origin">' + origin + '</div>' : '') +
       (metaLine.trim() ? '        <div class="md-meta">' + esc(metaLine) + '</div>' : '') +
-      '        <div class="md-hero-cta">' +
-      '          <a class="md-watch" href="' + esc(watchHref) + '">' + iconSvg('play') + '<span class="md-watch-label">Xem ngay</span></a>' +
-      '          <div class="md-actions">' +
-      '            <button type="button" class="md-action-btn" id="btn-share">' + iconSvg('share') + '<span class="md-action-label">Chia sẻ</span></button>' +
+      '          <div class="md-hero-cta">' +
+      '            <a class="md-watch" href="' + esc(watchHref) + '">' + iconSvg('play') + '<span class="md-watch-label">Xem ngay</span></a>' +
+      '            <div class="md-actions">' +
+      '              <button type="button" class="md-action-btn" id="btn-share">' + iconSvg('share') + '<span class="md-action-label">Chia sẻ</span></button>' +
+      '            </div>' +
       '          </div>' +
       '        </div>' +
       '      </div>' +
       '    </div>' +
-      '  </div>' +
-      '  <div class="md-content">' +
-      '    <section class="md-section md-info-toggle-section">' +
-      '      <button type="button" class="md-action-btn md-info-toggle" id="btn-toggle-info" aria-controls="movie-info" aria-expanded="false">' + iconSvg('info') + '<span class="md-info-label">Thông tin phim</span>' + iconSvg('chevDown') + '</button>' +
-      '    </section>' +
-      '    <section id="movie-info" class="md-info">' +
-      '      <div class="md-desc"></div>' +
-      '    </section>' +
-      '  </div>' +
+      '    <div class="md-content">' +
+      '      <section class="md-section md-info-toggle-section">' +
+      '        <button type="button" class="md-action-btn md-info-toggle" id="btn-toggle-info" aria-controls="movie-info" aria-expanded="false">' + iconSvg('info') + '<span class="md-info-label">Thông tin phim</span>' + iconSvg('chevDown') + '</button>' +
+      '      </section>' +
+      '      <section id="movie-info" class="md-info">' +
+      '        <div class="md-desc"></div>' +
+      '      </section>' +
+      '    </div>' +
+      '</div>' +
       '</div>';
     var el = document.getElementById('movie-detail');
     if (el) el.innerHTML = html;
     setBgWithFallback(document.getElementById('md-hero-bg'), posterBg || posterUrl, posterBgOphim || posterOphimUrl, defaultPoster);
     setupActions(light);
+
+    if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+      window.DAOP.renderAdsInDocument(el || document);
+    }
   }
 
   function renderFull(movie) {
@@ -487,51 +508,55 @@
       (showtimes ? '<div class="md-info-line"><span class="md-info-key">Lịch chiếu</span><span class="md-info-val">' + esc(movie.showtimes || '') + '</span></div>' : '');
 
     var html = '' +
-      '<div class="md-page">' +
-      '  <div class="md-hero">' +
-      '    <div class="md-hero-bg" id="md-hero-bg" style="background-image:url(' + esc(posterBg || poster) + ')"></div>' +
-      '    <div class="md-hero-inner">' +
-      '      <div class="md-thumb"><img decoding="async" fetchpriority="high" src="' + esc(thumbMain || poster) + '"' + imgOnErrorAttr(thumbOphim || posterOphim, poster, defaultPoster) + ' alt=""></div>' +
-      '      <div class="md-hero-meta">' +
-      '        <div class="md-title">' + title + '</div>' +
+      '<div class="movie-detail-wrap">' +
+      '<div class="ad-slot" data-ad-position="detail_top"></div>' +
+      '  <div class="md-page">' +
+      '    <div class="md-hero">' +
+      '      <div class="md-hero-bg" id="md-hero-bg" style="background-image:url(' + esc(posterBg || poster) + ')"></div>' +
+      '      <div class="md-hero-inner">' +
+      '        <div class="md-poster">' +
+      '        <div class="md-thumb"><img decoding="async" fetchpriority="high" src="' + esc(thumbMain || poster) + '"' + imgOnErrorAttr(thumbOphim || posterOphim, poster, defaultPoster) + ' alt=""></div>' +
+      '        <div class="md-hero-meta">' +
+      '          <div class="md-title">' + title + '</div>' +
       (origin ? '        <div class="md-origin">' + origin + '</div>' : '') +
-      '        <div class="md-meta">' + esc((movie.year || '') + (movie.episode_current ? ' • ' + movie.episode_current + ' tập' : '') + (movie.quality ? ' • ' + movie.quality : '')) + '</div>' +
-      '        <div class="md-hero-cta">' +
-      '          <a class="md-watch" href="' + esc(watchHref) + '">' + iconSvg('play') + '<span class="md-watch-label">' + esc(watchLabel) + '</span></a>' +
-      '          <div class="md-actions">' +
-      '            <button type="button" class="md-action-btn movie-fav-btn" data-movie-slug="' + esc(movie.slug || '') + '" aria-label="Yêu thích" aria-pressed="false">' + iconSvg('heart') + '<span class="md-action-label">Yêu thích</span></button>' +
-      '            <button type="button" class="md-action-btn" id="btn-share">' + iconSvg('share') + '<span class="md-action-label">Chia sẻ</span></button>' +
-      '            <button type="button" class="md-action-btn" id="btn-scroll-comments">' + iconSvg('chat') + '<span class="md-action-label">Bình luận</span></button>' +
-      '            <button type="button" class="md-action-btn" id="btn-scroll-recommend">' + iconSvg('spark') + '<span class="md-action-label">Đề xuất</span></button>' +
+      '          <div class="md-meta">' + esc((movie.year || '') + (movie.episode_current ? ' • ' + movie.episode_current + ' tập' : '') + (movie.quality ? ' • ' + movie.quality : '')) + '</div>' +
+      '          <div class="md-hero-cta">' +
+      '            <a class="md-watch" href="' + esc(watchHref) + '">' + iconSvg('play') + '<span class="md-watch-label">' + esc(watchLabel) + '</span></a>' +
+      '            <div class="md-actions">' +
+      '              <button type="button" class="md-action-btn movie-fav-btn" data-movie-slug="' + esc(movie.slug || '') + '" aria-label="Yêu thích" aria-pressed="false">' + iconSvg('heart') + '<span class="md-action-label">Yêu thích</span></button>' +
+      '              <button type="button" class="md-action-btn" id="btn-share">' + iconSvg('share') + '<span class="md-action-label">Chia sẻ</span></button>' +
+      '              <button type="button" class="md-action-btn" id="btn-scroll-comments">' + iconSvg('chat') + '<span class="md-action-label">Bình luận</span></button>' +
+      '              <button type="button" class="md-action-btn" id="btn-scroll-recommend">' + iconSvg('spark') + '<span class="md-action-label">Đề xuất</span></button>' +
+      '            </div>' +
       '          </div>' +
       '        </div>' +
       '      </div>' +
       '    </div>' +
-      '  </div>' +
-      '  <div class="md-content">' +
-      '    <div class="md-left">' +
-      '      <section class="md-section md-info-toggle-section">' +
-      '        <button type="button" class="md-action-btn md-info-toggle" id="btn-toggle-info" aria-controls="movie-info" aria-expanded="false">' + iconSvg('info') + '<span class="md-info-label">Thông tin phim</span>' + iconSvg('chevDown') + '</button>' +
-      '      </section>' +
-      '      <section id="movie-info" class="md-info">' +
-      '        <div class="md-desc">' + desc + '</div>' +
+      '    <div class="md-content">' +
+      '      <div class="md-left">' +
+      '        <section class="md-section md-info-toggle-section">' +
+      '          <button type="button" class="md-action-btn md-info-toggle" id="btn-toggle-info" aria-controls="movie-info" aria-expanded="false">' + iconSvg('info') + '<span class="md-info-label">Thông tin phim</span>' + iconSvg('chevDown') + '</button>' +
+      '        </section>' +
+      '        <section id="movie-info" class="md-info">' +
+      '          <div class="md-desc">' + desc + '</div>' +
       (infoHtml ? '        <div class="md-info-grid">' + infoHtml + '</div>' : '') +
-      '      </section>' +
-      '    </div>' +
-      '    <div class="md-right">' +
-      '      <section id="movie-comments" class="md-section">' +
-      '        <h3 class="md-section-title">' + iconSvg('chat') + '<span class="md-section-title-text">Bình luận</span></h3>' +
-      '        <div id="twikoo-comments"></div>' +
-      '      </section>' +
-      '    </div>' +
-      '    <section id="movie-recommend" class="md-section md-recommend">' +
-      '      <div class="md-section-head">' +
-      '        <h3 class="md-section-title">' + iconSvg('spark') + '<span class="md-section-title-text">Đề xuất</span></h3>' +
-      '        <div class="grid-toolbar" id="md-rec-toolbar" aria-label="Tùy chọn hiển thị"></div>' +
+      '        </section>' +
       '      </div>' +
-      '      <div class="movies-grid" id="similar-grid"><p>Đang tải...</p></div>' +
-      '    </section>' +
-      '  </div>' +
+      '      <div class="md-right">' +
+      '        <section id="movie-comments" class="md-section">' +
+      '          <h3 class="md-section-title">' + iconSvg('chat') + '<span class="md-section-title-text">Bình luận</span></h3>' +
+      '          <div id="twikoo-comments"></div>' +
+      '        </section>' +
+      '      </div>' +
+      '      <section id="movie-recommend" class="md-section md-recommend">' +
+      '       <div class="md-section-head">' +
+      '         <h3 class="md-section-title">' + iconSvg('spark') + '<span class="md-section-title-text">Đề xuất</span></h3>' +
+      '         <div class="grid-toolbar" id="md-rec-toolbar" aria-label="Tùy chọn hiển thị"></div>' +
+      '       </div>' +
+      '       <div class="movies-grid" id="similar-grid"><p>Đang tải...</p></div>' +
+      '     </section>' +
+      '   </div>' +
+      '</div>' +
       '</div>';
     var el = document.getElementById('movie-detail');
     if (el) el.innerHTML = html;

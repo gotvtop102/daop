@@ -20,11 +20,18 @@ const { useBreakpoint } = Grid;
 
 const items = [
   { key: '/', icon: <DashboardOutlined />, label: <Link to="/">Dashboard</Link> },
-  { key: '/banners', icon: <PictureOutlined />, label: <Link to="/banners">Banner</Link> },
+  {
+    key: '/ads',
+    icon: <PictureOutlined />,
+    label: <Link to="/ads">Quảng cáo</Link>,
+    children: [
+      { key: '/banners', icon: <PictureOutlined />, label: <Link to="/banners">Banner</Link> },
+      { key: '/preroll', icon: <PlaySquareOutlined />, label: <Link to="/preroll">Pre-roll</Link> },
+    ],
+  },
   { key: '/slider', icon: <PictureOutlined />, label: <Link to="/slider">Slider</Link> },
   { key: '/menu-background', icon: <PictureOutlined />, label: <Link to="/menu-background">Nền menu</Link> },
   { key: '/filter-order', icon: <AppstoreOutlined />, label: <Link to="/filter-order">Sắp xếp bộ lọc</Link> },
-  { key: '/preroll', icon: <PlaySquareOutlined />, label: <Link to="/preroll">Pre-roll</Link> },
   { key: '/homepage-sections', icon: <AppstoreOutlined />, label: <Link to="/homepage-sections">Sections</Link> },
   { key: '/category-page-settings', icon: <AppstoreOutlined />, label: <Link to="/category-page-settings">Trang danh mục</Link> },
   { key: '/google-sheets', icon: <FileTextOutlined />, label: <Link to="/google-sheets">Google Sheets</Link> },
@@ -40,6 +47,7 @@ const items = [
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
   const screens = useBreakpoint();
@@ -47,6 +55,14 @@ export default function Layout() {
 
   useEffect(() => {
     setDrawerOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.pathname === '/ads' || location.pathname === '/banners' || location.pathname === '/preroll') {
+      setOpenKeys(['/ads']);
+    } else {
+      setOpenKeys([]);
+    }
   }, [location.pathname]);
 
   const handleLogout = async () => {
@@ -78,7 +94,9 @@ export default function Layout() {
       <div style={{ height: 32, margin: 16, color: '#fff', fontWeight: 'bold' }}>DAOP Admin</div>
       <Menu
         theme="dark"
-        selectedKeys={[location.pathname]}
+        selectedKeys={[location.pathname === '/ads' ? '/ads' : location.pathname]}
+        openKeys={openKeys}
+        onOpenChange={(keys) => setOpenKeys(keys as string[])}
         mode="inline"
         items={items}
         style={{ borderRight: 0 }}

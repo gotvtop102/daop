@@ -128,6 +128,101 @@
     return res.json();
   };
 
+  window.DAOP.loadBannersConfig = function () {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._bannersPromise) return window.DAOP._bannersPromise;
+    window.DAOP._bannersPromise = Promise.resolve()
+      .then(function () {
+        if (!window.DAOP || typeof window.DAOP.loadConfig !== 'function') return [];
+        return window.DAOP.loadConfig('banners');
+      })
+      .then(function (arr) {
+        var list = Array.isArray(arr) ? arr : [];
+        list = list.filter(function (b) { return b && b.is_active !== false; });
+        list.sort(function (a, b) {
+          return (Number(b.priority) || 0) - (Number(a.priority) || 0);
+        });
+        window.DAOP.banners = list;
+        return list;
+      })
+      .catch(function () {
+        window.DAOP.banners = [];
+        return [];
+      });
+    return window.DAOP._bannersPromise;
+  };
+
+  function escAttr(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function getBpKey() {
+    var w = window.innerWidth || document.documentElement.clientWidth || 0;
+    if (w >= 1024) return 'lg';
+    if (w >= 768) return 'md';
+    if (w >= 480) return 'sm';
+    return 'xs';
+  }
+
+  function pickBannerByPosition(banners, position) {
+    var pos = String(position || '').trim();
+    if (!pos) return null;
+    var list = Array.isArray(banners) ? banners : [];
+    for (var i = 0; i < list.length; i++) {
+      var b = list[i];
+      if (!b) continue;
+      if (String(b.position || '').trim() === pos) return b;
+    }
+    return null;
+  }
+
+  window.DAOP.renderAdSlot = function (elOrSelector, position) {
+    var el = typeof elOrSelector === 'string' ? document.querySelector(elOrSelector) : elOrSelector;
+    if (!el) return Promise.resolve(false);
+    el.classList.add('ad-slot');
+    el.setAttribute('data-bp', getBpKey());
+
+    return window.DAOP.loadBannersConfig().then(function (banners) {
+      var b = pickBannerByPosition(banners, position || el.getAttribute('data-ad-position'));
+      if (!b) {
+        el.innerHTML = '';
+        el.style.display = 'none';
+        return false;
+      }
+      el.style.display = '';
+
+      var html = '';
+      if (b.html_code) {
+        html = String(b.html_code);
+      } else {
+        var norm2 = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
+          ? window.DAOP.normalizeImgUrl
+          : function (x) { return x; };
+        var img = norm2(b.image_url || '').replace(/^\/\//, 'https://');
+        var link = b.link_url || '#';
+        html = '<a class="ad-banner-link" href="' + escAttr(link) + '" rel="nofollow noopener" target="_blank">' +
+          '<img class="ad-banner-img" src="' + escAttr(img) + '" alt="" decoding="async" loading="lazy">' +
+        '</a>';
+      }
+
+      el.innerHTML = '<div class="ad-slot-inner">' + html + '</div>';
+      return true;
+    });
+  };
+
+  window.DAOP.renderAdsInDocument = function (root) {
+    var r = root || document;
+    var nodes = Array.prototype.slice.call(r.querySelectorAll('[data-ad-position]'));
+    if (!nodes.length) return Promise.resolve(false);
+    return window.DAOP.loadBannersConfig().then(function () {
+      return Promise.all(nodes.map(function (el) {
+        var pos = el.getAttribute('data-ad-position') || '';
+        return window.DAOP.renderAdSlot(el, pos);
+      })).then(function () { return true; });
+    });
+  };
+
   (function () {
     var _authNavLoading = null;
     var _authNavSettingsPromise = null;

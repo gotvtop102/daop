@@ -42,7 +42,7 @@
   </header>
   <main class="container">
     <div id="slider-wrap" class="slider-wrap"></div>
-    <div id="banner-wrap" class="banner-wrap"></div>
+    <div id="banner-wrap" class="ad-slot" data-ad-position="home_top"></div>
     <div id="home-sections"></div>
   </main>
   <footer class="site-footer">
@@ -90,9 +90,6 @@
             fetch(base + '/data/home/home-sections-data.json' + q).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
             fetch(base + '/data/config/homepage-sections.json' + q)
               .then(function(r){ return r.ok ? r.json() : []; })
-              .catch(function(){ return []; }),
-            fetch(base + '/data/config/banners.json' + q)
-              .then(function(r){ return r.ok ? r.json() : []; })
               .catch(function(){ return []; })
           ]);
         });
@@ -109,7 +106,6 @@
           { title: 'Quốc gia (mẫu)', source_type: 'country', source_value: 'au-my', limit_count: 18, sort_order: 4, more_link: '/quoc-gia/' },
           { title: 'Năm phát hành (mẫu)', source_type: 'year', source_value: '2024', limit_count: 18, sort_order: 5, more_link: '/nam-phat-hanh/' }
         ];
-        var banners = res[2] || [];
         var lightCache = {};
         function getLightById(id) {
           var k = String(id);
@@ -128,14 +124,8 @@
             .then(function (arr) { return (arr || []).filter(Boolean); })
             .catch(function () { return []; });
         }
-        var bannerWrap = document.getElementById('banner-wrap');
-        if (banners.length && bannerWrap) {
-          var b = banners[0];
-          var norm2 = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
-            ? window.DAOP.normalizeImgUrl
-            : function (x) { return x; };
-          var img2 = norm2(b.image_url || '').replace(/^\/\//, 'https://');
-          bannerWrap.innerHTML = '<a href="' + (b.link_url || '#') + '"><img src="' + img2 + '" alt="" decoding="async" fetchpriority="high"></a>';
+        if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+          window.DAOP.renderAdsInDocument(document);
         }
         var container = document.getElementById('home-sections');
         if (!container) return;
@@ -214,6 +204,7 @@
           if (!html) return html;
           return String(html).replace('class="movie-card', 'class="movie-card is-featured');
         }
+        var insertedMidAd = false;
         sections.forEach(function(sec, secIndex){
           var ids = [];
           var limit = sec.limit_count || 24;
@@ -255,6 +246,14 @@
           container.insertAdjacentHTML('beforeend', html);
 
           var secEl = container.lastElementChild;
+
+          if (!insertedMidAd && secIndex >= 0) {
+            insertedMidAd = true;
+            container.insertAdjacentHTML('beforeend', '<div class="ad-slot" data-ad-position="home_mid"></div>');
+            if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+              window.DAOP.renderAdsInDocument(container);
+            }
+          }
           var preMovies = null;
           var preIds = null;
           if (pre && Array.isArray(pre)) {

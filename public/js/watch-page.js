@@ -127,7 +127,21 @@
 
     function rerenderCards() {
       var list = (listRef && listRef.list) ? listRef.list : [];
-      gridEl.innerHTML = list.map(function (m) { return render(m, baseUrl, { usePoster: usePoster }); }).join('');
+      var html = '';
+      var midAfter = 8;
+      var midEvery = 12;
+      for (var i = 0; i < list.length; i++) {
+        html += render(list[i], baseUrl, { usePoster: usePoster });
+        var idx1 = i + 1;
+        if (idx1 === midAfter || (idx1 > midAfter && ((idx1 - midAfter) % midEvery === 0))) {
+          html += '<div class="ad-slot ad-slot--grid" data-ad-position="watch_mid"></div>';
+        }
+      }
+      gridEl.innerHTML = html;
+
+      if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+        window.DAOP.renderAdsInDocument(gridEl);
+      }
     }
 
     var extraOpts = '<option value="6"' + (gridColumnsExtra === 6 ? ' selected' : '') + '>6</option>' +
@@ -1045,6 +1059,7 @@
 
           rootEl.innerHTML =
             '<div class="watch-layout">' +
+            '  <div class="ad-slot" data-ad-position="watch_top"></div>' +
             '  <div class="watch-main">' +
             '    <div class="watch-player-sticky">' +
             '      <div data-role="player"></div>' +
@@ -1100,6 +1115,10 @@
           var initial = pickInitialEpisode(movie, window.DAOP && window.DAOP.serverSources);
           initEpisodesUI(movie, rootEl, initial);
           setupActions(movie, rootEl);
+
+          if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+            window.DAOP.renderAdsInDocument(rootEl);
+          }
         });
       });
     });

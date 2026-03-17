@@ -54,6 +54,34 @@ const LABELS: Record<string, string> = {
   theme_movie_card_meta: 'Thẻ phim: dòng phụ (năm, tập)',
 };
 
+function normalizePickerHex(v: string) {
+  if (!v) return '#000000';
+  var s = String(v).trim();
+  if (s.startsWith('#') && (s.length === 4 || s.length === 7)) return s;
+  return '#000000';
+}
+
+function ColorValueInput({ value, onChange, placeholder }: { value?: string; onChange?: (v: string) => void; placeholder?: string }) {
+  const raw = String(value || '');
+  const picker = normalizePickerHex(raw);
+  return (
+    <Input.Group compact>
+      <input
+        type="color"
+        value={picker}
+        onChange={(e) => onChange && onChange(e.target.value)}
+        style={{ width: 56, height: 32, padding: 0, border: 'none', background: 'transparent' }}
+      />
+      <Input
+        value={raw}
+        placeholder={placeholder || 'vd: #58a6ff hoặc rgba(255,255,255,0.7)'}
+        onChange={(e) => onChange && onChange(e.target.value)}
+        style={{ width: 320 }}
+      />
+    </Input.Group>
+  );
+}
+
 export default function ThemeSettings() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
@@ -94,12 +122,6 @@ export default function ThemeSettings() {
     }
   };
 
-  const values = Form.useWatch([], form) || {};
-  const previewBg = values.theme_bg || DEFAULTS.theme_bg;
-  const previewCard = values.theme_card || DEFAULTS.theme_card;
-  const previewAccent = values.theme_primary || DEFAULTS.theme_primary;
-  const previewText = values.theme_text || DEFAULTS.theme_text;
-
   return (
     <>
       <h1>Theme (màu sắc)</h1>
@@ -110,80 +132,64 @@ export default function ThemeSettings() {
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <h3 style={{ marginTop: 0, marginBottom: 12 }}>Nền &amp; chung</h3>
           <Form.Item name="theme_primary" label={LABELS.theme_primary}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_bg" label={LABELS.theme_bg}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_card" label={LABELS.theme_card}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_accent" label={LABELS.theme_accent}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Màu chữ toàn site</h3>
           <Form.Item name="theme_text" label={LABELS.theme_text}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_muted" label={LABELS.theme_muted}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_link" label={LABELS.theme_link}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Header (menu)</h3>
           <Form.Item name="theme_header_logo" label={LABELS.theme_header_logo}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_header_link" label={LABELS.theme_header_link}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Footer</h3>
           <Form.Item name="theme_footer_text" label={LABELS.theme_footer_text}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Section &amp; Bộ lọc &amp; Phân trang</h3>
           <Form.Item name="theme_section_title" label={LABELS.theme_section_title}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_filter_label" label={LABELS.theme_filter_label}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_pagination" label={LABELS.theme_pagination}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Slider trang chủ</h3>
           <Form.Item name="theme_slider_title" label={LABELS.theme_slider_title}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_slider_meta" label={LABELS.theme_slider_meta}>
-            <Input placeholder="vd: rgba(255,255,255,0.75) hoặc #ccc" style={{ width: 280 }} />
+            <ColorValueInput placeholder="vd: rgba(255,255,255,0.75) hoặc #ccc" />
           </Form.Item>
           <Form.Item name="theme_slider_desc" label={LABELS.theme_slider_desc}>
-            <Input placeholder="vd: rgba(255,255,255,0.7) hoặc #aaa" style={{ width: 280 }} />
+            <ColorValueInput placeholder="vd: rgba(255,255,255,0.7) hoặc #aaa" />
           </Form.Item>
           <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
           <Form.Item name="theme_movie_card_title" label={LABELS.theme_movie_card_title}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
+            <ColorValueInput />
           </Form.Item>
           <Form.Item name="theme_movie_card_meta" label={LABELS.theme_movie_card_meta}>
-            <Input type="color" style={{ width: 80, height: 32 }} />
-          </Form.Item>
-          <Form.Item label="Xem trước">
-            <div
-              style={{
-                background: previewBg,
-                color: previewText,
-                padding: 16,
-                borderRadius: 8,
-                border: '1px solid #30363d',
-              }}
-            >
-              <div style={{ background: previewCard, padding: 12, borderRadius: 6, marginBottom: 8 }}>
-                Header / Card
-              </div>
-              <a href="#" style={{ color: previewAccent }}>Link mẫu</a>
-            </div>
+            <ColorValueInput />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">Lưu</Button>

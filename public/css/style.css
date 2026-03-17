@@ -22,7 +22,15 @@ body {
 }
 
 body.theme-light {
-  background: var(--light-bg);
+  --bg: var(--light-bg);
+  --card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #57606a;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  background: var(--bg);
+  color: var(--text);
 }
 a {
   color: var(--link-color, var(--accent));
@@ -1359,13 +1367,54 @@ body.site-header--collapsed .site-header {
   margin-bottom: 1.5rem;
   border-radius: 8px;
   overflow: hidden;
+  background: var(--card);
+}
+.banner-wrap a {
+  display: block;
 }
 .banner-wrap img {
   width: 100%;
-  max-height: 320px;
+  max-height: clamp(160px, 30vw, 320px);
   object-fit: cover;
   display: block;
 }
+
+ .ad-slot {
+   width: 100%;
+   margin-bottom: 1.5rem;
+   border-radius: 8px;
+   overflow: hidden;
+   background: var(--card);
+ }
+
+ .ad-slot-inner {
+   width: 100%;
+   display: block;
+   overflow: hidden;
+ }
+
+ .ad-slot-inner iframe,
+ .ad-slot-inner ins,
+ .ad-slot-inner embed,
+ .ad-slot-inner object {
+   max-width: 100%;
+ }
+
+ .ad-banner-link {
+   display: block;
+ }
+
+ .ad-banner-img {
+   width: 100%;
+   max-height: clamp(160px, 30vw, 320px);
+   object-fit: cover;
+   display: block;
+ }
+
+ .ad-slot--grid {
+   grid-column: 1 / -1;
+   margin: 0.75rem 0;
+ }
 
 /* Slider homepage kiểu ONFLIX: hero với overlay, tiêu đề, meta, thể loại, mô tả, CTA */
 .slider-wrap {
@@ -3289,9 +3338,10 @@ body.site-header--collapsed .site-header {
 .player-overlay video,
 .player-overlay iframe {
   max-width: 100%;
-  width: 90vw;
-  height: 50.625vw;
-  max-height: 90vh;
+  width: min(90vw, 1100px);
+  aspect-ratio: 16 / 9;
+  height: auto;
+  max-height: 85vh;
 }
 .player-overlay iframe {
   border: none;
