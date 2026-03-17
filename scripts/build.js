@@ -3271,6 +3271,28 @@ async function main() {
     console.log('Writing TMDB batches only...');
     writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
 
+    // Rebuild actors từ TMDB payload: CORE phase (SKIP_TMDB) thường không có cast/cast_meta,
+    // và core batches còn strip các field này. Nếu không rebuild ở đây, /dien-vien sẽ rỗng.
+    try {
+      const mergedMovies = allMovies.map((m) => {
+        const idStr = m && m.id != null ? String(m.id) : '';
+        const t = idStr ? tmdbById.get(idStr) : null;
+        if (!t) return m;
+        return {
+          ...m,
+          tmdb: t.tmdb || m.tmdb,
+          imdb: t.imdb || m.imdb,
+          cast: (Array.isArray(t.cast) && t.cast.length) ? t.cast : (m.cast || []),
+          director: (Array.isArray(t.director) && t.director.length) ? t.director : (m.director || []),
+          cast_meta: (Array.isArray(t.cast_meta) && t.cast_meta.length) ? t.cast_meta : (m.cast_meta || []),
+          keywords: (Array.isArray(t.keywords) && t.keywords.length) ? t.keywords : (m.keywords || []),
+        };
+      });
+      writeActors(mergedMovies);
+    } catch (e) {
+      console.warn('TMDB_ONLY: rebuild actors failed (continue):', e && e.message ? e.message : e);
+    }
+
     const buildVersion = { builtAt: new Date().toISOString() };
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
     console.log('TMDB_ONLY build done.');
