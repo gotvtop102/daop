@@ -548,7 +548,7 @@ export default function GitHubActions() {
       <Tabs
         style={{ marginTop: 24 }}
         defaultActiveKey="progress"
-        more={{ icon: null, tooltip: 'Thêm' }}
+        more={{ icon: null }}
         tabBarStyle={{ overflow: 'hidden' }}
         items={[
           {

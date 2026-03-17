@@ -20,6 +20,9 @@ import AuditLogs from './pages/AuditLogs';
 import GitHubActions from './pages/GitHubActions';
 import GoogleSheetsPage from './pages/GoogleSheets';
 import SupabaseTools from './pages/SupabaseTools';
+import MovieList from './pages/MovieList';
+import MovieEdit from './pages/MovieEdit';
+import EpisodeEdit from './pages/EpisodeEdit';
 
 export default function App() {
   return (
@@ -45,6 +48,9 @@ export default function App() {
           <Route path="audit-logs" element={<AuditLogs />} />
           <Route path="supabase-tools" element={<SupabaseTools />} />
           <Route path="github-actions" element={<GitHubActions />} />
+          <Route path="movies/:category" element={<MovieList />} />
+          <Route path="movies/edit/:id" element={<MovieEdit />} />
+          <Route path="movies/episodes/:id" element={<EpisodeEdit />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

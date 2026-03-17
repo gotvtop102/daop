@@ -1,8 +1,119 @@
-import { useEffect, useState } from 'react';
-import { Card, Form, Input, Switch, Button, message } from 'antd';
+import { useEffect, useState, useRef } from 'react';
+import {
+  Card,
+  Form,
+  Select,
+  Switch,
+  Button,
+  message,
+  Collapse,
+  Input,
+  InputNumber,
+  Space,
+  Tabs,
+  Typography,
+  Tag,
+  Table,
+  Modal,
+  Radio,
+  Slider,
+} from 'antd';
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 
-const PLAYER_KEYS = ['available_players', 'default_player', 'link_type_labels'] as const;
+const { Text, Title } = Typography;
+const { Panel } = Collapse;
+
+type PlayerType = 'plyr' | 'videojs' | 'jwplayer' | 'vidstack' | 'clappr' | 'mediaelement' | 'fluidplayer';
+
+type PlayerConfig = {
+  // Common settings
+  autoplay?: boolean;
+  muted?: boolean;
+  controls?: boolean;
+  preload?: 'auto' | 'metadata' | 'none';
+  loop?: boolean;
+  poster?: string;
+
+  // Plyr specific
+  plyr_hideControls?: boolean;
+  plyr_clickToPlay?: boolean;
+  plyr_disableContextMenu?: boolean;
+  plyr_resetOnEnd?: boolean;
+  plyr_tooltips?: 'controls' | 'seek' | 'none';
+
+  // Video.js specific
+  vjs_fluid?: boolean;
+  vjs_responsive?: boolean;
+  vjs_aspectRatio?: string;
+  vjs_bigPlayButton?: boolean;
+  vjs_controlBar?: boolean;
+
+  // Vidstack specific
+  vidstack_theme?: 'default' | 'minimal' | 'custom';
+  vidstack_load?: 'eager' | 'lazy' | 'idle';
+  vidstack_icons?: 'default' | 'material' | 'custom';
+  vidstack_thumbnails?: boolean;
+  vidstack_chapters?: boolean;
+
+  // Clappr specific
+  clappr_watermark?: string;
+  clappr_watermarkPosition?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+  clappr_autoPlay?: boolean;
+  clappr_mute?: boolean;
+  clappr_hideMediaControl?: boolean;
+
+  // MediaElement specific
+  me_alwaysShowControls?: boolean;
+  me_hideVideoControlsOnLoad?: boolean;
+  me_startVolume?: number;
+  me_stretching?: 'auto' | 'fill' | 'responsive' | 'none';
+
+  // Fluidplayer specific
+  fluid_layoutControls?: boolean;
+  fluid_controlBar?: boolean;
+  fluid_miniProgressBar?: boolean;
+  fluid_speed?: boolean;
+  fluid_theatreMode?: boolean;
+  fluid_quality?: boolean;
+  fluid_logo?: string;
+  fluid_logoPosition?: 'top right' | 'top left' | 'bottom right' | 'bottom left';
+
+  // JWPlayer specific
+  jwplayer_license_key?: string;
+
+  // Ads settings
+  preroll_enabled?: boolean;
+  preroll_vast?: string;
+  midroll_enabled?: boolean;
+  postroll_enabled?: boolean;
+};
+
+const AVAILABLE_PLAYERS: { value: PlayerType; label: string; description: string }[] = [
+  { value: 'plyr', label: 'Plyr', description: 'Player nhẹ, đẹp, dễ tùy chỉnh' },
+  { value: 'videojs', label: 'Video.js', description: 'Player mạnh mẽ, hỗ trợ nhiều format' },
+  { value: 'jwplayer', label: 'JWPlayer', description: 'Player chuyên nghiệp (cần license)' },
+  { value: 'vidstack', label: 'Vidstack', description: 'Player hiện đại, hỗ trợ Web Components' },
+  { value: 'clappr', label: 'Clappr', description: 'Player mở rộng, dễ tích hợp plugin' },
+  { value: 'mediaelement', label: 'MediaElement', description: 'Player đa năng, hỗ trợ nhiều nguồn' },
+  { value: 'fluidplayer', label: 'FluidPlayer', description: 'Player HTML5 mạnh mẽ, hỗ trợ VAST/VPAID' },
+];
+
+type PrerollRow = {
+  id: string;
+  name: string | null;
+  video_url: string | null;
+  image_url: string | null;
+  duration: number | null;
+  skip_after: number | null;
+  weight: number | null;
+  is_active: boolean;
+};
 
 function parseJsonSafe<T>(raw: unknown, fallback: T): T {
   if (raw == null) return fallback;
@@ -16,59 +127,167 @@ function parseJsonSafe<T>(raw: unknown, fallback: T): T {
   return raw as T;
 }
 
+const defaultPlayerConfig: PlayerConfig = {
+  autoplay: false,
+  muted: false,
+  controls: true,
+  preload: 'metadata',
+  loop: false,
+
+  // Plyr
+  plyr_hideControls: false,
+  plyr_clickToPlay: true,
+  plyr_disableContextMenu: true,
+  plyr_resetOnEnd: false,
+  plyr_tooltips: 'controls',
+
+  // Video.js
+  vjs_fluid: true,
+  vjs_responsive: true,
+  vjs_aspectRatio: '16:9',
+  vjs_bigPlayButton: true,
+  vjs_controlBar: true,
+
+  // Vidstack
+  vidstack_theme: 'default',
+  vidstack_load: 'idle',
+  vidstack_icons: 'default',
+  vidstack_thumbnails: false,
+  vidstack_chapters: false,
+
+  // Clappr
+  clappr_watermark: '',
+  clappr_watermarkPosition: 'top-right',
+  clappr_autoPlay: false,
+  clappr_mute: false,
+  clappr_hideMediaControl: false,
+
+  // MediaElement
+  me_alwaysShowControls: true,
+  me_hideVideoControlsOnLoad: false,
+  me_startVolume: 0.8,
+  me_stretching: 'responsive',
+
+  // Fluidplayer
+  fluid_layoutControls: true,
+  fluid_controlBar: true,
+  fluid_miniProgressBar: true,
+  fluid_speed: true,
+  fluid_theatreMode: true,
+  fluid_quality: true,
+  fluid_logo: '',
+  fluid_logoPosition: 'top right',
+
+  // Ads
+  preroll_enabled: true,
+  preroll_vast: '',
+  midroll_enabled: false,
+  postroll_enabled: false,
+};
+
 export default function PlayerSettings() {
   const [form] = Form.useForm();
+  const [configForm] = Form.useForm();
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerType>('plyr');
+  const [playerConfig, setPlayerConfig] = useState<PlayerConfig>(defaultPlayerConfig);
+  const [linkTypeLabels, setLinkTypeLabels] = useState<Record<string, string>>({
+    m3u8: 'M3U8',
+    embed: 'Embed',
+    backup: 'Backup',
+    vip1: 'VIP 1',
+    vip2: 'VIP 2',
+    vip3: 'VIP 3',
+    vip4: 'VIP 4',
+    vip5: 'VIP 5',
+  });
 
+  // Preroll ads state
+  const [prerollData, setPrerollData] = useState<PrerollRow[]>([]);
+  const [prerollLoading, setPrerollLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [prerollForm] = Form.useForm();
+  const prerollImageInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState('player');
+
+  // Load player settings
   useEffect(() => {
-    supabase.from('player_settings').select('key, value').then((r) => {
-      const rows = r.data ?? [];
-      const data: Record<string, any> = {};
-      for (const row of rows) {
-        data[row.key] = row.value;
-      }
-      const available = parseJsonSafe(data.available_players, { plyr: 'Plyr', videojs: 'Video.js', jwplayer: 'JWPlayer' });
-      const options = Object.entries(available).map(([k, v]) => ({ label: `${k}: ${v}`, value: k }));
-      const linkTypeLabels = parseJsonSafe<Record<string, string>>(data.link_type_labels, {
-        m3u8: 'M3U8',
-        embed: 'Embed',
-        backup: 'Backup',
-        vip1: 'VIP 1',
-        vip2: 'VIP 2',
-        vip3: 'VIP 3',
-        vip4: 'VIP 4',
-        vip5: 'VIP 5',
-      });
-      form.setFieldsValue({
-        default_player: data.default_player ?? 'plyr',
-        available_players_json: JSON.stringify(available, null, 2),
-        link_type_labels_json: JSON.stringify(linkTypeLabels, null, 2),
-      });
-      setLoading(false);
-    });
-  }, [form]);
+    loadSettings();
+    loadPrerollData();
+  }, []);
 
-  const onFinish = async (values: Record<string, any>) => {
-    let available: Record<string, string> = {};
-    let linkTypeLabels: Record<string, string> = {};
-    try {
-      available = JSON.parse(values.available_players_json || '{}');
-    } catch {
-      message.error('available_players phải là JSON hợp lệ');
-      return;
+  const loadSettings = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('player_settings').select('key, value');
+    const rows = data ?? [];
+    const settings: Record<string, any> = {};
+    for (const row of rows) {
+      settings[row.key] = row.value;
     }
+
+    const defaultPlayer = settings.default_player ?? 'plyr';
+    setSelectedPlayer(defaultPlayer as PlayerType);
+
+    const config = parseJsonSafe<PlayerConfig>(settings.player_config, defaultPlayerConfig);
+    setPlayerConfig({ ...defaultPlayerConfig, ...config });
+
+    const labels = parseJsonSafe<Record<string, string>>(settings.link_type_labels, {
+      m3u8: 'M3U8',
+      embed: 'Embed',
+      backup: 'Backup',
+      vip1: 'VIP 1',
+      vip2: 'VIP 2',
+      vip3: 'VIP 3',
+      vip4: 'VIP 4',
+      vip5: 'VIP 5',
+    });
+    setLinkTypeLabels(labels);
+
+    form.setFieldsValue({
+      default_player: defaultPlayer,
+      link_type_labels_json: JSON.stringify(labels, null, 2),
+    });
+
+    configForm.setFieldsValue({
+      ...defaultPlayerConfig,
+      ...config,
+    });
+
+    setLoading(false);
+  };
+
+  const loadPrerollData = async () => {
+    setPrerollLoading(true);
+    const { data } = await supabase.from('ad_preroll').select('*').order('weight', { ascending: false });
+    setPrerollData((data as PrerollRow[]) ?? []);
+    setPrerollLoading(false);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
     try {
-      linkTypeLabels = JSON.parse(values.link_type_labels_json || '{}');
-    } catch {
-      message.error('link_type_labels phải là JSON hợp lệ');
-      return;
-    }
-    try {
+      const values = form.getFieldsValue();
+      const configValues = configForm.getFieldsValue();
+
+      // Parse link type labels
+      let linkTypeLabelsData: Record<string, string> = {};
+      try {
+        linkTypeLabelsData = JSON.parse(values.link_type_labels_json || '{}');
+      } catch {
+        message.error('link_type_labels phải là JSON hợp lệ');
+        setSaving(false);
+        return;
+      }
+
+      // Save all settings
       const rows = [
-        { key: 'available_players', value: available },
-        { key: 'default_player', value: values.default_player ?? 'plyr' },
-        { key: 'link_type_labels', value: linkTypeLabels },
+        { key: 'default_player', value: values.default_player },
+        { key: 'player_config', value: configValues },
+        { key: 'link_type_labels', value: linkTypeLabelsData },
       ];
+
       for (const row of rows) {
         const { error } = await supabase.from('player_settings').upsert(
           { ...row, updated_at: new Date().toISOString() },
@@ -76,41 +295,579 @@ export default function PlayerSettings() {
         );
         if (error) throw error;
       }
-      message.success('Đã lưu. Chạy Build website để áp dụng lên player.');
+
+      message.success('Đã lưu cài đặt player. Chạy Build website để áp dụng.');
+    } catch (e: any) {
+      message.error(e?.message || 'Lưu thất bại');
+    }
+    setSaving(false);
+  };
+
+  // Preroll handlers
+  const openAddPreroll = () => {
+    setEditingId(null);
+    prerollForm.resetFields();
+    prerollForm.setFieldsValue({ is_active: true, weight: 0 });
+    setModalVisible(true);
+  };
+
+  const openEditPreroll = (row: PrerollRow) => {
+    setEditingId(row.id);
+    prerollForm.setFieldsValue(row);
+    setModalVisible(true);
+  };
+
+  const handleDeletePreroll = async (id: string) => {
+    if (!confirm('Xóa quảng cáo pre-roll này?')) return;
+    try {
+      const { error } = await supabase.from('ad_preroll').delete().eq('id', id);
+      if (error) throw error;
+      message.success('Đã xóa');
+      await loadPrerollData();
+    } catch (e: any) {
+      message.error(e?.message || 'Xóa thất bại');
+    }
+  };
+
+  const togglePrerollActive = async (row: PrerollRow) => {
+    try {
+      const { error } = await supabase.from('ad_preroll').update({ is_active: !row.is_active }).eq('id', row.id);
+      if (error) throw error;
+      await loadPrerollData();
+    } catch (e: any) {
+      message.error(e?.message || 'Cập nhật thất bại');
+    }
+  };
+
+  const handleSubmitPreroll = async (values: any) => {
+    try {
+      const payload = {
+        name: values.name || null,
+        video_url: values.video_url || null,
+        image_url: values.image_url || null,
+        duration: values.duration != null ? Number(values.duration) : null,
+        skip_after: values.skip_after != null ? Number(values.skip_after) : null,
+        weight: values.weight != null ? Number(values.weight) : 0,
+        is_active: !!values.is_active,
+      };
+      if (editingId) {
+        const { error } = await supabase.from('ad_preroll').update(payload).eq('id', editingId);
+        if (error) throw error;
+        message.success('Đã cập nhật');
+      } else {
+        const { error } = await supabase.from('ad_preroll').insert(payload);
+        if (error) throw error;
+        message.success('Đã thêm');
+      }
+      setModalVisible(false);
+      await loadPrerollData();
     } catch (e: any) {
       message.error(e?.message || 'Lưu thất bại');
     }
   };
 
+  const renderPlayerSpecificConfig = () => {
+    const player = selectedPlayer;
+
+    switch (player) {
+      case 'plyr':
+        return (
+          <>
+            <Title level={5}>Cài đặt Plyr</Title>
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Form.Item name="plyr_hideControls" valuePropName="checked" label="Ẩn controls">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="plyr_clickToPlay" valuePropName="checked" label="Click để phát">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="plyr_disableContextMenu" valuePropName="checked" label="Vô hiệu hóa menu chuột phải">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="plyr_resetOnEnd" valuePropName="checked" label="Reset khi kết thúc">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="plyr_tooltips" label="Tooltips">
+                <Radio.Group optionType="button" buttonStyle="solid">
+                  <Radio.Button value="controls">Controls</Radio.Button>
+                  <Radio.Button value="seek">Seek</Radio.Button>
+                  <Radio.Button value="none">Không</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+            </Space>
+          </>
+        );
+
+      case 'videojs':
+        return (
+          <>
+            <Title level={5}>Cài đặt Video.js</Title>
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Form.Item name="vjs_fluid" valuePropName="checked" label="Fluid layout">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="vjs_responsive" valuePropName="checked" label="Responsive">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="vjs_aspectRatio" label="Tỷ lệ khung hình">
+                <Select
+                  options={[
+                    { value: '16:9', label: '16:9' },
+                    { value: '4:3', label: '4:3' },
+                    { value: '21:9', label: '21:9' },
+                    { value: '1:1', label: '1:1' },
+                  ]}
+                />
+              </Form.Item>
+              <Form.Item name="vjs_bigPlayButton" valuePropName="checked" label="Nút Play lớn">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="vjs_controlBar" valuePropName="checked" label="Hiển thị control bar">
+                <Switch />
+              </Form.Item>
+            </Space>
+          </>
+        );
+
+      case 'vidstack':
+        return (
+          <>
+            <Title level={5}>Cài đặt Vidstack</Title>
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Form.Item name="vidstack_theme" label="Theme">
+                <Radio.Group optionType="button" buttonStyle="solid">
+                  <Radio.Button value="default">Mặc định</Radio.Button>
+                  <Radio.Button value="minimal">Tối giản</Radio.Button>
+                  <Radio.Button value="custom">Tùy chỉnh</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item name="vidstack_load" label="Chế độ tải">
+                <Radio.Group optionType="button" buttonStyle="solid">
+                  <Radio.Button value="eager">Eager</Radio.Button>
+                  <Radio.Button value="lazy">Lazy</Radio.Button>
+                  <Radio.Button value="idle">Idle</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item name="vidstack_icons" label="Icon set">
+                <Radio.Group optionType="button" buttonStyle="solid">
+                  <Radio.Button value="default">Mặc định</Radio.Button>
+                  <Radio.Button value="material">Material</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item name="vidstack_thumbnails" valuePropName="checked" label="Bật thumbnails (preview)">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="vidstack_chapters" valuePropName="checked" label="Bật chapters">
+                <Switch />
+              </Form.Item>
+            </Space>
+          </>
+        );
+
+      case 'clappr':
+        return (
+          <>
+            <Title level={5}>Cài đặt Clappr</Title>
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Form.Item name="clappr_watermark" label="URL Watermark">
+                <Input placeholder="https://..." />
+              </Form.Item>
+              <Form.Item name="clappr_watermarkPosition" label="Vị trí Watermark">
+                <Radio.Group optionType="button" buttonStyle="solid">
+                  <Radio.Button value="top-right">Top Right</Radio.Button>
+                  <Radio.Button value="top-left">Top Left</Radio.Button>
+                  <Radio.Button value="bottom-right">Bottom Right</Radio.Button>
+                  <Radio.Button value="bottom-left">Bottom Left</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item name="clappr_autoPlay" valuePropName="checked" label="Tự động phát">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="clappr_mute" valuePropName="checked" label="Tắt tiếng mặc định">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="clappr_hideMediaControl" valuePropName="checked" label="Ẩn media control">
+                <Switch />
+              </Form.Item>
+            </Space>
+          </>
+        );
+
+      case 'mediaelement':
+        return (
+          <>
+            <Title level={5}>Cài đặt MediaElement</Title>
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Form.Item name="me_alwaysShowControls" valuePropName="checked" label="Luôn hiển thị controls">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="me_hideVideoControlsOnLoad" valuePropName="checked" label="Ẩn controls khi tải">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="me_startVolume" label="Âm lượng mặc định">
+                <Slider min={0} max={1} step={0.1} marks={{ 0: '0%', 0.5: '50%', 1: '100%' }} />
+              </Form.Item>
+              <Form.Item name="me_stretching" label="Chế độ stretching">
+                <Radio.Group optionType="button" buttonStyle="solid">
+                  <Radio.Button value="auto">Auto</Radio.Button>
+                  <Radio.Button value="fill">Fill</Radio.Button>
+                  <Radio.Button value="responsive">Responsive</Radio.Button>
+                  <Radio.Button value="none">None</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+            </Space>
+          </>
+        );
+
+      case 'fluidplayer':
+        return (
+          <>
+            <Title level={5}>Cài đặt FluidPlayer</Title>
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Form.Item name="fluid_layoutControls" valuePropName="checked" label="Layout controls">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="fluid_controlBar" valuePropName="checked" label="Control bar">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="fluid_miniProgressBar" valuePropName="checked" label="Mini progress bar">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="fluid_speed" valuePropName="checked" label="Chỉnh tốc độ phát">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="fluid_theatreMode" valuePropName="checked" label="Chế độ theatre">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="fluid_quality" valuePropName="checked" label="Chọn chất lượng">
+                <Switch />
+              </Form.Item>
+              <Form.Item name="fluid_logo" label="URL Logo">
+                <Input placeholder="https://..." />
+              </Form.Item>
+              <Form.Item name="fluid_logoPosition" label="Vị trí Logo">
+                <Radio.Group optionType="button" buttonStyle="solid">
+                  <Radio.Button value="top right">Top Right</Radio.Button>
+                  <Radio.Button value="top left">Top Left</Radio.Button>
+                  <Radio.Button value="bottom right">Bottom Right</Radio.Button>
+                  <Radio.Button value="bottom left">Bottom Left</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+            </Space>
+          </>
+        );
+
+      case 'jwplayer':
+        return (
+          <>
+            <Title level={5}>Cài đặt JWPlayer</Title>
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Form.Item 
+                name="jwplayer_license_key" 
+                label="License Key"
+                rules={[{ required: true, message: 'Vui lòng nhập license key' }]}
+              >
+                <Input.Password placeholder="Nhập JWPlayer license key..." />
+              </Form.Item>
+              <Text type="secondary">
+                JWPlayer yêu cầu license key để hoạt động. Bạn có thể đăng ký tại{' '}
+                <a href="https://www.jwplayer.com/" target="_blank" rel="noopener noreferrer">jwplayer.com</a>
+              </Text>
+            </Space>
+          </>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const tabItems = [
+    {
+      key: 'player',
+      label: 'Player & Cấu hình',
+      children: (
+        <>
+          <Card title="Chọn Player" style={{ marginBottom: 16 }}>
+            <Form form={form} layout="vertical" onFinish={handleSave}>
+              <Form.Item
+                name="default_player"
+                label="Player mặc định"
+                rules={[{ required: true, message: 'Vui lòng chọn player' }]}
+              >
+                <Select
+                  placeholder="Chọn player"
+                  onChange={(value) => setSelectedPlayer(value as PlayerType)}
+                  options={AVAILABLE_PLAYERS.map((p) => ({
+                    value: p.value,
+                    label: (
+                      <Space direction="vertical" size={0} style={{ width: '100%' }}>
+                        <Text strong>{p.label}</Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>{p.description}</Text>
+                      </Space>
+                    ),
+                  }))}
+                  optionLabelProp="label"
+                  style={{ width: '100%' }}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="link_type_labels_json"
+                label="Tên Máy chủ (JSON: key -> nhãn hiển thị)"
+              >
+                <Input.TextArea
+                  rows={5}
+                  placeholder='{"m3u8":"M3U8","embed":"Embed","backup":"Backup","vip1":"VIP 1"}'
+                />
+              </Form.Item>
+            </Form>
+          </Card>
+
+          <Collapse defaultActiveKey={['common', 'player-specific', 'ads']}>
+            <Panel header="Cài đặt chung" key="common">
+              <Form form={configForm} layout="vertical">
+                <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                  <Form.Item name="autoplay" valuePropName="checked" label="Tự động phát">
+                    <Switch />
+                  </Form.Item>
+                  <Form.Item name="muted" valuePropName="checked" label="Tắt tiếng mặc định">
+                    <Switch />
+                  </Form.Item>
+                  <Form.Item name="controls" valuePropName="checked" label="Hiển thị controls">
+                    <Switch defaultChecked />
+                  </Form.Item>
+                  <Form.Item name="loop" valuePropName="checked" label="Lặp lại">
+                    <Switch />
+                  </Form.Item>
+                  <Form.Item name="preload" label="Preload">
+                    <Radio.Group optionType="button" buttonStyle="solid">
+                      <Radio.Button value="auto">Auto</Radio.Button>
+                      <Radio.Button value="metadata">Metadata</Radio.Button>
+                      <Radio.Button value="none">None</Radio.Button>
+                    </Radio.Group>
+                  </Form.Item>
+                </Space>
+              </Form>
+            </Panel>
+
+            <Panel header={`Cài đặt ${AVAILABLE_PLAYERS.find(p => p.value === selectedPlayer)?.label || 'Player'}`} key="player-specific">
+              <Form form={configForm} layout="vertical">
+                {renderPlayerSpecificConfig()}
+              </Form>
+            </Panel>
+
+            <Panel header="Cài đặt Quảng cáo" key="ads">
+              <Form form={configForm} layout="vertical">
+                <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                  <Form.Item name="preroll_enabled" valuePropName="checked" label="Bật Pre-roll">
+                    <Switch />
+                  </Form.Item>
+                  <Form.Item name="preroll_vast" label="VAST/VPAID URL (tùy chọn)">
+                    <Input placeholder="https://.../vast.xml" />
+                  </Form.Item>
+                  <Form.Item name="midroll_enabled" valuePropName="checked" label="Bật Mid-roll">
+                    <Switch />
+                  </Form.Item>
+                  <Form.Item name="postroll_enabled" valuePropName="checked" label="Bật Post-roll">
+                    <Switch />
+                  </Form.Item>
+                </Space>
+              </Form>
+            </Panel>
+          </Collapse>
+
+          <Button
+            type="primary"
+            onClick={handleSave}
+            loading={saving}
+            style={{ marginTop: 16 }}
+            icon={<SettingOutlined />}
+          >
+            Lưu tất cả cài đặt
+          </Button>
+        </>
+      ),
+    },
+    {
+      key: 'preroll',
+      label: 'Quảng cáo Pre-roll',
+      children: (
+        <>
+          <Card
+            title="Danh sách Pre-roll"
+            extra={
+              <Space>
+                <Button type="primary" icon={<PlusOutlined />} onClick={openAddPreroll}>
+                  Thêm quảng cáo
+                </Button>
+                <Button onClick={loadPrerollData} loading={prerollLoading}>
+                  Refresh
+                </Button>
+              </Space>
+            }
+          >
+            <Table
+              loading={prerollLoading}
+              dataSource={prerollData}
+              rowKey="id"
+              size="small"
+              columns={[
+                { title: 'Tên', dataIndex: 'name', key: 'name', ellipsis: true },
+                { title: 'Video URL', dataIndex: 'video_url', key: 'video_url', ellipsis: true },
+                {
+                  title: 'Thời lượng',
+                  dataIndex: 'duration',
+                  key: 'duration',
+                  width: 90,
+                  render: (v: number | null) => v ? `${v}s` : '-',
+                },
+                {
+                  title: 'Skip sau',
+                  dataIndex: 'skip_after',
+                  key: 'skip_after',
+                  width: 90,
+                  render: (v: number | null) => v ? `${v}s` : '-',
+                },
+                {
+                  title: 'Trọng số',
+                  dataIndex: 'weight',
+                  key: 'weight',
+                  width: 80,
+                },
+                {
+                  title: 'Trạng thái',
+                  dataIndex: 'is_active',
+                  key: 'is_active',
+                  width: 90,
+                  render: (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? 'Bật' : 'Tắt'}</Tag>,
+                },
+                {
+                  title: '',
+                  key: 'action',
+                  width: 200,
+                  render: (_: any, row: PrerollRow) => (
+                    <Space size="small">
+                      <Button size="small" icon={<EditOutlined />} onClick={() => openEditPreroll(row)}>Sửa</Button>
+                      <Button size="small" danger icon={<DeleteOutlined />} onClick={() => handleDeletePreroll(row.id)}>Xóa</Button>
+                      <Button size="small" onClick={() => togglePrerollActive(row)}>{row.is_active ? 'Tắt' : 'Bật'}</Button>
+                    </Space>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+
+          <Modal
+            title={editingId ? 'Sửa pre-roll' : 'Thêm pre-roll'}
+            open={modalVisible}
+            onCancel={() => setModalVisible(false)}
+            onOk={() => prerollForm.submit()}
+            destroyOnClose
+          >
+            <Form form={prerollForm} layout="vertical" onFinish={handleSubmitPreroll}>
+              <Form.Item name="name" label="Tên">
+                <Input placeholder="Mô tả ngắn" />
+              </Form.Item>
+              <Form.Item name="video_url" label="URL video" rules={[{ required: true }]}>
+                <Input placeholder="https://..." />
+              </Form.Item>
+              <Form.Item name="image_url" label="URL ảnh (poster/thumbnail)">
+                <Input
+                  placeholder="https://... hoặc bấm nút bên cạnh"
+                  addonAfter={
+                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                      <input
+                        ref={prerollImageInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        style={{ display: 'none' }}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file || file.size > 4 * 1024 * 1024) {
+                            message.warning('Chọn ảnh ≤ 4MB');
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onload = async () => {
+                            const base64 = (reader.result as string)?.split(',')[1];
+                            if (!base64) return;
+                            try {
+                              const apiBase = ((import.meta as any).env?.VITE_API_URL || window.location.origin).replace(/\/$/, '');
+                              const r = await fetch(apiBase + '/api/upload-image', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  image: base64,
+                                  contentType: file.type || 'image/jpeg',
+                                  filename: file.name,
+                                  folder: 'preroll',
+                                }),
+                              });
+                              const data = await r.json();
+                              if (data.url) {
+                                prerollForm.setFieldValue('image_url', data.url);
+                                message.success('Đã upload ảnh');
+                              } else {
+                                message.error(data.error || 'Upload thất bại');
+                              }
+                            } catch {
+                              message.error('Lỗi kết nối API upload');
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                          e.target.value = '';
+                        }}
+                      />
+                      <Button type="link" size="small" onClick={() => prerollImageInputRef.current?.click()}>
+                        Chọn ảnh
+                      </Button>
+                    </span>
+                  }
+                />
+              </Form.Item>
+              <Form.Item name="duration" label="Thời lượng (giây)">
+                <InputNumber min={1} style={{ width: '100%' }} />
+              </Form.Item>
+              <Form.Item name="skip_after" label="Cho phép bỏ qua sau (giây)">
+                <InputNumber min={0} style={{ width: '100%' }} />
+              </Form.Item>
+              <Form.Item name="weight" label="Trọng số (cao = ưu tiên)">
+                <InputNumber min={0} style={{ width: '100%' }} />
+              </Form.Item>
+              <Form.Item name="is_active" label="Bật" valuePropName="checked" initialValue={true}>
+                <Switch />
+              </Form.Item>
+            </Form>
+          </Modal>
+        </>
+      ),
+    },
+  ];
+
+  if (loading) {
+    return (
+      <>
+        <h1>Cài đặt Player</h1>
+        <Card loading />
+      </>
+    );
+  }
+
   return (
     <>
       <h1>Cài đặt Player</h1>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        Admin chọn player nào thì trang xem sẽ dùng đúng player đó để phát video. Player mặc định áp dụng cho mọi lượt xem (người dùng không đổi được). Build sẽ xuất ra player-settings.json.
+        Chọn và cấu hình trình phát video. Player mặc định áp dụng cho mọi lượt xem. Build website để áp dụng thay đổi.
       </p>
-      <Card loading={loading}>
-        <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item name="available_players_json" label="Danh sách player (JSON: key -> tên hiển thị)">
-            <Input.TextArea rows={5} placeholder='{"plyr":"Plyr","videojs":"Video.js","jwplayer":"JWPlayer"}' />
-          </Form.Item>
-          <Form.Item name="default_player" label="Player dùng để phát video (key trùng trong danh sách trên: plyr, videojs, jwplayer hoặc tên tùy chỉnh)">
-            <Input placeholder="plyr" />
-          </Form.Item>
-          <p style={{ color: '#666', fontSize: 12, marginTop: -8, marginBottom: 16 }}>Với link trực tiếp (m3u8/HLS): plyr hoặc videojs sẽ load thư viện tương ứng. Link iframe/embed thì luôn dùng iframe.</p>
-          <Form.Item
-            name="link_type_labels_json"
-            label="Tên Máy chủ (JSON: key -> nhãn hiển thị cho loại link: m3u8, embed, backup, vip1..vip5)"
-          >
-            <Input.TextArea
-              rows={5}
-              placeholder='{"m3u8":"M3U8","embed":"Embed","backup":"Backup","vip1":"VIP 1","vip2":"VIP 2"}'
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">Lưu</Button>
-          </Form.Item>
-        </Form>
-      </Card>
+
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        items={tabItems}
+        style={{ marginTop: 16 }}
+      />
     </>
   );
 }
+

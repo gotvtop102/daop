@@ -14,6 +14,8 @@ import {
   AuditOutlined,
   ThunderboltOutlined,
   ToolOutlined,
+  VideoCameraOutlined,
+  UnorderedListOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content, Footer } = AntLayout;
@@ -44,8 +46,18 @@ const items = [
       { key: '/static-pages', icon: <FileTextOutlined />, label: <Link to="/static-pages">Trang tĩnh</Link> },
     ],
   },
+  {
+    key: '/movies',
+    icon: <VideoCameraOutlined />,
+    label: 'Quản lý phim',
+    children: [
+      { key: '/movies/single', icon: <UnorderedListOutlined />, label: <Link to="/movies/single">Phim lẻ</Link> },
+      { key: '/movies/series', icon: <UnorderedListOutlined />, label: <Link to="/movies/series">Phim bộ</Link> },
+      { key: '/movies/hoathinh', icon: <UnorderedListOutlined />, label: <Link to="/movies/hoathinh">Hoạt hình</Link> },
+      { key: '/movies/tvshows', icon: <UnorderedListOutlined />, label: <Link to="/movies/tvshows">TV Show</Link> },
+    ],
+  },
   { key: '/google-sheets', icon: <FileTextOutlined />, label: <Link to="/google-sheets">Google Sheets</Link> },
-  { key: '/settings', icon: <SettingOutlined />, label: <Link to="/settings">Cài đặt</Link> },
   { key: '/player-settings', icon: <PlaySquareOutlined />, label: <Link to="/player-settings">Player</Link> },
   { key: '/donate', icon: <DollarOutlined />, label: <Link to="/donate">Donate</Link> },
   { key: '/github-actions', icon: <ThunderboltOutlined />, label: <Link to="/github-actions">GitHub Actions</Link> },
@@ -68,8 +80,11 @@ export default function Layout() {
 
   useEffect(() => {
     const giaoDienPaths = ['/slider', '/menu-background', '/filter-order', '/homepage-sections', '/category-page-settings', '/theme', '/static-pages'];
+    const moviePaths = ['/movies/single', '/movies/series', '/movies/hoathinh', '/movies/tvshows', '/movies/edit', '/movies/episodes'];
     if (giaoDienPaths.includes(location.pathname)) {
       setOpenKeys(['/giao-dien']);
+    } else if (moviePaths.some(p => location.pathname.startsWith(p))) {
+      setOpenKeys(['/movies']);
     } else if (location.pathname === '/ads' || location.pathname === '/banners' || location.pathname === '/preroll') {
       setOpenKeys(['/ads']);
     } else {
@@ -106,7 +121,7 @@ export default function Layout() {
       <div style={{ height: 32, margin: 16, color: '#fff', fontWeight: 'bold' }}>DAOP Admin</div>
       <Menu
         theme="dark"
-        selectedKeys={[location.pathname === '/ads' || location.pathname === '/giao-dien' ? location.pathname : location.pathname]}
+        selectedKeys={[location.pathname === '/ads' || location.pathname === '/giao-dien' || location.pathname.startsWith('/movies') ? location.pathname : location.pathname]}
         openKeys={openKeys}
         onOpenChange={(keys) => setOpenKeys(keys as string[])}
         mode="inline"

@@ -344,16 +344,17 @@
   function renderPlayer(container, ctx) {
     if (!container) return;
     var playerSettings = window.DAOP && window.DAOP.playerSettings ? window.DAOP.playerSettings : {};
+    var playerConfig = playerSettings.player_config || {};
     var chosenPlayer = (playerSettings.default_player || 'plyr').toLowerCase();
 
     var safeLink = esc(ctx.link || '');
-    var isDirect = isDirectVideoLink(ctx.link);
+    var isEmbed = !isDirectVideoLink(ctx.link);
 
     var playerHtml = !ctx.link
       ? '<div class="watch-player-empty">Chưa có link phát.</div>'
-      : isDirect
-        ? '<video id="watch-video" class="video-js" controls playsinline preload="metadata" src="' + safeLink + '"></video>'
-        : '<iframe id="watch-embed" src="' + safeLink + '" allowfullscreen allow="autoplay; fullscreen"></iframe>';
+      : isEmbed
+        ? '<iframe id="watch-embed" src="' + safeLink + '" allowfullscreen allow="autoplay; fullscreen"></iframe>'
+        : '<video id="watch-video" class="video-js" controls playsinline preload="metadata" src="' + safeLink + '"></video>';
 
     container.innerHTML =
       '<div class="watch-player-card">' +
@@ -367,7 +368,7 @@
       '</div>';
 
     var video = document.getElementById('watch-video');
-    if (!video || !isDirect) return;
+    if (!video || isEmbed) return;
 
     function loadScript(src) {
       return new Promise(function (resolve, reject) {
@@ -394,23 +395,144 @@
 
     video.addEventListener('timeupdate', reportTime);
 
-    if (chosenPlayer === 'plyr') {
-      loadStylesheet('https://cdn.plyr.io/3.7.8/plyr.css');
-      loadScript('https://cdn.plyr.io/3.7.8/plyr.polyfilled.js').then(function () {
-        try {
-          var plyrInstance = new window.Plyr(video, { controls: ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'fullscreen'] });
-          plyrInstance.on('timeupdate', reportTime);
-        } catch (e) {}
-      }).catch(function () {});
-    } else if (chosenPlayer === 'videojs') {
-      loadStylesheet('https://vjs.zencdn.net/8.10.0/video-js.css');
-      loadScript('https://vjs.zencdn.net/8.10.0/video.min.js').then(function () {
-        try {
-          window.videojs(video).ready(function () {
-            this.on('timeupdate', reportTime);
-          });
-        } catch (e) {}
-      }).catch(function () {});
+    // Initialize player based on chosen type
+    switch (chosenPlayer) {
+      case 'plyr':
+        loadStylesheet('https://cdn.plyr.io/3.7.8/plyr.css');
+        loadScript('https://cdn.plyr.io/3.7.8/plyr.polyfilled.js').then(function () {
+          try {
+            var plyrInstance = new window.Plyr(video, {
+              controls: playerConfig.plyr_hideControls ? [] : ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'fullscreen'],
+              clickToPlay: playerConfig.plyr_clickToPlay !== false,
+              disableContextMenu: playerConfig.plyr_disableContextMenu !== false,
+              resetOnEnd: playerConfig.plyr_resetOnEnd || false,
+              tooltips: { controls: playerConfig.plyr_tooltips === 'controls', seek: playerConfig.plyr_tooltips === 'seek' }
+            });
+            plyrInstance.on('timeupdate', reportTime);
+          } catch (e) {}
+        }).catch(function () {});
+        break;
+
+      case 'videojs':
+        loadStylesheet('https://vjs.zencdn.net/8.10.0/video-js.css');
+        loadScript('https://vjs.zencdn.net/8.10.0/video.min.js').then(function () {
+          try {
+            var vjs = window.videojs(video, {
+              fluid: playerConfig.vjs_fluid !== false,
+              responsive: playerConfig.vjs_responsive !== false,
+              aspectRatio: playerConfig.vjs_aspectRatio || '16:9',
+              bigPlayButton: playerConfig.vjs_bigPlayButton !== false,
+              controlBar: playerConfig.vjs_controlBar !== false
+            });
+            vjs.ready(function () {
+              this.on('timeupdate', reportTime);
+            });
+          } catch (e) {}
+        }).catch(function () {});
+        break;
+
+      case 'jwplayer':
+        if (!playerConfig.jwplayer_license_key) {
+          console.error('JWPlayer license key required');
+          break;
+        }
+        loadScript('https://cdn.jwplayer.com/libraries/' + playerConfig.jwplayer_license_key + '.js').then(function () {
+          try {
+            var jwp = window.jwplayer(video);
+            jwp.setup({
+              file: video.src,
+              width: '100%',
+              height: '100%',
+              autostart: playerConfig.autoplay || false,
+              mute: playerConfig.muted || false,
+              controls: playerConfig.controls !== false
+            });
+            jwp.on('time', function (e) {
+              reportTime();
+            });
+          } catch (e) {}
+        }).catch(function () {});
+        break;
+
+      case 'vidstack':
+        loadStylesheet('https://cdn.vidstack.io/player/theme.css');
+        loadScript('https://cdn.vidstack.io/player/vidstack.js').then(function () {
+          try {
+            var player = document.createElement('media-player');
+            player.setAttribute('src', video.src);
+            player.setAttribute('controls', '');
+            if (playerConfig.vidstack_theme === 'minimal') player.setAttribute('data-theme', 'minimal');
+            video.parentNode.replaceChild(player, video);
+            player.addEventListener('time-update', reportTime);
+          } catch (e) {}
+        }).catch(function () {});
+        break;
+
+      case 'clappr':
+        loadStylesheet('https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.css');
+        loadScript('https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js').then(function () {
+          try {
+            var clapprConfig = {
+              parent: video.parentNode,
+              source: video.src,
+              autoPlay: playerConfig.clappr_autoPlay || false,
+              mute: playerConfig.clappr_mute || false,
+              hideMediaControl: playerConfig.clappr_hideMediaControl || false
+            };
+            if (playerConfig.clappr_watermark) {
+              clapprConfig.watermark = playerConfig.clappr_watermark;
+              clapprConfig.position = playerConfig.clappr_watermarkPosition || 'top-right';
+            }
+            var clapprPlayer = new window.Clappr.Player(clapprConfig);
+            clapprPlayer.on(window.Clappr.Events.PLAYER_TIMEUPDATE, reportTime);
+          } catch (e) {}
+        }).catch(function () {});
+        break;
+
+      case 'mediaelement':
+        loadStylesheet('https://cdn.jsdelivr.net/npm/mediaelement@latest/build/mediaelementplayer.min.css');
+        loadScript('https://cdn.jsdelivr.net/npm/mediaelement@latest/build/mediaelement-and-player.min.js').then(function () {
+          try {
+            var meConfig = {
+              alwaysShowControls: playerConfig.me_alwaysShowControls !== false,
+              hideVideoControlsOnLoad: playerConfig.me_hideVideoControlsOnLoad || false,
+              startVolume: playerConfig.me_startVolume || 0.8,
+              stretching: playerConfig.me_stretching || 'responsive'
+            };
+            var mePlayer = new window.MediaElementPlayer(video, meConfig);
+            video.addEventListener('timeupdate', reportTime);
+          } catch (e) {}
+        }).catch(function () {});
+        break;
+
+      case 'fluidplayer':
+        loadStylesheet('https://cdn.fluidplayer.com/v3/current/fluidplayer.min.css');
+        loadScript('https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js').then(function () {
+          try {
+            var fluidConfig = {
+              layoutControls: {
+                controlBar: { display: playerConfig.fluid_controlBar !== false },
+                miniProgressBar: { display: playerConfig.fluid_miniProgressBar !== false },
+                playbackSpeed: { display: playerConfig.fluid_speed !== false },
+                theatreMode: { display: playerConfig.fluid_theatreMode !== false },
+                quality: { display: playerConfig.fluid_quality !== false }
+              }
+            };
+            if (playerConfig.fluid_logo) {
+              fluidConfig.layoutControls.logo = {
+                imageUrl: playerConfig.fluid_logo,
+                position: playerConfig.fluid_logoPosition || 'top right'
+              };
+            }
+            var fluidPlayer = window.fluidPlayer(video, fluidConfig);
+            video.addEventListener('timeupdate', reportTime);
+          } catch (e) {}
+        }).catch(function () {});
+        break;
+
+      default:
+        // Native player - do nothing extra
+        break;
     }
   }
 

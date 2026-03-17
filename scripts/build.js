@@ -820,6 +820,17 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
     const i = headers.indexOf(name);
     return i >= 0 ? i : headers.indexOf(name.replace('_', ' '));
   };
+  const parseOnOff = (v, defaultVal) => {
+    if (v == null || v === '') return !!defaultVal;
+    const t = String(v).trim().toLowerCase();
+    if (t === '0' || t === 'false' || t === 'off' || t === 'no' || t === 'n' || t === 'none') return false;
+    if (t === '1' || t === 'true' || t === 'on' || t === 'yes' || t === 'y' || t === 'ok') return true;
+    // fallback: number
+    const n = Number(t);
+    if (!Number.isNaN(n)) return n !== 0;
+    // fallback: non-empty string means true
+    return true;
+  };
   const idxUpdate = idx('update');
   const idxModified = idx('modified');
   const idxSlug = idx('slug');
@@ -862,7 +873,7 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
       quality,
       modified: (idxModified >= 0 ? sheetModified : new Date().toISOString()),
       is_4k: is4k,
-      is_exclusive: Boolean(row[idx('is_exclusive')]),
+      is_exclusive: parseOnOff(row[idx('is_exclusive')], false),
       status: (row[idx('status')] || '').toString(),
       showtimes: (row[idx('showtimes')] || '').toString(),
       chieurap: false,

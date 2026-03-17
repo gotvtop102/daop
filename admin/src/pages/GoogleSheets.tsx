@@ -1,9 +1,45 @@
-import { Card, Typography, Alert, Space, Button } from 'antd';
+import { Card, Typography, Alert, Space, Button, Form, Input, message } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
 
 const { Title, Paragraph, Text, Link } = Typography as any;
 
 export default function GoogleSheetsPage() {
   const docsUrl = 'https://github.com/daop-movie/docs/google-sheets'; // chỉnh lại nếu repo khác
+
+  const [form] = Form.useForm();
+  const [sheetId, setSheetId] = useState('');
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
+      const nextSheetId = saved?.google_sheets_id || '';
+      setSheetId(nextSheetId);
+      form.setFieldsValue({
+        google_sheets_id: nextSheetId,
+      });
+    } catch {
+      // ignore
+    }
+  }, [form]);
+
+  const sheetUrl = useMemo(() => {
+    const id = String(sheetId || '').trim();
+    if (!id) return '';
+    return `https://docs.google.com/spreadsheets/d/${encodeURIComponent(id)}/edit`;
+  }, [sheetId]);
+
+  const handleSaveConfig = async (values: any) => {
+    const id = String(values?.google_sheets_id || '').trim();
+    setSheetId(id);
+
+    localStorage.setItem(
+      'daop_google_sheets_config',
+      JSON.stringify({
+        google_sheets_id: id,
+      })
+    );
+    message.success('Đã lưu link Google Sheets (localStorage)');
+  };
 
   return (
     <>
@@ -16,7 +52,47 @@ export default function GoogleSheetsPage() {
           description="Build sẽ tự đọc dữ liệu từ Google Sheets (hoặc Excel fallback) theo cấu trúc trong docs/google-sheets/README.md."
         />
 
-        <Card title="1. Mở file Google Sheets">
+        <Card title="1. Lưu link Google Sheets để truy cập nhanh">
+
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSaveConfig}
+            initialValues={{
+              google_sheets_id: '',
+            }}
+          >
+            <Form.Item
+              name="google_sheets_id"
+              label="GOOGLE_SHEETS_ID"
+              extra="ID trong URL dạng: https://docs.google.com/spreadsheets/d/<ID>/edit"
+              rules={[{ required: true, message: 'Nhập Google Sheets ID' }]}
+            >
+              <Input
+                placeholder="VD: 1AbC...xyz"
+                onChange={(e) => setSheetId(e.target.value)}
+              />
+            </Form.Item>
+
+            <Space wrap>
+              <Button type="primary" htmlType="submit">
+                Lưu cấu hình
+              </Button>
+
+              <Button
+                type="link"
+                href={sheetUrl || undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                disabled={!sheetUrl}
+              >
+                Mở Google Sheet
+              </Button>
+            </Space>
+          </Form>
+        </Card>
+
+        <Card title="2. Mở file Google Sheets">
           <Paragraph>
             <Text>
               File Google Sheets dùng cho phim custom được cấu hình bằng các biến môi trường{' '}
@@ -43,31 +119,37 @@ export default function GoogleSheetsPage() {
           </Paragraph>
         </Card>
 
-        <Card title="2. Cấu trúc sheet (movies, episodes)">
+        <Card title="3. Cấu trúc sheet (movies, episodes) – kiểu MỚI">
           <Paragraph>
             <Text strong>Tab movies</Text> dùng để nhập thông tin chính của phim (title, origin_name, năm, thể loại,
             quốc gia, chất lượng, status, showtimes, is_exclusive, tmdb_id,...).
           </Paragraph>
           <Paragraph>
-            <Text strong>Tab episodes</Text> dùng để nhập tập phim và nguồn server. Cột{' '}
-            <Text code>sources</Text> là chuỗi JSON chứa mảng các nguồn, ví dụ:
+            <Text strong>Tab episodes</Text> (kiểu mới) dùng để nhập tập phim và nguồn server.
+            <br />
+            Mỗi dòng = <Text strong>1 tập trên 1 server</Text> (tránh cột JSON dài).
           </Paragraph>
           <Paragraph>
-            <Text code>
-              {`[{"name":"Tập 1","slug":"tap-1","link_m3u8":"https://.../index.m3u8","link_embed":"https://player..."}]`}
+            <Text>
+              Các cột quan trọng trong <Text code>episodes</Text>:
+              <br />
+              <Text code>movie_id</Text>, <Text code>episode_code</Text>, <Text code>episode_name</Text>,{' '}
+              <Text code>server_slug</Text>, <Text code>server_name</Text>,{' '}
+              <Text code>link_m3u8</Text>, <Text code>link_embed</Text>, <Text code>link_backup</Text>,{' '}
+              <Text code>link_vip1</Text>.. <Text code>link_vip5</Text>, <Text code>note</Text>.
             </Text>
           </Paragraph>
           <Paragraph>
             <Text>
-              Build sẽ parse JSON này thành <Text code>server_data</Text> để hiển thị danh sách tập và server trên
-              website, tự nhận diện link <Text code>m3u8</Text> hoặc <Text code>embed</Text>.
-            </Text>
-          </Paragraph>
-          <Paragraph>
-            <Text>
-              Bạn có thể thêm nhiều server cho cùng một tập bằng cách thêm nhiều phần tử trong mảng JSON (mỗi phần tử có{' '}
-              <Text code>name</Text>, <Text code>slug</Text>, <Text code>link_m3u8</Text> /{' '}
-              <Text code>link_embed</Text>).
+              <Text strong>Ghi chú các cột thường dùng:</Text>
+              <br />
+              <Text code>showtimes</Text>: lịch chiếu/tần suất ra tập (vd. "Tập mới mỗi thứ 6").
+              <br />
+              <Text code>is_exclusive</Text>: phim độc quyền. Nhận 0/1 hoặc true/false.
+              <br />
+              <Text code>update</Text>: NEW/OK/COPY (tùy chọn) để kiểm soát build & export.
+              <br />
+              <Text code>note</Text>: ghi chú nội bộ cho admin (không dùng để hiển thị).
             </Text>
           </Paragraph>
           <Paragraph>
@@ -81,7 +163,7 @@ export default function GoogleSheetsPage() {
           </Paragraph>
         </Card>
 
-        <Card title="3. Quy trình thêm / chỉnh sửa phim custom">
+        <Card title="4. Quy trình thêm / chỉnh sửa phim custom">
           <Paragraph>
             <ol>
               <li>
@@ -94,7 +176,7 @@ export default function GoogleSheetsPage() {
               </li>
               <li>
                 Ghi nhớ hoặc điền sẵn <Text code>id</Text> cho phim, sau đó sang tab <Text code>episodes</Text> điền{' '}
-                <Text code>movie_id</Text> tương ứng và cột <Text code>sources</Text> (JSON mảng server / tập).
+                <Text code>movie_id</Text> tương ứng và điền các dòng tập theo cấu trúc mới (episode_code/server_slug/link...).
               </li>
               <li>
                 <Text strong>Chỉnh sửa 1 hoặc nhiều phim</Text>: lọc / sort trên Google Sheets, sửa trực tiếp các dòng

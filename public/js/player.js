@@ -76,40 +76,25 @@
     var link = opts.link;
     var movie = opts.movie || {};
     var playerSettings = window.DAOP?.playerSettings || {};
+    var playerConfig = playerSettings.player_config || {};
     var available = playerSettings.available_players && typeof playerSettings.available_players === 'object' ? playerSettings.available_players : {};
     var chosenPlayer = (playerSettings.default_player || 'plyr').toLowerCase();
     var chosenLabel = available[chosenPlayer] || chosenPlayer;
     var safeLink = (link || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-    var isDirectStream = isDirectVideoLink(link);
+    var isEmbed = !isDirectVideoLink(link);
     var playerHtml = !link
       ? '<p>Chưa có link phát.</p>'
-      : isDirectStream
-        ? '<video id="daop-video" class="video-js" controls playsinline preload="metadata" src="' + safeLink + '"></video>'
-        : '<iframe id="daop-embed" src="' + safeLink + '" allowfullscreen allow="autoplay; fullscreen"></iframe>';
+      : isEmbed
+        ? '<iframe id="daop-embed" src="' + safeLink + '" allowfullscreen allow="autoplay; fullscreen"></iframe>'
+        : '<video id="daop-video" class="video-js" controls playsinline preload="metadata" src="' + safeLink + '"></video>';
     var playerLabelHtml = '<p class="player-label" style="margin:0 0 8px;font-size:0.85rem;color:#8b949e;">Đang dùng: ' + (chosenLabel || chosenPlayer) + '</p>';
     overlay.innerHTML =
       '<button type="button" class="close-player" aria-label="Đóng">Đóng</button>' +
       playerLabelHtml +
       playerHtml;
     var video = document.getElementById('daop-video');
-    if (video && isDirectStream && (chosenPlayer === 'plyr' || chosenPlayer === 'videojs')) {
-      if (chosenPlayer === 'plyr') {
-        loadStylesheet('https://cdn.plyr.io/3.7.8/plyr.css');
-        loadScript('https://cdn.plyr.io/3.7.8/plyr.polyfilled.js').then(function () {
-          attachProgressAndInitPlayer(opts, document.getElementById('daop-video'), 'plyr');
-        }).catch(function () {
-          attachProgressAndInitPlayer(opts, document.getElementById('daop-video'), 'native');
-        });
-      } else if (chosenPlayer === 'videojs') {
-        loadStylesheet('https://vjs.zencdn.net/8.10.0/video-js.css');
-        loadScript('https://vjs.zencdn.net/8.10.0/video.min.js').then(function () {
-          attachProgressAndInitPlayer(opts, document.getElementById('daop-video'), 'videojs');
-        }).catch(function () {
-          attachProgressAndInitPlayer(opts, document.getElementById('daop-video'), 'native');
-        });
-      }
-    } else if (video) {
-      attachProgressAndInitPlayer(opts, video, 'native');
+    if (video && !isEmbed) {
+      initPlayerByType(chosenPlayer, video, opts, playerConfig);
     }
     overlay.querySelector('.close-player').addEventListener('click', function () {
       if (overlay) overlay.remove();
@@ -121,6 +106,171 @@
         overlay = null;
       }
     });
+  }
+
+  function initPlayerByType(playerType, videoEl, opts, config) {
+    config = config || {};
+    
+    function reportTime() {
+      if (window.DAOP && window.DAOP.userSync && opts.slug && opts.episode && videoEl.currentTime != null) {
+        window.DAOP.userSync.updateWatchProgress(opts.slug, opts.episode, Math.floor(videoEl.currentTime));
+      }
+    }
+    
+    videoEl.addEventListener('timeupdate', reportTime);
+    
+    switch (playerType) {
+      case 'plyr':
+        loadStylesheet('https://cdn.plyr.io/3.7.8/plyr.css');
+        loadScript('https://cdn.plyr.io/3.7.8/plyr.polyfilled.js').then(function () {
+          try {
+            var plyrInstance = new window.Plyr(videoEl, {
+              controls: config.plyr_hideControls ? [] : ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'fullscreen'],
+              clickToPlay: config.plyr_clickToPlay !== false,
+              disableContextMenu: config.plyr_disableContextMenu !== false,
+              resetOnEnd: config.plyr_resetOnEnd || false,
+              tooltips: { controls: config.plyr_tooltips === 'controls', seek: config.plyr_tooltips === 'seek' }
+            });
+            plyrInstance.on('timeupdate', reportTime);
+          } catch (e) {}
+        }).catch(function () {
+          attachProgressAndInitPlayer(opts, videoEl, 'native');
+        });
+        break;
+        
+      case 'videojs':
+        loadStylesheet('https://vjs.zencdn.net/8.10.0/video-js.css');
+        loadScript('https://vjs.zencdn.net/8.10.0/video.min.js').then(function () {
+          try {
+            var vjs = window.videojs(videoEl, {
+              fluid: config.vjs_fluid !== false,
+              responsive: config.vjs_responsive !== false,
+              aspectRatio: config.vjs_aspectRatio || '16:9',
+              bigPlayButton: config.vjs_bigPlayButton !== false,
+              controlBar: config.vjs_controlBar !== false
+            });
+            vjs.ready(function () {
+              this.on('timeupdate', reportTime);
+            });
+          } catch (e) {}
+        }).catch(function () {
+          attachProgressAndInitPlayer(opts, videoEl, 'native');
+        });
+        break;
+        
+      case 'jwplayer':
+        if (!config.jwplayer_license_key) {
+          console.error('JWPlayer license key required');
+          attachProgressAndInitPlayer(opts, videoEl, 'native');
+          return;
+        }
+        loadScript('https://cdn.jwplayer.com/libraries/' + config.jwplayer_license_key + '.js').then(function () {
+          try {
+            var jwp = window.jwplayer(videoEl);
+            jwp.setup({
+              file: videoEl.src,
+              width: '100%',
+              height: '100%',
+              autostart: config.autoplay || false,
+              mute: config.muted || false,
+              controls: config.controls !== false
+            });
+            jwp.on('time', function (e) {
+              reportTime();
+            });
+          } catch (e) {}
+        }).catch(function () {
+          attachProgressAndInitPlayer(opts, videoEl, 'native');
+        });
+        break;
+        
+      case 'vidstack':
+        loadStylesheet('https://cdn.vidstack.io/player/theme.css');
+        loadScript('https://cdn.vidstack.io/player/vidstack.js').then(function () {
+          try {
+            var player = document.createElement('media-player');
+            player.setAttribute('src', videoEl.src);
+            player.setAttribute('controls', '');
+            if (config.vidstack_theme === 'minimal') player.setAttribute('data-theme', 'minimal');
+            videoEl.parentNode.replaceChild(player, videoEl);
+            player.addEventListener('time-update', reportTime);
+          } catch (e) {}
+        }).catch(function () {
+          attachProgressAndInitPlayer(opts, videoEl, 'native');
+        });
+        break;
+        
+      case 'clappr':
+        loadStylesheet('https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.css');
+        loadScript('https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js').then(function () {
+          try {
+            var clapprConfig = {
+              parent: videoEl.parentNode,
+              source: videoEl.src,
+              autoPlay: config.clappr_autoPlay || false,
+              mute: config.clappr_mute || false,
+              hideMediaControl: config.clappr_hideMediaControl || false
+            };
+            if (config.clappr_watermark) {
+              clapprConfig.watermark = config.clappr_watermark;
+              clapprConfig.position = config.clappr_watermarkPosition || 'top-right';
+            }
+            var clapprPlayer = new window.Clappr.Player(clapprConfig);
+            clapprPlayer.on(window.Clappr.Events.PLAYER_TIMEUPDATE, reportTime);
+          } catch (e) {}
+        }).catch(function () {
+          attachProgressAndInitPlayer(opts, videoEl, 'native');
+        });
+        break;
+        
+      case 'mediaelement':
+        loadStylesheet('https://cdn.jsdelivr.net/npm/mediaelement@latest/build/mediaelementplayer.min.css');
+        loadScript('https://cdn.jsdelivr.net/npm/mediaelement@latest/build/mediaelement-and-player.min.js').then(function () {
+          try {
+            var meConfig = {
+              alwaysShowControls: config.me_alwaysShowControls !== false,
+              hideVideoControlsOnLoad: config.me_hideVideoControlsOnLoad || false,
+              startVolume: config.me_startVolume || 0.8,
+              stretching: config.me_stretching || 'responsive'
+            };
+            var mePlayer = new window.MediaElementPlayer(videoEl, meConfig);
+            videoEl.addEventListener('timeupdate', reportTime);
+          } catch (e) {}
+        }).catch(function () {
+          attachProgressAndInitPlayer(opts, videoEl, 'native');
+        });
+        break;
+        
+      case 'fluidplayer':
+        loadStylesheet('https://cdn.fluidplayer.com/v3/current/fluidplayer.min.css');
+        loadScript('https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js').then(function () {
+          try {
+            var fluidConfig = {
+              layoutControls: {
+                controlBar: { display: config.fluid_controlBar !== false },
+                miniProgressBar: { display: config.fluid_miniProgressBar !== false },
+                playbackSpeed: { display: config.fluid_speed !== false },
+                theatreMode: { display: config.fluid_theatreMode !== false },
+                quality: { display: config.fluid_quality !== false }
+              }
+            };
+            if (config.fluid_logo) {
+              fluidConfig.layoutControls.logo = {
+                imageUrl: config.fluid_logo,
+                position: config.fluid_logoPosition || 'top right'
+              };
+            }
+            var fluidPlayer = window.fluidPlayer(videoEl, fluidConfig);
+            videoEl.addEventListener('timeupdate', reportTime);
+          } catch (e) {}
+        }).catch(function () {
+          attachProgressAndInitPlayer(opts, videoEl, 'native');
+        });
+        break;
+        
+      default:
+        attachProgressAndInitPlayer(opts, videoEl, 'native');
+    }
   }
 
   window.DAOP.openPlayer = function (opts) {
