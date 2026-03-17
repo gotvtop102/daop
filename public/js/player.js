@@ -61,9 +61,9 @@
   function showMainContent(opts) {
     var link = opts.link;
     var movie = opts.movie || {};
-    var showWarning = movie.warning_enabled !== false && (window.DAOP?.siteSettings?.player_warning_enabled !== false);
-    var warningText = movie.warning_text || window.DAOP?.siteSettings?.player_warning_text || defaultWarning;
     var playerSettings = window.DAOP?.playerSettings || {};
+    var showWarning = movie.warning_enabled !== false && (playerSettings.warning_enabled_global !== false);
+    var warningText = movie.warning_text || playerSettings.warning_text || defaultWarning;
     var available = playerSettings.available_players && typeof playerSettings.available_players === 'object' ? playerSettings.available_players : {};
     var chosenPlayer = (playerSettings.default_player || 'plyr').toLowerCase();
     var chosenLabel = available[chosenPlayer] || chosenPlayer;
