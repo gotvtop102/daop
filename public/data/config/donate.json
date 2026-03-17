@@ -3,18 +3,8 @@
   "target_amount": 99,
   "target_currency": "USD",
   "current_amount": 1,
-  "paypal_link": "",
-  "methods": [
-    { "type": "paypal", "custom_label": "", "url": "", "note": "" },
-    { "type": "btc", "custom_label": "", "url": "", "note": "" },
-    { "type": "eth", "custom_label": "", "url": "", "note": "" },
-    { "type": "ltc", "custom_label": "", "url": "", "note": "" },
-    { "type": "usdt_trc20", "custom_label": "", "url": "", "note": "" },
-    { "type": "usdt_erc20", "custom_label": "", "url": "", "note": "" },
-    { "type": "bnb_bep20", "custom_label": "", "url": "", "note": "" },
-    { "type": "sol", "custom_label": "", "url": "", "note": "" }
-  ],
-  "bank_info": [],
-  "crypto_addresses": [],
+  "paypal_link": null,
+  "bank_info": null,
+  "crypto_addresses": null,
   "updated_at": "2026-02-21T13:42:39.98839+00:00"
 }
