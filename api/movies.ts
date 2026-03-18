@@ -92,13 +92,48 @@ async function loadServiceAccountCredentials(serviceAccountKey?: string) {
   }
 
   const raw = String(key).trim();
+  const normalizeCreds = (creds: any) => {
+    if (creds && typeof creds.private_key === 'string') {
+      creds.private_key = creds.private_key.replace(/\\n/g, '\n');
+    }
+    return creds;
+  };
+
   if (raw.startsWith('{')) {
-    return JSON.parse(raw);
+    return normalizeCreds(JSON.parse(raw));
   }
 
-  const abs = path.isAbsolute(raw) ? raw : path.join(process.cwd(), raw);
-  const file = await fs.readFile(abs, 'utf8');
-  return JSON.parse(file);
+  // Support base64-encoded JSON (useful for env vars)
+  try {
+    const decoded = Buffer.from(raw, 'base64').toString('utf8').trim();
+    if (decoded.startsWith('{')) {
+      return normalizeCreds(JSON.parse(decoded));
+    }
+  } catch {
+    // ignore
+  }
+
+  // Treat as a file path (local only). On Windows, '/file.json' is often intended to be project-root-relative.
+  const candidates: string[] = [];
+  const cwd = process.cwd();
+  candidates.push(path.isAbsolute(raw) ? raw : path.join(cwd, raw));
+  if (raw.startsWith('/')) {
+    candidates.push(path.join(cwd, raw.slice(1)));
+  }
+
+  let lastErr: any = null;
+  for (const p of candidates) {
+    try {
+      const file = await fs.readFile(p, 'utf8');
+      return normalizeCreds(JSON.parse(file));
+    } catch (e: any) {
+      lastErr = e;
+    }
+  }
+
+  throw new Error(
+    `Invalid GOOGLE_SERVICE_ACCOUNT_KEY. Provide JSON, base64 JSON, or a valid file path. Last error: ${lastErr?.message || lastErr}`
+  );
 }
 
 // Initialize Google Sheets API
