@@ -1,6 +1,7 @@
 // Sync phim hiện có (OPhim + custom đã build) sang Google Sheets.
 // Chỉ export: phim mới chưa có (append) hoặc phim đã có nhưng modified mới hơn (update row + ghi đè episodes).
 
+import 'dotenv/config';
 import path from 'path';
 import fs from 'fs-extra';
 import { fileURLToPath } from 'url';
@@ -85,9 +86,16 @@ async function loadServiceAccountFromEnv() {
   }
   const keyPathEnv = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
   if (keyPathEnv) {
-    const keyPath = path.isAbsolute(keyPathEnv) ? keyPathEnv : path.join(ROOT, keyPathEnv);
-    if (await fs.pathExists(keyPath)) {
-      return fs.readJson(keyPath);
+    const candidates = [];
+    candidates.push(path.isAbsolute(keyPathEnv) ? keyPathEnv : path.join(ROOT, keyPathEnv));
+    // Windows users sometimes set '/file.json' intending project-root-relative.
+    if (keyPathEnv.startsWith('/')) {
+      candidates.push(path.join(ROOT, keyPathEnv.slice(1)));
+    }
+    for (const p of candidates) {
+      if (p && (await fs.pathExists(p))) {
+        return fs.readJson(p);
+      }
     }
   }
   const defaultPath = path.join(ROOT, 'gotv-394615-89fa7961dcb3.json');
@@ -266,6 +274,34 @@ function buildEpisodeRows(movieIdInSheet, movie, epHeaders) {
   return rows;
 }
 
+function headerIndexFromHeaders(headers, name) {
+  const lower = String(name || '').toLowerCase();
+  let idx = headers.findIndex((h) => h === lower);
+  if (idx >= 0) return idx;
+  idx = headers.findIndex((h) => h === lower.replace('_', ' '));
+  return idx;
+}
+
+function getEpisodeKeyFromRow(row, epHeaders) {
+  const idxMovieId = headerIndexFromHeaders(epHeaders, 'movie_id') >= 0 ? headerIndexFromHeaders(epHeaders, 'movie_id') : 0;
+  const idxEpCode = headerIndexFromHeaders(epHeaders, 'episode_code') >= 0 ? headerIndexFromHeaders(epHeaders, 'episode_code') : 1;
+  const idxServerSlug = headerIndexFromHeaders(epHeaders, 'server_slug');
+  const idxServerName = headerIndexFromHeaders(epHeaders, 'server_name');
+
+  const movieId = String(row?.[idxMovieId] ?? '').trim();
+  const epCode = String(row?.[idxEpCode] ?? '').trim();
+  const serverSlug = idxServerSlug >= 0 ? String(row?.[idxServerSlug] ?? '').trim() : '';
+  const serverName = idxServerName >= 0 ? String(row?.[idxServerName] ?? '').trim() : '';
+  const serverKey = (serverSlug || serverName).toLowerCase();
+  return `${movieId}||${epCode}||${serverKey}`;
+}
+
+function chunkArray(arr, size) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
 async function main() {
   const sheetId = process.env.GOOGLE_SHEETS_ID;
   if (!sheetId) {
@@ -352,6 +388,17 @@ async function main() {
     }
   }
 
+  /** episodeKey -> episode sheet row index (1-based) */
+  const episodeKeyToSheetRow = new Map();
+  for (let i = 1; i < episodesRows.length; i++) {
+    const row = episodesRows[i];
+    const key = getEpisodeKeyFromRow(row, epHeaders);
+    if (!key) continue;
+    if (!episodeKeyToSheetRow.has(key)) {
+      episodeKeyToSheetRow.set(key, i + 1);
+    }
+  }
+
   if (idxModified < 0) {
     console.log('   Lưu ý: Sheet movies chưa có cột "modified". Chỉ append phim mới, không update phim đã có.');
   }
@@ -362,6 +409,9 @@ async function main() {
   const moviesToUpdate = [];
   const moviesToCopyAppend = [];
   const episodesToCopyAppend = [];
+  const episodesToCopyUpdate = [];
+  let copyEpisodesAppendCount = 0;
+  let copyEpisodesOverwriteCount = 0;
 
   let skippedCount = 0;
   for (const m of movies) {
@@ -389,9 +439,56 @@ async function main() {
       if (idxUpdate >= 0 && (u === 'OK' || u === 'OK2')) {
         const copyMovie = { ...m, update_status: (u === 'OK2' ? 'COPY2' : 'COPY') };
         // User yêu cầu giữ nguyên id gốc cho COPY/COPY2
-        const row = buildMovieRow(copyMovie, movieHeaders, existing.id || m.id);
+        const copyMovieId = existing.id || m.id;
+        const row = buildMovieRow(copyMovie, movieHeaders, copyMovieId);
         moviesToCopyAppend.push(row);
-        // Giữ nguyên id => không append episodes (tránh đụng movie_id). Episodes chỉ update khi update in-place.
+
+        // Đồng bộ episodes: add missing rows, overwrite link cells for existing rows.
+        const localEpRows = buildEpisodeRows(copyMovieId, m, epHeaders);
+        if (localEpRows.length) {
+          const lastCol = colToLetter(Math.max(0, epHeaders.length - 1));
+          const idxLinkM3U8 = headerIndexFromHeaders(epHeaders, 'link_m3u8');
+          const idxLinkEmbed = headerIndexFromHeaders(epHeaders, 'link_embed');
+          const idxLinkBackup = headerIndexFromHeaders(epHeaders, 'link_backup');
+          const idxLinkVip1 = headerIndexFromHeaders(epHeaders, 'link_vip1');
+          const idxLinkVip2 = headerIndexFromHeaders(epHeaders, 'link_vip2');
+          const idxLinkVip3 = headerIndexFromHeaders(epHeaders, 'link_vip3');
+          const idxLinkVip4 = headerIndexFromHeaders(epHeaders, 'link_vip4');
+          const idxLinkVip5 = headerIndexFromHeaders(epHeaders, 'link_vip5');
+          const linkIndices = [idxLinkM3U8, idxLinkEmbed, idxLinkBackup, idxLinkVip1, idxLinkVip2, idxLinkVip3, idxLinkVip4, idxLinkVip5].filter(
+            (x) => x >= 0
+          );
+
+          for (const epRow of localEpRows) {
+            const key = getEpisodeKeyFromRow(epRow, epHeaders);
+            const existingSheetRow = episodeKeyToSheetRow.get(key);
+            if (!existingSheetRow) {
+              episodesToCopyAppend.push(epRow);
+              copyEpisodesAppendCount++;
+              continue;
+            }
+
+            const existingArr = episodesRows[existingSheetRow - 1] || [];
+            const nextArr = [...existingArr];
+
+            let changed = false;
+            for (const idx of linkIndices) {
+              const nextVal = String(epRow?.[idx] ?? '').trim();
+              if (!nextVal) continue;
+              const curVal = String(nextArr?.[idx] ?? '').trim();
+              if (curVal !== nextVal) {
+                nextArr[idx] = nextVal;
+                changed = true;
+              }
+            }
+
+            if (changed) {
+              const range = `episodes!A${existingSheetRow}:${lastCol}${existingSheetRow}`;
+              episodesToCopyUpdate.push({ range, values: [new Array(epHeaders.length).fill('').map((_, i) => nextArr[i] ?? '')] });
+              copyEpisodesOverwriteCount++;
+            }
+          }
+        }
       } else {
         moviesToUpdate.push({
           movie: m,
@@ -444,6 +541,8 @@ async function main() {
 
   if (hasCopyAppend) {
     console.log('3a2. Append COPY', moviesToCopyAppend.length, 'phim và', episodesToCopyAppend.length, 'tập...');
+    console.log('3a2a. COPY episodes overwrite:', copyEpisodesOverwriteCount);
+    console.log('3a2b. COPY episodes append:', copyEpisodesAppendCount);
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: 'movies!A1',
@@ -451,6 +550,19 @@ async function main() {
       insertDataOption: 'INSERT_ROWS',
       requestBody: { values: moviesToCopyAppend },
     });
+
+    if (episodesToCopyUpdate.length) {
+      const batches = chunkArray(episodesToCopyUpdate, 100);
+      for (const data of batches) {
+        await sheets.spreadsheets.values.batchUpdate({
+          spreadsheetId: sheetId,
+          requestBody: {
+            valueInputOption: 'RAW',
+            data,
+          },
+        });
+      }
+    }
     if (episodesToCopyAppend.length) {
       await sheets.spreadsheets.values.append({
         spreadsheetId: sheetId,

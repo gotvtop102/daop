@@ -696,6 +696,11 @@ export default function MovieEdit() {
                 <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('origin_name')}>Chuyển dữ liệu</Button>
               </Col>
               <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Loại phim</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.type || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('type')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>Thumb</div>
                 <div style={{ color: '#666' }}>{String(originalMovie.thumb_url || originalMovie.thumb || '')}</div>
                 <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('thumb_url')}>Chuyển dữ liệu</Button>
@@ -711,6 +716,26 @@ export default function MovieEdit() {
                 <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('year')}>Chuyển dữ liệu</Button>
               </Col>
               <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Trạng thái</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.status || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('status')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Chất lượng</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.quality || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('quality')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Tập hiện tại</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.episode_current || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('episode_current')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Tổng số tập</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.episode_total || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('episode_total')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>Thể loại</div>
                 <div style={{ color: '#666' }}>{String(originalMovie.genre || '')}</div>
                 <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('genre')}>Chuyển dữ liệu</Button>
@@ -721,6 +746,21 @@ export default function MovieEdit() {
                 <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('country')}>Chuyển dữ liệu</Button>
               </Col>
               <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Ngôn ngữ</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.language || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('language')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Showtimes</div>
+                <div style={{ color: '#666', whiteSpace: 'pre-wrap' }}>{String(originalMovie.showtimes || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('showtimes')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Độc quyền</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.is_exclusive || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('is_exclusive')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>Mô tả</div>
                 <div style={{ color: '#666', whiteSpace: 'pre-wrap' }}>{String(originalMovie.description || '')}</div>
                 <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('description')}>Chuyển dữ liệu</Button>
@@ -729,6 +769,16 @@ export default function MovieEdit() {
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>TMDB</div>
                 <div style={{ color: '#666' }}>{String(originalMovie.tmdb_id || '')}</div>
                 <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('tmdb_id')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Đạo diễn</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.director || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('director')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Diễn viên</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.actor || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('actor')}>Chuyển dữ liệu</Button>
               </Col>
             </Row>
           </Card>
