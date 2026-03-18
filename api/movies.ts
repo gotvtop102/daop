@@ -466,8 +466,18 @@ async function normalizeCopyToOriginal(
   if (idxSlug < 0) throw new Error('Missing slug column');
   if (idxUpdate < 0) throw new Error('Missing update column');
 
-  const copyRowIndex = dataRows.findIndex((r: any[]) => String(r[idxId] ?? '') === String(copyId));
-  if (copyRowIndex === -1) throw new Error('Copy movie not found');
+  const idStr = String(copyId);
+  const idMatches = dataRows
+    .map((r: any[], i: number) => ({ r, i, id: String(r[idxId] ?? '') }))
+    .filter((x) => x.id === idStr);
+  if (!idMatches.length) throw new Error('Copy movie not found');
+
+  const pickUpdate = (row: any[]) => String(row[idxUpdate] ?? '').trim().toUpperCase();
+  const copyMatch = idMatches.find((x) => {
+    const u = pickUpdate(x.r);
+    return u === 'COPY' || u === 'COPY2';
+  });
+  const copyRowIndex = (copyMatch ? copyMatch.i : idMatches[0].i);
 
   const copyObj: any = {};
   headers.forEach((h: string, i: number) => {
