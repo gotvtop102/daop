@@ -11,20 +11,28 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<Record<string, number>>({});
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<number | null>(null);
+  const [spreadsheetId, setSpreadsheetId] = useState<string>('');
+  const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
+  const navigate = useNavigate();
 
   const loadDashboard = useMemo(() => {
     return async () => {
       setLoading(true);
       try {
-        const [s, l] = await Promise.all([
+        const [s, l, conf] = await Promise.all([
           supabase.from('homepage_sections').select('id', { count: 'exact', head: true }),
           supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(10),
+          supabase
+            .from('site_settings')
+            .select('key, value')
+            .in('key', ['google_sheets_id', 'google_service_account_key']),
         ]);
 
         setStats((prev) => ({
@@ -32,6 +40,94 @@ export default function Dashboard() {
           sections: (s as any).count ?? 0,
         }));
         setLogs((l as any).data ?? []);
+
+        try {
+          const rows = (conf as any).data ?? [];
+          const map = (rows || []).reduce((acc: Record<string, any>, row: any) => {
+            acc[row.key] = row.value;
+            return acc;
+          }, {});
+          if (map.google_sheets_id) setSpreadsheetId(String(map.google_sheets_id));
+          if (map.google_service_account_key) setServiceAccountKey(String(map.google_service_account_key));
+        } catch {
+          // ignore
+        }
+
+        if (!spreadsheetId || !serviceAccountKey) {
+          try {
+            const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
+            const sid = saved?.google_sheets_id ? String(saved.google_sheets_id) : '';
+            const sak = saved?.google_service_account_key ? String(saved.google_service_account_key) : '';
+            if (!spreadsheetId && sid) setSpreadsheetId(sid);
+            if (!serviceAccountKey && sak) setServiceAccountKey(sak);
+          } catch {
+            // ignore
+          }
+        }
+
+        try {
+          const sid = spreadsheetId || '';
+          const sak = serviceAccountKey || '';
+          if (sid && sak) {
+            const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+            const base = envBase || window.location.origin;
+
+            const unbuiltUrl = new URL(`${base}/api/movies`);
+            unbuiltUrl.searchParams.append('action', 'list');
+            unbuiltUrl.searchParams.append('type', 'all');
+            unbuiltUrl.searchParams.append('unbuilt', '1');
+            unbuiltUrl.searchParams.append('page', '1');
+            unbuiltUrl.searchParams.append('limit', '1');
+            unbuiltUrl.searchParams.append('spreadsheetId', sid);
+            unbuiltUrl.searchParams.append('serviceAccountKey', sak);
+
+            const normalizeUrl = new URL(`${base}/api/movies`);
+            normalizeUrl.searchParams.append('action', 'list');
+            normalizeUrl.searchParams.append('type', 'all');
+            normalizeUrl.searchParams.append('copyOnly', '1');
+            normalizeUrl.searchParams.append('page', '1');
+            normalizeUrl.searchParams.append('limit', '1');
+            normalizeUrl.searchParams.append('spreadsheetId', sid);
+            normalizeUrl.searchParams.append('serviceAccountKey', sak);
+
+            const duplicatesUrl = new URL(`${base}/api/movies`);
+            duplicatesUrl.searchParams.append('action', 'list');
+            duplicatesUrl.searchParams.append('type', 'all');
+            duplicatesUrl.searchParams.append('duplicates', '1');
+            duplicatesUrl.searchParams.append('page', '1');
+            duplicatesUrl.searchParams.append('limit', '1');
+            duplicatesUrl.searchParams.append('spreadsheetId', sid);
+            duplicatesUrl.searchParams.append('serviceAccountKey', sak);
+
+            const [unbuiltRes, normalizeRes, duplicatesRes] = await Promise.all([
+              fetch(unbuiltUrl.toString(), { cache: 'no-store' }),
+              fetch(normalizeUrl.toString(), { cache: 'no-store' }),
+              fetch(duplicatesUrl.toString(), { cache: 'no-store' }),
+            ]);
+
+            const unbuiltData = await unbuiltRes.json().catch(async () => ({ error: await unbuiltRes.text() }));
+            const normalizeData = await normalizeRes
+              .json()
+              .catch(async () => ({ error: await normalizeRes.text() }));
+            const duplicatesData = await duplicatesRes
+              .json()
+              .catch(async () => ({ error: await duplicatesRes.text() }));
+
+            setStats((prev) => ({
+              ...prev,
+              movies_unbuilt: Number(unbuiltData?.total || 0),
+              movies_normalize: Number(normalizeData?.total || 0),
+              movies_duplicates: Number(duplicatesData?.total || 0),
+            }));
+          }
+        } catch {
+          setStats((prev) => ({
+            ...prev,
+            movies_unbuilt: prev.movies_unbuilt ?? 0,
+            movies_normalize: prev.movies_normalize ?? 0,
+            movies_duplicates: prev.movies_duplicates ?? 0,
+          }));
+        }
 
         try {
           const r = await supabase
@@ -106,6 +202,7 @@ export default function Dashboard() {
     icon: any;
     color: string;
     hint: string;
+    to?: string;
   }> = [
     {
       key: 'movies_total',
@@ -155,6 +252,33 @@ export default function Dashboard() {
       color: '#eb2f96',
       hint: 'Số section trang chủ',
     },
+    {
+      key: 'movies_unbuilt',
+      title: 'Phim chưa build',
+      value: stats.movies_unbuilt ?? 0,
+      icon: <UnorderedListOutlined />,
+      color: '#ff4d4f',
+      hint: 'Trên sheet: update=NEW (hoặc NEW2)',
+      to: '/movies/unbuilt',
+    },
+    {
+      key: 'movies_normalize',
+      title: 'Cần chuẩn hóa',
+      value: stats.movies_normalize ?? 0,
+      icon: <UnorderedListOutlined />,
+      color: '#faad14',
+      hint: 'Trên sheet: update=COPY (hoặc COPY2)',
+      to: '/movies/normalize',
+    },
+    {
+      key: 'movies_duplicates',
+      title: 'Trùng lặp',
+      value: stats.movies_duplicates ?? 0,
+      icon: <UnorderedListOutlined />,
+      color: '#b37feb',
+      hint: 'Trên sheet: update trống nhưng trùng slug hoặc ID',
+      to: '/movies/duplicates',
+    },
   ];
 
   function actionColor(a: any): string {
@@ -202,8 +326,10 @@ export default function Dashboard() {
                 overflow: 'hidden',
                 background:
                   'linear-gradient(135deg, rgba(22,119,255,0.12) 0%, rgba(255,255,255,1) 55%)',
+                cursor: c.to ? 'pointer' : 'default',
               }}
               bodyStyle={{ padding: 16 }}
+              onClick={c.to ? () => navigate(c.to as string) : undefined}
             >
               <Space align="start" size={12} style={{ width: '100%', justifyContent: 'space-between' }}>
                 <div>

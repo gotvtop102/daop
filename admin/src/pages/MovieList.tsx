@@ -54,6 +54,7 @@ const CATEGORY_MAP: Record<string, string> = {
   tvshows: 'TV Show',
   unbuilt: 'Phim chưa build',
   normalize: 'Cần chuẩn hóa',
+  duplicates: 'Trùng lặp',
 };
 
 const TYPE_MAP: Record<string, string> = {
@@ -230,13 +231,16 @@ export default function MovieList() {
       url.searchParams.append('serviceAccountKey', serviceAccountKey);
       const isUnbuiltTab = category === 'unbuilt';
       const isNormalizeTab = category === 'normalize';
-      url.searchParams.append('type', isUnbuiltTab ? 'all' : TYPE_MAP[category]);
+      const isDuplicatesTab = category === 'duplicates';
+      url.searchParams.append('type', isUnbuiltTab || isNormalizeTab || isDuplicatesTab ? 'all' : TYPE_MAP[category]);
       if (isUnbuiltTab) {
         url.searchParams.append('unbuilt', '1');
       }
       if (isNormalizeTab) {
-        url.searchParams.set('type', 'all');
         url.searchParams.append('copyOnly', '1');
+      }
+      if (isDuplicatesTab) {
+        url.searchParams.append('duplicates', '1');
       }
       url.searchParams.append('page', String(p));
       url.searchParams.append('limit', String(ps));
@@ -434,9 +438,11 @@ export default function MovieList() {
               size="small"
               onClick={() =>
                 openInNewTab(
-                  `/movies/edit/${record.id}?type=${category === 'unbuilt' ? (record.type || 'single') : category}${
-                    category === 'normalize' ? '&normalize=1' : ''
-                  }`
+                  `/movies/edit/${record.id}?type=${
+                    category === 'unbuilt' || category === 'normalize' || category === 'duplicates'
+                      ? (record.type || 'single')
+                      : category
+                  }${category === 'normalize' ? '&normalize=1' : ''}`
                 )
               }
             >
@@ -450,7 +456,9 @@ export default function MovieList() {
               onClick={() =>
                 openInNewTab(
                   `/movies/episodes/${record.id}?type=${
-                    category === 'unbuilt' || category === 'normalize' ? (record.type || 'single') : category
+                    category === 'unbuilt' || category === 'normalize' || category === 'duplicates'
+                      ? (record.type || 'single')
+                      : category
                   }`
                 )
               }
@@ -527,6 +535,7 @@ export default function MovieList() {
         <TabPane tab="TV Show" key="tvshows" />
         <TabPane tab="Phim chưa build" key="unbuilt" />
         <TabPane tab="Cần chuẩn hóa" key="normalize" />
+        <TabPane tab="Trùng lặp" key="duplicates" />
       </Tabs>
 
       <Table

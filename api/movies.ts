@@ -244,9 +244,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'list': {
-        const { type, page = '1', limit = '50', search = '', unbuilt, copyOnly } = req.query;
+        const { type, page = '1', limit = '50', search = '', unbuilt, copyOnly, duplicates } = req.query;
         const unbuiltOnly = String(unbuilt || '').trim() === '1' || String(unbuilt || '').trim().toLowerCase() === 'true';
         const onlyCopies = String(copyOnly || '').trim() === '1' || String(copyOnly || '').trim().toLowerCase() === 'true';
+        const duplicatesOnly =
+          String(duplicates || '').trim() === '1' || String(duplicates || '').trim().toLowerCase() === 'true';
         const result = await listMovies(
           sheets,
           spreadsheetId,
@@ -255,7 +257,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           parseInt(limit as string),
           search as string,
           unbuiltOnly,
-          onlyCopies
+          onlyCopies,
+          duplicatesOnly
         );
         return res.status(200).json(result);
       }
@@ -370,7 +373,8 @@ async function listMovies(
   limit: number = 50,
   search: string = '',
   unbuiltOnly: boolean = false,
-  copyOnly: boolean = false
+  copyOnly: boolean = false,
+  duplicatesOnly: boolean = false
 ) {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
@@ -417,6 +421,30 @@ async function listMovies(
     movies = movies.filter((m: any) => {
       const u = String(m.update || '').trim().toUpperCase();
       return u === 'COPY' || u === 'COPY2';
+    });
+  }
+
+  if (duplicatesOnly) {
+    const norm = (v: any) => String(v ?? '').trim();
+    const normUpper = (v: any) => norm(v).toUpperCase();
+
+    const idCounts = new Map<string, number>();
+    const slugCounts = new Map<string, number>();
+    for (const m of movies) {
+      const id = norm((m as any)?.id);
+      const slug = norm((m as any)?.slug);
+      if (id) idCounts.set(id, (idCounts.get(id) || 0) + 1);
+      if (slug) slugCounts.set(slug, (slugCounts.get(slug) || 0) + 1);
+    }
+
+    movies = movies.filter((m: any) => {
+      const upd = normUpper(m.update);
+      if (upd) return false;
+      const id = norm(m.id);
+      const slug = norm(m.slug);
+      const dupId = !!id && (idCounts.get(id) || 0) > 1;
+      const dupSlug = !!slug && (slugCounts.get(slug) || 0) > 1;
+      return dupId || dupSlug;
     });
   }
 
