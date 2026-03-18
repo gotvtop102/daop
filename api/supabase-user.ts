@@ -22,7 +22,7 @@ function fail(res: VercelResponse, status: number, message: string, extra?: any)
   return json(res, status, { ok: false, message, ...(extra || {}) });
 }
 
-const DEFAULT_TABLES = ['user_profiles', 'watch_history', 'favorites', 'ratings', 'comments'] as const;
+const DEFAULT_TABLES = ['profiles', 'favorites', 'watch_history', 'user_changes'] as const;
 
 function normalizeTables(input: any): string[] {
   const arr = Array.isArray(input) ? input : [];
@@ -37,8 +37,10 @@ async function deleteAllRows(client: any, table: string) {
   // Prefer delete by created_at if exists; fallback to generic not-null checks.
   const attempts = [
     () => client.from(table).delete({ count: 'exact' }).gte('created_at', '1970-01-01T00:00:00.000Z'),
+    () => client.from(table).delete({ count: 'exact' }).gte('last_watched', '1970-01-01T00:00:00.000Z'),
     () => client.from(table).delete({ count: 'exact' }).neq('id', '00000000-0000-0000-0000-000000000000'),
     () => client.from(table).delete({ count: 'exact' }).not('id', 'is', null),
+    () => client.from(table).delete({ count: 'exact' }).not('user_uid', 'is', null),
   ];
 
   let lastErr: any = null;
@@ -55,8 +57,20 @@ async function upsertRows(client: any, table: string, rows: any[]) {
   if (!list.length) return { count: 0 };
 
   // Use explicit onConflict for known uniques to make import stable.
-  if (table === 'user_profiles') {
+  if (table === 'profiles') {
     const r: any = await client.from(table).upsert(list, { onConflict: 'id', count: 'exact' });
+    if (r.error) throw r.error;
+    return { count: typeof r.count === 'number' ? r.count : list.length };
+  }
+
+  if (table === 'favorites') {
+    const r: any = await client.from(table).upsert(list, { onConflict: 'user_uid,movie_slug', count: 'exact' });
+    if (r.error) throw r.error;
+    return { count: typeof r.count === 'number' ? r.count : list.length };
+  }
+
+  if (table === 'watch_history') {
+    const r: any = await client.from(table).upsert(list, { onConflict: 'user_uid,movie_slug', count: 'exact' });
     if (r.error) throw r.error;
     return { count: typeof r.count === 'number' ? r.count : list.length };
   }

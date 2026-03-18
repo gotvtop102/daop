@@ -69,11 +69,10 @@ export default function SupabaseTools() {
 
   const USER_TABLES = useMemo(
     () => [
-      { key: 'user_profiles', label: 'user_profiles' },
-      { key: 'watch_history', label: 'watch_history' },
       { key: 'favorites', label: 'favorites' },
-      { key: 'ratings', label: 'ratings' },
-      { key: 'comments', label: 'comments' },
+      { key: 'watch_history', label: 'watch_history' },
+      { key: 'profiles', label: 'profiles' },
+      { key: 'user_changes', label: 'user_changes' },
     ],
     []
   );
@@ -160,101 +159,75 @@ export default function SupabaseTools() {
   };
 
   const sqlBlocks = useMemo(() => {
-    const schemaUserSql = `-- Supabase User Project: Người dùng, lịch sử xem, yêu thích, đánh giá
--- Chạy trong SQL Editor của project Supabase User (dành cho người dùng cuối)
+    const schemaUserSql = `-- Supabase User Project: Auth + dữ liệu người dùng (favorites, watch history)
+-- Chạy trong SQL Editor của project Supabase User
 
--- Bảng hồ sơ người dùng (bổ sung cho auth.users)
-create table if not exists public.user_profiles (
+-- Bảng profiles (mở rộng auth.users)
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  username text unique,
+  email text,
+  full_name text,
   avatar_url text,
-  display_name text,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  created_at timestamptz default now()
 );
 
--- Bảng lịch sử xem phim
-create table if not exists public.watch_history (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade not null,
-  movie_id text not null,
-  movie_slug text,
-  movie_title text,
-  episode_id text,
-  episode_name text,
-  server_slug text,
-  watched_at timestamptz default now(),
-  watch_duration integer default 0,
-  total_duration integer default 0,
-  is_completed boolean default false
-);
-
--- Bảng yêu thích / bookmarks
+-- Bảng favorites
 create table if not exists public.favorites (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade not null,
-  movie_id text not null,
-  movie_slug text,
-  movie_title text,
-  movie_thumb text,
+  user_uid uuid not null references auth.users(id) on delete cascade,
+  movie_slug text not null,
   created_at timestamptz default now(),
-  unique(user_id, movie_id)
+  unique(user_uid, movie_slug)
 );
 
--- Bảng đánh giá phim
-create table if not exists public.ratings (
+-- Bảng watch_history
+create table if not exists public.watch_history (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade not null,
-  movie_id text not null,
-  movie_slug text,
-  rating integer not null check (rating >= 1 and rating <= 10),
-  review text,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now(),
-  unique(user_id, movie_id)
+  user_uid uuid not null references auth.users(id) on delete cascade,
+  movie_slug text not null,
+  episode text,
+  timestamp integer default 0,
+  last_watched timestamptz default now(),
+  unique(user_uid, movie_slug)
 );
 
--- Bảng bình luận (nếu dùng custom comment thay vì Twikoo)
-create table if not exists public.comments (
+-- Bảng user_changes (đồng bộ delta)
+create table if not exists public.user_changes (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade not null,
-  movie_id text not null,
-  movie_slug text,
-  content text not null,
-  parent_id uuid references public.comments(id) on delete cascade,
-  is_approved boolean default true,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  user_uid uuid not null references auth.users(id) on delete cascade,
+  change_type text not null,
+  item_key text not null,
+  new_value jsonb,
+  created_at timestamptz default now()
 );
 
--- RLS cho User tables (chỉ user đó mới xem/ghi được dữ liệu của mình)
-alter table public.user_profiles enable row level security;
-alter table public.watch_history enable row level security;
+-- RLS
+alter table public.profiles enable row level security;
 alter table public.favorites enable row level security;
-alter table public.ratings enable row level security;
-alter table public.comments enable row level security;
+alter table public.watch_history enable row level security;
+alter table public.user_changes enable row level security;
 
--- Policy: user chỉ xem/ghi dữ liệu của chính mình
-create policy "Users can CRUD own data" on public.user_profiles
-  for all using (auth.uid() = id) with check (auth.uid() = id);
+create policy "Users can read own profile" on public.profiles for select using (auth.uid() = id);
+create policy "Users can update own profile" on public.profiles for update using (auth.uid() = id);
 
-create policy "Users can CRUD own history" on public.watch_history
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users can manage own favorites" on public.favorites for all using (auth.uid() = user_uid);
+create policy "Users can manage own watch_history" on public.watch_history for all using (auth.uid() = user_uid);
+create policy "Users can read own user_changes" on public.user_changes for select using (auth.uid() = user_uid);
 
-create policy "Users can CRUD own favorites" on public.favorites
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+-- Trigger tạo profile khi đăng ký
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email, full_name)
+  values (new.id, new.email, new.raw_user_meta_data->>'full_name');
+  return new;
+end;
+$$ language plpgsql security definer;
 
-create policy "Users can CRUD own ratings" on public.ratings
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-
-create policy "Users can CRUD own comments" on public.comments
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-
--- Index cho performance
-create index if not exists idx_watch_history_user on public.watch_history(user_id, watched_at desc);
-create index if not exists idx_favorites_user on public.favorites(user_id, created_at desc);
-create index if not exists idx_ratings_user on public.ratings(user_id, created_at desc);
-create index if not exists idx_comments_movie on public.comments(movie_id, created_at desc);`;
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();`;
 
     const schemaAdminSql = `-- Supabase Admin Project: Cấu hình website, quảng cáo, sections, donate, audit
 -- Chạy trong SQL Editor của project Supabase Admin
@@ -834,7 +807,7 @@ where email = 'admin@example.com';`;
                       rows={10}
                       value={userImportText}
                       onChange={(e: any) => setUserImportText(e.target.value)}
-                      placeholder="Dán JSON export (các key: user_profiles/watch_history/favorites/ratings/comments) vào đây..."
+                      placeholder="Dán JSON export (các key: profiles/favorites/watch_history/user_changes) vào đây..."
                     />
 
                     <Space wrap>

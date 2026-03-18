@@ -475,6 +475,11 @@ export default function MovieList() {
             setPage(nextPage);
             setPageSize(nextPageSize);
             loadMovies({ nextPage, nextPageSize });
+            try {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch {
+              window.scrollTo(0, 0);
+            }
           },
         }}
       />

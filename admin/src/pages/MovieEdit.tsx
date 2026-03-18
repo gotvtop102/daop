@@ -490,9 +490,13 @@ export default function MovieEdit() {
 
     setFetchingTMDB(true);
     try {
+      const currentType = String(form.getFieldValue('type') || typeFromQuery || '').trim();
+      const useTvEndpoint = currentType === 'series' || currentType === 'tvshows' || currentType === 'hoathinh';
+      const resource = useTvEndpoint ? 'tv' : 'movie';
+
       // Call TMDB API
       const res = await fetch(
-        `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${tmdbApiKey}&language=vi-VN&region=VN&append_to_response=translations`
+        `https://api.themoviedb.org/3/${resource}/${tmdbId}?api_key=${tmdbApiKey}&language=vi-VN&region=VN&append_to_response=translations`
       );
 
       if (!res.ok) {
@@ -502,23 +506,31 @@ export default function MovieEdit() {
       const data = await res.json();
 
       // Also fetch credits for director and cast
-      const creditsRes = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/credits?api_key=${tmdbApiKey}`);
+      const creditsRes = await fetch(`https://api.themoviedb.org/3/${resource}/${tmdbId}/credits?api_key=${tmdbApiKey}`);
       const credits = creditsRes.ok ? await creditsRes.json() : { crew: [], cast: [] };
 
-      const directors = credits.crew?.filter((c: any) => c.job === 'Director').map((c: any) => c.name) || [];
+      const directors = credits.crew?.filter((c: any) => c.job === 'Director' || c.job === 'Creator').map((c: any) => c.name) || [];
       const actors = credits.cast?.slice(0, 10).map((c: any) => c.name) || [];
 
+      const titleVi = useTvEndpoint ? (data.name || data.original_name) : (data.title || data.original_title);
+      const originName = useTvEndpoint ? (data.original_name || data.name) : (data.original_title || data.title);
+      const dateStr = useTvEndpoint ? (data.first_air_date || '') : (data.release_date || '');
+      const year = dateStr ? parseInt(String(dateStr).split('-')[0]) : new Date().getFullYear();
+      const runtimeMin = useTvEndpoint
+        ? (Array.isArray(data.episode_run_time) && data.episode_run_time.length ? Number(data.episode_run_time[0]) : 0)
+        : Number(data.runtime || 0);
+
       const tmdbData = {
-        title: data.title || data.original_title,
-        origin_name: data.original_title,
+        title: titleVi,
+        origin_name: originName,
         // Theo yêu cầu: ảnh dọc (poster_path) => thumb, ảnh ngang (backdrop_path) => poster
         poster_url: data.backdrop_path ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}` : '',
         thumb_url: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
-        year: data.release_date ? parseInt(data.release_date.split('-')[0]) : new Date().getFullYear(),
+        year,
         genre: normalizeGenres(data.genres?.map((g: any) => g?.name).filter(Boolean) || []),
-        country: normalizeCountries(data.production_countries || []),
+        country: normalizeCountries(useTvEndpoint ? (data.origin_country || []).map((x: any) => ({ iso_3166_1: x })) : (data.production_countries || [])),
         description: data.overview,
-        time: data.runtime ? `${data.runtime} phút` : '',
+        time: runtimeMin ? `${runtimeMin} phút` : '',
         director: directors,
         actor: actors,
       };
