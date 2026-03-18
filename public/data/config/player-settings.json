@@ -4,7 +4,7 @@
     "videojs": "Video.js",
     "jwplayer": "JWPlayer"
   },
-  "default_player": "videojs",
+  "default_player": "fluidplayer",
   "warning_enabled_global": true,
   "warning_text": "Cảnh báo: Phim chứa hình ảnh đường lưỡi bò phi pháp xâm phạm chủ quyền biển đảo Việt Nam.",
   "link_type_labels": {
@@ -23,14 +23,17 @@
     "preload": "metadata",
     "autoplay": false,
     "controls": true,
-    "vjs_fluid": true,
+    "fluid_logo": "",
+    "fluid_speed": true,
     "preroll_vast": "",
-    "vjs_controlBar": true,
-    "vjs_responsive": true,
+    "fluid_quality": true,
     "midroll_enabled": false,
     "preroll_enabled": true,
-    "vjs_aspectRatio": "16:9",
+    "fluid_controlBar": true,
     "postroll_enabled": false,
-    "vjs_bigPlayButton": true
+    "fluid_theatreMode": true,
+    "fluid_logoPosition": "top right",
+    "fluid_layoutControls": true,
+    "fluid_miniProgressBar": true
   }
 }
