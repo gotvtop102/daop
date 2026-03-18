@@ -486,11 +486,11 @@ async function getMovieBySlug(sheets: any, spreadsheetId: string, slug: string) 
   // Prefer original rows (not COPY/COPY2). If multiple, prefer OK/OK2.
   const candidates = dataRows
     .map((row: any[], i: number) => ({ row, i, slug: String((idxSlug >= 0 ? row[idxSlug] : '') ?? '').trim() }))
-    .filter((x) => x.slug === s);
+    .filter((x: { row: any[]; i: number; slug: string }) => x.slug === s);
   if (!candidates.length) return null;
 
   const scored = candidates
-    .map((c) => {
+    .map((c: { row: any[]; i: number; slug: string }) => {
       const obj = pickRow(c.row);
       obj._rowIndex = c.i + 2;
       const u = String(obj.update || '').trim().toUpperCase();
@@ -498,7 +498,7 @@ async function getMovieBySlug(sheets: any, spreadsheetId: string, slug: string) 
       const isOk = u === 'OK' || u === 'OK2';
       return { obj, score: (isCopy ? 0 : 10) + (isOk ? 5 : 0) };
     })
-    .sort((a, b) => b.score - a.score);
+    .sort((a: { score: number }, b: { score: number }) => b.score - a.score);
 
   return scored[0]?.obj || null;
 }
@@ -528,11 +528,11 @@ async function normalizeCopyToOriginal(
   const idStr = String(copyId);
   const idMatches = dataRows
     .map((r: any[], i: number) => ({ r, i, id: String(r[idxId] ?? '') }))
-    .filter((x) => x.id === idStr);
+    .filter((x: { r: any[]; i: number; id: string }) => x.id === idStr);
   if (!idMatches.length) throw new Error('Copy movie not found');
 
   const pickUpdate = (row: any[]) => String(row[idxUpdate] ?? '').trim().toUpperCase();
-  const copyMatch = idMatches.find((x) => {
+  const copyMatch = idMatches.find((x: { r: any[]; i: number; id: string }) => {
     const u = pickUpdate(x.r);
     return u === 'COPY' || u === 'COPY2';
   });
@@ -564,9 +564,9 @@ async function normalizeCopyToOriginal(
       const isOk = u === 'OK' || u === 'OK2';
       return { i, obj, s, u, isCopy, isOk };
     })
-    .filter((x) => x.s === slug && !x.isCopy);
+    .filter((x: { s: string; isCopy: boolean }) => x.s === slug && !x.isCopy);
   if (!originalCandidates.length) throw new Error('Original movie not found for this slug');
-  originalCandidates.sort((a, b) => Number(b.isOk) - Number(a.isOk));
+  originalCandidates.sort((a: { isOk: boolean }, b: { isOk: boolean }) => Number(b.isOk) - Number(a.isOk));
   const original = originalCandidates[0];
 
   const originalId = String(original.obj.id ?? '').trim();
@@ -770,7 +770,7 @@ async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string) 
   const episodes = dataRows
     .filter((row: any[]) => {
       const v = idxMovieId >= 0 ? row[idxMovieId] : row[0];
-      return String(v ?? '') === String(movieId);
+      return String(v ?? '').trim() === String(movieId).trim();
     })
     .map((row: any[]) => {
       const ep: any = {};
@@ -809,7 +809,7 @@ async function saveEpisodes(sheets: any, spreadsheetId: string, movieId: string,
     const rowsToDelete = [];
     for (let i = 0; i < dataRows.length; i++) {
       const v = idxMovieId >= 0 ? dataRows[i][idxMovieId] : dataRows[i][0];
-      if (String(v ?? '') === String(movieId)) {
+      if (String(v ?? '').trim() === String(movieId).trim()) {
         rowsToDelete.push(i + 2); // +2 for header and 1-based indexing
       }
     }
