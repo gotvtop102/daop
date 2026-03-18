@@ -1,6 +1,14 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 
+try {
+  // Local dev convenience: Vercel production injects env vars, but local Node may not.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('dotenv').config();
+} catch (e) {
+  // ignore
+}
+
 type ImportMode = 'upsert' | 'replace';
 
 function getEnv(name: string): string {

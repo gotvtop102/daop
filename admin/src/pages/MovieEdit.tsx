@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import {
   Typography,
   Button,
@@ -93,8 +93,11 @@ const COUNTRY_OPTIONS = [
 
 const UPDATE_OPTIONS = [
   { value: 'NEW', label: 'NEW' },
+  { value: 'NEW2', label: 'NEW2' },
   { value: 'OK', label: 'OK' },
+  { value: 'OK2', label: 'OK2' },
   { value: 'COPY', label: 'COPY' },
+  { value: 'COPY2', label: 'COPY2' },
 ];
 
 const normalizeLooseText = (input: any) => {
@@ -250,6 +253,7 @@ export default function MovieEdit() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [originalMovie, setOriginalMovie] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [fetchingTMDB, setFetchingTMDB] = useState(false);
   const [posterPreview, setPosterPreview] = useState('');
@@ -259,6 +263,64 @@ export default function MovieEdit() {
   const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
   const [configReady, setConfigReady] = useState<boolean>(false);
   const isNew = id === 'new';
+
+  const isNormalizeMode = useMemo(() => {
+    const v = String(searchParams.get('normalize') || '').trim();
+    return v === '1' || v.toLowerCase() === 'true';
+  }, [searchParams]);
+
+  const applyFromOriginal = (field: keyof MovieForm) => {
+    if (!originalMovie) return;
+    let v: any = originalMovie[field as any];
+    if (v == null) return;
+
+    if (field === 'year') {
+      const n = Number(String(v || '').trim());
+      if (Number.isFinite(n) && n > 0) v = n;
+    }
+
+    if (field === 'is_exclusive') {
+      const s = String(v ?? '').trim().toLowerCase();
+      v = s === '1' || s === 'true' || s === 'yes';
+    }
+
+    if (field === 'genre' || field === 'country' || field === 'director' || field === 'actor') {
+      if (typeof v === 'string') {
+        v = v
+          .split(',')
+          .map((x) => String(x || '').trim())
+          .filter(Boolean);
+      }
+      if (!Array.isArray(v)) v = [];
+    }
+
+    form.setFieldsValue({ [field]: v } as any);
+    message.success(`Đã chuyển dữ liệu: ${String(field)}`);
+  };
+
+  const loadOriginalBySlug = async (slug: string) => {
+    const s = String(slug || '').trim();
+    if (!s) return;
+    if (!spreadsheetId || !serviceAccountKey) return;
+
+    const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+    const base = envBase || window.location.origin;
+
+    const url = new URL(`${base}/api/movies`);
+    url.searchParams.append('action', 'getBySlug');
+    url.searchParams.append('spreadsheetId', spreadsheetId);
+    url.searchParams.append('serviceAccountKey', serviceAccountKey);
+    url.searchParams.append('slug', s);
+
+    const res = await fetch(url.toString());
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    if (data?.error) throw new Error(data.error);
+    setOriginalMovie(data);
+  };
 
   // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
@@ -451,18 +513,25 @@ export default function MovieEdit() {
       const thumbSlug = extractImageSlug(result.thumb_url || '');
 
       // Parse arrays from comma-separated strings
-      const movieData = {
+      form.setFieldsValue({
         ...result,
         genre: typeof result.genre === 'string' ? result.genre.split(',').filter(Boolean) : result.genre || [],
         country: typeof result.country === 'string' ? result.country.split(',').filter(Boolean) : result.country || [],
         director: typeof result.director === 'string' ? result.director.split(',').filter(Boolean) : result.director || [],
         actor: typeof result.actor === 'string' ? result.actor.split(',').filter(Boolean) : result.actor || [],
-        poster_url: posterSlug,
-        thumb_url: thumbSlug,
-        year: result.year ? parseInt(result.year) : new Date().getFullYear(),
-      };
+        year: result.year ? parseInt(result.year) : undefined,
+      });
 
-      form.setFieldsValue(movieData);
+      if (isNormalizeMode) {
+        const u = String(result.update || '').trim().toUpperCase();
+        if (u === 'COPY' || u === 'COPY2') {
+          const slug = String(result.slug || '').trim();
+          if (slug) {
+            await loadOriginalBySlug(slug);
+          }
+        }
+      }
+
       const preview =
         normalizeMovieImageUrl(result.poster_url || '', 'poster') ||
         (posterSlug ? buildImageUrlFromSlug(posterSlug, 'poster') : '') ||
@@ -613,6 +682,58 @@ export default function MovieEdit() {
   return (
     <Spin spinning={loading} tip="Đang tải...">
       <div>
+        {isNormalizeMode && originalMovie ? (
+          <Card title="Dữ liệu bản gốc (chỉ đọc)" style={{ marginBottom: 16 }}>
+            <Row gutter={[12, 12]}>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Title</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.title || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('title')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Origin name</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.origin_name || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('origin_name')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Thumb</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.thumb_url || originalMovie.thumb || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('thumb_url')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Poster</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.poster_url || originalMovie.poster || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('poster_url')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Năm</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.year || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('year')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Thể loại</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.genre || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('genre')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Quốc gia</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.country || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('country')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Mô tả</div>
+                <div style={{ color: '#666', whiteSpace: 'pre-wrap' }}>{String(originalMovie.description || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('description')}>Chuyển dữ liệu</Button>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>TMDB</div>
+                <div style={{ color: '#666' }}>{String(originalMovie.tmdb_id || '')}</div>
+                <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('tmdb_id')}>Chuyển dữ liệu</Button>
+              </Col>
+            </Row>
+          </Card>
+        ) : null}
+
         <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
           <Col>
             <Space>

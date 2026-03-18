@@ -53,6 +53,7 @@ const CATEGORY_MAP: Record<string, string> = {
   hoathinh: 'Hoạt hình',
   tvshows: 'TV Show',
   unbuilt: 'Phim chưa build',
+  normalize: 'Cần chuẩn hóa',
 };
 
 const TYPE_MAP: Record<string, string> = {
@@ -228,9 +229,14 @@ export default function MovieList() {
       url.searchParams.append('spreadsheetId', spreadsheetId);
       url.searchParams.append('serviceAccountKey', serviceAccountKey);
       const isUnbuiltTab = category === 'unbuilt';
+      const isNormalizeTab = category === 'normalize';
       url.searchParams.append('type', isUnbuiltTab ? 'all' : TYPE_MAP[category]);
       if (isUnbuiltTab) {
         url.searchParams.append('unbuilt', '1');
+      }
+      if (isNormalizeTab) {
+        url.searchParams.set('type', 'all');
+        url.searchParams.append('copyOnly', '1');
       }
       url.searchParams.append('page', String(p));
       url.searchParams.append('limit', String(ps));
@@ -259,10 +265,56 @@ export default function MovieList() {
 
       setMovies(parsedData);
       setTotal(result.total || 0);
+      setPage(result.page || p);
+      setPageSize(result.limit || ps);
     } catch (e: any) {
-      message.error(e?.message || 'Không thể tải danh sách phim');
+      message.error(e?.message || 'Lỗi tải danh sách phim');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const normalizeCopy = async (record: any) => {
+    if (!record?.id) return;
+    if (!spreadsheetId || !serviceAccountKey) {
+      message.error('Chưa cấu hình Google Sheets');
+      return;
+    }
+
+    const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+    const base = envBase || window.location.origin;
+
+    const url = new URL(`${base}/api/movies`);
+    url.searchParams.append('action', 'normalizeCopy');
+    url.searchParams.append('spreadsheetId', spreadsheetId);
+    url.searchParams.append('serviceAccountKey', serviceAccountKey);
+
+    try {
+      const res = await fetch(url.toString(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ copyId: record.id, deleteCopy: false }),
+      });
+      const data = await res.json().catch(async () => ({ error: await res.text() }));
+      if (!res.ok || data?.error) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+
+      message.success('Đã chuẩn hóa: đã ghi đè bản gốc và đặt update=NEW. Bạn có thể xóa bản copy nếu không cần.');
+
+      const shouldDelete = window.confirm('Bạn có muốn xóa bản COPY này khỏi sheet không?');
+      if (shouldDelete) {
+        const res2 = await fetch(url.toString(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ copyId: record.id, deleteCopy: true }),
+        });
+        const data2 = await res2.json().catch(async () => ({ error: await res2.text() }));
+        if (!res2.ok || data2?.error) throw new Error(data2?.error || data2?.message || `HTTP ${res2.status}`);
+        message.success('Đã xóa bản COPY.');
+      }
+
+      loadMovies({ nextPage: 1 });
+    } catch (e: any) {
+      message.error(e?.message || 'Chuẩn hóa thất bại');
     }
   };
 
@@ -380,7 +432,13 @@ export default function MovieList() {
               type="primary"
               icon={<EditOutlined />}
               size="small"
-              onClick={() => openInNewTab(`/movies/edit/${record.id}?type=${category === 'unbuilt' ? (record.type || 'single') : category}`)}
+              onClick={() =>
+                openInNewTab(
+                  `/movies/edit/${record.id}?type=${category === 'unbuilt' ? (record.type || 'single') : category}${
+                    category === 'normalize' ? '&normalize=1' : ''
+                  }`
+                )
+              }
             >
               Sửa
             </Button>
@@ -389,11 +447,24 @@ export default function MovieList() {
             <Button
               icon={<LinkOutlined />}
               size="small"
-              onClick={() => openInNewTab(`/movies/episodes/${record.id}?type=${category === 'unbuilt' ? (record.type || 'single') : category}`)}
+              onClick={() =>
+                openInNewTab(
+                  `/movies/episodes/${record.id}?type=${
+                    category === 'unbuilt' || category === 'normalize' ? (record.type || 'single') : category
+                  }`
+                )
+              }
             >
               Link
             </Button>
           </Tooltip>
+          {category === 'normalize' ? (
+            <Tooltip title="Ghi đè bản gốc bằng bản COPY và đặt update=NEW">
+              <Button size="small" onClick={() => normalizeCopy(record)}>
+                Chuẩn hóa
+              </Button>
+            </Tooltip>
+          ) : null}
           <Tooltip title="Xóa phim">
             <Button
               danger
@@ -455,6 +526,7 @@ export default function MovieList() {
         <TabPane tab="Hoạt hình" key="hoathinh" />
         <TabPane tab="TV Show" key="tvshows" />
         <TabPane tab="Phim chưa build" key="unbuilt" />
+        <TabPane tab="Cần chuẩn hóa" key="normalize" />
       </Tabs>
 
       <Table
