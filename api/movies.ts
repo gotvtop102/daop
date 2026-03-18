@@ -94,7 +94,31 @@ async function loadServiceAccountCredentials(serviceAccountKey?: string) {
   const raw = String(key).trim();
   const normalizeCreds = (creds: any) => {
     if (creds && typeof creds.private_key === 'string') {
-      creds.private_key = creds.private_key.replace(/\\n/g, '\n');
+      let pk = String(creds.private_key);
+      // Some env providers double-escape newlines, producing "\\n" or even "\\\\n".
+      pk = pk.replace(/^"|"$/g, '');
+      pk = pk.replace(/\\\\r\\\\n/g, '\n');
+      pk = pk.replace(/\\\\n/g, '\n');
+      pk = pk.replace(/\\r\\n/g, '\n');
+      pk = pk.replace(/\\n/g, '\n');
+      creds.private_key = pk;
+    }
+
+    if (!creds || typeof creds !== 'object') {
+      throw new Error('Invalid service account credentials: not an object');
+    }
+    if (!creds.client_email) {
+      throw new Error('Invalid service account credentials: missing client_email');
+    }
+    if (!creds.private_key || typeof creds.private_key !== 'string') {
+      throw new Error('Invalid service account credentials: missing private_key');
+    }
+    const pk2 = String(creds.private_key);
+    if (!pk2.includes('BEGIN PRIVATE KEY')) {
+      throw new Error('Invalid service account credentials: private_key is malformed (missing BEGIN PRIVATE KEY)');
+    }
+    if (pk2.includes('\\n')) {
+      throw new Error('Invalid service account credentials: private_key still contains escaped newlines (\\n). Use JSON/base64 JSON with proper escaping.');
     }
     return creds;
   };
