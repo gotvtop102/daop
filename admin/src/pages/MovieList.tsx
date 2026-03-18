@@ -52,6 +52,7 @@ const CATEGORY_MAP: Record<string, string> = {
   series: 'Phim bộ',
   hoathinh: 'Hoạt hình',
   tvshows: 'TV Show',
+  unbuilt: 'Phim chưa build',
 };
 
 const TYPE_MAP: Record<string, string> = {
@@ -226,7 +227,11 @@ export default function MovieList() {
       url.searchParams.append('action', 'list');
       url.searchParams.append('spreadsheetId', spreadsheetId);
       url.searchParams.append('serviceAccountKey', serviceAccountKey);
-      url.searchParams.append('type', TYPE_MAP[category]);
+      const isUnbuiltTab = category === 'unbuilt';
+      url.searchParams.append('type', isUnbuiltTab ? 'all' : TYPE_MAP[category]);
+      if (isUnbuiltTab) {
+        url.searchParams.append('unbuilt', '1');
+      }
       url.searchParams.append('page', String(p));
       url.searchParams.append('limit', String(ps));
       if (search.trim()) {
@@ -375,7 +380,7 @@ export default function MovieList() {
               type="primary"
               icon={<EditOutlined />}
               size="small"
-              onClick={() => openInNewTab(`/movies/edit/${record.id}?type=${category}`)}
+              onClick={() => openInNewTab(`/movies/edit/${record.id}?type=${category === 'unbuilt' ? (record.type || 'single') : category}`)}
             >
               Sửa
             </Button>
@@ -384,7 +389,7 @@ export default function MovieList() {
             <Button
               icon={<LinkOutlined />}
               size="small"
-              onClick={() => openInNewTab(`/movies/episodes/${record.id}?type=${category}`)}
+              onClick={() => openInNewTab(`/movies/episodes/${record.id}?type=${category === 'unbuilt' ? (record.type || 'single') : category}`)}
             >
               Link
             </Button>
@@ -449,6 +454,7 @@ export default function MovieList() {
         <TabPane tab="Phim bộ" key="series" />
         <TabPane tab="Hoạt hình" key="hoathinh" />
         <TabPane tab="TV Show" key="tvshows" />
+        <TabPane tab="Phim chưa build" key="unbuilt" />
       </Tabs>
 
       <Table
@@ -464,8 +470,11 @@ export default function MovieList() {
           showSizeChanger: true,
           showTotal: (t) => `Tổng ${t} phim`,
           onChange: (p, ps) => {
-            setPage(p);
-            setPageSize(ps);
+            const nextPage = Number(p) || 1;
+            const nextPageSize = Number(ps) || pageSize;
+            setPage(nextPage);
+            setPageSize(nextPageSize);
+            loadMovies({ nextPage, nextPageSize });
           },
         }}
       />

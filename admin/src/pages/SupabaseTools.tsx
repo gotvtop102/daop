@@ -11,7 +11,6 @@ import {
   Modal,
   Divider,
   Collapse,
-  Form,
 } from 'antd';
 import { CopyOutlined, DownloadOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
@@ -68,52 +67,96 @@ export default function SupabaseTools() {
   const [importText, setImportText] = useState('');
   const [importing, setImporting] = useState(false);
 
-  // Supabase User config
-  const [userForm] = Form.useForm();
-  const [savingUserConfig, setSavingUserConfig] = useState(false);
+  const USER_TABLES = useMemo(
+    () => [
+      { key: 'user_profiles', label: 'user_profiles' },
+      { key: 'watch_history', label: 'watch_history' },
+      { key: 'favorites', label: 'favorites' },
+      { key: 'ratings', label: 'ratings' },
+      { key: 'comments', label: 'comments' },
+    ],
+    []
+  );
+  const [selectedUserTables, setSelectedUserTables] = useState<string[]>(USER_TABLES.map((t) => t.key));
+  const [userExporting, setUserExporting] = useState(false);
+  const [userImportMode, setUserImportMode] = useState<'upsert' | 'replace'>('upsert');
+  const [userImportText, setUserImportText] = useState('');
+  const [userImporting, setUserImporting] = useState(false);
 
-  useEffect(() => {
-    supabase
-      .from('site_settings')
-      .select('key, value')
-      .in('key', ['supabase_user_url', 'supabase_user_anon_key'])
-      .then((r: any) => {
-        if (r.error) return;
-        const data = (r.data ?? []).reduce((acc: Record<string, string>, row: any) => {
-          acc[row.key] = row.value;
-          return acc;
-        }, {});
-        userForm.setFieldsValue({
-          supabase_user_url: data.supabase_user_url || '',
-          supabase_user_anon_key: data.supabase_user_anon_key || '',
-        });
-      });
-  }, [userForm]);
+  const exportUserTables = async () => {
+    try {
+      if (!selectedUserTables.length) {
+        message.warning('Chọn ít nhất 1 bảng để export');
+        return;
+      }
+      setUserExporting(true);
+      const r = await fetch('/api/supabase-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'export', tables: selectedUserTables }),
+      }).then((x) => x.json());
+      if (!r?.ok) throw new Error(r?.message || 'Export thất bại');
+      const payload = r?.data;
+      downloadJson(
+        `supabase-user-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`,
+        payload
+      );
+      message.success('Đã export JSON');
+    } catch (e: any) {
+      message.error(e?.message || 'Export thất bại');
+    } finally {
+      setUserExporting(false);
+    }
+  };
 
-  const handleSaveUserConfig = async (values: any) => {
-    const url = String(values?.supabase_user_url || '').trim();
-    const key = String(values?.supabase_user_anon_key || '').trim();
-    if (!url || !key) {
-      message.error('Nhập đủ URL và Anon Key');
+  const importUserTables = async () => {
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(userImportText || '');
+    } catch {
+      message.error('JSON không hợp lệ');
       return;
     }
-    setSavingUserConfig(true);
-    try {
-      const now = new Date().toISOString();
-      const { error } = await supabase.from('site_settings').upsert(
-        [
-          { key: 'supabase_user_url', value: url, updated_at: now },
-          { key: 'supabase_user_anon_key', value: key, updated_at: now },
-        ],
-        { onConflict: 'key' }
-      );
-      if (error) throw error;
-      message.success('Đã lưu cấu hình Supabase User');
-    } catch (e: any) {
-      message.error(e?.message || 'Lưu thất bại');
-    } finally {
-      setSavingUserConfig(false);
+    if (!selectedUserTables.length) {
+      message.warning('Chọn ít nhất 1 bảng để import');
+      return;
     }
+
+    const run = async () => {
+      setUserImporting(true);
+      try {
+        const r = await fetch('/api/supabase-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'import',
+            mode: userImportMode,
+            tables: selectedUserTables,
+            data: parsed,
+          }),
+        }).then((x) => x.json());
+        if (!r?.ok) throw new Error(r?.message || 'Import thất bại');
+        message.success('Import thành công');
+      } catch (e: any) {
+        message.error(e?.message || 'Import thất bại');
+      } finally {
+        setUserImporting(false);
+      }
+    };
+
+    if (userImportMode === 'replace') {
+      Modal.confirm({
+        title: 'Replace sẽ xóa dữ liệu hiện tại rồi nhập lại. Bạn chắc chắn?',
+        content: 'Hãy chắc chắn bạn đang import đúng JSON. Thao tác này không thể hoàn tác.',
+        okText: 'Tiếp tục',
+        okButtonProps: { danger: true },
+        cancelText: 'Hủy',
+        onOk: run,
+      });
+      return;
+    }
+
+    await run();
   };
 
   const sqlBlocks = useMemo(() => {
@@ -746,31 +789,73 @@ where email = 'admin@example.com';`;
           },
           {
             key: 'user-config',
-            label: 'Cấu hình User',
+            label: 'Supabase User',
             children: (
               <Space direction="vertical" size={12} style={{ width: '100%' }}>
-                <Card title="Cấu hình Supabase User Project" bordered={false} style={{ borderRadius: 12 }}>
-                  <Form form={userForm} layout="vertical" onFinish={handleSaveUserConfig}>
-                    <Form.Item
-                      name="supabase_user_url"
-                      label="Supabase User URL"
-                      extra="URL dự án Supabase dành cho người dùng (ví dụ: https://xxxxx.supabase.co)"
-                      rules={[{ required: true, message: 'Nhập Supabase User URL' }]}
-                    >
-                      <Input placeholder="https://xxxxx.supabase.co" />
-                    </Form.Item>
-                    <Form.Item
-                      name="supabase_user_anon_key"
-                      label="Supabase User Anon Key"
-                      extra="Anon key dành cho người dùng (tìm trong Settings → API của project User)"
-                      rules={[{ required: true, message: 'Nhập Supabase User Anon Key' }]}
-                    >
-                      <Input.TextArea rows={3} placeholder="eyJhbGciOiJIUzI1NiIs..." />
-                    </Form.Item>
-                    <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={savingUserConfig}>
-                      Lưu cấu hình
-                    </Button>
-                  </Form>
+                <Card title="Xuất / Nhập dữ liệu (Supabase User project)" bordered={false} style={{ borderRadius: 12 }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={10}>
+                    <div>
+                      <Typography.Text strong>Chọn bảng</Typography.Text>
+                      <div style={{ marginTop: 8 }}>
+                        <Select
+                          mode="multiple"
+                          value={selectedUserTables}
+                          onChange={(v: unknown) => setSelectedUserTables(v as string[])}
+                          options={USER_TABLES.map((t) => ({ value: t.key, label: t.label }))}
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+                    </div>
+
+                    <Space wrap>
+                      <Button icon={<DownloadOutlined />} type="primary" onClick={exportUserTables} loading={userExporting}>
+                        Export JSON
+                      </Button>
+                      <Button onClick={() => setSelectedUserTables(USER_TABLES.map((t) => t.key))}>Chọn tất cả</Button>
+                      <Button onClick={() => setSelectedUserTables([])}>Bỏ chọn</Button>
+                    </Space>
+
+                    <Divider style={{ margin: '8px 0' }} />
+
+                    <Space wrap>
+                      <Typography.Text strong>Chế độ import</Typography.Text>
+                      <Select
+                        value={userImportMode}
+                        onChange={(v: 'upsert' | 'replace') => setUserImportMode(v)}
+                        options={[
+                          { value: 'upsert', label: 'Upsert (khuyến nghị)' },
+                          { value: 'replace', label: 'Replace (nguy hiểm)' },
+                        ]}
+                        style={{ width: 220 }}
+                      />
+                    </Space>
+
+                    <Input.TextArea
+                      rows={10}
+                      value={userImportText}
+                      onChange={(e: any) => setUserImportText(e.target.value)}
+                      placeholder="Dán JSON export (các key: user_profiles/watch_history/favorites/ratings/comments) vào đây..."
+                    />
+
+                    <Space wrap>
+                      <Button
+                        type="primary"
+                        icon={<UploadOutlined />}
+                        onClick={importUserTables}
+                        loading={userImporting}
+                      >
+                        Import
+                      </Button>
+                      <Button onClick={() => setUserImportText('')}>Xóa nội dung</Button>
+                      <Button icon={<CopyOutlined />} onClick={() => copyToClipboard(userImportText || '')}>
+                        Copy JSON đang dán
+                      </Button>
+                    </Space>
+
+                    <Typography.Text type="secondary">
+                      Lưu ý: Mặc định thao tác qua API server-side để tránh RLS chặn khi dùng anon key.
+                    </Typography.Text>
+                  </Space>
                 </Card>
               </Space>
             ),

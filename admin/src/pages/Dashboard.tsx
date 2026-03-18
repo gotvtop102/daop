@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Card, Row, Col, Table, Statistic, Typography, Space, Tag } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Card, Row, Col, Table, Statistic, Typography, Space, Tag } from 'antd';
 import {
   VideoCameraOutlined,
   UnorderedListOutlined,
@@ -8,64 +8,95 @@ import {
   SmileOutlined,
   DesktopOutlined,
   ClockCircleOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<Record<string, number>>({});
   const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<number | null>(null);
+
+  const loadDashboard = useMemo(() => {
+    return async () => {
+      setLoading(true);
+      try {
+        const [s, l] = await Promise.all([
+          supabase.from('homepage_sections').select('id', { count: 'exact', head: true }),
+          supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(10),
+        ]);
+
+        setStats((prev) => ({
+          ...prev,
+          sections: (s as any).count ?? 0,
+        }));
+        setLogs((l as any).data ?? []);
+
+        try {
+          const r = await supabase
+            .from('site_settings')
+            .select('key, value')
+            .in('key', ['site_url'])
+            .limit(1);
+          const rows = (r as any).data ?? [];
+          const map = (rows || []).reduce((acc: Record<string, any>, row: any) => {
+            acc[row.key] = row.value;
+            return acc;
+          }, {});
+          const baseRaw = String(map.site_url || window.location.origin || '').replace(/\/$/, '');
+          const url = baseRaw + '/data/filters.js';
+          const text = await fetch(url, { cache: 'no-store' }).then((res) => res.text());
+          const sandbox: any = {};
+          const data = new Function('window', text + '; return window.filtersData;')(sandbox);
+          const typeMap = data && typeof data === 'object' ? (data as any).typeMap : null;
+          const asArr = (x: any) => (Array.isArray(x) ? x : []);
+          const series = asArr(typeMap && typeMap.series);
+          const single = asArr(typeMap && (typeMap.single || typeMap.movie || typeMap.le));
+          const hoathinh = asArr(typeMap && (typeMap.hoathinh || typeMap.cartoon));
+          const tvshows = asArr(typeMap && (typeMap.tvshows || typeMap.tvshow));
+          const all = new Set<string>();
+          [series, single, hoathinh, tvshows].forEach((arr) =>
+            (arr || []).forEach((id: any) => all.add(String(id)))
+          );
+
+          setStats((prev) => ({
+            ...prev,
+            movies_total: all.size,
+            movies_series: series.length,
+            movies_single: single.length,
+            movies_hoathinh: hoathinh.length,
+            movies_tvshows: tvshows.length,
+          }));
+        } catch {
+          setStats((prev) => ({
+            ...prev,
+            movies_total: prev.movies_total ?? 0,
+            movies_series: prev.movies_series ?? 0,
+            movies_single: prev.movies_single ?? 0,
+            movies_hoathinh: prev.movies_hoathinh ?? 0,
+            movies_tvshows: prev.movies_tvshows ?? 0,
+          }));
+        }
+
+        setLastUpdatedAt(Date.now());
+      } finally {
+        setLoading(false);
+      }
+    };
+  }, []);
 
   useEffect(() => {
-    Promise.all([
-      supabase.from('homepage_sections').select('id', { count: 'exact', head: true }),
-      supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(10),
-    ]).then(([s, l]) => {
-      setStats({
-        sections: (s as any).count ?? 0,
-      });
-      setLogs((l as any).data ?? []);
-    }).catch(() => {});
+    loadDashboard();
 
-    (async () => {
-      try {
-        const r = await supabase.from('site_settings').select('key, value').in('key', ['site_url']).limit(1);
-        const rows = (r as any).data ?? [];
-        const map = (rows || []).reduce((acc: Record<string, any>, row: any) => {
-          acc[row.key] = row.value;
-          return acc;
-        }, {});
-        const baseRaw = String(map.site_url || window.location.origin || '').replace(/\/$/, '');
-        const url = baseRaw + '/data/filters.js';
-        const text = await fetch(url, { cache: 'no-store' }).then((res) => res.text());
-        const sandbox: any = {};
-        const data = new Function('window', text + '; return window.filtersData;')(sandbox);
-        const typeMap = data && typeof data === 'object' ? (data as any).typeMap : null;
-        const asArr = (x: any) => Array.isArray(x) ? x : [];
-        const series = asArr(typeMap && typeMap.series);
-        const single = asArr(typeMap && (typeMap.single || typeMap.movie || typeMap.le));
-        const hoathinh = asArr(typeMap && (typeMap.hoathinh || typeMap.cartoon));
-        const tvshows = asArr(typeMap && (typeMap.tvshows || typeMap.tvshow));
-        const all = new Set<string>();
-        [series, single, hoathinh, tvshows].forEach((arr) => (arr || []).forEach((id: any) => all.add(String(id))));
-        setStats((prev) => ({
-          ...prev,
-          movies_total: all.size,
-          movies_series: series.length,
-          movies_single: single.length,
-          movies_hoathinh: hoathinh.length,
-          movies_tvshows: tvshows.length,
-        }));
-      } catch {
-        setStats((prev) => ({
-          ...prev,
-          movies_total: prev.movies_total ?? 0,
-          movies_series: prev.movies_series ?? 0,
-          movies_single: prev.movies_single ?? 0,
-          movies_hoathinh: prev.movies_hoathinh ?? 0,
-          movies_tvshows: prev.movies_tvshows ?? 0,
-        }));
-      }
-    })();
+    const intervalMs = 60_000;
+    const t = window.setInterval(() => {
+      loadDashboard();
+    }, intervalMs);
+
+    return () => {
+      window.clearInterval(t);
+    };
   }, []);
 
   const statCards: Array<{
@@ -137,12 +168,28 @@ export default function Dashboard() {
   return (
     <>
       <Space direction="vertical" size={4} style={{ width: '100%', marginBottom: 16 }}>
-        <Typography.Title level={2} style={{ margin: 0 }}>
-          Dashboard
-        </Typography.Title>
-        <Typography.Text type="secondary">
-          Tổng quan nhanh về nội dung và thay đổi gần đây
-        </Typography.Text>
+        <Space align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
+          <div>
+            <Typography.Title level={2} style={{ margin: 0 }}>
+              Dashboard
+            </Typography.Title>
+            <Typography.Text type="secondary">
+              Tổng quan nhanh về nội dung và thay đổi gần đây
+            </Typography.Text>
+          </div>
+          <Space direction="vertical" size={2} style={{ alignItems: 'flex-end' }}>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={loadDashboard}
+              loading={loading}
+            >
+              Tải lại
+            </Button>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              {lastUpdatedAt ? `Cập nhật: ${new Date(lastUpdatedAt).toLocaleTimeString()}` : ''}
+            </Typography.Text>
+          </Space>
+        </Space>
       </Space>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>

@@ -1,4 +1,4 @@
-import { Card, Typography, Alert, Space, Button, Form, Input, message, InputNumber, Select, Radio } from 'antd';
+import { Card, Typography, Alert, Space, Button, Form, Input, message, InputNumber, Select, Radio, Modal } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
@@ -13,6 +13,7 @@ export default function GoogleSheetsPage() {
   const [serviceAccountKey, setServiceAccountKey] = useState('');
   const [savingSupabase, setSavingSupabase] = useState(false);
   const [deletingRows, setDeletingRows] = useState(false);
+  const [countingRows, setCountingRows] = useState(false);
 
   useEffect(() => {
     try {
@@ -77,6 +78,56 @@ export default function GoogleSheetsPage() {
       })
     );
     message.success('Đã lưu link Google Sheets (localStorage)');
+  };
+
+  const handleCountRows = async () => {
+    const spreadsheetId = String(sheetId || '').trim();
+    if (!spreadsheetId) {
+      message.error('Chưa có GOOGLE_SHEETS_ID');
+      return;
+    }
+
+    const svc = String(serviceAccountKey || '').trim();
+    if (!svc) {
+      message.error('Chưa có GOOGLE_SERVICE_ACCOUNT_KEY');
+      return;
+    }
+
+    setCountingRows(true);
+    try {
+      const apiBase = ((import.meta as any).env?.VITE_API_URL || window.location.origin).replace(/\/$/, '');
+      const res = await fetch(`${apiBase}/api/movies?action=countRows`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spreadsheetId, serviceAccountKey: svc, sheets: ['movies', 'episodes'] }),
+      });
+      const data = await res.json().catch(async () => ({ error: await res.text() }));
+      if (!res.ok) {
+        throw new Error(data?.error || data?.message || `Lỗi ${res.status}`);
+      }
+
+      const rows: any[] = Array.isArray(data?.sheets) ? data.sheets : [];
+      const content = rows
+        .map((x: any) => {
+          const sheet = String(x?.sheet || '').trim();
+          const n = Number(x?.nonEmptyDataRows ?? 0);
+          const lastRow = Number(x?.lastRow ?? 0);
+          if (!sheet) return '';
+          return `- ${sheet}: ${Number.isFinite(n) ? n : 0} dòng dữ liệu (lastRow=${Number.isFinite(lastRow) ? lastRow : 0})`;
+        })
+        .filter(Boolean)
+        .join('\n');
+
+      Modal.info({
+        title: 'Số dòng đã có dữ liệu',
+        width: 520,
+        content: <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{content || 'Không có dữ liệu.'}</pre>,
+      });
+    } catch (e: any) {
+      message.error(e?.message || 'Kiểm tra thất bại');
+    } finally {
+      setCountingRows(false);
+    }
   };
 
   const handleSaveAll = async (values: any) => {
@@ -317,6 +368,12 @@ export default function GoogleSheetsPage() {
               <Form.Item label=" ">
                 <Button danger type="primary" htmlType="submit" loading={deletingRows} disabled={!sheetId || !serviceAccountKey}>
                   Xóa dữ liệu
+                </Button>
+              </Form.Item>
+
+              <Form.Item label=" ">
+                <Button onClick={handleCountRows} loading={countingRows} disabled={!sheetId || !serviceAccountKey}>
+                  Kiểm tra số dòng có dữ liệu
                 </Button>
               </Form.Item>
             </Space>

@@ -13,6 +13,23 @@ function normalizeHeader(h: any) {
     .replace(/\s+/g, '_');
 }
 
+function countNonEmptyDataRows(values: any[][]) {
+  const rows = Array.isArray(values) ? values : [];
+  if (rows.length < 2) {
+    return { headerRows: Math.min(rows.length, 1), lastRow: rows.length, nonEmptyDataRows: 0 };
+  }
+
+  const dataRows = rows.slice(1);
+  const nonEmptyDataRows = dataRows.reduce((acc: number, row: any[]) => {
+    const r = Array.isArray(row) ? row : [];
+    const hasData = r.some((cell) => String(cell ?? '').trim() !== '');
+    return acc + (hasData ? 1 : 0);
+  }, 0);
+
+  // values.get usually returns up to the last non-empty row, but we still report it for clarity
+  return { headerRows: 1, lastRow: rows.length, nonEmptyDataRows };
+}
+
 async function getSheetIdByTitle(sheets: any, spreadsheetId: string, title: string): Promise<number> {
   const t = String(title || '').trim().toLowerCase();
   const meta = await sheets.spreadsheets.get({ spreadsheetId });
@@ -138,9 +155,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const action = String((req.query as any)?.action || (req.body as any)?.action || '').trim();
 
     switch (action) {
+      case 'countRows': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const rawSheetNames = (req.body as any)?.sheets ?? (req.body as any)?.tabs;
+        const sheetNames = (Array.isArray(rawSheetNames) ? rawSheetNames : ['movies', 'episodes'])
+          .map((x: any) => String(x || '').trim())
+          .filter(Boolean);
+
+        const results = [] as any[];
+        for (const sheetName of sheetNames) {
+          const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: `${sheetName}!A:Z`,
+          });
+          const values = (response.data.values || []) as any[][];
+          const stats = countNonEmptyDataRows(values);
+          results.push({
+            sheet: sheetName,
+            headerRows: stats.headerRows,
+            lastRow: stats.lastRow,
+            nonEmptyDataRows: stats.nonEmptyDataRows,
+          });
+        }
+
+        return res.status(200).json({ success: true, sheets: results });
+      }
+
       case 'list': {
-        const { type, page = '1', limit = '50', search = '' } = req.query;
-        const result = await listMovies(sheets, spreadsheetId, type as string, parseInt(page as string), parseInt(limit as string), search as string);
+        const { type, page = '1', limit = '50', search = '', unbuilt } = req.query;
+        const unbuiltOnly = String(unbuilt || '').trim() === '1' || String(unbuilt || '').trim().toLowerCase() === 'true';
+        const result = await listMovies(
+          sheets,
+          spreadsheetId,
+          type as string,
+          parseInt(page as string),
+          parseInt(limit as string),
+          search as string,
+          unbuiltOnly
+        );
         return res.status(200).json(result);
       }
 
@@ -234,7 +289,8 @@ async function listMovies(
   type?: string,
   page: number = 1,
   limit: number = 50,
-  search: string = ''
+  search: string = '',
+  unbuiltOnly: boolean = false
 ) {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
@@ -268,6 +324,13 @@ async function listMovies(
   // Filter by type
   if (type && type !== 'all') {
     movies = movies.filter((m: any) => String(m.type || '').trim() === String(type));
+  }
+
+  if (unbuiltOnly) {
+    movies = movies.filter((m: any) => {
+      const u = String(m.update || '').trim().toUpperCase();
+      return u === 'NEW' || u === 'NEW2';
+    });
   }
 
   // Search
@@ -375,6 +438,10 @@ async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
   }
   if (!movieData.modified) {
     movieData.modified = new Date().toISOString();
+  }
+
+  if (isNew && !movieData.update) {
+    movieData.update = 'NEW';
   }
 
   // Convert object to row array

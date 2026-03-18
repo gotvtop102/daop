@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import {
   Typography,
   Button,
@@ -96,6 +96,152 @@ const UPDATE_OPTIONS = [
   { value: 'OK', label: 'OK' },
   { value: 'COPY', label: 'COPY' },
 ];
+
+const normalizeLooseText = (input: any) => {
+  const s = String(input ?? '').trim().toLowerCase();
+  if (!s) return '';
+  return s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+const stripPhimPrefix = (input: any) => {
+  const raw = String(input ?? '').trim();
+  const norm = normalizeLooseText(raw);
+  if (norm.startsWith('phim ')) {
+    const trimmed = raw.replace(/^\s*phim\s+/i, '').trim();
+    return trimmed || raw;
+  }
+  return raw;
+};
+
+const pickClosestFromOptions = (raw: any, options: string[]) => {
+  const original = String(raw ?? '').trim();
+  if (!original) return '';
+  const cleaned = stripPhimPrefix(original);
+  const n = normalizeLooseText(cleaned);
+  if (!n) return cleaned;
+
+  let best: string | null = null;
+  let bestScore = -1;
+  for (const opt of options || []) {
+    const o = String(opt ?? '').trim();
+    if (!o) continue;
+    const on = normalizeLooseText(o);
+    if (!on) continue;
+    if (on === n) return o;
+
+    let score = 0;
+    if (on.includes(n) || n.includes(on)) {
+      const shorter = Math.min(on.length, n.length);
+      const longer = Math.max(on.length, n.length);
+      const ratio = longer ? shorter / longer : 0;
+      score = 50 + Math.round(ratio * 50);
+    } else {
+      const tokens = n.split(' ').filter(Boolean);
+      const ot = on.split(' ').filter(Boolean);
+      const common = tokens.filter((t) => ot.includes(t));
+      if (common.length) {
+        score = common.length * 10;
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = o;
+    }
+  }
+
+  if (best && bestScore >= 50) return best;
+  return cleaned;
+};
+
+const normalizeGenres = (rawGenres: any[]) => {
+  const arr = Array.isArray(rawGenres) ? rawGenres : [];
+  const out: string[] = [];
+  for (const g of arr) {
+    const picked = pickClosestFromOptions(g, GENRE_OPTIONS);
+    if (picked && !out.includes(picked)) out.push(picked);
+  }
+  return out;
+};
+
+const COUNTRY_CODE_TO_VN: Record<string, string> = {
+  VN: 'Việt Nam',
+  US: 'Mỹ',
+  KR: 'Hàn Quốc',
+  KP: 'Triều Tiên',
+  CN: 'Trung Quốc',
+  JP: 'Nhật Bản',
+  TH: 'Thái Lan',
+  FR: 'Pháp',
+  GB: 'Anh',
+  UK: 'Anh',
+  DE: 'Đức',
+  RU: 'Nga',
+  IN: 'Ấn Độ',
+  ES: 'Tây Ban Nha',
+  IT: 'Ý',
+  CA: 'Canada',
+  AU: 'Úc',
+  HK: 'Hồng Kông',
+  TW: 'Đài Loan',
+};
+
+const COUNTRY_NAME_ALIAS: Record<string, string> = {
+  'united states': 'Mỹ',
+  'united states of america': 'Mỹ',
+  usa: 'Mỹ',
+  america: 'Mỹ',
+  'south korea': 'Hàn Quốc',
+  'korea republic of': 'Hàn Quốc',
+  'north korea': 'Triều Tiên',
+  china: 'Trung Quốc',
+  japan: 'Nhật Bản',
+  thailand: 'Thái Lan',
+  france: 'Pháp',
+  'united kingdom': 'Anh',
+  england: 'Anh',
+  germany: 'Đức',
+  russia: 'Nga',
+  india: 'Ấn Độ',
+  spain: 'Tây Ban Nha',
+  italy: 'Ý',
+  canada: 'Canada',
+  australia: 'Úc',
+  'hong kong': 'Hồng Kông',
+  taiwan: 'Đài Loan',
+  vietnam: 'Việt Nam',
+};
+
+const normalizeCountries = (rawCountries: any[]) => {
+  const arr = Array.isArray(rawCountries) ? rawCountries : [];
+  const out: string[] = [];
+  for (const c of arr) {
+    if (!c) continue;
+    const code = String((c as any).iso_3166_1 || '').trim().toUpperCase();
+    const name = String((c as any).name ?? c).trim();
+    const pickedByCode = code && COUNTRY_CODE_TO_VN[code] ? COUNTRY_CODE_TO_VN[code] : '';
+    if (pickedByCode) {
+      if (!out.includes(pickedByCode)) out.push(pickedByCode);
+      continue;
+    }
+
+    const aliasKey = normalizeLooseText(name);
+    const alias = aliasKey && COUNTRY_NAME_ALIAS[aliasKey] ? COUNTRY_NAME_ALIAS[aliasKey] : '';
+    if (alias) {
+      if (!out.includes(alias)) out.push(alias);
+      continue;
+    }
+
+    const picked = pickClosestFromOptions(name, COUNTRY_OPTIONS);
+    if (picked && !out.includes(picked)) out.push(picked);
+  }
+  return out;
+};
 
 export default function MovieEdit() {
   const { id } = useParams<{ id: string }>();
@@ -345,7 +491,9 @@ export default function MovieEdit() {
     setFetchingTMDB(true);
     try {
       // Call TMDB API
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${tmdbApiKey}&language=vi-VN`);
+      const res = await fetch(
+        `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${tmdbApiKey}&language=vi-VN&region=VN&append_to_response=translations`
+      );
 
       if (!res.ok) {
         throw new Error('Không tìm thấy phim trên TMDB');
@@ -367,8 +515,8 @@ export default function MovieEdit() {
         poster_url: data.backdrop_path ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}` : '',
         thumb_url: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
         year: data.release_date ? parseInt(data.release_date.split('-')[0]) : new Date().getFullYear(),
-        genre: data.genres?.map((g: any) => g.name) || [],
-        country: data.production_countries?.map((c: any) => c.name) || [],
+        genre: normalizeGenres(data.genres?.map((g: any) => g?.name).filter(Boolean) || []),
+        country: normalizeCountries(data.production_countries || []),
         description: data.overview,
         time: data.runtime ? `${data.runtime} phút` : '',
         director: directors,
@@ -446,7 +594,7 @@ export default function MovieEdit() {
     }
   };
 
-  const handlePosterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePosterChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPosterPreview(normalizeMovieImageUrl(e.target.value, 'poster'));
   };
 
@@ -492,14 +640,31 @@ export default function MovieEdit() {
           </Col>
         </Row>
 
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSave}
-          autoComplete="off"
-        >
-          <Row gutter={24}>
+        <Form form={form} layout="vertical" onFinish={handleSave}>
+          <Row gutter={16}>
             <Col xs={24} lg={16}>
+              <Card title="Lấy dữ liệu từ TMDB" style={{ marginBottom: 16 }}>
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <Row gutter={16} align="middle">
+                    <Col flex="auto">
+                      <Form.Item name="tmdb_id" label="TMDB ID" style={{ margin: 0 }}>
+                        <Input placeholder="Nhập TMDB ID để tự động lấy thông tin" />
+                      </Form.Item>
+                    </Col>
+                    <Col>
+                      <Button
+                        type="primary"
+                        icon={<SearchOutlined />}
+                        onClick={fetchTMDBData}
+                        loading={fetchingTMDB}
+                      >
+                        Lấy dữ liệu
+                      </Button>
+                    </Col>
+                  </Row>
+                </Space>
+              </Card>
+
               <Card title="Thông tin cơ bản" style={{ marginBottom: 16 }}>
                 <Row gutter={16}>
                   <Col xs={24} md={12}>
@@ -688,28 +853,6 @@ export default function MovieEdit() {
                     maxLength={2000}
                   />
                 </Form.Item>
-              </Card>
-
-              <Card title="Lấy dữ liệu từ TMDB" style={{ marginBottom: 16 }}>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <Row gutter={16} align="middle">
-                    <Col flex="auto">
-                      <Form.Item name="tmdb_id" label="TMDB ID" style={{ margin: 0 }}>
-                        <Input placeholder="Nhập TMDB ID để tự động lấy thông tin" />
-                      </Form.Item>
-                    </Col>
-                    <Col>
-                      <Button
-                        type="primary"
-                        icon={<SearchOutlined />}
-                        onClick={fetchTMDBData}
-                        loading={fetchingTMDB}
-                      >
-                        Lấy dữ liệu
-                      </Button>
-                    </Col>
-                  </Row>
-                </Space>
               </Card>
             </Col>
 

@@ -30,6 +30,7 @@ export default function AuditLogs() {
   const [dateRange, setDateRange] = useState<any>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selected, setSelected] = useState<any>(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<string | number>>([]);
 
   const loadData = async (opts?: { nextPage?: number; nextPageSize?: number }) => {
     setLoading(true);
@@ -109,6 +110,35 @@ export default function AuditLogs() {
 
           setPage(1);
           await loadData({ nextPage: 1 });
+        } catch (e: any) {
+          message.error(e?.message || 'Xóa thất bại');
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+  };
+
+  const deleteSelected = async () => {
+    const ids = (selectedRowKeys || []).map((x) => String(x)).filter(Boolean);
+    if (!ids.length) return;
+
+    Modal.confirm({
+      title: `Xóa ${ids.length} log đã chọn?`,
+      content: 'Thao tác này không thể hoàn tác.',
+      okText: 'Xóa',
+      okButtonProps: { danger: true },
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          setLoading(true);
+          const r: any = await supabase.from('audit_logs').delete({ count: 'exact' }).in('id', ids);
+          if (r.error) throw r.error;
+          const c = typeof r.count === 'number' ? r.count : null;
+          message.success(c != null ? `Đã xóa ${c} log` : 'Đã xóa log');
+
+          setSelectedRowKeys([]);
+          await loadData();
         } catch (e: any) {
           message.error(e?.message || 'Xóa thất bại');
         } finally {
@@ -226,11 +256,19 @@ export default function AuditLogs() {
           </Space>
 
           <Space wrap>
-            <Button danger icon={<DeleteOutlined />} onClick={() => deleteOlderThanDays(30)}>
-              Xóa &gt; 30 ngày
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              onClick={deleteSelected}
+              disabled={!selectedRowKeys.length}
+            >
+              Xóa đã chọn
             </Button>
-            <Button danger icon={<DeleteOutlined />} onClick={() => deleteOlderThanDays(90)}>
-              Xóa &gt; 90 ngày
+            <Button danger icon={<DeleteOutlined />} onClick={() => deleteOlderThanDays(1)}>
+              Xóa &gt; 1 ngày
+            </Button>
+            <Button danger icon={<DeleteOutlined />} onClick={() => deleteOlderThanDays(3)}>
+              Xóa &gt; 3 ngày
             </Button>
           </Space>
         </Space>
@@ -240,6 +278,10 @@ export default function AuditLogs() {
         loading={loading}
         dataSource={data}
         rowKey="id"
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (keys) => setSelectedRowKeys(keys as Array<string | number>),
+        }}
         columns={[
           {
             title: 'Thời gian',
