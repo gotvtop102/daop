@@ -2,13 +2,9 @@
   "available_players": {
     "plyr": "Plyr",
     "videojs": "Video.js",
-    "jwplayer": "JWPlayer",
-    "vidstack": "Vidstack",
-    "clappr": "Clappr",
-    "mediaelement": "MediaElement",
-    "fluidplayer": "FluidPlayer"
+    "jwplayer": "JWPlayer"
   },
-  "default_player": "plyr",
+  "default_player": "JWPlayer",
   "warning_enabled_global": true,
   "warning_text": "Cảnh báo: Phim chứa hình ảnh đường lưỡi bò phi pháp xâm phạm chủ quyền biển đảo Việt Nam.",
   "link_type_labels": {
