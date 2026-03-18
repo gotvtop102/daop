@@ -602,6 +602,51 @@ export default function MovieEdit() {
     }
   };
 
+  const translateToVietnamese = async (texts: string[]): Promise<string[]> => {
+    if (!texts.length) return [];
+    try {
+      // Sử dụng LibreTranslate (miễn phí, không cần API key)
+      // Thử nhiều instance public khác nhau nếu một instance fail
+      const instances = [
+        'https://libretranslate.de',
+        'https://translate.argosopentech.com',
+        'https://libretranslate.pussthecat.org',
+      ];
+      
+      for (const baseUrl of instances) {
+        try {
+          const res = await fetch(`${baseUrl}/translate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              q: texts,
+              source: 'en',
+              target: 'vi',
+              format: 'text',
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.translatedText) {
+              // LibreTranslate trả về single string nếu 1 text, array nếu nhiều
+              const results = Array.isArray(data.translatedText) 
+                ? data.translatedText 
+                : [data.translatedText];
+              return results.map((t: any, i: number) => t || texts[i]);
+            }
+          }
+        } catch {
+          // Thử instance tiếp theo
+          continue;
+        }
+      }
+      // Nếu tất cả instance đều fail, giữ nguyên tên gốc
+      return texts;
+    } catch {
+      return texts;
+    }
+  };
+
   const fetchTMDBData = async () => {
     const tmdbId = form.getFieldValue('tmdb_id');
     if (!tmdbId) {
@@ -617,46 +662,117 @@ export default function MovieEdit() {
 
     setFetchingTMDB(true);
     try {
-      const currentType = String(form.getFieldValue('type') || typeFromQuery || '').trim();
-      const useTvEndpoint = currentType === 'series' || currentType === 'tvshows' || currentType === 'hoathinh';
-      const resource = useTvEndpoint ? 'tv' : 'movie';
+      const asStr = (v: any) => String(v ?? '').trim();
+      const safeJson = async (r: Response) => r.json().catch(async () => ({ error: await r.text() }));
+      const pickTranslation = (translations: any, iso639: string) => {
+        const arr = translations && Array.isArray(translations.translations) ? translations.translations : [];
+        const found = arr.find((t: any) => String(t?.iso_639_1 || '').toLowerCase() === String(iso639).toLowerCase());
+        return found?.data || null;
+      };
 
-      // Call TMDB API
-      const res = await fetch(
-        `https://api.themoviedb.org/3/${resource}/${tmdbId}?api_key=${tmdbApiKey}&language=vi-VN&region=VN&append_to_response=translations`
-      );
+      const fetchDetails = async (resource: 'movie' | 'tv', language: string) => {
+        const url = `https://api.themoviedb.org/3/${resource}/${tmdbId}?api_key=${tmdbApiKey}&language=${encodeURIComponent(
+          language
+        )}&region=VN&append_to_response=translations`;
+        const res = await fetch(url);
+        return { ok: res.ok, status: res.status, data: await safeJson(res) };
+      };
 
-      if (!res.ok) {
+      // Auto detect: try movie first, then tv
+      const movieVi = await fetchDetails('movie', 'vi-VN');
+      const tvVi = movieVi.ok ? null : await fetchDetails('tv', 'vi-VN');
+      const resource: 'movie' | 'tv' = movieVi.ok ? 'movie' : 'tv';
+      const viData = movieVi.ok ? movieVi.data : tvVi?.data;
+      if (!viData || (viData as any)?.error) {
         throw new Error('Không tìm thấy phim trên TMDB');
       }
 
-      const data = await res.json();
+      // Fallback EN for missing fields
+      const enData = await fetchDetails(resource, 'en-US').then((r) => (r.ok ? r.data : null)).catch(() => null);
+      const viTrans = pickTranslation((viData as any)?.translations, 'vi');
 
-      // Also fetch credits for director and cast
-      const creditsRes = await fetch(`https://api.themoviedb.org/3/${resource}/${tmdbId}/credits?api_key=${tmdbApiKey}`);
-      const credits = creditsRes.ok ? await creditsRes.json() : { crew: [], cast: [] };
+      // Credits (names usually not localized by TMDB)
+      const creditsRes = await fetch(
+        `https://api.themoviedb.org/3/${resource}/${tmdbId}/credits?api_key=${tmdbApiKey}`
+      );
+      const credits = creditsRes.ok ? await safeJson(creditsRes) : { crew: [], cast: [] };
 
-      const directors = credits.crew?.filter((c: any) => c.job === 'Director' || c.job === 'Creator').map((c: any) => c.name) || [];
-      const actors = credits.cast?.slice(0, 10).map((c: any) => c.name) || [];
+      const crew = Array.isArray((credits as any)?.crew) ? (credits as any).crew : [];
+      const cast = Array.isArray((credits as any)?.cast) ? (credits as any).cast : [];
+      const createdBy = Array.isArray((viData as any)?.created_by) ? (viData as any).created_by : [];
 
-      const titleVi = useTvEndpoint ? (data.name || data.original_name) : (data.title || data.original_title);
-      const originName = useTvEndpoint ? (data.original_name || data.name) : (data.original_title || data.title);
-      const dateStr = useTvEndpoint ? (data.first_air_date || '') : (data.release_date || '');
+      const rawDirectors = [
+        ...crew
+          .filter((c: any) => String(c?.job || '') === 'Director')
+          .map((c: any) => c?.name)
+          .filter(Boolean),
+        ...createdBy.map((c: any) => c?.name).filter(Boolean),
+      ].map((x: any) => String(x)).filter(Boolean);
+
+      const rawActors = cast
+        .slice(0, 10)
+        .map((c: any) => c?.name)
+        .filter(Boolean)
+        .map((x: any) => String(x));
+
+      const [directors, actors] = await Promise.all([
+        translateToVietnamese(rawDirectors),
+        translateToVietnamese(rawActors),
+      ]);
+
+      const titleVi =
+        asStr(viTrans?.title) ||
+        asStr(viTrans?.name) ||
+        (resource === 'tv' ? asStr((viData as any).name) : asStr((viData as any).title)) ||
+        (resource === 'tv' ? asStr((enData as any)?.name) : asStr((enData as any)?.title)) ||
+        (resource === 'tv' ? asStr((viData as any).original_name) : asStr((viData as any).original_title));
+
+      const originName =
+        (resource === 'tv' ? asStr((viData as any).original_name) : asStr((viData as any).original_title)) ||
+        (resource === 'tv' ? asStr((viData as any).name) : asStr((viData as any).title)) ||
+        (resource === 'tv' ? asStr((enData as any)?.original_name) : asStr((enData as any)?.original_title)) ||
+        (resource === 'tv' ? asStr((enData as any)?.name) : asStr((enData as any)?.title));
+
+      const overviewVi =
+        asStr(viTrans?.overview) ||
+        asStr((viData as any).overview) ||
+        asStr((enData as any)?.overview);
+
+      const dateStr =
+        resource === 'tv'
+          ? asStr((viData as any).first_air_date) || asStr((enData as any)?.first_air_date)
+          : asStr((viData as any).release_date) || asStr((enData as any)?.release_date);
       const year = dateStr ? parseInt(String(dateStr).split('-')[0]) : new Date().getFullYear();
-      const runtimeMin = useTvEndpoint
-        ? (Array.isArray(data.episode_run_time) && data.episode_run_time.length ? Number(data.episode_run_time[0]) : 0)
-        : Number(data.runtime || 0);
+
+      const episodeCount = Number((viData as any)?.number_of_episodes || (enData as any)?.number_of_episodes || 0);
+      const seasonCount = Number((viData as any)?.number_of_seasons || (enData as any)?.number_of_seasons || 0);
+      const currentType = String(form.getFieldValue('type') || typeFromQuery || '').trim();
+      const suggestedType = resource === 'movie' ? 'single' : (episodeCount > 1 || seasonCount > 1 ? 'series' : 'single');
+      const nextType =
+        !currentType || currentType === 'single' || currentType === 'series'
+          ? suggestedType
+          : currentType;
+
+      // Theo yêu cầu: ảnh dọc (poster_path) => thumb, ảnh ngang (backdrop_path) => poster
+      const backdropPath = asStr((viData as any).backdrop_path) || asStr((enData as any)?.backdrop_path);
+      const posterPath = asStr((viData as any).poster_path) || asStr((enData as any)?.poster_path);
+
+      const genres = (viData as any).genres || (enData as any)?.genres || [];
+      const countries =
+        resource === 'tv'
+          ? ((viData as any).origin_country || (enData as any)?.origin_country || []).map((x: any) => ({ iso_3166_1: x }))
+          : ((viData as any).production_countries || (enData as any)?.production_countries || []);
 
       const tmdbData = {
+        type: nextType,
         title: titleVi,
         origin_name: originName,
-        // Theo yêu cầu: ảnh dọc (poster_path) => thumb, ảnh ngang (backdrop_path) => poster
-        poster_url: data.backdrop_path ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}` : '',
-        thumb_url: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
+        poster_url: backdropPath ? `https://image.tmdb.org/t/p/w780${backdropPath}` : '',
+        thumb_url: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : '',
         year,
-        genre: normalizeGenres(data.genres?.map((g: any) => g?.name).filter(Boolean) || []),
-        country: normalizeCountries(useTvEndpoint ? (data.origin_country || []).map((x: any) => ({ iso_3166_1: x })) : (data.production_countries || [])),
-        description: data.overview,
+        genre: normalizeGenres((genres || []).map((g: any) => g?.name).filter(Boolean) || []),
+        country: normalizeCountries(countries),
+        description: overviewVi,
         director: directors,
         actor: actors,
       };

@@ -809,19 +809,45 @@ async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string, 
   };
 
   const idxMovieId = findFirstHeaderIndex(['movie_id', 'movieid', 'movie', 'id_movie', 'movie-id']);
-  const matchedRows = dataRows
-    .filter((row: any[]) => {
-      const v = idxMovieId >= 0 ? row[idxMovieId] : row[0];
-      return String(v ?? '').trim() === String(movieId).trim();
-    })
-    .map((row: any[]) => {
-      const ep: any = {};
-      headers.forEach((header: string, i: number) => {
-        if (!header) return;
-        ep[header] = row[i] ?? '';
+  const movieIdStr = String(movieId ?? '').trim();
+
+  const matchByValue = (value: string) =>
+    dataRows
+      .filter((row: any[]) => {
+        const v = idxMovieId >= 0 ? row[idxMovieId] : row[0];
+        return String(v ?? '').trim() === value;
+      })
+      .map((row: any[]) => {
+        const ep: any = {};
+        headers.forEach((header: string, i: number) => {
+          if (!header) return;
+          ep[header] = row[i] ?? '';
+        });
+        return ep;
       });
-      return ep;
-    });
+
+  let matchMode: 'movie_id' | 'slug' = 'movie_id';
+  let attemptedSlug: string | null = null;
+
+  let matchedRows = matchByValue(movieIdStr);
+
+  // Fallback: some sheets store movie slug in episodes.movie_id instead of movies.id
+  if (matchedRows.length === 0 && movieIdStr) {
+    try {
+      const movie = await getMovie(sheets, spreadsheetId, movieIdStr);
+      const slug = String((movie as any)?.slug ?? '').trim();
+      if (slug) {
+        attemptedSlug = slug;
+        const bySlug = matchByValue(slug);
+        if (bySlug.length > 0) {
+          matchedRows = bySlug;
+          matchMode = 'slug';
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
 
   if (!debug) return matchedRows;
 
@@ -833,14 +859,39 @@ async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string, 
     })
     .filter((v: string) => v.trim() !== '');
 
+  const norm = (v: any) => String(v ?? '').trim();
+  const wanted = norm(movieIdStr);
+  const hasMovieId = dataRows.some((row: any[]) => {
+    const v = idxMovieId >= 0 ? row[idxMovieId] : row[0];
+    return norm(v) === wanted;
+  });
+
+  const idCounts = new Map<string, number>();
+  for (const row of dataRows) {
+    const v = idxMovieId >= 0 ? row[idxMovieId] : row[0];
+    const key = norm(v);
+    if (!key) continue;
+    idCounts.set(key, (idCounts.get(key) || 0) + 1);
+  }
+  const topMovieIds = Array.from(idCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([movie_id, count]) => ({ movie_id, count }));
+  const uniqueMovieIdCount = idCounts.size;
+
   return {
     episodes: matchedRows,
     debug: {
       movieId: String(movieId ?? ''),
       headers,
       idxMovieId,
+      matchMode,
+      attemptedSlug,
       meta: countNonEmptyDataRows(rows),
       sampleMovieIds,
+      hasMovieId,
+      uniqueMovieIdCount,
+      topMovieIds,
     },
   };
 }

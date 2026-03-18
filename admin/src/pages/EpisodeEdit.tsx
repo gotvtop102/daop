@@ -70,6 +70,8 @@ export default function EpisodeEdit() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importMovieId, setImportMovieId] = useState('');
   const [servers, setServers] = useState<Server[]>([]);
   const [activeServer, setActiveServer] = useState('0');
   const [initialLoadDone, setInitialLoadDone] = useState(false);
@@ -103,8 +105,86 @@ export default function EpisodeEdit() {
       }
       setConfigReady(true);
     };
+
     loadConfig();
   }, []);
+
+  const importEpisodesFromMovieId = async (sourceMovieId: string) => {
+    const src = String(sourceMovieId || '').trim();
+    if (!src) {
+      message.warning('Vui lòng nhập movie_id nguồn');
+      return;
+    }
+    if (!id) {
+      message.error('Thiếu movie ID');
+      return;
+    }
+    if (!spreadsheetId) {
+      message.error('Chưa cấu hình Google Sheets ID');
+      return;
+    }
+    if (!serviceAccountKey) {
+      message.error('Chưa cấu hình Service Account Key');
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const base = envBase || window.location.origin;
+
+      const res = await fetch(`${base}/api/movies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'episodes',
+          movie_id: src,
+          spreadsheetId,
+          serviceAccountKey,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err || `HTTP ${res.status}`);
+      }
+
+      const result = await res.json();
+      if (result?.error) throw new Error(result.error);
+      const episodesPayload = Array.isArray(result) ? result : (result?.episodes || []);
+      const episodes: Episode[] = episodesPayload || [];
+
+      const serverMap = new Map<string, { server_name: string; episodes: Episode[] }>();
+      episodes.forEach((ep: Episode) => {
+        const serverSlug = String((ep as any).server_slug || 'vietsub-1');
+        const serverName = String((ep as any).server_name || '');
+        if (!serverMap.has(serverSlug)) {
+          serverMap.set(serverSlug, { server_name: serverName, episodes: [] });
+        }
+        const g = serverMap.get(serverSlug)!;
+        if (!g.server_name && serverName) g.server_name = serverName;
+        g.episodes.push(ep);
+      });
+
+      const groupedServers: Server[] = Array.from(serverMap.entries()).map(([slug, g]) => ({
+        server_slug: slug,
+        server_name: g.server_name || slug,
+        episodes: g.episodes,
+      }));
+
+      if (!groupedServers.length) {
+        message.warning('movie_id nguồn không có tập nào');
+        return;
+      }
+
+      setServers(groupedServers);
+      setActiveServer('0');
+      message.success(`Đã nạp ${episodes.length} tập từ movie_id nguồn. Bấm Lưu để ghi sang phim hiện tại.`);
+    } catch (e: any) {
+      message.error(e?.message || 'Không thể nạp tập từ movie_id nguồn');
+    } finally {
+      setImporting(false);
+    }
+  };
 
   useEffect(() => {
     if (!configReady || !spreadsheetId) return; // Wait for config
@@ -623,6 +703,30 @@ export default function EpisodeEdit() {
                   </Row>
                 }
               >
+                {server.episodes.length === 0 ? (
+                  <Card size="small" style={{ marginBottom: 12 }}>
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                      <div>
+                        Nếu phim này chưa có tập do lệch <strong>movie_id</strong> trong sheet, bạn có thể nạp tập từ movie_id khác rồi bấm <strong>Lưu</strong> để ghi sang phim hiện tại.
+                      </div>
+                      <Space wrap>
+                        <Input
+                          value={importMovieId}
+                          onChange={(e) => setImportMovieId(e.target.value)}
+                          placeholder="Nhập movie_id nguồn (vd: 620f40e6...)"
+                          style={{ width: 320 }}
+                        />
+                        <Button
+                          icon={<ReloadOutlined />}
+                          loading={importing}
+                          onClick={() => importEpisodesFromMovieId(importMovieId)}
+                        >
+                          Nạp tập từ movie_id nguồn
+                        </Button>
+                      </Space>
+                    </Space>
+                  </Card>
+                ) : null}
                 <Table
                   columns={columns(serverIndex)}
                   dataSource={
