@@ -306,13 +306,16 @@ export default function MovieEdit() {
     const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
     const base = envBase || window.location.origin;
 
-    const url = new URL(`${base}/api/movies`);
-    url.searchParams.append('action', 'getBySlug');
-    url.searchParams.append('spreadsheetId', spreadsheetId);
-    url.searchParams.append('serviceAccountKey', serviceAccountKey);
-    url.searchParams.append('slug', s);
-
-    const res = await fetch(url.toString());
+    const res = await fetch(`${base}/api/movies`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'getBySlug',
+        spreadsheetId,
+        serviceAccountKey,
+        slug: s,
+      }),
+    });
     if (!res.ok) {
       const err = await res.text();
       throw new Error(err || `HTTP ${res.status}`);
@@ -527,9 +530,18 @@ export default function MovieEdit() {
         if (u === 'COPY' || u === 'COPY2') {
           const slug = String(result.slug || '').trim();
           if (slug) {
-            await loadOriginalBySlug(slug);
+            try {
+              await loadOriginalBySlug(slug);
+            } catch (e: any) {
+              setOriginalMovie(null);
+              message.warning(e?.message || 'Không thể tải bản gốc để đối chiếu');
+            }
           }
+        } else {
+          setOriginalMovie(null);
         }
+      } else {
+        setOriginalMovie(null);
       }
 
       const preview =
