@@ -309,9 +309,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'episodes': {
         const movie_id = (req.query as any)?.movie_id || (req.body as any)?.movie_id;
         if (!movie_id) return res.status(400).json({ error: 'Missing movie_id' });
+        const debug =
+          String((req.query as any)?.debug ?? (req.body as any)?.debug ?? '').trim() === '1' ||
+          String((req.query as any)?.debug ?? (req.body as any)?.debug ?? '').trim().toLowerCase() === 'true';
 
         if (req.method === 'GET') {
-          const episodes = await getEpisodes(sheets, spreadsheetId, movie_id as string);
+          const episodes = await getEpisodes(sheets, spreadsheetId, movie_id as string, debug);
           return res.status(200).json(episodes);
         }
 
@@ -322,7 +325,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const body = req.body as any;
           const rawEpisodes = Array.isArray(body) ? body : body?.episodes;
           if (!rawEpisodes) {
-            const episodes = await getEpisodes(sheets, spreadsheetId, movie_id as string);
+            const episodes = await getEpisodes(sheets, spreadsheetId, movie_id as string, debug);
             return res.status(200).json(episodes);
           }
           const episodes = Array.isArray(rawEpisodes) ? rawEpisodes : [];
@@ -774,14 +777,25 @@ async function deleteMovie(sheets: any, spreadsheetId: string, id: string) {
 }
 
 // Get episodes for a movie
-async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string) {
+async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string, debug?: boolean) {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
     range: 'episodes!A1:Z2000',
   });
 
   const rows = response.data.values || [];
-  if (rows.length < 2) return [];
+  if (rows.length < 2) {
+    return debug
+      ? {
+          episodes: [],
+          debug: {
+            movieId: String(movieId ?? ''),
+            reason: 'episodes sheet has no data rows',
+            meta: countNonEmptyDataRows(rows),
+          },
+        }
+      : [];
+  }
 
   const headers = (rows[0] || []).map(normalizeHeader);
   const dataRows = rows.slice(1);
@@ -795,7 +809,7 @@ async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string) 
   };
 
   const idxMovieId = findFirstHeaderIndex(['movie_id', 'movieid', 'movie', 'id_movie', 'movie-id']);
-  const episodes = dataRows
+  const matchedRows = dataRows
     .filter((row: any[]) => {
       const v = idxMovieId >= 0 ? row[idxMovieId] : row[0];
       return String(v ?? '').trim() === String(movieId).trim();
@@ -809,7 +823,26 @@ async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string) 
       return ep;
     });
 
-  return episodes;
+  if (!debug) return matchedRows;
+
+  const sampleMovieIds = dataRows
+    .slice(0, 20)
+    .map((row: any[]) => {
+      const v = idxMovieId >= 0 ? row[idxMovieId] : row[0];
+      return String(v ?? '');
+    })
+    .filter((v: string) => v.trim() !== '');
+
+  return {
+    episodes: matchedRows,
+    debug: {
+      movieId: String(movieId ?? ''),
+      headers,
+      idxMovieId,
+      meta: countNonEmptyDataRows(rows),
+      sampleMovieIds,
+    },
+  };
 }
 
 // Save episodes for a movie

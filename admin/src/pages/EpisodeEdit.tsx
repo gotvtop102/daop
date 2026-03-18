@@ -154,6 +154,7 @@ export default function EpisodeEdit() {
         body: JSON.stringify({
           action: 'episodes',
           movie_id: movieId,
+          debug: true,
           spreadsheetId,
           serviceAccountKey,
         }),
@@ -169,8 +170,15 @@ export default function EpisodeEdit() {
         throw new Error(result.error);
       }
 
+      const episodesPayload = Array.isArray(result) ? result : (result?.episodes || []);
+      const debugInfo = Array.isArray(result) ? null : (result?.debug || null);
+      if (debugInfo) {
+        // eslint-disable-next-line no-console
+        console.log('[EpisodeEdit] episodes debug:', debugInfo);
+      }
+
       // Group episodes by server_slug
-      const episodes: Episode[] = result || [];
+      const episodes: Episode[] = episodesPayload || [];
       const serverMap = new Map<string, { server_name: string; episodes: Episode[] }>();
 
       episodes.forEach((ep: Episode) => {
@@ -193,6 +201,9 @@ export default function EpisodeEdit() {
       if (groupedServers.length === 0) {
         // Default server
         setServers([{ server_slug: 'vietsub-1', server_name: 'Vietsub #1', episodes: [] }]);
+        if (debugInfo) {
+          message.warning(`Không tìm thấy tập theo movie_id. Kiểm tra console log để xem debug.`);
+        }
       } else {
         setServers(groupedServers);
       }

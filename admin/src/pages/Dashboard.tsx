@@ -41,33 +41,36 @@ export default function Dashboard() {
         }));
         setLogs((l as any).data ?? []);
 
+        let sidResolved = String(spreadsheetId || '').trim();
+        let sakResolved = String(serviceAccountKey || '').trim();
         try {
           const rows = (conf as any).data ?? [];
           const map = (rows || []).reduce((acc: Record<string, any>, row: any) => {
             acc[row.key] = row.value;
             return acc;
           }, {});
-          if (map.google_sheets_id) setSpreadsheetId(String(map.google_sheets_id));
-          if (map.google_service_account_key) setServiceAccountKey(String(map.google_service_account_key));
+          if (!sidResolved && map.google_sheets_id) sidResolved = String(map.google_sheets_id).trim();
+          if (!sakResolved && map.google_service_account_key) sakResolved = String(map.google_service_account_key).trim();
         } catch {
           // ignore
         }
 
-        if (!spreadsheetId || !serviceAccountKey) {
+        if (!sidResolved || !sakResolved) {
           try {
             const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
-            const sid = saved?.google_sheets_id ? String(saved.google_sheets_id) : '';
-            const sak = saved?.google_service_account_key ? String(saved.google_service_account_key) : '';
-            if (!spreadsheetId && sid) setSpreadsheetId(sid);
-            if (!serviceAccountKey && sak) setServiceAccountKey(sak);
+            if (!sidResolved && saved?.google_sheets_id) sidResolved = String(saved.google_sheets_id).trim();
+            if (!sakResolved && saved?.google_service_account_key) sakResolved = String(saved.google_service_account_key).trim();
           } catch {
             // ignore
           }
         }
 
+        if (sidResolved && sidResolved !== spreadsheetId) setSpreadsheetId(sidResolved);
+        if (sakResolved && sakResolved !== serviceAccountKey) setServiceAccountKey(sakResolved);
+
         try {
-          const sid = spreadsheetId || '';
-          const sak = serviceAccountKey || '';
+          const sid = sidResolved || '';
+          const sak = sakResolved || '';
           if (sid && sak) {
             const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
             const base = envBase || window.location.origin;
