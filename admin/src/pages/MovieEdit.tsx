@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from 'react';
 import {
   Typography,
   Button,
@@ -301,6 +301,38 @@ export default function MovieEdit() {
 
     form.setFieldsValue({ [field]: v } as any);
     message.success(`Đã chuyển dữ liệu: ${String(field)}`);
+  };
+
+  const renderOriginalExtra = (
+    field: keyof MovieForm,
+    opts?: {
+      label?: string;
+      asPre?: boolean;
+      mapValue?: (v: any) => any;
+      emptyText?: string;
+      prepend?: ReactNode;
+    }
+  ) => {
+    if (!isNormalizeMode) return opts?.prepend || null;
+    if (!originalMovie) return opts?.prepend || null;
+
+    const raw = originalMovie[field as any];
+    const mapped = opts?.mapValue ? opts.mapValue(raw) : raw;
+    const text = String(mapped ?? '').trim();
+    const emptyText = opts?.emptyText ?? '(trống)';
+
+    return (
+      <Space direction="vertical" size={4} style={{ width: '100%' }}>
+        {opts?.prepend ? <div>{opts.prepend}</div> : null}
+        <div style={{ fontSize: 12, color: '#888' }}>
+          <span style={{ fontWeight: 600 }}>{opts?.label || 'Bản gốc'}:</span>{' '}
+          <span style={{ whiteSpace: opts?.asPre ? 'pre-wrap' : 'normal' }}>{text || emptyText}</span>
+        </div>
+        <Button size="small" onClick={() => applyFromOriginal(field)}>
+          Chuyển dữ liệu
+        </Button>
+      </Space>
+    );
   };
 
   const loadOriginalBySlug = async (slug: string) => {
@@ -740,103 +772,27 @@ export default function MovieEdit() {
                 </Space>
               </Space>
             ) : (
-              <Row gutter={[12, 12]}>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Title</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.title || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('title')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Origin name</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.origin_name || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('origin_name')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Loại phim</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.type || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('type')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Thumb</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.thumb_url || originalMovie.thumb || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('thumb_url')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Poster</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.poster_url || originalMovie.poster || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('poster_url')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Năm</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.year || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('year')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Trạng thái</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.status || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('status')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Chất lượng</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.quality || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('quality')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Tập hiện tại</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.episode_current || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('episode_current')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Tổng số tập</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.episode_total || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('episode_total')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Thể loại</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.genre || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('genre')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Quốc gia</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.country || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('country')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Ngôn ngữ</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.language || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('language')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Showtimes</div>
-                  <div style={{ color: '#666', whiteSpace: 'pre-wrap' }}>{String(originalMovie.showtimes || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('showtimes')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Độc quyền</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.is_exclusive || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('is_exclusive')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Mô tả</div>
-                  <div style={{ color: '#666', whiteSpace: 'pre-wrap' }}>{String(originalMovie.description || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('description')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>TMDB</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.tmdb_id || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('tmdb_id')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Đạo diễn</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.director || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('director')}>Chuyển dữ liệu</Button>
-                </Col>
-                <Col xs={24} md={12}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Diễn viên</div>
-                  <div style={{ color: '#666' }}>{String(originalMovie.actor || '')}</div>
-                  <Button style={{ marginTop: 8 }} onClick={() => applyFromOriginal('actor')}>Chuyển dữ liệu</Button>
-                </Col>
-              </Row>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <div style={{ color: '#666' }}>Bản gốc đã tải. Xem dữ liệu bản gốc ngay dưới từng mục để đối chiếu.</div>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    const slug = String(originalStatus.slug || (form.getFieldValue('slug') as any) || '').trim();
+                    if (!slug) {
+                      message.warning('Không có slug để tải bản gốc');
+                      return;
+                    }
+                    loadOriginalBySlug(slug).catch((e: any) => {
+                      setOriginalMovie(null);
+                      setOriginalStatus({ state: 'error', slug, message: e?.message || 'Không thể tải bản gốc để đối chiếu' });
+                      message.warning(e?.message || 'Không thể tải bản gốc để đối chiếu');
+                    });
+                  }}
+                  loading={originalStatus.state === 'loading'}
+                >
+                  Tải lại bản gốc
+                </Button>
+              </Space>
             )}
           </Card>
         ) : null}
@@ -912,6 +868,7 @@ export default function MovieEdit() {
                       name="title"
                       label="Tên phim (Tiếng Việt)"
                       rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}
+                      extra={renderOriginalExtra('title', { label: 'Bản gốc' })}
                     >
                       <Input placeholder="Nhập tên phim tiếng Việt" />
                     </Form.Item>
@@ -921,6 +878,7 @@ export default function MovieEdit() {
                       name="origin_name"
                       label="Tên gốc (Tiếng Anh)"
                       rules={[{ required: true, message: 'Vui lòng nhập tên gốc' }]}
+                      extra={renderOriginalExtra('origin_name', { label: 'Bản gốc' })}
                     >
                       <Input placeholder="Nhập tên gốc tiếng Anh" />
                     </Form.Item>
@@ -933,6 +891,7 @@ export default function MovieEdit() {
                       name="type"
                       label="Loại phim"
                       rules={[{ required: true }]}
+                      extra={renderOriginalExtra('type', { label: 'Bản gốc' })}
                     >
                       <Select placeholder="Chọn loại phim">
                         {TYPE_OPTIONS.map((opt) => (
@@ -948,6 +907,7 @@ export default function MovieEdit() {
                       name="year"
                       label="Năm phát hành"
                       rules={[{ required: true }]}
+                      extra={renderOriginalExtra('year', { label: 'Bản gốc' })}
                     >
                       <InputNumber
                         style={{ width: '100%' }}
@@ -962,6 +922,7 @@ export default function MovieEdit() {
                       name="quality"
                       label="Chất lượng"
                       rules={[{ required: true }]}
+                      extra={renderOriginalExtra('quality', { label: 'Bản gốc' })}
                     >
                       <Select placeholder="Chọn chất lượng">
                         {QUALITY_OPTIONS.map((opt) => (
@@ -980,6 +941,7 @@ export default function MovieEdit() {
                       name="status"
                       label="Trạng thái"
                       rules={[{ required: true }]}
+                      extra={renderOriginalExtra('status', { label: 'Bản gốc' })}
                     >
                       <Select placeholder="Chọn trạng thái">
                         {STATUS_OPTIONS.map((opt) => (
@@ -994,6 +956,7 @@ export default function MovieEdit() {
                     <Form.Item
                       name="episode_current"
                       label="Tập hiện tại"
+                      extra={renderOriginalExtra('episode_current', { label: 'Bản gốc' })}
                     >
                       <Input placeholder="VD: 10" />
                     </Form.Item>
@@ -1002,6 +965,7 @@ export default function MovieEdit() {
                     <Form.Item
                       name="episode_total"
                       label="Tổng số tập"
+                      extra={renderOriginalExtra('episode_total', { label: 'Bản gốc' })}
                     >
                       <Input placeholder="VD: 16" />
                     </Form.Item>
@@ -1012,6 +976,7 @@ export default function MovieEdit() {
                   name="genre"
                   label="Thể loại"
                   rules={[{ required: true, message: 'Vui lòng chọn thể loại' }]}
+                  extra={renderOriginalExtra('genre', { label: 'Bản gốc' })}
                 >
                   <Select mode="multiple" placeholder="Chọn thể loại">
                     {GENRE_OPTIONS.map((g) => (
@@ -1026,6 +991,7 @@ export default function MovieEdit() {
                   name="country"
                   label="Quốc gia"
                   rules={[{ required: true, message: 'Vui lòng chọn quốc gia' }]}
+                  extra={renderOriginalExtra('country', { label: 'Bản gốc' })}
                 >
                   <Select mode="multiple" placeholder="Chọn quốc gia">
                     {COUNTRY_OPTIONS.map((c) => (
@@ -1043,7 +1009,7 @@ export default function MovieEdit() {
                     </Form.Item>
                   </Col>
                   <Col xs={24} md={12}>
-                    <Form.Item name="language" label="Ngôn ngữ">
+                    <Form.Item name="language" label="Ngôn ngữ" extra={renderOriginalExtra('language', { label: 'Bản gốc' })}>
                       <Input placeholder="VD: Vietsub, Thuyết minh" />
                     </Form.Item>
                   </Col>
@@ -1054,7 +1020,11 @@ export default function MovieEdit() {
                     <Form.Item
                       name="showtimes"
                       label="Showtimes (lịch chiếu)"
-                      extra="Sheet: cột showtimes. VD: 'Tập mới mỗi thứ 6' hoặc để trống nếu không có."
+                      extra={renderOriginalExtra('showtimes', {
+                        label: 'Bản gốc',
+                        asPre: true,
+                        prepend: "Sheet: cột showtimes. VD: 'Tập mới mỗi thứ 6' hoặc để trống nếu không có.",
+                      })}
                     >
                       <Input placeholder="VD: Tập mới mỗi thứ 6" />
                     </Form.Item>
@@ -1064,7 +1034,10 @@ export default function MovieEdit() {
                       name="is_exclusive"
                       label="Exclusive"
                       valuePropName="checked"
-                      extra="Sheet: cột is_exclusive. Build nhận 0/1 hoặc true/false. Bật nếu là phim độc quyền."
+                      extra={renderOriginalExtra('is_exclusive', {
+                        label: 'Bản gốc',
+                        prepend: 'Sheet: cột is_exclusive. Build nhận 0/1 hoặc true/false. Bật nếu là phim độc quyền.',
+                      })}
                     >
                       <Switch />
                     </Form.Item>
@@ -1085,7 +1058,7 @@ export default function MovieEdit() {
                   </Select>
                 </Form.Item>
 
-                <Form.Item name="description" label="Mô tả phim">
+                <Form.Item name="description" label="Mô tả phim" extra={renderOriginalExtra('description', { label: 'Bản gốc', asPre: true })}>
                   <TextArea
                     rows={4}
                     placeholder="Nhập mô tả phim..."
@@ -1102,11 +1075,9 @@ export default function MovieEdit() {
                   name="poster_url"
                   label="URL Poster"
                   rules={[{ required: true, message: 'Vui lòng nhập URL poster' }]}
+                  extra={renderOriginalExtra('poster_url', { label: 'Bản gốc' })}
                 >
-                  <Input
-                    placeholder="https://..."
-                    onChange={handlePosterChange}
-                  />
+                  <Input placeholder="https://..." onChange={handlePosterChange} />
                 </Form.Item>
 
                 <div style={{ textAlign: 'center', marginTop: 16 }}>
@@ -1120,17 +1091,17 @@ export default function MovieEdit() {
 
                 <Divider />
 
-                <Form.Item name="thumb_url" label="URL Thumbnail (nếu có)">
+                <Form.Item name="thumb_url" label="URL Thumbnail (nếu có)" extra={renderOriginalExtra('thumb_url', { label: 'Bản gốc' })}>
                   <Input placeholder="https://..." />
                 </Form.Item>
               </Card>
 
               <Card title="Thông tin bổ sung">
-                <Form.Item name="director" label="Đạo diễn">
+                <Form.Item name="director" label="Đạo diễn" extra={renderOriginalExtra('director', { label: 'Bản gốc' })}>
                   <Select mode="tags" placeholder="Nhập tên đạo diễn" />
                 </Form.Item>
 
-                <Form.Item name="actor" label="Diễn viên">
+                <Form.Item name="actor" label="Diễn viên" extra={renderOriginalExtra('actor', { label: 'Bản gốc' })}>
                   <Select mode="tags" placeholder="Nhập tên diễn viên" />
                 </Form.Item>
               </Card>
