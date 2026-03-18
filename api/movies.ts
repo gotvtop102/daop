@@ -758,7 +758,15 @@ async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string) 
   const headers = (rows[0] || []).map(normalizeHeader);
   const dataRows = rows.slice(1);
 
-  const idxMovieId = headers.indexOf('movie_id');
+  const findFirstHeaderIndex = (candidates: string[]) => {
+    for (const c of candidates) {
+      const idx = headers.indexOf(c);
+      if (idx >= 0) return idx;
+    }
+    return -1;
+  };
+
+  const idxMovieId = findFirstHeaderIndex(['movie_id', 'movieid', 'movie', 'id_movie', 'movie-id']);
   const episodes = dataRows
     .filter((row: any[]) => {
       const v = idxMovieId >= 0 ? row[idxMovieId] : row[0];
@@ -778,21 +786,26 @@ async function getEpisodes(sheets: any, spreadsheetId: string, movieId: string) 
 
 // Save episodes for a movie
 async function saveEpisodes(sheets: any, spreadsheetId: string, movieId: string, episodes: any[]) {
-  // First, get current episodes
-  const currentEpisodes = await getEpisodes(sheets, spreadsheetId, movieId);
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: 'episodes!A1:Z2000',
+  });
+  const rows = response.data.values || [];
+  const headers = (rows[0] || []).map(normalizeHeader);
+  const dataRows = rows.slice(1);
+
+  const findFirstHeaderIndex = (candidates: string[]) => {
+    for (const c of candidates) {
+      const idx = headers.indexOf(c);
+      if (idx >= 0) return idx;
+    }
+    return -1;
+  };
+
+  const idxMovieId = findFirstHeaderIndex(['movie_id', 'movieid', 'movie', 'id_movie', 'movie-id']);
 
   // Delete existing episodes for this movie
-  if (currentEpisodes.length > 0) {
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: 'episodes!A1:Z2000',
-    });
-    const rows = response.data.values || [];
-    const headers = (rows[0] || []).map(normalizeHeader);
-    const idxMovieId = headers.indexOf('movie_id');
-    const dataRows = rows.slice(1);
-
-    // Find rows to delete
+  if (dataRows.length > 0) {
     const rowsToDelete = [];
     for (let i = 0; i < dataRows.length; i++) {
       const v = idxMovieId >= 0 ? dataRows[i][idxMovieId] : dataRows[i][0];
@@ -801,7 +814,6 @@ async function saveEpisodes(sheets: any, spreadsheetId: string, movieId: string,
       }
     }
 
-    // Clear rows (reverse order to avoid shifting)
     for (const rowNum of rowsToDelete.reverse()) {
       await sheets.spreadsheets.values.clear({
         spreadsheetId,
@@ -810,30 +822,64 @@ async function saveEpisodes(sheets: any, spreadsheetId: string, movieId: string,
     }
   }
 
-  // Add new episodes (kiểu MỚI theo docs)
-  const newRows = (episodes || []).map((ep: any, index: number) => {
+  const buildRowByHeaders = (ep: any, index: number) => {
     const episodeCode = ep.episode_code || ep.episode || ep.code || String(index + 1);
     const episodeName = ep.episode_name || ep.name || `Tập ${episodeCode}`;
     const serverSlug = ep.server_slug || ep.server || ep.server_source || 'vietsub-1';
     const serverName = ep.server_name || ep.serverName || '';
 
-    return [
-      movieId,
-      String(episodeCode),
-      String(episodeName),
-      String(serverSlug),
-      String(serverName),
-      String(ep.link_m3u8 || ''),
-      String(ep.link_embed || ''),
-      String(ep.link_backup || ''),
-      String(ep.link_vip1 || ''),
-      String(ep.link_vip2 || ''),
-      String(ep.link_vip3 || ''),
-      String(ep.link_vip4 || ''),
-      String(ep.link_vip5 || ''),
-      String(ep.note || ''),
-    ];
-  });
+    const valueByHeader: Record<string, any> = {
+      movie_id: movieId,
+      movieid: movieId,
+      movie: movieId,
+      id_movie: movieId,
+      'movie-id': movieId,
+      episode_code: String(episodeCode),
+      episode: String(episodeCode),
+      code: String(episodeCode),
+      episode_name: String(episodeName),
+      name: String(episodeName),
+      server_slug: String(serverSlug),
+      server: String(serverSlug),
+      server_name: String(serverName),
+      link_m3u8: String(ep.link_m3u8 || ''),
+      link_embed: String(ep.link_embed || ''),
+      link_backup: String(ep.link_backup || ''),
+      link_vip1: String(ep.link_vip1 || ''),
+      link_vip2: String(ep.link_vip2 || ''),
+      link_vip3: String(ep.link_vip3 || ''),
+      link_vip4: String(ep.link_vip4 || ''),
+      link_vip5: String(ep.link_vip5 || ''),
+      note: String(ep.note || ''),
+    };
+
+    if (!headers.length) {
+      return [
+        movieId,
+        String(episodeCode),
+        String(episodeName),
+        String(serverSlug),
+        String(serverName),
+        String(ep.link_m3u8 || ''),
+        String(ep.link_embed || ''),
+        String(ep.link_backup || ''),
+        String(ep.link_vip1 || ''),
+        String(ep.link_vip2 || ''),
+        String(ep.link_vip3 || ''),
+        String(ep.link_vip4 || ''),
+        String(ep.link_vip5 || ''),
+        String(ep.note || ''),
+      ];
+    }
+
+    return headers.map((h: string) => {
+      if (!h) return '';
+      return valueByHeader[h] ?? '';
+    });
+  };
+
+  // Add new episodes (kiểu MỚI theo docs)
+  const newRows = (episodes || []).map((ep: any, index: number) => buildRowByHeaders(ep, index));
 
   if (newRows.length > 0) {
     await sheets.spreadsheets.values.append({

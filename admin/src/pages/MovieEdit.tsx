@@ -37,6 +37,7 @@ interface MovieForm {
   id?: string;
   title: string;
   origin_name: string;
+  slug: string;
   poster_url: string;
   thumb_url: string;
   year: number;
@@ -51,7 +52,6 @@ interface MovieForm {
   actor: string[];
   description: string;
   tmdb_id: string;
-  time: string;
   language: string;
   showtimes: string;
   is_exclusive: boolean;
@@ -657,7 +657,6 @@ export default function MovieEdit() {
         genre: normalizeGenres(data.genres?.map((g: any) => g?.name).filter(Boolean) || []),
         country: normalizeCountries(useTvEndpoint ? (data.origin_country || []).map((x: any) => ({ iso_3166_1: x })) : (data.production_countries || [])),
         description: data.overview,
-        time: runtimeMin ? `${runtimeMin} phút` : '',
         director: directors,
         actor: actors,
       };
@@ -886,6 +885,21 @@ export default function MovieEdit() {
                 </Row>
 
                 <Row gutter={16}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      name="slug"
+                      label="Slug"
+                      rules={[
+                        { required: true, message: 'Vui lòng nhập slug' },
+                      ]}
+                      extra={renderOriginalExtra('slug', { label: 'Bản gốc' })}
+                    >
+                      <Input placeholder="vd: than-kiem-hanh" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+
+                <Row gutter={16}>
                   <Col xs={24} md={8}>
                     <Form.Item
                       name="type"
@@ -1004,11 +1018,6 @@ export default function MovieEdit() {
 
                 <Row gutter={16}>
                   <Col xs={24} md={12}>
-                    <Form.Item name="time" label="Thời lượng">
-                      <Input placeholder="VD: 120 phút" />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={12}>
                     <Form.Item name="language" label="Ngôn ngữ" extra={renderOriginalExtra('language', { label: 'Bản gốc' })}>
                       <Input placeholder="VD: Vietsub, Thuyết minh" />
                     </Form.Item>
@@ -1048,8 +1057,9 @@ export default function MovieEdit() {
                   name="update"
                   label="Update"
                   extra="Sheet: cột update (không bắt buộc). NEW: ép build coi phim thay đổi và có thể tự đổi NEW→OK sau build; OK: bản ổn định (export không ghi đè); COPY: dòng lịch sử."
+                  rules={[{ required: true, message: 'Vui lòng chọn Update' }]}
                 >
-                  <Select allowClear placeholder="(tùy chọn)">
+                  <Select placeholder="Chọn update">
                     {UPDATE_OPTIONS.map((o) => (
                       <Option key={o.value} value={o.value}>
                         {o.label}
