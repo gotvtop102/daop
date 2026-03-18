@@ -238,7 +238,7 @@ async function listMovies(
 ) {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: 'movies!A1:Z1000',
+    range: 'movies!A:Z',
   });
 
   const rows = response.data.values || [];
@@ -307,7 +307,7 @@ async function listMovies(
 async function getMovie(sheets: any, spreadsheetId: string, id: string) {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: 'movies!A1:Z1000',
+    range: 'movies!A:Z',
   });
 
   const rows = response.data.values || [];
@@ -338,7 +338,7 @@ async function getMovie(sheets: any, spreadsheetId: string, id: string) {
 async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: 'movies!A1:Z1000',
+    range: 'movies!A:Z',
   });
 
   const rows = response.data.values || [];

@@ -113,9 +113,13 @@ jobs:
             # Commit trước để tránh lỗi "cannot pull with rebase: Your index contains uncommitted changes"
             git commit -m "chore: update data"
             # Stash để pull an toàn, sau đó unstash
-            git stash push -m "temp"
+            STASH_BEFORE=$(git stash list | wc -l)
+            git stash push -m "temp" || true
             git pull --rebase origin main
-            git stash pop
+            STASH_AFTER=$(git stash list | wc -l)
+            if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
+              git stash pop
+            fi
             # Commit lại nếu có conflicts resolved
             git push
           fi
@@ -150,9 +154,13 @@ jobs:
           git status
           if ! git diff --staged --quiet; then
             git commit -m "chore: update data (core)"
-            git stash push -m "temp"
+            STASH_BEFORE=$(git stash list | wc -l)
+            git stash push -m "temp" || true
             git pull --rebase origin main
-            git stash pop
+            STASH_AFTER=$(git stash list | wc -l)
+            if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
+              git stash pop
+            fi
             git push
           fi
 
@@ -205,9 +213,13 @@ jobs:
           git status
           if ! git diff --staged --quiet; then
             git commit -m "chore: update data (tmdb only)"
-            git stash push -m "temp"
+            STASH_BEFORE=$(git stash list | wc -l)
+            git stash push -m "temp" || true
             git pull --rebase origin main
-            git stash pop
+            STASH_AFTER=$(git stash list | wc -l)
+            if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
+              git stash pop
+            fi
             git push
           fi
 
