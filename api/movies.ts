@@ -237,13 +237,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       DEFAULT_SPREADSHEET_ID ||
       ''
   ).trim();
-  const serviceAccountKey = String(
+
+  const envServiceAccountKey = String(SERVICE_ACCOUNT_KEY || '').trim();
+  const requestServiceAccountKey = String(
     (req.headers['x-service-account-key'] as string) ||
       req.query.serviceAccountKey ||
       req.body?.serviceAccountKey ||
-      SERVICE_ACCOUNT_KEY ||
       ''
   ).trim();
+
+  // On Vercel/prod, prefer server-side env credentials to avoid conflicts and key leakage.
+  // Only allow request-supplied credentials if env is not configured (useful for local/dev).
+  const isVercel = String(process.env.VERCEL || '').trim() !== '';
+  const serviceAccountKey = (isVercel && envServiceAccountKey) ? envServiceAccountKey : (requestServiceAccountKey || envServiceAccountKey);
 
   if (!spreadsheetId) {
     return res.status(500).json({ error: 'Google Sheets ID not configured' });
