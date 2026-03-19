@@ -121,6 +121,7 @@ type PrerollRow = {
   skip_after: number | null;
   weight: number | null;
   is_active: boolean;
+  roll?: 'pre' | 'mid' | 'post' | null;
 };
 
 function parseJsonSafe<T>(raw: unknown, fallback: T): T {
@@ -224,6 +225,7 @@ export default function PlayerSettings() {
   const [prerollLoading, setPrerollLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [rollFilter, setRollFilter] = useState<'all' | 'pre' | 'mid' | 'post'>('all');
   const [prerollForm] = Form.useForm();
   const prerollImageInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState('player');
@@ -323,7 +325,7 @@ export default function PlayerSettings() {
   const openAddPreroll = () => {
     setEditingId(null);
     prerollForm.resetFields();
-    prerollForm.setFieldsValue({ is_active: true, weight: 0 });
+    prerollForm.setFieldsValue({ is_active: true, weight: 0, roll: 'pre' });
     setModalVisible(true);
   };
 
@@ -365,6 +367,7 @@ export default function PlayerSettings() {
         skip_after: values.skip_after != null ? Number(values.skip_after) : null,
         weight: values.weight != null ? Number(values.weight) : 0,
         is_active: !!values.is_active,
+        roll: values.roll || 'pre',
       };
       if (editingId) {
         const { error } = await supabase.from('ad_preroll').update(payload).eq('id', editingId);
@@ -761,12 +764,24 @@ export default function PlayerSettings() {
       children: (
         <>
           <Card
-            title="Danh sách Pre-roll"
+            title="Quảng cáo Pre-roll"
+            style={{ marginBottom: 16 }}
             extra={
               <Space>
                 <Button type="primary" icon={<PlusOutlined />} onClick={openAddPreroll}>
                   Thêm quảng cáo
                 </Button>
+                <Select
+                  value={rollFilter}
+                  style={{ width: 180 }}
+                  onChange={(v) => setRollFilter(v)}
+                  options={[
+                    { value: 'all', label: 'Tất cả vị trí' },
+                    { value: 'pre', label: 'Pre-roll' },
+                    { value: 'mid', label: 'Mid-roll' },
+                    { value: 'post', label: 'Post-roll' },
+                  ]}
+                />
                 <Button onClick={loadPrerollData} loading={prerollLoading}>
                   Refresh
                 </Button>
@@ -775,32 +790,31 @@ export default function PlayerSettings() {
           >
             <Table
               loading={prerollLoading}
-              dataSource={prerollData}
+              dataSource={prerollData.filter((row) => {
+                if (rollFilter === 'all') return true;
+                const r = (row.roll || 'pre') as any;
+                return r === rollFilter;
+              })}
               rowKey="id"
               size="small"
               columns={[
-                { title: 'Tên', dataIndex: 'name', key: 'name', ellipsis: true },
+                {
+                  title: 'Vị trí',
+                  dataIndex: 'roll',
+                  key: 'roll',
+                  width: 90,
+                  render: (v: any) => {
+                    const roll = (v || 'pre') as 'pre' | 'mid' | 'post';
+                    const label = roll === 'mid' ? 'Mid' : roll === 'post' ? 'Post' : 'Pre';
+                    const color = roll === 'mid' ? 'blue' : roll === 'post' ? 'gold' : 'green';
+                    return <Tag color={color}>{label}</Tag>;
+                  },
+                },
+                { title: 'Tên', dataIndex: 'name', key: 'name' },
                 { title: 'Video URL', dataIndex: 'video_url', key: 'video_url', ellipsis: true },
-                {
-                  title: 'Thời lượng',
-                  dataIndex: 'duration',
-                  key: 'duration',
-                  width: 90,
-                  render: (v: number | null) => v ? `${v}s` : '-',
-                },
-                {
-                  title: 'Skip sau',
-                  dataIndex: 'skip_after',
-                  key: 'skip_after',
-                  width: 90,
-                  render: (v: number | null) => v ? `${v}s` : '-',
-                },
-                {
-                  title: 'Trọng số',
-                  dataIndex: 'weight',
-                  key: 'weight',
-                  width: 80,
-                },
+                { title: 'Thời lượng (s)', dataIndex: 'duration', key: 'duration', width: 90 },
+                { title: 'Bỏ qua sau (s)', dataIndex: 'skip_after', key: 'skip_after', width: 110 },
+                { title: 'Trọng số', dataIndex: 'weight', key: 'weight', width: 90 },
                 {
                   title: 'Trạng thái',
                   dataIndex: 'is_active',
@@ -832,6 +846,15 @@ export default function PlayerSettings() {
             destroyOnClose
           >
             <Form form={prerollForm} layout="vertical" onFinish={handleSubmitPreroll}>
+              <Form.Item name="roll" label="Vị trí" rules={[{ required: true }]}>
+                <Select
+                  options={[
+                    { value: 'pre', label: 'Pre-roll' },
+                    { value: 'mid', label: 'Mid-roll' },
+                    { value: 'post', label: 'Post-roll' },
+                  ]}
+                />
+              </Form.Item>
               <Form.Item name="name" label="Tên">
                 <Input placeholder="Mô tả ngắn" />
               </Form.Item>

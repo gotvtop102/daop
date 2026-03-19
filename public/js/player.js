@@ -15,8 +15,14 @@
     return playerSettings.player_config || {};
   }
 
-  function getFirstActivePreroll() {
-    var list = window.DAOP?.prerollList || [];
+  function getAdsListByRoll(roll) {
+    if (roll === 'mid') return window.DAOP?.midrollList || [];
+    if (roll === 'post') return window.DAOP?.postrollList || [];
+    return window.DAOP?.prerollList || [];
+  }
+
+  function getFirstActiveAdVideo(roll) {
+    var list = getAdsListByRoll(roll);
     if (!Array.isArray(list) || list.length === 0) return null;
     return list[0] || null;
   }
@@ -72,7 +78,7 @@
         return { type: 'vast', vastTag: vastTag, url: mediaUrl || '' };
       });
     }
-    var pr = getFirstActivePreroll();
+    var pr = getFirstActiveAdVideo(roll);
     return Promise.resolve({ type: 'video', url: pr && pr.video_url ? String(pr.video_url) : '', skip_after: pr && pr.skip_after != null ? pr.skip_after : null, image_url: pr && pr.image_url ? String(pr.image_url) : '' });
   }
 

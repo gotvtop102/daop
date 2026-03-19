@@ -2827,7 +2827,7 @@ async function exportConfigFromSupabase() {
   const mergedPlayerSettings = { ...defaultPlayerSettings, ...playerSettingsObj };
   fs.writeFileSync(path.join(configDir, 'player-settings.json'), JSON.stringify(mergedPlayerSettings, null, 2));
 
-  const prerollList = (prerollRes.data || []).map((p) => ({
+  const allAds = (prerollRes.data || []).map((p) => ({
     id: p.id,
     name: p.name,
     video_url: p.video_url,
@@ -2835,8 +2835,14 @@ async function exportConfigFromSupabase() {
     duration: p.duration,
     skip_after: p.skip_after,
     weight: p.weight,
+    roll: p.roll || 'pre',
   }));
-  fs.writeFileSync(path.join(configDir, 'preroll.json'), JSON.stringify(prerollList, null, 2));
+  const preAds = allAds.filter((a) => (a.roll || 'pre') === 'pre');
+  const midAds = allAds.filter((a) => (a.roll || 'pre') === 'mid');
+  const postAds = allAds.filter((a) => (a.roll || 'pre') === 'post');
+  fs.writeFileSync(path.join(configDir, 'preroll.json'), JSON.stringify(preAds, null, 2));
+  fs.writeFileSync(path.join(configDir, 'midroll.json'), JSON.stringify(midAds, null, 2));
+  fs.writeFileSync(path.join(configDir, 'postroll.json'), JSON.stringify(postAds, null, 2));
 }
 
 async function writeDefaultConfig() {

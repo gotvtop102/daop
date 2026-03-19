@@ -8,6 +8,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Select,
   Switch,
   message,
 } from 'antd';
@@ -23,6 +24,7 @@ type PrerollRow = {
   skip_after: number | null;
   weight: number | null;
   is_active: boolean;
+  roll?: 'pre' | 'mid' | 'post' | null;
 };
 
 export default function PrerollAds() {
@@ -30,6 +32,7 @@ export default function PrerollAds() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [rollFilter, setRollFilter] = useState<'all' | 'pre' | 'mid' | 'post'>('all');
   const [form] = Form.useForm();
   const prerollImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,7 +50,7 @@ export default function PrerollAds() {
   const openAdd = () => {
     setEditingId(null);
     form.resetFields();
-    form.setFieldsValue({ is_active: true, weight: 0 });
+    form.setFieldsValue({ is_active: true, weight: 0, roll: 'pre' });
     setModalVisible(true);
   };
 
@@ -89,6 +92,7 @@ export default function PrerollAds() {
         skip_after: values.skip_after != null ? Number(values.skip_after) : null,
         weight: values.weight != null ? Number(values.weight) : 0,
         is_active: !!values.is_active,
+        roll: values.roll || 'pre',
       };
       if (editingId) {
         const { error } = await supabase.from('ad_preroll').update(payload).eq('id', editingId);
@@ -113,15 +117,44 @@ export default function PrerollAds() {
         Sau khi lưu, cần chạy Build website để áp dụng lên player.
       </p>
       <div style={{ marginBottom: 16 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={openAdd}>
-          Thêm quảng cáo
-        </Button>
+        <Space>
+          <Button type="primary" icon={<PlusOutlined />} onClick={openAdd}>
+            Thêm quảng cáo
+          </Button>
+          <Select
+            value={rollFilter}
+            style={{ width: 200 }}
+            onChange={(v) => setRollFilter(v)}
+            options={[
+              { value: 'all', label: 'Tất cả vị trí' },
+              { value: 'pre', label: 'Pre-roll' },
+              { value: 'mid', label: 'Mid-roll' },
+              { value: 'post', label: 'Post-roll' },
+            ]}
+          />
+        </Space>
       </div>
       <Table
         loading={loading}
-        dataSource={data}
+        dataSource={data.filter((row) => {
+          if (rollFilter === 'all') return true;
+          const r = (row.roll || 'pre') as any;
+          return r === rollFilter;
+        })}
         rowKey="id"
         columns={[
+          {
+            title: 'Vị trí',
+            dataIndex: 'roll',
+            key: 'roll',
+            width: 110,
+            render: (v: any) => {
+              const roll = (v || 'pre') as 'pre' | 'mid' | 'post';
+              const label = roll === 'mid' ? 'Mid' : roll === 'post' ? 'Post' : 'Pre';
+              const color = roll === 'mid' ? 'blue' : roll === 'post' ? 'gold' : 'green';
+              return <Tag color={color}>{label}</Tag>;
+            },
+          },
           { title: 'Tên', dataIndex: 'name', key: 'name' },
           { title: 'Video URL', dataIndex: 'video_url', key: 'video_url', ellipsis: true },
           { title: 'Thời lượng (s)', dataIndex: 'duration', key: 'duration', width: 100 },
@@ -155,6 +188,15 @@ export default function PrerollAds() {
         destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          <Form.Item name="roll" label="Vị trí" rules={[{ required: true }]}>
+            <Select
+              options={[
+                { value: 'pre', label: 'Pre-roll' },
+                { value: 'mid', label: 'Mid-roll' },
+                { value: 'post', label: 'Post-roll' },
+              ]}
+            />
+          </Form.Item>
           <Form.Item name="name" label="Tên">
             <Input placeholder="Mô tả ngắn" />
           </Form.Item>

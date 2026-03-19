@@ -89,6 +89,12 @@
           return fetch('/data/config/preroll.json' + q);
         }).then(function (r) { return r && r.ok ? r.json() : []; }).then(function (arr) {
           window.DAOP.prerollList = Array.isArray(arr) ? arr : [];
+          return fetch('/data/config/midroll.json' + q);
+        }).then(function (r) { return r && r.ok ? r.json() : []; }).then(function (arr) {
+          window.DAOP.midrollList = Array.isArray(arr) ? arr : [];
+          return fetch('/data/config/postroll.json' + q);
+        }).then(function (r) { return r && r.ok ? r.json() : []; }).then(function (arr) {
+          window.DAOP.postrollList = Array.isArray(arr) ? arr : [];
         });
       }).catch(function () { });
     })();
