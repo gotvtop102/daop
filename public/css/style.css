@@ -104,19 +104,60 @@ body.theme-light {
  }
 
  body.theme-light .watch-player-top {
-   background: var(--light-surface);
- }
+  background: var(--light-surface);
+}
 
- body.theme-light .md-action-btn {
-   background: var(--light-surface);
-   color: var(--text);
- }
+body.theme-light .md-action-btn {
+  background: var(--light-surface);
+  color: var(--text);
+}
 
- body.theme-light .watch-episodes-collapse,
- body.theme-light .watch-side-back {
-   background: var(--light-surface);
-   color: var(--text);
- }
+body.theme-light .movie-card,
+body.theme-light .watch-episodes-card,
+body.theme-light .watch-side-card,
+body.theme-light .episodes-ui {
+  border-color: rgba(31,35,40,0.14);
+  box-shadow: 0 10px 26px rgba(17,24,39,0.08);
+}
+
+body.theme-light .movie-card:hover {
+  box-shadow: 0 14px 34px rgba(17,24,39,0.12);
+}
+
+body.theme-light .server-tab,
+body.theme-light .episode-btn {
+  border-color: rgba(31,35,40,0.14);
+}
+
+body.theme-light .server-tab--active {
+  background: rgba(37, 99, 235, 0.14);
+  color: var(--accent-hover);
+}
+
+body.theme-light .episodes-ui {
+  background: #ffffff;
+}
+
+body.theme-light .episodes-ui-select {
+  background: #ffffff;
+}
+
+/* Trang chi tiết: phần hero nền tối nên nút action cần icon/text trắng */
+body.theme-light .md-hero .md-action-btn {
+  background: rgba(13,17,23,0.55);
+  border-color: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.92);
+}
+body.theme-light .md-hero .md-action-btn:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: #ffffff;
+}
+
+body.theme-light .watch-episodes-collapse,
+body.theme-light .watch-side-back {
+  background: var(--light-surface);
+  color: var(--text);
+}
 
  body.theme-light .md-hero .md-title {
    color: #fff;
