@@ -123,6 +123,60 @@ function writeAutoSliderFile(allMovies) {
   }
 }
 
+async function ensureR2ImagesForNewCustomMovies(customMovies) {
+  const client = getR2Client();
+  const bucket = process.env.R2_BUCKET_NAME;
+  const publicBase = String(process.env.R2_PUBLIC_URL || '').trim();
+  if (!client || !bucket || !publicBase) return;
+  const list = Array.isArray(customMovies) ? customMovies : [];
+  if (!list.length) return;
+
+  const targets = list.filter((m) => {
+    if (!m) return false;
+    const st = String(m._sheetUpdateStatus || '').toUpperCase();
+    if (st !== 'NEW' && st !== 'NEW2') return false;
+    if (!m.slug) return false;
+    const hasThumb = String(m.r2_thumb || '').trim();
+    const hasPoster = String(m.r2_poster || '').trim();
+    return !(hasThumb && hasPoster);
+  });
+  if (!targets.length) return;
+
+  console.log('4a. Uploading NEW images to R2 (missing only):', targets.length);
+  const concurrency = Math.max(1, Math.min(8, Number(process.env.R2_UPLOAD_CONCURRENCY || 4)));
+  let next = 0;
+  const workers = Array.from({ length: Math.min(concurrency, targets.length) }, () => (async () => {
+    while (true) {
+      const i = next;
+      next++;
+      const m = targets[i];
+      if (!m) break;
+
+      const slug = String(m.slug || '').trim();
+      if (!slug) continue;
+
+      const thumbSrc = String(m.thumb || '').trim();
+      const posterSrc = String(m.poster || derivePosterFromThumb(thumbSrc) || '').trim();
+
+      if (!String(m.r2_thumb || '').trim() && thumbSrc) {
+        const r2Thumb = await uploadMovieImageToR2BySlug(thumbSrc, slug, 'thumbs');
+        if (r2Thumb) {
+          m.r2_thumb = r2Thumb;
+          m.thumb = r2Thumb;
+        }
+      }
+      if (!String(m.r2_poster || '').trim() && posterSrc) {
+        const r2Poster = await uploadMovieImageToR2BySlug(posterSrc, slug, 'posters');
+        if (r2Poster) {
+          m.r2_poster = r2Poster;
+          m.poster = r2Poster;
+        }
+      }
+    }
+  })());
+  await Promise.all(workers);
+}
+
 function colToLetter(n) {
   let s = '';
   n++;
@@ -396,6 +450,26 @@ async function processImage(url, slug, folder = 'thumbs') {
     return r2Url || url;
   } catch {
     return url;
+  }
+}
+
+/** Upload movie image to R2 using stable key by slug (thumbs/<slug>.webp or posters/<slug>.webp) */
+async function uploadMovieImageToR2BySlug(url, slug, folder) {
+  if (!url) return '';
+  const s = String(slug || '').trim();
+  if (!s) return '';
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return '';
+    const buf = Buffer.from(await res.arrayBuffer());
+    const ct = res.headers.get('content-type') || '';
+    const ext = guessExtFromContentType(ct) || guessExtFromUrl(url) || 'jpg';
+    const optimized = await optimizeImageBuffer(buf, ext);
+    const key = `${folder}/${sanitizeR2Name(s)}.webp`;
+    const out = await uploadToR2(optimized, key, 'image/webp');
+    return out || '';
+  } catch {
+    return '';
   }
 }
 
@@ -691,8 +765,8 @@ function normalizeOPhimMovie(m, slug, cdnBase = 'https://img.ophim.live') {
     title: m.name || m.title || '',
     origin_name: m.origin_name || m.original_title || '',
     slug: slugNorm || id,
-    thumb: compactOphimImgUrl(thumb),
-    poster: compactOphimImgUrl(poster),
+    thumb: thumb,
+    poster: poster,
     year: m.year || '',
     type: m.type || 'single',
     genre: m.category?.map((c) => ({ id: c.id, name: c.name, slug: c.slug || slugify(c.name, { lower: true }) })) || [],
@@ -841,6 +915,10 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
   const idxUpdate = idx('update');
   const idxModified = idx('modified');
   const idxSlug = idx('slug');
+  const idxR2Thumb = idx('r2_thumb');
+  const idxR2Poster = idx('r2_poster');
+  const idxThumbUrl = idx('thumb_url');
+  const idxPosterUrl = idx('poster_url');
   const movies = [];
   for (let i = 1; i < moviesRows.length; i++) {
     const row = moviesRows[i];
@@ -864,13 +942,25 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
     const updateRaw = (idxUpdate >= 0 ? (row[idxUpdate] ?? '') : '').toString().trim();
     const updateStatus = updateRaw ? updateRaw.toUpperCase() : '';
     const sheetModified = (idxModified >= 0 ? (row[idxModified] ?? '') : '').toString().trim();
+
+    const sheetThumbUrl = (idxThumbUrl >= 0 ? (row[idxThumbUrl] ?? '') : (row[idx('thumb')] ?? '')).toString().trim();
+    const sheetPosterUrl = (idxPosterUrl >= 0 ? (row[idxPosterUrl] ?? '') : (row[idx('poster')] ?? '')).toString().trim();
+    const sheetR2Thumb = (idxR2Thumb >= 0 ? (row[idxR2Thumb] ?? '') : '').toString().trim();
+    const sheetR2Poster = (idxR2Poster >= 0 ? (row[idxR2Poster] ?? '') : '').toString().trim();
+
+    const thumbPick = sheetR2Thumb || sheetThumbUrl || '';
+    const posterPick = sheetR2Poster || sheetPosterUrl || '';
     const movie = {
       id: movieId,
       title: title.toString(),
       origin_name: (row[idx('origin_name')] || '').toString(),
       slug: baseSlug,
-      thumb: (row[idx('thumb_url')] || row[idx('thumb')] || '').toString(),
-      poster: '',
+      // Prefer R2 URLs if present, fallback to full URL stored in thumb_url/poster_url
+      thumb: thumbPick,
+      poster: posterPick,
+      r2_thumb: sheetR2Thumb,
+      r2_poster: sheetR2Poster,
+      _from_sheet: true,
       year: (row[idx('year')] || '').toString(),
       type: (row[idx('type')] || 'single').toString(),
       genre,
@@ -906,6 +996,8 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
       movie._sheetUpdateColIndex = idxUpdate;
       movie._sheetSlugColIndex = idxSlug;
       movie._sheetOriginalSlug = baseSlug;
+      movie._sheetR2ThumbColIndex = idxR2Thumb;
+      movie._sheetR2PosterColIndex = idxR2Poster;
     }
 
     movies.push(movie);
@@ -1043,6 +1135,28 @@ async function applySheetUpdateStatuses(movies) {
         valueInputOption: 'RAW',
         requestBody: { values: [[newVal]] },
       });
+
+      // Sync R2 links back to sheet for NEW/NEW2 (if columns exist)
+      if (m && m.r2_thumb && m._sheetR2ThumbColIndex >= 0) {
+        const c2 = colToLetter(m._sheetR2ThumbColIndex);
+        const r2Range = `movies!${c2}${rowNum}`;
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: sheetId,
+          range: r2Range,
+          valueInputOption: 'RAW',
+          requestBody: { values: [[String(m.r2_thumb)]] },
+        });
+      }
+      if (m && m.r2_poster && m._sheetR2PosterColIndex >= 0) {
+        const c3 = colToLetter(m._sheetR2PosterColIndex);
+        const r2Range = `movies!${c3}${rowNum}`;
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: sheetId,
+          range: r2Range,
+          valueInputOption: 'RAW',
+          requestBody: { values: [[String(m.r2_poster)]] },
+        });
+      }
     }
 
     for (const m of slugFix) {
@@ -1355,10 +1469,7 @@ function mergeMovies(ophim, custom) {
   }
 
   for (const m of merged) {
-    if (m && m.thumb) m.thumb = compactOphimImgUrl(m.thumb);
     dedupeThumbPoster(m);
-    // Không lưu poster trong output. Poster sẽ được suy ra từ thumb ở frontend / export.
-    if (m) m.poster = '';
   }
   return merged;
 }
@@ -3260,6 +3371,9 @@ async function main() {
   console.log('2. Fetching custom (Sheets/Excel)...');
   const custom = await fetchCustomMovies();
   console.log('   Custom count:', custom.length);
+
+  // NEW/NEW2: upload images to R2 if missing (store urls back to sheet later)
+  await ensureR2ImagesForNewCustomMovies(custom);
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');
     if (tmdbOnly) {

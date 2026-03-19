@@ -763,6 +763,8 @@ async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
     'episode_current',
     'thumb_url',
     'poster_url',
+    'r2_thumb',
+    'r2_poster',
     'description',
     'status',
     'showtimes',

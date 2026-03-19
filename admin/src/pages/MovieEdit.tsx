@@ -743,8 +743,8 @@ export default function MovieEdit() {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const apiBase = base || window.location.origin;
 
-      const posterSlug = extractImageSlug(values.poster_url || '');
-      const thumbSlug = extractImageSlug(values.thumb_url || '');
+      const posterUrlFull = normalizeMovieImageUrl(values.poster_url || '', 'poster');
+      const thumbUrlFull = normalizeMovieImageUrl(values.thumb_url || '', 'thumb');
 
       // Convert arrays to comma-separated strings
       const payload = {
@@ -752,8 +752,8 @@ export default function MovieEdit() {
         id: isNew ? undefined : id,
         spreadsheetId,
         ...(serviceAccountKey ? { serviceAccountKey } : {}),
-        poster_url: posterSlug,
-        thumb_url: thumbSlug,
+        poster_url: posterUrlFull,
+        thumb_url: thumbUrlFull,
         genre: Array.isArray(values.genre) ? values.genre.join(',') : values.genre,
         country: Array.isArray(values.country) ? values.country.join(',') : values.country,
         director: Array.isArray(values.director) ? values.director.join(',') : values.director,

@@ -682,25 +682,7 @@
     if (uploadsPath) {
       var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
       var ophimDomain = (settings && settings.ophim_img_domain) ? String(settings.ophim_img_domain) : 'https://img.ophim.live';
-      var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
       ophimDomain = ophimDomain.replace(/\/$/, '');
-      r2Domain = r2Domain.replace(/\/$/, '');
-
-      var path = uploadsPath;
-      var filename = '';
-      try {
-        filename = path.split('/').pop() || '';
-      } catch (e0) { filename = ''; }
-
-      if (r2Domain && filename) {
-        var lower = filename.toLowerCase();
-        var folder = (lower.indexOf('poster') >= 0) ? 'posters' : 'thumbs';
-        var r2Name = filename;
-        if (!/\.(gif)$/i.test(r2Name)) {
-          r2Name = r2Name.replace(/\.(jpe?g|jpg|png|webp)$/i, '') + '.webp';
-        }
-        return r2Domain + '/' + folder + '/' + r2Name;
-      }
       return ophimDomain + uploadsPath;
     }
     if (u.startsWith('//')) return 'https:' + u;

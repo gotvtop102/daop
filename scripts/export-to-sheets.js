@@ -137,6 +137,12 @@ function expandImgUrl(url) {
   return u;
 }
 
+function isR2ImageUrl(u) {
+  const s = String(u || '').trim();
+  if (!/^https?:\/\//i.test(s)) return false;
+  return s.includes('/thumbs/') || s.includes('/posters/');
+}
+
 function buildMovieRow(movie, headers, explicitId) {
   const row = new Array(headers.length).fill('');
   const headerIndex = (name) => {
@@ -170,10 +176,14 @@ function buildMovieRow(movie, headers, explicitId) {
   const thumbUrl = expandImgUrl(movie.thumb || '');
   setIfExists('thumb_url', thumbUrl);
   setIfExists('thumb', thumbUrl);
+  const r2Thumb = movie.r2_thumb || movie.r2Thumb || (isR2ImageUrl(thumbUrl) ? thumbUrl : '');
+  setIfExists('r2_thumb', r2Thumb);
   const derivedPoster = (!movie.poster && thumbUrl) ? derivePosterFromThumb(thumbUrl) : '';
   const posterUrl = expandImgUrl(movie.poster || '') || derivedPoster || thumbUrl || '';
   setIfExists('poster_url', posterUrl);
   setIfExists('poster', posterUrl);
+  const r2Poster = movie.r2_poster || movie.r2Poster || (isR2ImageUrl(posterUrl) ? posterUrl : '');
+  setIfExists('r2_poster', r2Poster);
   const desc = movie.description || movie.content || '';
   setIfExists('description', desc);
   setIfExists('content', desc);
