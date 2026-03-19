@@ -263,6 +263,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         type: String((creds as any)?.type || ''),
         client_email: String((creds as any)?.client_email || ''),
         project_id: String((creds as any)?.project_id || ''),
+        private_key_id: String((creds as any)?.private_key_id || ''),
         private_key_length: pk.length,
         private_key_fingerprint_sha256: fingerprint,
       });
