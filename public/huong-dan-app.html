@@ -7,20 +7,20 @@
   <link rel="stylesheet" href="/css/style.css">
   <style>
     .app-guide-section {
-      background: #1a1a2e;
+      background: var(--card);
       border-radius: 12px;
       padding: 24px;
       margin-bottom: 24px;
-      border: 1px solid #2d2d44;
+      border: 1px solid var(--border);
     }
     .app-guide-section h2 {
-      color: #ffd700;
+      color: var(--accent);
       margin-top: 0;
       margin-bottom: 16px;
       font-size: 1.25rem;
     }
     .app-guide-section h3 {
-      color: #fff;
+      color: var(--text);
       margin-top: 20px;
       margin-bottom: 12px;
       font-size: 1rem;
@@ -36,16 +36,17 @@
     .app-guide-section p {
       line-height: 1.7;
       margin-bottom: 12px;
+      color: var(--text);
     }
     .app-guide-section strong {
-      color: #4fc3f7;
+      color: var(--accent);
     }
     .app-guide-section a {
-      color: #4fc3f7;
+      color: var(--link-color);
       text-decoration: underline;
     }
     .app-guide-section a:hover {
-      color: #ffd700;
+      color: var(--accent-hover);
     }
     .download-buttons {
       display: flex;
@@ -77,14 +78,14 @@
       background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     }
     .note-box {
-      background: rgba(255, 215, 0, 0.1);
-      border-left: 4px solid #ffd700;
+      background: var(--light-surface);
+      border-left: 4px solid var(--accent);
       padding: 16px;
       border-radius: 0 8px 8px 0;
       margin: 16px 0;
     }
     .warning-box {
-      background: rgba(244, 67, 54, 0.1);
+      background: rgba(244, 67, 54, 0.08);
       border-left: 4px solid #f44336;
       padding: 16px;
       border-radius: 0 8px 8px 0;

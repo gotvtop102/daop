@@ -33,12 +33,12 @@
   --movie-card-title-color-light: var(--movie-card-title-color);
   --movie-card-meta-color: #8b949e;
   --movie-card-meta-color-light: var(--movie-card-meta-color);
-  --light-bg: #fbf7f2;
-  --light-card: #ffffff;
-  --light-border: #e7dfd6;
+  --light-bg: #fcf7f0;
+  --light-card: #fffdf9;
+  --light-border: #e8dfd3;
   --light-text: #1f2328;
-  --light-muted: #5c6773;
-  --light-surface: rgba(245, 158, 11, 0.12);
+  --light-muted: #5b6672;
+  --light-surface: rgba(245, 158, 11, 0.10);
 }
 
 * {
@@ -109,6 +109,13 @@ body.theme-light {
 
  body.theme-light .md-action-btn {
    background: var(--light-surface);
+   color: var(--text);
+ }
+
+ body.theme-light .watch-episodes-collapse,
+ body.theme-light .watch-side-back {
+   background: var(--light-surface);
+   color: var(--text);
  }
 
  body.theme-light .md-hero .md-title {
