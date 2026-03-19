@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["sc"] = {"scarlet":{"id":"69bbb84897c71dcd0d77baec","i":1453,"title":"SCARLET","origin_name":"Scarlet","slug":"scarlet","thumb":"/uploads/movies/scarlet-thumb.jpg","year":2025,"type":"hoathinh","episode_current":"Trailer"}};
