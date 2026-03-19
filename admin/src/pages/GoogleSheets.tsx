@@ -10,7 +10,6 @@ export default function GoogleSheetsPage() {
   const [form] = Form.useForm();
   const [deleteForm] = Form.useForm();
   const [sheetId, setSheetId] = useState('');
-  const [serviceAccountKey, setServiceAccountKey] = useState('');
   const [savingSupabase, setSavingSupabase] = useState(false);
   const [deletingRows, setDeletingRows] = useState(false);
   const [countingRows, setCountingRows] = useState(false);
@@ -19,12 +18,9 @@ export default function GoogleSheetsPage() {
     try {
       const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
       const nextSheetId = saved?.google_sheets_id || '';
-      const nextServiceAccountKey = saved?.google_service_account_key || '';
       setSheetId(nextSheetId);
-      setServiceAccountKey(nextServiceAccountKey);
       form.setFieldsValue({
         google_sheets_id: nextSheetId,
-        google_service_account_key: nextServiceAccountKey,
       });
     } catch {
       // ignore
@@ -35,24 +31,16 @@ export default function GoogleSheetsPage() {
     supabase
       .from('site_settings')
       .select('key, value')
-      .in('key', ['google_sheets_id', 'google_service_account_key'])
+      .in('key', ['google_sheets_id'])
       .then((r) => {
         if (r.error) return;
         const rows: any[] = Array.isArray(r.data) ? (r.data as any[]) : ((r.data ? [r.data] : []) as any[]);
         const vId = String(rows.find((x: any) => x?.key === 'google_sheets_id')?.value ?? '').trim();
-        const vSvc = String(rows.find((x: any) => x?.key === 'google_service_account_key')?.value ?? '').trim();
         if (vId) {
           setSheetId((curr) => {
             if (String(curr || '').trim()) return curr;
             form.setFieldsValue({ google_sheets_id: vId });
             return vId;
-          });
-        }
-        if (vSvc) {
-          setServiceAccountKey((curr) => {
-            if (String(curr || '').trim()) return curr;
-            form.setFieldsValue({ google_service_account_key: vSvc });
-            return vSvc;
           });
         }
       });
@@ -66,15 +54,12 @@ export default function GoogleSheetsPage() {
 
   const handleSaveConfig = async (values: any) => {
     const id = String(values?.google_sheets_id || '').trim();
-    const svc = String(values?.google_service_account_key || '').trim();
     setSheetId(id);
-    setServiceAccountKey(svc);
 
     localStorage.setItem(
       'daop_google_sheets_config',
       JSON.stringify({
         google_sheets_id: id,
-        ...(svc ? { google_service_account_key: svc } : {}),
       })
     );
     message.success('Đã lưu link Google Sheets (localStorage)');
@@ -87,8 +72,6 @@ export default function GoogleSheetsPage() {
       return;
     }
 
-    const svc = String(serviceAccountKey || '').trim();
-
     setCountingRows(true);
     try {
       const apiBase = ((import.meta as any).env?.VITE_API_URL || window.location.origin).replace(/\/$/, '');
@@ -97,7 +80,6 @@ export default function GoogleSheetsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           spreadsheetId,
-          ...(svc ? { serviceAccountKey: svc } : {}),
           sheets: ['movies', 'episodes'],
         }),
       });
@@ -133,7 +115,6 @@ export default function GoogleSheetsPage() {
   const handleSaveAll = async (values: any) => {
     await handleSaveConfig(values);
     const id = String(values?.google_sheets_id || '').trim();
-    const svc = String(values?.google_service_account_key || '').trim();
     if (!id) return;
 
     setSavingSupabase(true);
@@ -143,9 +124,10 @@ export default function GoogleSheetsPage() {
         .from('site_settings')
         .upsert({ key: 'google_sheets_id', value: id, updated_at: now }, { onConflict: 'key' });
       if (error) throw error;
+      // Clear client-stored key to avoid conflicts (backend uses env)
       const r2 = await supabase
         .from('site_settings')
-        .upsert({ key: 'google_service_account_key', value: svc, updated_at: now }, { onConflict: 'key' });
+        .upsert({ key: 'google_service_account_key', value: '', updated_at: now }, { onConflict: 'key' });
       if ((r2 as any).error) throw (r2 as any).error;
       message.success('Đã lưu GOOGLE_SHEETS_ID lên Supabase');
     } catch (e: any) {
@@ -162,7 +144,7 @@ export default function GoogleSheetsPage() {
       return;
     }
 
-    const svc = String(serviceAccountKey || '').trim();
+    const svc = '';
 
     const sheet = String(values?.sheet || 'movies').trim();
     const mode = String(values?.mode || 'range');
@@ -278,18 +260,6 @@ export default function GoogleSheetsPage() {
               />
             </Form.Item>
 
-            <Form.Item
-              name="google_service_account_key"
-              label="GOOGLE_SERVICE_ACCOUNT_KEY"
-              extra="Dán JSON service account hoặc đường dẫn file JSON (tùy môi trường)."
-            >
-              <Input.TextArea
-                rows={4}
-                placeholder="{ ... } hoặc ./path/to/service-account.json"
-                onChange={(e) => setServiceAccountKey(e.target.value)}
-              />
-            </Form.Item>
-
             <Space wrap>
               <Button type="primary" htmlType="submit" loading={savingSupabase} disabled={!sheetId}>
                 Lưu cấu hình
@@ -366,13 +336,13 @@ export default function GoogleSheetsPage() {
               </Form.Item>
 
               <Form.Item label=" ">
-                <Button danger type="primary" htmlType="submit" loading={deletingRows} disabled={!sheetId || !serviceAccountKey}>
+                <Button danger type="primary" htmlType="submit" loading={deletingRows} disabled={!sheetId}>
                   Xóa dữ liệu
                 </Button>
               </Form.Item>
 
               <Form.Item label=" ">
-                <Button onClick={handleCountRows} loading={countingRows} disabled={!sheetId || !serviceAccountKey}>
+                <Button onClick={handleCountRows} loading={countingRows} disabled={!sheetId}>
                   Kiểm tra số dòng có dữ liệu
                 </Button>
               </Form.Item>
@@ -384,8 +354,7 @@ export default function GoogleSheetsPage() {
           <Paragraph>
             <Text>
               File Google Sheets dùng cho phim custom được cấu hình bằng các biến môi trường{' '}
-              <Text code>GOOGLE_SHEETS_ID</Text> và <Text code>GOOGLE_SERVICE_ACCOUNT_KEY</Text> trong môi
-              trường build (GitHub Actions / máy local).
+              <Text code>GOOGLE_SHEETS_ID</Text> trong môi trường build (GitHub Actions / máy local).
             </Text>
           </Paragraph>
           <Paragraph>

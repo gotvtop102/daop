@@ -598,51 +598,6 @@ export default function MovieEdit() {
     }
   };
 
-  const translateToVietnamese = async (texts: string[]): Promise<string[]> => {
-    if (!texts.length) return [];
-    try {
-      // Sử dụng LibreTranslate (miễn phí, không cần API key)
-      // Thử nhiều instance public khác nhau nếu một instance fail
-      const instances = [
-        'https://libretranslate.de',
-        'https://translate.argosopentech.com',
-        'https://libretranslate.pussthecat.org',
-      ];
-      
-      for (const baseUrl of instances) {
-        try {
-          const res = await fetch(`${baseUrl}/translate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              q: texts,
-              source: 'en',
-              target: 'vi',
-              format: 'text',
-            }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data?.translatedText) {
-              // LibreTranslate trả về single string nếu 1 text, array nếu nhiều
-              const results = Array.isArray(data.translatedText) 
-                ? data.translatedText 
-                : [data.translatedText];
-              return results.map((t: any, i: number) => t || texts[i]);
-            }
-          }
-        } catch {
-          // Thử instance tiếp theo
-          continue;
-        }
-      }
-      // Nếu tất cả instance đều fail, giữ nguyên tên gốc
-      return texts;
-    } catch {
-      return texts;
-    }
-  };
-
   const fetchTMDBData = async () => {
     const tmdbId = form.getFieldValue('tmdb_id');
     if (!tmdbId) {
@@ -697,7 +652,7 @@ export default function MovieEdit() {
       const cast = Array.isArray((credits as any)?.cast) ? (credits as any).cast : [];
       const createdBy = Array.isArray((viData as any)?.created_by) ? (viData as any).created_by : [];
 
-      const rawDirectors = [
+      const directors = [
         ...crew
           .filter((c: any) => String(c?.job || '') === 'Director')
           .map((c: any) => c?.name)
@@ -705,16 +660,11 @@ export default function MovieEdit() {
         ...createdBy.map((c: any) => c?.name).filter(Boolean),
       ].map((x: any) => String(x)).filter(Boolean);
 
-      const rawActors = cast
+      const actors = cast
         .slice(0, 10)
         .map((c: any) => c?.name)
         .filter(Boolean)
         .map((x: any) => String(x));
-
-      const [directors, actors] = await Promise.all([
-        translateToVietnamese(rawDirectors),
-        translateToVietnamese(rawActors),
-      ]);
 
       const titleVi =
         asStr(viTrans?.title) ||
