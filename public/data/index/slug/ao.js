@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ao"] = {"ao-anh-2025":{"id":"6944d47697899389f0c88619","i":406,"title":"Ảo Ảnh","origin_name":"The Mirage Where Illusion Meets Truth","slug":"ao-anh-2025","thumb":"/uploads/movies/ao-anh-2025-thumb.jpg","year":2025,"type":"series","episode_current":"Hoàn tất (24/24)"}};

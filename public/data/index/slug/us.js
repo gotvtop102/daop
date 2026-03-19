@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["us"] = {"usury-academy":{"id":"69a6dc4c400bf394bd8e0d18","i":1214,"title":"Bỗng Dưng Trúng Mánh","origin_name":"Usury Academy aka Good Job","slug":"usury-academy","thumb":"/uploads/movies/Usury-Academy-thumb.jpg","year":2023,"type":"single","episode_current":"Full"}};

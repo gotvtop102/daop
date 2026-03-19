@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["pi"] = {"pinanong":{"id":"69abad07ccc6cea2688008c6","i":1275,"title":"Pinanong","origin_name":"Pinanong","slug":"pinanong","thumb":"/uploads/movies/pinanong-thumb.jpg","year":2026,"type":"series","episode_current":"Tập 7"}};
