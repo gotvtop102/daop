@@ -68,12 +68,13 @@ export default function Dashboard() {
         if (sidResolved && sidResolved !== spreadsheetId) setSpreadsheetId(sidResolved);
         if (sakResolved && sakResolved !== serviceAccountKey) setServiceAccountKey(sakResolved);
 
+        const sid = sidResolved || '';
+        const sak = sakResolved || '';
+        const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+        const base = envBase || window.location.origin;
+
         try {
-          const sid = sidResolved || '';
-          const sak = sakResolved || '';
           if (sid) {
-            const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-            const base = envBase || window.location.origin;
 
             const unbuiltUrl = new URL(`${base}/api/movies`);
             unbuiltUrl.searchParams.append('action', 'list');
@@ -133,39 +134,65 @@ export default function Dashboard() {
         }
 
         try {
-          const r = await supabase
-            .from('site_settings')
-            .select('key, value')
-            .in('key', ['site_url'])
-            .limit(1);
-          const rows = (r as any).data ?? [];
-          const map = (rows || []).reduce((acc: Record<string, any>, row: any) => {
-            acc[row.key] = row.value;
-            return acc;
-          }, {});
-          const baseRaw = String(map.site_url || window.location.origin || '').replace(/\/$/, '');
-          const url = baseRaw + '/data/filters.js';
-          const text = await fetch(url, { cache: 'no-store' }).then((res) => res.text());
-          const sandbox: any = {};
-          const data = new Function('window', text + '; return window.filtersData;')(sandbox);
-          const typeMap = data && typeof data === 'object' ? (data as any).typeMap : null;
-          const asArr = (x: any) => (Array.isArray(x) ? x : []);
-          const series = asArr(typeMap && typeMap.series);
-          const single = asArr(typeMap && (typeMap.single || typeMap.movie || typeMap.le));
-          const hoathinh = asArr(typeMap && (typeMap.hoathinh || typeMap.cartoon));
-          const tvshows = asArr(typeMap && (typeMap.tvshows || typeMap.tvshow));
-          const all = new Set<string>();
-          [series, single, hoathinh, tvshows].forEach((arr) =>
-            (arr || []).forEach((id: any) => all.add(String(id)))
-          );
+          // Fetch counts by type directly from API (real-time from Google Sheets)
+          if (!sid) return;
+
+          const seriesUrl = new URL(`${base}/api/movies`);
+          seriesUrl.searchParams.append('action', 'list');
+          seriesUrl.searchParams.append('type', 'series');
+          seriesUrl.searchParams.append('page', '1');
+          seriesUrl.searchParams.append('limit', '1');
+          seriesUrl.searchParams.append('spreadsheetId', sid);
+          if (sak) seriesUrl.searchParams.append('serviceAccountKey', sak);
+
+          const singleUrl = new URL(`${base}/api/movies`);
+          singleUrl.searchParams.append('action', 'list');
+          singleUrl.searchParams.append('type', 'single');
+          singleUrl.searchParams.append('page', '1');
+          singleUrl.searchParams.append('limit', '1');
+          singleUrl.searchParams.append('spreadsheetId', sid);
+          if (sak) singleUrl.searchParams.append('serviceAccountKey', sak);
+
+          const hoathinhUrl = new URL(`${base}/api/movies`);
+          hoathinhUrl.searchParams.append('action', 'list');
+          hoathinhUrl.searchParams.append('type', 'hoathinh');
+          hoathinhUrl.searchParams.append('page', '1');
+          hoathinhUrl.searchParams.append('limit', '1');
+          hoathinhUrl.searchParams.append('spreadsheetId', sid);
+          if (sak) hoathinhUrl.searchParams.append('serviceAccountKey', sak);
+
+          const tvshowsUrl = new URL(`${base}/api/movies`);
+          tvshowsUrl.searchParams.append('action', 'list');
+          tvshowsUrl.searchParams.append('type', 'tvshows');
+          tvshowsUrl.searchParams.append('page', '1');
+          tvshowsUrl.searchParams.append('limit', '1');
+          tvshowsUrl.searchParams.append('spreadsheetId', sid);
+          if (sak) tvshowsUrl.searchParams.append('serviceAccountKey', sak);
+
+          const [seriesRes, singleRes, hoathinhRes, tvshowsRes] = await Promise.all([
+            fetch(seriesUrl.toString(), { cache: 'no-store' }),
+            fetch(singleUrl.toString(), { cache: 'no-store' }),
+            fetch(hoathinhUrl.toString(), { cache: 'no-store' }),
+            fetch(tvshowsUrl.toString(), { cache: 'no-store' }),
+          ]);
+
+          const seriesData = await seriesRes.json().catch(async () => ({ total: 0 }));
+          const singleData = await singleRes.json().catch(async () => ({ total: 0 }));
+          const hoathinhData = await hoathinhRes.json().catch(async () => ({ total: 0 }));
+          const tvshowsData = await tvshowsRes.json().catch(async () => ({ total: 0 }));
+
+          const moviesSeries = Number(seriesData?.total || 0);
+          const moviesSingle = Number(singleData?.total || 0);
+          const moviesHoathinh = Number(hoathinhData?.total || 0);
+          const moviesTvshows = Number(tvshowsData?.total || 0);
 
           setStats((prev) => ({
             ...prev,
-            movies_total: all.size,
-            movies_series: series.length,
-            movies_single: single.length,
-            movies_hoathinh: hoathinh.length,
-            movies_tvshows: tvshows.length,
+            movies_total: moviesSeries + moviesSingle + moviesHoathinh + moviesTvshows,
+            movies_series: moviesSeries,
+            movies_single: moviesSingle,
+            movies_hoathinh: moviesHoathinh,
+            movies_tvshows: moviesTvshows,
           }));
         } catch {
           setStats((prev) => ({
