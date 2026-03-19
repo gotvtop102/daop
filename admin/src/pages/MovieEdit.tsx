@@ -669,7 +669,6 @@ export default function MovieEdit() {
       const titleVi =
         asStr(viTrans?.title) ||
         asStr(viTrans?.name) ||
-        (resource === 'tv' ? asStr((viData as any).name) : asStr((viData as any).title)) ||
         (resource === 'tv' ? asStr((enData as any)?.name) : asStr((enData as any)?.title)) ||
         (resource === 'tv' ? asStr((viData as any).original_name) : asStr((viData as any).original_title));
 
@@ -681,7 +680,6 @@ export default function MovieEdit() {
 
       const overviewVi =
         asStr(viTrans?.overview) ||
-        asStr((viData as any).overview) ||
         asStr((enData as any)?.overview);
 
       const dateStr =
