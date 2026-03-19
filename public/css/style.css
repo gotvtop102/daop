@@ -7,6 +7,8 @@
   --muted: #8b949e;
   --accent: #58a6ff;
   --accent-hover: #79b8ff;
+  --accent-light: var(--accent);
+  --accent-hover-light: var(--accent-hover);
   --link-color: #58a6ff;
   --link-color-light: var(--link-color);
   --header-logo-color: var(--text);
@@ -31,12 +33,12 @@
   --movie-card-title-color-light: var(--movie-card-title-color);
   --movie-card-meta-color: #8b949e;
   --movie-card-meta-color-light: var(--movie-card-meta-color);
-  --light-bg: #eef2f5;
+  --light-bg: #fbf7f2;
   --light-card: #ffffff;
-  --light-border: #d0d7de;
+  --light-border: #e7dfd6;
   --light-text: #1f2328;
-  --light-muted: #57606a;
-  --light-surface: rgba(9, 105, 218, 0.18);
+  --light-muted: #5c6773;
+  --light-surface: rgba(245, 158, 11, 0.12);
 }
 
 * {
@@ -60,6 +62,8 @@ body.theme-light {
   --border: var(--light-border);
   --text: var(--light-text);
   --muted: var(--light-muted);
+  --accent: var(--accent-light);
+  --accent-hover: var(--accent-hover-light);
   --link-color: var(--link-color-light);
   --header-logo-color: var(--header-logo-color-light);
   --header-link-color: var(--header-link-color-light);

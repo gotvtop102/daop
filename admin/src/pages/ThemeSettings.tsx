@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 const THEME_KEYS = [
   'theme_primary', 'theme_bg', 'theme_card', 'theme_border', 'theme_accent',
   'theme_text', 'theme_muted',
+  'theme_primary_light', 'theme_accent_light',
   'theme_light_bg', 'theme_light_card', 'theme_light_border', 'theme_light_text', 'theme_light_muted', 'theme_light_surface',
   'theme_header_logo', 'theme_header_link',
   'theme_footer_text', 'theme_section_title', 'theme_filter_label',
@@ -26,12 +27,14 @@ const DEFAULTS: Record<string, string> = {
   theme_accent: '#58a6ff',
   theme_text: '#e6edf3',
   theme_muted: '#8b949e',
-  theme_light_bg: '#eef2f5',
+  theme_primary_light: '#2563eb',
+  theme_accent_light: '#1d4ed8',
+  theme_light_bg: '#fbf7f2',
   theme_light_card: '#ffffff',
-  theme_light_border: '#d0d7de',
+  theme_light_border: '#e7dfd6',
   theme_light_text: '#1f2328',
-  theme_light_muted: '#57606a',
-  theme_light_surface: 'rgba(9, 105, 218, 0.18)',
+  theme_light_muted: '#5c6773',
+  theme_light_surface: 'rgba(245, 158, 11, 0.12)',
   theme_header_logo: '#e6edf3',
   theme_header_link: '#e6edf3',
   theme_footer_text: '#8b949e',
@@ -39,7 +42,7 @@ const DEFAULTS: Record<string, string> = {
   theme_filter_label: '#8b949e',
   theme_pagination: '#e6edf3',
   theme_link: '#58a6ff',
-  theme_link_light: '#0969da',
+  theme_link_light: '#2563eb',
   theme_slider_title: '#ffffff',
   theme_slider_meta: 'rgba(255,255,255,0.75)',
   theme_slider_desc: 'rgba(255,255,255,0.7)',
@@ -47,15 +50,15 @@ const DEFAULTS: Record<string, string> = {
   theme_movie_card_meta: '#8b949e',
   theme_header_logo_light: '#1f2328',
   theme_header_link_light: '#1f2328',
-  theme_footer_text_light: '#57606a',
+  theme_footer_text_light: '#5c6773',
   theme_section_title_light: '#1f2328',
-  theme_filter_label_light: '#57606a',
+  theme_filter_label_light: '#5c6773',
   theme_pagination_light: '#1f2328',
   theme_slider_title_light: '#1f2328',
-  theme_slider_meta_light: '#57606a',
-  theme_slider_desc_light: '#57606a',
-  theme_movie_card_title_light: '#f85149',
-  theme_movie_card_meta_light: '#57606a',
+  theme_slider_meta_light: 'rgba(31,35,40,0.7)',
+  theme_slider_desc_light: 'rgba(31,35,40,0.62)',
+  theme_movie_card_title_light: '#1f2328',
+  theme_movie_card_meta_light: '#5c6773',
 };
 
 const LABELS: Record<string, string> = {
@@ -66,6 +69,8 @@ const LABELS: Record<string, string> = {
   theme_accent: 'Màu nhấn (hover)',
   theme_text: 'Chữ chính (body)',
   theme_muted: 'Chữ phụ (mờ, nhạt)',
+  theme_primary_light: 'Màu chủ đạo (nút) - Light theme',
+  theme_accent_light: 'Màu nhấn (hover) - Light theme',
   theme_light_bg: 'Light theme: nền trang',
   theme_light_card: 'Light theme: thẻ / header',
   theme_light_border: 'Light theme: viền (border)',
@@ -267,6 +272,9 @@ export default function ThemeSettings() {
                 children: (
                   <>
                     <h3 style={{ marginTop: 0, marginBottom: 12 }}>Màu nền &amp; chung</h3>
+                    <Form.Item name="theme_primary_light" label={LABELS.theme_primary_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_primary_light} />
+                    </Form.Item>
                     <Form.Item name="theme_light_bg" label={LABELS.theme_light_bg}>
                       <ColorValueInput defaultValue={DEFAULTS.theme_light_bg} />
                     </Form.Item>
@@ -281,6 +289,9 @@ export default function ThemeSettings() {
                     </Form.Item>
                     <Form.Item name="theme_light_muted" label={LABELS.theme_light_muted}>
                       <ColorValueInput defaultValue={DEFAULTS.theme_light_muted} />
+                    </Form.Item>
+                    <Form.Item name="theme_accent_light" label={LABELS.theme_accent_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_accent_light} />
                     </Form.Item>
                     <Form.Item name="theme_light_surface" label={LABELS.theme_light_surface}>
                       <ColorValueInput defaultValue={DEFAULTS.theme_light_surface} placeholder="vd: rgba(9,105,218,0.12) hoặc #dbeafe" />

@@ -1286,6 +1286,8 @@
     var root = document.documentElement;
     if (settings.theme_primary) root.style.setProperty('--accent', settings.theme_primary);
     if (settings.theme_accent) root.style.setProperty('--accent-hover', settings.theme_accent);
+    if (settings.theme_primary_light) root.style.setProperty('--accent-light', settings.theme_primary_light);
+    if (settings.theme_accent_light) root.style.setProperty('--accent-hover-light', settings.theme_accent_light);
     if (settings.theme_bg) root.style.setProperty('--bg', settings.theme_bg);
     if (settings.theme_light_bg) root.style.setProperty('--light-bg', settings.theme_light_bg);
     if (settings.theme_border) root.style.setProperty('--border', settings.theme_border);
