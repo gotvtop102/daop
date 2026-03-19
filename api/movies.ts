@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const DEFAULT_SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
-const SERVICE_ACCOUNT_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+const SERVICE_ACCOUNT_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_KEY || process.env.GOOGLE_SHEETS_JSON;
 
 function normalizeHeader(h: any) {
   return String(h || '')
@@ -88,19 +88,32 @@ async function loadServiceAccountCredentials(serviceAccountKey?: string) {
   const key = serviceAccountKey || SERVICE_ACCOUNT_KEY;
   
   if (!key) {
-    throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY not configured');
+    throw new Error('Service account not configured. Set GOOGLE_SERVICE_ACCOUNT_KEY or GOOGLE_SHEETS_JSON');
   }
 
-  const raw = String(key).trim();
+  let raw = String(key).trim();
+  // Some env UIs store JSON as a quoted string (stringified), e.g. "{...}".
+  // Try to unwrap once so downstream logic can parse JSON/base64/path correctly.
+  if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
+    try {
+      const unwrapped = JSON.parse(raw);
+      if (typeof unwrapped === 'string' && unwrapped.trim()) {
+        raw = unwrapped.trim();
+      }
+    } catch {
+      // ignore
+    }
+  }
   const normalizeCreds = (creds: any) => {
     if (creds && typeof creds.private_key === 'string') {
       let pk = String(creds.private_key);
       // Some env providers double-escape newlines, producing "\\n" or even "\\\\n".
       pk = pk.replace(/^"|"$/g, '');
-      pk = pk.replace(/\\\\r\\\\n/g, '\n');
-      pk = pk.replace(/\\\\n/g, '\n');
       pk = pk.replace(/\\r\\n/g, '\n');
       pk = pk.replace(/\\n/g, '\n');
+      pk = pk.replace(/\r\n/g, '\n');
+      pk = pk.replace(/\n/g, '\n');
+      pk = pk.trim();
       creds.private_key = pk;
     }
 
@@ -114,7 +127,7 @@ async function loadServiceAccountCredentials(serviceAccountKey?: string) {
       throw new Error('Invalid service account credentials: missing private_key');
     }
     const pk2 = String(creds.private_key);
-    if (!pk2.includes('BEGIN PRIVATE KEY')) {
+    if (!pk2.includes('BEGIN PRIVATE KEY') || !pk2.includes('END PRIVATE KEY')) {
       throw new Error('Invalid service account credentials: private_key is malformed (missing BEGIN PRIVATE KEY)');
     }
     if (pk2.includes('\\n')) {

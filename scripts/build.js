@@ -1210,7 +1210,10 @@ async function getTmdbPersonNameVi(personId) {
 
 /** 3. Làm giàu TMDB (credits, keywords, poster khi thiếu) */
 async function enrichTmdb(movies) {
-  if (!TMDB_KEY) return;
+  if (!TMDB_KEY) {
+    console.warn('TMDB_API_KEY is missing -> skip TMDB enrich (cast/director/keywords will be empty).');
+    return;
+  }
   const list = Array.isArray(movies) ? movies : [];
   let nextIndex = 0;
   const workerCount = Math.min(TMDB_CONCURRENCY, list.length || 1);
@@ -2303,6 +2306,13 @@ function writeActors(movies) {
     }
   }
   const slugs = Object.keys(names);
+  if (slugs.length === 0) {
+    const total = Array.isArray(movies) ? movies.length : 0;
+    const withCast = (Array.isArray(movies) ? movies : []).filter((m) =>
+      (Array.isArray(m?.cast_meta) && m.cast_meta.length) || (Array.isArray(m?.cast) && m.cast.length)
+    ).length;
+    console.warn(`Actors output is empty (0 actors). Movies=${total}, moviesWithCast=${withCast}. Common cause: TMDB enrich skipped (missing TMDB_API_KEY or SKIP_TMDB).`);
+  }
   // Legacy: một file đầy đủ (fallback + dùng cho incremental sau này)
   fs.writeFileSync(path.join(PUBLIC_DATA, 'actors.js'), `window.actorsData = ${JSON.stringify({ map, names, meta })};`, 'utf8');
   // Index: chỉ names (cho trang danh sách "Chọn diễn viên")
