@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { google } from 'googleapis';
+import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -104,6 +105,22 @@ async function loadServiceAccountCredentials(serviceAccountKey?: string) {
       // ignore
     }
   }
+
+  const tryParseJson = (text: string) => {
+    const t = String(text || '').trim();
+    if (!t) return null;
+    try {
+      return JSON.parse(t);
+    } catch {
+      // Some env setups store JSON with escaped quotes: {\"type\":...}
+      try {
+        return JSON.parse(t.replace(/\\"/g, '"'));
+      } catch {
+        return null;
+      }
+    }
+  };
+
   const normalizeCreds = (creds: any) => {
     if (creds && typeof creds.private_key === 'string') {
       let pk = String(creds.private_key);
@@ -114,11 +131,19 @@ async function loadServiceAccountCredentials(serviceAccountKey?: string) {
       pk = pk.replace(/\r\n/g, '\n');
       pk = pk.replace(/\n/g, '\n');
       pk = pk.trim();
+
+      // Ensure key markers are on their own lines.
+      pk = pk.replace(/-----BEGIN PRIVATE KEY-----\s*/g, '-----BEGIN PRIVATE KEY-----\n');
+      pk = pk.replace(/\s*-----END PRIVATE KEY-----/g, '\n-----END PRIVATE KEY-----');
+
       creds.private_key = pk;
     }
 
     if (!creds || typeof creds !== 'object') {
       throw new Error('Invalid service account credentials: not an object');
+    }
+    if (!creds.type || String(creds.type) !== 'service_account') {
+      throw new Error('Invalid service account credentials: type must be "service_account"');
     }
     if (!creds.client_email) {
       throw new Error('Invalid service account credentials: missing client_email');
@@ -137,14 +162,16 @@ async function loadServiceAccountCredentials(serviceAccountKey?: string) {
   };
 
   if (raw.startsWith('{')) {
-    return normalizeCreds(JSON.parse(raw));
+    const parsed = tryParseJson(raw);
+    if (parsed) return normalizeCreds(parsed);
   }
 
   // Support base64-encoded JSON (useful for env vars)
   try {
     const decoded = Buffer.from(raw, 'base64').toString('utf8').trim();
     if (decoded.startsWith('{')) {
-      return normalizeCreds(JSON.parse(decoded));
+      const parsed = tryParseJson(decoded);
+      if (parsed) return normalizeCreds(parsed);
     }
   } catch {
     // ignore
@@ -223,8 +250,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const sheets = await getSheetsClient(serviceAccountKey);
     const action = String((req.query as any)?.action || (req.body as any)?.action || '').trim();
+
+    // Diagnostic action: validate/inspect credentials without calling Google APIs.
+    if (action === 'authInfo') {
+      const creds = await loadServiceAccountCredentials(serviceAccountKey);
+      const pk = String((creds as any)?.private_key || '');
+      const fingerprint = crypto.createHash('sha256').update(pk, 'utf8').digest('hex');
+      return res.status(200).json({
+        ok: true,
+        source: serviceAccountKey ? 'request_or_env' : 'missing',
+        type: String((creds as any)?.type || ''),
+        client_email: String((creds as any)?.client_email || ''),
+        project_id: String((creds as any)?.project_id || ''),
+        private_key_length: pk.length,
+        private_key_fingerprint_sha256: fingerprint,
+      });
+    }
+
+    const sheets = await getSheetsClient(serviceAccountKey);
 
     switch (action) {
       case 'countRows': {
