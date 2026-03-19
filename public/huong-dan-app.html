@@ -127,6 +127,9 @@
     <!-- Nội dung tùy chỉnh từ admin -->
     <div id="app-guide-content"></div>
 
+    <!-- Nội dung mặc định (ẩn khi có content từ admin) -->
+    <div id="app-guide-default">
+
     <!-- Android Phone -->
     <div class="app-guide-section">
       <h2><span class="platform-icon">📱</span>1. Cài đặt trên điện thoại Android (APK)</h2>
@@ -250,6 +253,7 @@
       <h3>Android TV không nhận file APK?</h3>
       <p>Một số TV cần cài thêm <strong>File Commander</strong> hoặc <strong>X-plore File Manager</strong> từ CH Play để đọc file APK.</p>
     </div>
+    </div>
   </main>
   <footer class="site-footer">
     <div class="footer-vietnam-wrap"><div class="footer-vietnam-banner"><span class="footer-flag" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" preserveAspectRatio="xMidYMid meet"><rect width="30" height="20" fill="#DA251D"/><path fill="#FFFF00" d="M15 4l2.47 7.6H25l-6.23 4.5 2.36 7.3L15 16.2l-6.13 4.2 2.36-7.3L5 11.6h7.53z"/></svg></span> Trường Sa &amp; Hoàng Sa là của Việt Nam!</div></div>
@@ -268,12 +272,23 @@
   </footer>
   <script src="/js/main.js"></script>
   <script>
+    // Hiển thị nội dung mặc định ban đầu
+    document.getElementById('app-guide-default').style.display = 'block';
+    
     fetch('/data/config/static-pages.json').then(function(r){ return r.json(); }).then(function(pages){
       var app = Array.isArray(pages) ? pages.find(function(p){ return p.page_key === 'app_guide'; }) : null;
       var el = document.getElementById('app-guide-content');
-      if (el && app && app.content) {
-        el.innerHTML = '<div class="app-guide-section">' + app.content + '</div>';
+      var defaultEl = document.getElementById('app-guide-default');
+      
+      if (el && app && app.content && app.content.trim()) {
+        // Có nội dung từ admin -> hiển thị admin content, ẩn default
+        el.innerHTML = app.content;
+        if (defaultEl) defaultEl.style.display = 'none';
+      } else {
+        // Không có nội dung từ admin -> hiển thị default
+        if (defaultEl) defaultEl.style.display = 'block';
       }
+      
       if (app && app.apk_link) {
         var apkBtn = document.getElementById('apk-link');
         if (apkBtn) apkBtn.href = app.apk_link;
@@ -283,7 +298,10 @@
         if (iosBtn) iosBtn.href = app.testflight_link;
       }
     }).catch(function(){
-      console.log('Không thể tải cấu hình tùy chỉnh');
+      // Lỗi fetch -> hiển thị default
+      var defaultEl = document.getElementById('app-guide-default');
+      if (defaultEl) defaultEl.style.display = 'block';
+      console.log('Không thể tải cấu hình tùy chỉnh, hiển thị nội dung mặc định');
     });
   </script>
 </body>

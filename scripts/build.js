@@ -2919,7 +2919,29 @@ async function exportConfigFromSupabase() {
   );
   fs.writeFileSync(path.join(configDir, 'list-order.json'), JSON.stringify(listOrderItems, null, 2));
 
-  fs.writeFileSync(path.join(configDir, 'static-pages.json'), JSON.stringify(staticPages.data || [], null, 2));
+  // Merge static pages: ưu tiên dữ liệu từ Supabase, nhưng giữ lại các page_key không có trong Supabase từ file hiện tại
+  const existingStaticPagesPath = path.join(configDir, 'static-pages.json');
+  let mergedStaticPages = staticPages.data || [];
+  
+  if (fs.existsSync(existingStaticPagesPath)) {
+    try {
+      const existingContent = fs.readFileSync(existingStaticPagesPath, 'utf8');
+      const existingPages = JSON.parse(existingContent);
+      if (Array.isArray(existingPages)) {
+        const supabaseKeys = new Set(mergedStaticPages.map(p => p.page_key));
+        // Thêm các page từ file hiện tại mà không có trong Supabase
+        for (const page of existingPages) {
+          if (page.page_key && !supabaseKeys.has(page.page_key)) {
+            mergedStaticPages.push(page);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Không thể đọc/parse static-pages.json hiện tại, sử dụng dữ liệu từ Supabase:', e.message);
+    }
+  }
+  
+  fs.writeFileSync(path.join(configDir, 'static-pages.json'), JSON.stringify(mergedStaticPages, null, 2));
   fs.writeFileSync(path.join(configDir, 'donate.json'), JSON.stringify(donate.data || {}, null, 2));
   
   // Player settings: merge từ player_settings table
