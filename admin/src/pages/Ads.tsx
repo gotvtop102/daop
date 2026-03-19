@@ -17,7 +17,7 @@ export default function Ads() {
           },
           {
             key: 'preroll',
-            label: 'Pre-roll',
+            label: 'Video Ads (Pre/Mid/Post)',
             children: <PrerollAds />,
           },
         ]}

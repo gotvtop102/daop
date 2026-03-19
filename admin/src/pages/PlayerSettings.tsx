@@ -760,11 +760,11 @@ export default function PlayerSettings() {
     },
     {
       key: 'preroll',
-      label: 'Quảng cáo Pre-roll',
+      label: 'Quảng cáo Video (Pre/Mid/Post-roll)',
       children: (
         <>
           <Card
-            title="Quảng cáo Pre-roll"
+            title="Quảng cáo Video (Pre/Mid/Post-roll)"
             style={{ marginBottom: 16 }}
             extra={
               <Space>
@@ -839,7 +839,7 @@ export default function PlayerSettings() {
           </Card>
 
           <Modal
-            title={editingId ? 'Sửa pre-roll' : 'Thêm pre-roll'}
+            title={editingId ? 'Sửa quảng cáo' : 'Thêm quảng cáo'}
             open={modalVisible}
             onCancel={() => setModalVisible(false)}
             onOk={() => prerollForm.submit()}

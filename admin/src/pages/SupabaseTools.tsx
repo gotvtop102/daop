@@ -32,7 +32,7 @@ const TABLES: Array<{ key: TableKey; label: string }> = [
   { key: 'player_settings', label: 'Player settings' },
   { key: 'homepage_sections', label: 'Homepage sections' },
   { key: 'ad_banners', label: 'Ad banners' },
-  { key: 'ad_preroll', label: 'Pre-roll ads' },
+  { key: 'ad_preroll', label: 'Video ads (pre/mid/post)' },
   { key: 'server_sources', label: 'Server sources' },
   { key: 'static_pages', label: 'Static pages' },
   { key: 'donate_settings', label: 'Donate settings' },

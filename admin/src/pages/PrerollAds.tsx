@@ -61,7 +61,7 @@ export default function PrerollAds() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Xóa quảng cáo pre-roll này?')) return;
+    if (!confirm('Xóa quảng cáo này?')) return;
     try {
       const { error } = await supabase.from('ad_preroll').delete().eq('id', id);
       if (error) throw error;
@@ -112,7 +112,7 @@ export default function PrerollAds() {
 
   return (
     <>
-      <h1>Quảng cáo Pre-roll</h1>
+      <h1>Quảng cáo Video (Pre/Mid/Post-roll)</h1>
       <p style={{ color: '#666', marginBottom: 16 }}>
         Sau khi lưu, cần chạy Build website để áp dụng lên player.
       </p>

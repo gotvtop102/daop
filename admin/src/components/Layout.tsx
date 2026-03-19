@@ -29,7 +29,7 @@ const items = [
     label: <Link to="/ads">Quảng cáo</Link>,
     children: [
       { key: '/banners', icon: <PictureOutlined />, label: <Link to="/banners">Banner</Link> },
-      { key: '/preroll', icon: <PlaySquareOutlined />, label: <Link to="/preroll">Pre-roll</Link> },
+      { key: '/preroll', icon: <PlaySquareOutlined />, label: <Link to="/preroll">Video Ads (Pre/Mid/Post)</Link> },
     ],
   },
   {
