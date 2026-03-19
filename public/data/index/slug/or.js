@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["or"] = {"orgies-of-edo":{"id":"69bb7356f937c3b5a1186764","i":1441,"title":"Orgies of Edo","origin_name":"Orgies of Edo","slug":"orgies-of-edo","thumb":"/uploads/movies/orgies-of-edo-thumb.jpg","year":1969,"type":"single","episode_current":"Trailer"}};
