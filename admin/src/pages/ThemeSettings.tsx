@@ -106,6 +106,20 @@ const LABELS: Record<string, string> = {
 function normalizePickerHex(v: string) {
   if (!v) return '#000000';
   var s = String(v).trim();
+  if (s.startsWith('rgba(') || s.startsWith('rgb(')) {
+    try {
+      var m = s.replace(/rgba?\(|\)/g, '').split(',').map(function (x) { return x.trim(); });
+      if (m.length >= 3) {
+        var r = Math.max(0, Math.min(255, parseFloat(m[0])));
+        var g = Math.max(0, Math.min(255, parseFloat(m[1])));
+        var b = Math.max(0, Math.min(255, parseFloat(m[2])));
+        if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+          var toHex2 = function (n: number) { return Math.round(n).toString(16).padStart(2, '0'); };
+          return '#' + toHex2(r) + toHex2(g) + toHex2(b);
+        }
+      }
+    } catch (e) {}
+  }
   if (s.startsWith('#') && (s.length === 4 || s.length === 7)) return s;
   return '#000000';
 }
@@ -331,10 +345,10 @@ export default function ThemeSettings() {
                       <ColorValueInput defaultValue={DEFAULTS.theme_slider_title_light} />
                     </Form.Item>
                     <Form.Item name="theme_slider_meta_light" label={LABELS.theme_slider_meta_light}>
-                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_meta_light} placeholder="vd: rgba(0,0,0,0.75) hoặc #57606a" />
+                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_meta_light} placeholder="vd: rgba(255,255,255,0.75) hoặc #ccc" />
                     </Form.Item>
                     <Form.Item name="theme_slider_desc_light" label={LABELS.theme_slider_desc_light}>
-                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_desc_light} placeholder="vd: rgba(0,0,0,0.7) hoặc #57606a" />
+                      <ColorValueInput defaultValue={DEFAULTS.theme_slider_desc_light} placeholder="vd: rgba(255,255,255,0.7) hoặc #aaa" />
                     </Form.Item>
 
                     <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
