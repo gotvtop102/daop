@@ -5,6 +5,180 @@
   window.DAOP = window.DAOP || {};
   var overlay = null;
 
+  function parseNum(v, def) {
+    var n = Number(v);
+    return Number.isFinite(n) ? n : def;
+  }
+
+  function getPlayerConfig() {
+    var playerSettings = window.DAOP?.playerSettings || {};
+    return playerSettings.player_config || {};
+  }
+
+  function getFirstActivePreroll() {
+    var list = window.DAOP?.prerollList || [];
+    if (!Array.isArray(list) || list.length === 0) return null;
+    return list[0] || null;
+  }
+
+  function chooseVastTag(config, roll) {
+    if (!config) return '';
+    if (roll === 'pre') return String(config.preroll_vast || '');
+    if (roll === 'mid') return String(config.midroll_vast || config.preroll_vast || '');
+    if (roll === 'post') return String(config.postroll_vast || config.preroll_vast || '');
+    return '';
+  }
+
+  function fetchVastMediaUrl(vastUrl) {
+    vastUrl = String(vastUrl || '').trim();
+    if (!vastUrl) return Promise.resolve('');
+    return fetch(vastUrl, { method: 'GET' })
+      .then(function (r) { return r.text(); })
+      .then(function (xmlText) {
+        try {
+          var parser = new DOMParser();
+          var xml = parser.parseFromString(xmlText, 'text/xml');
+          var mediaFiles = xml.getElementsByTagName('MediaFile');
+          if (!mediaFiles || !mediaFiles.length) return '';
+          var best = '';
+          for (var i = 0; i < mediaFiles.length; i++) {
+            var node = mediaFiles[i];
+            var type = (node.getAttribute('type') || '').toLowerCase();
+            var url = (node.textContent || '').trim();
+            if (!url) continue;
+            if (/mp4|webm|ogg/.test(type)) return url;
+            if (!best) best = url;
+          }
+          return best || '';
+        } catch (e) {
+          return '';
+        }
+      })
+      .catch(function () { return ''; });
+  }
+
+  function resolveAdSource(config, roll) {
+    var sourceKey = roll === 'pre' ? 'preroll_source' : (roll === 'mid' ? 'midroll_source' : 'postroll_source');
+    var src = String(config && config[sourceKey] ? config[sourceKey] : 'video').toLowerCase();
+    if (src !== 'vast') src = 'video';
+    return src;
+  }
+
+  function buildAdRequest(config, roll) {
+    var src = resolveAdSource(config, roll);
+    if (src === 'vast') {
+      var vastTag = chooseVastTag(config, roll);
+      return fetchVastMediaUrl(vastTag).then(function (mediaUrl) {
+        return { type: 'vast', vastTag: vastTag, url: mediaUrl || '' };
+      });
+    }
+    var pr = getFirstActivePreroll();
+    return Promise.resolve({ type: 'video', url: pr && pr.video_url ? String(pr.video_url) : '', skip_after: pr && pr.skip_after != null ? pr.skip_after : null, image_url: pr && pr.image_url ? String(pr.image_url) : '' });
+  }
+
+  function playAdInOverlay(ad, onDone) {
+    try {
+      if (!overlay) return onDone && onDone(false);
+      if (!ad || !ad.url) return onDone && onDone(false);
+      var skipAfter = Math.max(0, parseInt(ad.skip_after, 10) || 0);
+      var safeUrl = String(ad.url || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+      var norm = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
+        ? window.DAOP.normalizeImgUrl
+        : function (x) { return x; };
+      var normOphim = (window.DAOP && typeof window.DAOP.normalizeImgUrlOphim === 'function')
+        ? window.DAOP.normalizeImgUrlOphim
+        : function (x) { return x; };
+      var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
+      var defaultPoster = baseUrl + '/images/default_poster.png';
+      var posterRaw = (ad.image_url || '');
+      var poster = norm(posterRaw).replace(/^\/\//, 'https://') || defaultPoster;
+      var posterOphim = normOphim(posterRaw).replace(/^\/\//, 'https://') || '';
+      var safePoster = String(poster || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+      overlay.innerHTML =
+        '<button type="button" class="close-player" aria-label="Đóng">Đóng</button>' +
+        '<div class="preroll-wrap">' +
+        '<p class="preroll-label">Quảng cáo</p>' +
+        '<video id="daop-ad-video" controls src="' + safeUrl + '" poster="' + safePoster + '"></video>' +
+        '<div class="preroll-skip-wrap">' +
+        '<button type="button" id="daop-ad-skip" class="preroll-skip-btn" disabled>Bỏ qua sau <span id="daop-ad-countdown">' + skipAfter + '</span>s</button>' +
+        '</div></div>';
+
+      var adVideo = document.getElementById('daop-ad-video');
+      var skipBtn = document.getElementById('daop-ad-skip');
+      var countEl = document.getElementById('daop-ad-countdown');
+      var countdown = skipAfter;
+      var countdownInterval = null;
+
+      try {
+        if (adVideo && poster && posterOphim && posterOphim !== poster) {
+          var img = new Image();
+          img.onload = function () {};
+          img.onerror = function () {
+            try {
+              adVideo.poster = posterOphim;
+              var img2 = new Image();
+              img2.onerror = function () { try { adVideo.poster = defaultPoster; } catch (e3) {} };
+              img2.src = posterOphim;
+            } catch (e2) {}
+          };
+          img.src = poster;
+        }
+      } catch (e0) {}
+
+      var finished = false;
+      var finish = function (ok) {
+        if (finished) return;
+        finished = true;
+        try { if (countdownInterval) clearInterval(countdownInterval); } catch (e) {}
+        try {
+          if (adVideo) {
+            adVideo.pause();
+            adVideo.src = '';
+          }
+        } catch (e2) {}
+        if (onDone) onDone(ok !== false);
+      };
+
+      var onEnded = function () { finish(true); };
+      if (adVideo) {
+        adVideo.addEventListener('ended', onEnded);
+        adVideo.play().catch(function () {});
+      }
+      if (skipAfter > 0 && skipBtn && countEl) {
+        countdownInterval = setInterval(function () {
+          countdown--;
+          if (countEl) countEl.textContent = countdown;
+          if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            skipBtn.disabled = false;
+            skipBtn.textContent = 'Bỏ qua';
+          }
+        }, 1000);
+      } else if (skipBtn) {
+        skipBtn.disabled = false;
+        skipBtn.textContent = 'Bỏ qua';
+      }
+      if (skipBtn) skipBtn.addEventListener('click', function () { finish(true); });
+
+      overlay.querySelector('.close-player').addEventListener('click', function () {
+        finish(false);
+        if (overlay) overlay.remove();
+        overlay = null;
+      });
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) {
+          finish(false);
+          overlay.remove();
+          overlay = null;
+        }
+      });
+    } catch (e) {
+      if (onDone) onDone(false);
+    }
+  }
+
   function ensurePlayerSettings(done) {
     try {
       if (window.DAOP && window.DAOP.playerSettings) return done && done();
@@ -275,8 +449,6 @@
 
   window.DAOP.openPlayer = function (opts) {
     if (window.DAOP?.siteSettings?.player_visible === 'false') return;
-    var prerollList = window.DAOP?.prerollList || [];
-    var preroll = prerollList.length > 0 ? prerollList[0] : null;
 
     if (overlay) overlay.remove();
     overlay = document.createElement('div');
@@ -284,103 +456,89 @@
 
     ensurePlayerSettings(function () {
 
-    if (preroll && preroll.video_url) {
-      var skipAfter = Math.max(0, parseInt(preroll.skip_after, 10) || 0);
-      var safePrerollUrl = (preroll.video_url || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      var config = getPlayerConfig();
+      var prerollEnabled = config.preroll_enabled !== false;
+      var preReq = prerollEnabled ? buildAdRequest(config, 'pre') : Promise.resolve({ url: '' });
 
-      var norm = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
-        ? window.DAOP.normalizeImgUrl
-        : function (x) { return x; };
-      var normOphim = (window.DAOP && typeof window.DAOP.normalizeImgUrlOphim === 'function')
-        ? window.DAOP.normalizeImgUrlOphim
-        : function (x) { return x; };
-      var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
-      var defaultPoster = baseUrl + '/images/default_poster.png';
-      var posterRaw = preroll.image_url || '';
-      var poster = norm(posterRaw).replace(/^\/\//, 'https://') || defaultPoster;
-      var posterOphim = normOphim(posterRaw).replace(/^\/\//, 'https://') || '';
-      var safePoster = String(poster || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-
-      overlay.innerHTML =
-        '<button type="button" class="close-player" aria-label="Đóng">Đóng</button>' +
-        '<div class="preroll-wrap">' +
-        '<p class="preroll-label">Quảng cáo</p>' +
-        '<video id="daop-preroll-video" controls src="' + safePrerollUrl + '" poster="' + safePoster + '"></video>' +
-        '<div class="preroll-skip-wrap">' +
-        '<button type="button" id="daop-preroll-skip" class="preroll-skip-btn" disabled>Bỏ qua sau <span id="daop-preroll-countdown">' + skipAfter + '</span>s</button>' +
-        '</div></div>';
-      document.body.appendChild(overlay);
-
-      var prVideo = document.getElementById('daop-preroll-video');
-      var skipBtn = document.getElementById('daop-preroll-skip');
-      var countEl = document.getElementById('daop-preroll-countdown');
-      var countdown = skipAfter;
-      var countdownInterval = null;
-
-      // Poster fallback chain (R2 -> OPhim -> default)
-      try {
-        if (prVideo && poster && posterOphim && posterOphim !== poster) {
-          var img = new Image();
-          img.onload = function () {};
-          img.onerror = function () {
-            try {
-              prVideo.poster = posterOphim;
-              var img2 = new Image();
-              img2.onerror = function () {
-                try { prVideo.poster = defaultPoster; } catch (e3) {}
-              };
-              img2.src = posterOphim;
-            } catch (e2) {}
-          };
-          img.src = poster;
-        }
-      } catch (e0) {}
-
-      var done = function () {
-        if (countdownInterval) clearInterval(countdownInterval);
-        if (prVideo) {
-          prVideo.pause();
-          prVideo.removeEventListener('ended', onEnded);
-        }
+      var startMain = function () {
         showMainContent(opts);
-      };
-      var onEnded = function () { done(); };
-      if (prVideo) {
-        prVideo.addEventListener('ended', onEnded);
-        prVideo.play().catch(function(){});
-      }
-      if (skipAfter > 0 && skipBtn && countEl) {
-        countdownInterval = setInterval(function () {
-          countdown--;
-          if (countEl) countEl.textContent = countdown;
-          if (countdown <= 0) {
-            clearInterval(countdownInterval);
-            skipBtn.disabled = false;
-            skipBtn.textContent = 'Bỏ qua';
+        var mainVideo = document.getElementById('daop-video');
+        var mainIframe = document.getElementById('daop-embed');
+        var isEmbed = !!mainIframe || !mainVideo;
+        if (isEmbed) return;
+
+        var midEnabled = !!config.midroll_enabled;
+        var postEnabled = !!config.postroll_enabled;
+        var interval = Math.max(0, parseInt(config.midroll_interval_seconds, 10) || 0);
+        var minWatch = Math.max(0, parseInt(config.midroll_min_watch_seconds, 10) || 0);
+        var maxPer = parseNum(config.midroll_max_per_video, 0);
+
+        var midCount = 0;
+        var nextAt = interval > 0 ? interval : 0;
+        var playingAd = false;
+
+        var tryMidroll = function () {
+          try {
+            if (!midEnabled || interval <= 0) return;
+            if (playingAd) return;
+            if (!mainVideo || mainVideo.currentTime == null) return;
+            var t = mainVideo.currentTime;
+            if (t < minWatch) return;
+            if (nextAt > 0 && t < nextAt) return;
+            if (maxPer > 0 && midCount >= maxPer) return;
+            playingAd = true;
+            var resumeAt = t;
+            try { mainVideo.pause(); } catch (e0) {}
+            buildAdRequest(config, 'mid').then(function (ad) {
+              playAdInOverlay(ad, function (ok) {
+                if (!overlay) return;
+                showMainContent(opts);
+                var v2 = document.getElementById('daop-video');
+                if (v2) {
+                  try { v2.currentTime = resumeAt; } catch (e2) {}
+                  try { v2.play().catch(function () {}); } catch (e3) {}
+                }
+                midCount++;
+                nextAt = resumeAt + interval;
+                playingAd = false;
+              });
+            });
+          } catch (e) {
+            playingAd = false;
           }
-        }, 1000);
-      } else if (skipBtn) {
-        skipBtn.disabled = false;
-        skipBtn.textContent = 'Bỏ qua';
-      }
-      if (skipBtn) skipBtn.addEventListener('click', done);
-      overlay.querySelector('.close-player').addEventListener('click', function () {
-        if (countdownInterval) clearInterval(countdownInterval);
-        if (overlay) overlay.remove();
-        overlay = null;
-      });
-      overlay.addEventListener('click', function (e) {
-        if (e.target === overlay) {
-          if (countdownInterval) clearInterval(countdownInterval);
-          overlay.remove();
-          overlay = null;
+        };
+
+        if (midEnabled && interval > 0) {
+          try { mainVideo.addEventListener('timeupdate', tryMidroll); } catch (e4) {}
+        }
+
+        if (postEnabled) {
+          try {
+            mainVideo.addEventListener('ended', function () {
+              if (playingAd) return;
+              playingAd = true;
+              buildAdRequest(config, 'post').then(function (ad) {
+                playAdInOverlay(ad, function () {
+                  if (overlay) overlay.remove();
+                  overlay = null;
+                });
+              });
+            });
+          } catch (e5) {}
+        }
+      };
+
+      document.body.appendChild(overlay);
+      preReq.then(function (ad) {
+        if (ad && ad.url) {
+          playAdInOverlay(ad, function (ok) {
+            if (!overlay) return;
+            startMain();
+          });
+        } else {
+          startMain();
         }
       });
-      return;
-    }
-
-    document.body.appendChild(overlay);
-    showMainContent(opts);
     });
   };
 })();

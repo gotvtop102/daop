@@ -92,6 +92,14 @@ type PlayerConfig = {
   preroll_vast?: string;
   midroll_enabled?: boolean;
   postroll_enabled?: boolean;
+  preroll_source?: 'video' | 'vast';
+  midroll_source?: 'video' | 'vast';
+  postroll_source?: 'video' | 'vast';
+  midroll_vast?: string;
+  postroll_vast?: string;
+  midroll_interval_seconds?: number;
+  midroll_min_watch_seconds?: number;
+  midroll_max_per_video?: number;
 };
 
 const AVAILABLE_PLAYERS: { value: PlayerType; label: string; description: string }[] = [
@@ -183,6 +191,14 @@ const defaultPlayerConfig: PlayerConfig = {
   preroll_vast: '',
   midroll_enabled: false,
   postroll_enabled: false,
+  preroll_source: 'video',
+  midroll_source: 'video',
+  postroll_source: 'video',
+  midroll_vast: '',
+  postroll_vast: '',
+  midroll_interval_seconds: 600,
+  midroll_min_watch_seconds: 120,
+  midroll_max_per_video: 2,
 };
 
 export default function PlayerSettings() {
@@ -657,14 +673,70 @@ export default function PlayerSettings() {
                   <Form.Item name="preroll_enabled" valuePropName="checked" label="Bật Pre-roll">
                     <Switch />
                   </Form.Item>
+                  <Form.Item name="preroll_source" label="Nguồn Pre-roll">
+                    <Radio.Group optionType="button" buttonStyle="solid">
+                      <Radio.Button value="video">Video (ad_preroll)</Radio.Button>
+                      <Radio.Button value="vast">VAST/VPAID</Radio.Button>
+                    </Radio.Group>
+                  </Form.Item>
                   <Form.Item name="preroll_vast" label="VAST/VPAID URL (tùy chọn)">
                     <Input placeholder="https://.../vast.xml" />
                   </Form.Item>
+                  <Text type="secondary">
+                    Gợi ý: VAST chạy tốt nhất trên <Text strong>Video.js</Text>, <Text strong>JWPlayer</Text>, <Text strong>FluidPlayer</Text>.
+                    Với các player khác, hệ thống sẽ cố gắng parse MediaFile từ VAST để phát như video (có thể không hỗ trợ VPAID).
+                  </Text>
+
+                  <Form.Item shouldUpdate noStyle>
+                    {({ getFieldValue }: any) => {
+                      const pre = getFieldValue('preroll_source');
+                      const mid = getFieldValue('midroll_source');
+                      const post = getFieldValue('postroll_source');
+                      const anyVast = pre === 'vast' || mid === 'vast' || post === 'vast';
+                      const supported = ['videojs', 'jwplayer', 'fluidplayer'].includes(String(selectedPlayer || '').toLowerCase());
+                      if (!anyVast || supported) return null;
+                      return (
+                        <Text type="warning">
+                          Lưu ý: Player <Text strong>{String(selectedPlayer)}</Text> không hỗ trợ VAST/VPAID đầy đủ. Khi chọn VAST,
+                          website sẽ cố gắng lấy link video từ VAST để phát như video quảng cáo (không đảm bảo VPAID).
+                        </Text>
+                      );
+                    }}
+                  </Form.Item>
+
                   <Form.Item name="midroll_enabled" valuePropName="checked" label="Bật Mid-roll">
                     <Switch />
                   </Form.Item>
+                  <Form.Item name="midroll_source" label="Nguồn Mid-roll">
+                    <Radio.Group optionType="button" buttonStyle="solid">
+                      <Radio.Button value="video">Video (ad_preroll)</Radio.Button>
+                      <Radio.Button value="vast">VAST/VPAID</Radio.Button>
+                    </Radio.Group>
+                  </Form.Item>
+                  <Form.Item name="midroll_vast" label="Mid-roll VAST URL (tùy chọn)">
+                    <Input placeholder="https://.../vast.xml" />
+                  </Form.Item>
+                  <Form.Item name="midroll_interval_seconds" label="Mid-roll mỗi (giây)">
+                    <InputNumber min={30} step={30} style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item name="midroll_min_watch_seconds" label="Chỉ chạy Mid-roll sau khi xem tối thiểu (giây)">
+                    <InputNumber min={0} step={30} style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item name="midroll_max_per_video" label="Giới hạn số Mid-roll tối đa / 1 video">
+                    <InputNumber min={0} step={1} style={{ width: '100%' }} />
+                  </Form.Item>
+
                   <Form.Item name="postroll_enabled" valuePropName="checked" label="Bật Post-roll">
                     <Switch />
+                  </Form.Item>
+                  <Form.Item name="postroll_source" label="Nguồn Post-roll">
+                    <Radio.Group optionType="button" buttonStyle="solid">
+                      <Radio.Button value="video">Video (ad_preroll)</Radio.Button>
+                      <Radio.Button value="vast">VAST/VPAID</Radio.Button>
+                    </Radio.Group>
+                  </Form.Item>
+                  <Form.Item name="postroll_vast" label="Post-roll VAST URL (tùy chọn)">
+                    <Input placeholder="https://.../vast.xml" />
                   </Form.Item>
                 </Space>
               </Form>
