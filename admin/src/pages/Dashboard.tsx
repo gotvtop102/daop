@@ -71,7 +71,7 @@ export default function Dashboard() {
         try {
           const sid = sidResolved || '';
           const sak = sakResolved || '';
-          if (sid && sak) {
+          if (sid) {
             const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
             const base = envBase || window.location.origin;
 
@@ -82,7 +82,7 @@ export default function Dashboard() {
             unbuiltUrl.searchParams.append('page', '1');
             unbuiltUrl.searchParams.append('limit', '1');
             unbuiltUrl.searchParams.append('spreadsheetId', sid);
-            unbuiltUrl.searchParams.append('serviceAccountKey', sak);
+            if (sak) unbuiltUrl.searchParams.append('serviceAccountKey', sak);
 
             const normalizeUrl = new URL(`${base}/api/movies`);
             normalizeUrl.searchParams.append('action', 'list');
@@ -91,7 +91,7 @@ export default function Dashboard() {
             normalizeUrl.searchParams.append('page', '1');
             normalizeUrl.searchParams.append('limit', '1');
             normalizeUrl.searchParams.append('spreadsheetId', sid);
-            normalizeUrl.searchParams.append('serviceAccountKey', sak);
+            if (sak) normalizeUrl.searchParams.append('serviceAccountKey', sak);
 
             const duplicatesUrl = new URL(`${base}/api/movies`);
             duplicatesUrl.searchParams.append('action', 'list');
@@ -100,7 +100,7 @@ export default function Dashboard() {
             duplicatesUrl.searchParams.append('page', '1');
             duplicatesUrl.searchParams.append('limit', '1');
             duplicatesUrl.searchParams.append('spreadsheetId', sid);
-            duplicatesUrl.searchParams.append('serviceAccountKey', sak);
+            if (sak) duplicatesUrl.searchParams.append('serviceAccountKey', sak);
 
             const [unbuiltRes, normalizeRes, duplicatesRes] = await Promise.all([
               fetch(unbuiltUrl.toString(), { cache: 'no-store' }),

@@ -123,10 +123,6 @@ export default function EpisodeEdit() {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
-    if (!serviceAccountKey) {
-      message.error('Chưa cấu hình Service Account Key');
-      return;
-    }
 
     setImporting(true);
     try {
@@ -140,7 +136,7 @@ export default function EpisodeEdit() {
           action: 'episodes',
           movie_id: src,
           spreadsheetId,
-          serviceAccountKey,
+          ...(serviceAccountKey ? { serviceAccountKey } : {}),
         }),
       });
       if (!res.ok) {
@@ -188,20 +184,16 @@ export default function EpisodeEdit() {
 
   useEffect(() => {
     if (!configReady || !spreadsheetId) return; // Wait for config
-    if (id && spreadsheetId && serviceAccountKey) {
+    if (id && spreadsheetId) {
       setInitialLoadDone(false);
       loadEpisodes(id);
     }
-  }, [id, spreadsheetId, serviceAccountKey, configReady]);
+  }, [id, spreadsheetId, configReady]);
 
   const loadEpisodes = async (movieId: string) => {
     if (!configReady) return; // Wait for config to load first
     if (!spreadsheetId) {
       message.error('Chưa cấu hình Google Sheets ID');
-      return;
-    }
-    if (!serviceAccountKey) {
-      message.error('Chưa cấu hình Service Account Key');
       return;
     }
     setLoading(true);
@@ -217,7 +209,7 @@ export default function EpisodeEdit() {
           action: 'get',
           id: movieId,
           spreadsheetId,
-          serviceAccountKey,
+          ...(serviceAccountKey ? { serviceAccountKey } : {}),
         }),
       });
       if (movieRes.ok) {
@@ -236,7 +228,7 @@ export default function EpisodeEdit() {
           movie_id: movieId,
           debug: true,
           spreadsheetId,
-          serviceAccountKey,
+          ...(serviceAccountKey ? { serviceAccountKey } : {}),
         }),
       });
 
@@ -303,10 +295,6 @@ export default function EpisodeEdit() {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
-    if (!serviceAccountKey) {
-      message.error('Chưa cấu hình Service Account Key');
-      return;
-    }
     if (!id) {
       message.error('Thiếu movie ID');
       return;
@@ -331,7 +319,11 @@ export default function EpisodeEdit() {
       const res = await fetch(`${base}/api/movies?action=episodes&movie_id=${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spreadsheetId, serviceAccountKey, episodes: allEpisodes }),
+        body: JSON.stringify({
+          spreadsheetId,
+          ...(serviceAccountKey ? { serviceAccountKey } : {}),
+          episodes: allEpisodes,
+        }),
       });
 
       if (!res.ok) {

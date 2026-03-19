@@ -214,10 +214,6 @@ export default function MovieList() {
       message.error('Chưa cấu hình Google Sheets ID. Vui lòng vào Google Sheets để thiết lập.');
       return;
     }
-    if (!serviceAccountKey) {
-      message.error('Chưa cấu hình Service Account Key. Vui lòng vào Google Sheets để thiết lập.');
-      return;
-    }
     setLoading(true);
     try {
       const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -228,7 +224,7 @@ export default function MovieList() {
       const url = new URL(`${base}/api/movies`);
       url.searchParams.append('action', 'list');
       url.searchParams.append('spreadsheetId', spreadsheetId);
-      url.searchParams.append('serviceAccountKey', serviceAccountKey);
+      if (serviceAccountKey) url.searchParams.append('serviceAccountKey', serviceAccountKey);
       const isUnbuiltTab = category === 'unbuilt';
       const isNormalizeTab = category === 'normalize';
       const isDuplicatesTab = category === 'duplicates';
@@ -280,8 +276,8 @@ export default function MovieList() {
 
   const normalizeCopy = async (record: any) => {
     if (!record?.id) return;
-    if (!spreadsheetId || !serviceAccountKey) {
-      message.error('Chưa cấu hình Google Sheets');
+    if (!spreadsheetId) {
+      message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
 
@@ -291,7 +287,7 @@ export default function MovieList() {
     const url = new URL(`${base}/api/movies`);
     url.searchParams.append('action', 'normalizeCopy');
     url.searchParams.append('spreadsheetId', spreadsheetId);
-    url.searchParams.append('serviceAccountKey', serviceAccountKey);
+    if (serviceAccountKey) url.searchParams.append('serviceAccountKey', serviceAccountKey);
 
     try {
       const res = await fetch(url.toString(), {
@@ -343,14 +339,15 @@ export default function MovieList() {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
-    if (!serviceAccountKey) {
-      message.error('Chưa cấu hình Service Account Key');
-      return;
-    }
     try {
       const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const base = envBase || window.location.origin;
-      const res = await fetch(`${base}/api/movies?action=delete&id=${id}&spreadsheetId=${encodeURIComponent(spreadsheetId)}&serviceAccountKey=${encodeURIComponent(serviceAccountKey)}`, {
+      const url = new URL(`${base}/api/movies`);
+      url.searchParams.append('action', 'delete');
+      url.searchParams.append('id', id);
+      url.searchParams.append('spreadsheetId', spreadsheetId);
+      if (serviceAccountKey) url.searchParams.append('serviceAccountKey', serviceAccountKey);
+      const res = await fetch(url.toString(), {
         method: 'DELETE',
       });
 

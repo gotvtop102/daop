@@ -74,7 +74,7 @@ export default function GoogleSheetsPage() {
       'daop_google_sheets_config',
       JSON.stringify({
         google_sheets_id: id,
-        google_service_account_key: svc,
+        ...(svc ? { google_service_account_key: svc } : {}),
       })
     );
     message.success('Đã lưu link Google Sheets (localStorage)');
@@ -88,10 +88,6 @@ export default function GoogleSheetsPage() {
     }
 
     const svc = String(serviceAccountKey || '').trim();
-    if (!svc) {
-      message.error('Chưa có GOOGLE_SERVICE_ACCOUNT_KEY');
-      return;
-    }
 
     setCountingRows(true);
     try {
@@ -99,7 +95,11 @@ export default function GoogleSheetsPage() {
       const res = await fetch(`${apiBase}/api/movies?action=countRows`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spreadsheetId, serviceAccountKey: svc, sheets: ['movies', 'episodes'] }),
+        body: JSON.stringify({
+          spreadsheetId,
+          ...(svc ? { serviceAccountKey: svc } : {}),
+          sheets: ['movies', 'episodes'],
+        }),
       });
       const data = await res.json().catch(async () => ({ error: await res.text() }));
       if (!res.ok) {
@@ -143,12 +143,10 @@ export default function GoogleSheetsPage() {
         .from('site_settings')
         .upsert({ key: 'google_sheets_id', value: id, updated_at: now }, { onConflict: 'key' });
       if (error) throw error;
-      if (svc) {
-        const r2 = await supabase
-          .from('site_settings')
-          .upsert({ key: 'google_service_account_key', value: svc, updated_at: now }, { onConflict: 'key' });
-        if ((r2 as any).error) throw (r2 as any).error;
-      }
+      const r2 = await supabase
+        .from('site_settings')
+        .upsert({ key: 'google_service_account_key', value: svc, updated_at: now }, { onConflict: 'key' });
+      if ((r2 as any).error) throw (r2 as any).error;
       message.success('Đã lưu GOOGLE_SHEETS_ID lên Supabase');
     } catch (e: any) {
       message.error(e?.message || 'Lưu Supabase thất bại');
@@ -165,10 +163,6 @@ export default function GoogleSheetsPage() {
     }
 
     const svc = String(serviceAccountKey || '').trim();
-    if (!svc) {
-      message.error('Chưa có GOOGLE_SERVICE_ACCOUNT_KEY');
-      return;
-    }
 
     const sheet = String(values?.sheet || 'movies').trim();
     const mode = String(values?.mode || 'range');
@@ -210,7 +204,13 @@ export default function GoogleSheetsPage() {
       const res = await fetch(`${apiBase}/api/movies?action=deleteRows`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spreadsheetId, serviceAccountKey: svc, sheet, startRow, endRow }),
+        body: JSON.stringify({
+          spreadsheetId,
+          ...(svc ? { serviceAccountKey: svc } : {}),
+          sheet,
+          startRow,
+          endRow,
+        }),
       });
       const data = await res.json().catch(async () => ({ error: await res.text() }));
       if (!res.ok) {

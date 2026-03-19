@@ -338,7 +338,7 @@ export default function MovieEdit() {
   const loadOriginalBySlug = async (slug: string) => {
     const s = String(slug || '').trim();
     if (!s) return;
-    if (!spreadsheetId || !serviceAccountKey) return;
+    if (!spreadsheetId) return;
 
     const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
     const base = envBase || window.location.origin;
@@ -351,7 +351,7 @@ export default function MovieEdit() {
       body: JSON.stringify({
         action: 'getBySlug',
         spreadsheetId,
-        serviceAccountKey,
+        ...(serviceAccountKey ? { serviceAccountKey } : {}),
         slug: s,
       }),
     });
@@ -495,7 +495,7 @@ export default function MovieEdit() {
   // Load movie data
   useEffect(() => {
     if (!configReady) return; // Wait for config to load first
-    if (!isNew && id && spreadsheetId && serviceAccountKey) {
+    if (!isNew && id && spreadsheetId) {
       loadMovie(id);
     } else if (isNew) {
       // Set default values for new movie
@@ -519,10 +519,6 @@ export default function MovieEdit() {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
-    if (!serviceAccountKey) {
-      message.error('Chưa cấu hình Service Account Key');
-      return;
-    }
     setLoading(true);
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -534,7 +530,7 @@ export default function MovieEdit() {
           action: 'get',
           id: movieId,
           spreadsheetId,
-          serviceAccountKey,
+          ...(serviceAccountKey ? { serviceAccountKey } : {}),
         }),
       });
 
@@ -794,10 +790,6 @@ export default function MovieEdit() {
       message.error('Chưa cấu hình Google Sheets ID');
       return;
     }
-    if (!serviceAccountKey) {
-      message.error('Chưa cấu hình Service Account Key');
-      return;
-    }
     setSaving(true);
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -811,7 +803,7 @@ export default function MovieEdit() {
         ...values,
         id: isNew ? undefined : id,
         spreadsheetId,
-        serviceAccountKey,
+        ...(serviceAccountKey ? { serviceAccountKey } : {}),
         poster_url: posterSlug,
         thumb_url: thumbSlug,
         genre: Array.isArray(values.genre) ? values.genre.join(',') : values.genre,
