@@ -1,11 +1,13 @@
 /**
  * One-off: replace old nav with new nav (site-nav-main + site-nav-actions) in all HTML files.
- * Run: node scripts/update-nav-html.js
+ * Run: node scripts/_oneoff/update-nav-html.js
  */
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const publicDir = path.join(__dirname, '..', 'public');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const publicDir = path.join(__dirname, '..', '..', 'public');
 
 const subdirOld = '<nav class="site-nav"><a href="../phim-bo.html">Phim bộ</a><a href="../phim-le.html">Phim lẻ</a><a href="../tim-kiem.html">Tìm kiếm</a><a href="../the-loai/">Thể loại</a><a href="../quoc-gia/">Quốc gia</a><a href="../danh-sach/">Danh sách</a></nav>';
 const subdirNew = '<nav class="site-nav"><div class="site-nav-main"><a href="../phim-bo.html">Phim bộ</a><a href="../phim-le.html">Phim lẻ</a><a href="../the-loai/">Thể loại</a><a href="../quoc-gia/">Quốc gia</a><a href="../danh-sach/">Danh sách</a><a href="../dien-vien/">Diễn viên</a><a href="../hoat-hinh.html">Hoạt hình</a><a href="../shows.html">TV Shows</a><a href="../gioi-thieu.html">Giới thiệu</a><a href="../donate.html">Donate</a></div><div class="site-nav-actions"><a href="../tim-kiem.html">Tìm kiếm</a><a href="../login.html">Đăng nhập</a></div></nav>';
@@ -23,7 +25,7 @@ function walk(dir) {
         results.push(path.relative(publicDir, full));
       }
     }
-  } catch (e) {}
+  } catch {}
   return results;
 }
 

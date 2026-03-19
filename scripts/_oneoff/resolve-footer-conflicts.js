@@ -1,9 +1,9 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 
 function resolveConflicts(dir) {
@@ -19,7 +19,7 @@ function resolveConflicts(dir) {
       if (content.includes('<<<<<<< HEAD')) {
         content = content.replace(
           /<<<<<<< HEAD\s*\n([\s\S]*?)\n=======\s*\n([\s\S]*?)>>>>>>> [^\n]+\n?/g,
-          '\'$1'
+          '$1'
         );
 
         if (content !== original) {
