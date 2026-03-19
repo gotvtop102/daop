@@ -33,12 +33,12 @@
   --movie-card-title-color-light: var(--movie-card-title-color);
   --movie-card-meta-color: #8b949e;
   --movie-card-meta-color-light: var(--movie-card-meta-color);
-  --light-bg: #fcf7f0;
-  --light-card: #fffdf9;
-  --light-border: #e8dfd3;
+  --light-bg: #f3eee6;
+  --light-card: #fbf6ef;
+  --light-border: #d8cfc2;
   --light-text: #1f2328;
-  --light-muted: #5b6672;
-  --light-surface: rgba(245, 158, 11, 0.10);
+  --light-muted: #4f5b66;
+  --light-surface: rgba(245, 158, 11, 0.12);
 }
 
 * {
@@ -116,17 +116,17 @@ body.theme-light .movie-card,
 body.theme-light .watch-episodes-card,
 body.theme-light .watch-side-card,
 body.theme-light .episodes-ui {
-  border-color: rgba(31,35,40,0.14);
-  box-shadow: 0 10px 26px rgba(17,24,39,0.08);
+  border-color: rgba(31,35,40,0.18);
+  box-shadow: 0 12px 28px rgba(17,24,39,0.10);
 }
 
 body.theme-light .movie-card:hover {
-  box-shadow: 0 14px 34px rgba(17,24,39,0.12);
+  box-shadow: 0 16px 38px rgba(17,24,39,0.14);
 }
 
 body.theme-light .server-tab,
 body.theme-light .episode-btn {
-  border-color: rgba(31,35,40,0.14);
+  border-color: rgba(31,35,40,0.18);
 }
 
 body.theme-light .server-tab--active {
