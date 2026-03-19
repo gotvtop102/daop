@@ -257,9 +257,14 @@ create table if not exists public.ad_preroll (
   duration integer,
   skip_after integer,
   weight integer default 0,
+  roll text default 'pre',
   is_active boolean default true,
   created_at timestamptz default now()
 );
+
+alter table public.ad_preroll
+add constraint if not exists ad_preroll_roll_check
+check (roll in ('pre','mid','post'));
 
 -- Bảng homepage sections
 create table if not exists public.homepage_sections (
