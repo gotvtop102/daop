@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Button, List, message, Spin, Typography, InputNumber, Input, Form, Space, Modal, Radio, Switch, Tag, Tabs } from 'antd';
+import { Card, Button, List, message, Spin, Typography, InputNumber, Input, Form, Space, Modal, Radio, Switch, Tag, Tabs, Select } from 'antd';
 import type { RadioChangeEvent } from 'antd';
 import { PlayCircleOutlined, InfoCircleOutlined, SaveOutlined, DeleteOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
@@ -21,6 +21,8 @@ const UPDATE_DATA_TWO_PHASE_KEY = 'update_data_two_phase';
 const UPDATE_DATA_MANUAL_TWO_PHASE_KEY = 'update_data_manual_two_phase';
 const UPLOAD_IMAGES_AFTER_BUILD_KEY = 'upload_images_after_build';
 const DEPLOY_AFTER_R2_UPLOAD_KEY = 'deploy_after_r2_upload';
+
+const R2_PREFIX_PRESETS_KEY = 'r2_prefix_presets';
 
 const UPLOAD_R2_KEYS = {
   mode: 'upload_r2_mode',
@@ -106,11 +108,38 @@ export default function GitHubActions() {
   const [totalMovies, setTotalMovies] = useState<number | null>(null);
   const [fetchingTotalPages, setFetchingTotalPages] = useState(false);
   const [savingUploadSettings, setSavingUploadSettings] = useState(false);
+  const [r2PrefixPresetsText, setR2PrefixPresetsText] = useState('');
+  const [savingR2PrefixPresets, setSavingR2PrefixPresets] = useState(false);
   const [form] = Form.useForm();
   const [uploadForm] = Form.useForm();
   const [deleteForm] = Form.useForm();
   const [downloadForm] = Form.useForm();
   const [uploadUrlsForm] = Form.useForm();
+
+  const parseR2PrefixPresets = (raw: string) => {
+    const s = String(raw || '').trim();
+    if (!s) return [] as Array<{ label: string; prefix: string; notes: string }>;
+    const lines = s
+      .split(/[\n\r]+/)
+      .map((x) => String(x || '').trim())
+      .filter(Boolean);
+    const out: Array<{ label: string; prefix: string; notes: string }> = [];
+    for (const line of lines) {
+      const parts = line.split('|');
+      const label = String(parts[0] || '').trim();
+      const prefix = String(parts[1] || '').trim();
+      const notes = String(parts.slice(2).join('|') || '').trim();
+      if (!label || !prefix) continue;
+      out.push({ label, prefix, notes });
+    }
+    return out;
+  };
+
+  const normalizePresetPrefixValue = (p: string) => {
+    const s = String(p || '').trim();
+    if (!s) return '';
+    return s.replace(/\\/g, '/').replace(/^\//, '').replace(/\/$/, '');
+  };
 
   const readTextFile = (file: File) => {
     return new Promise<string>((resolve, reject) => {
@@ -119,6 +148,22 @@ export default function GitHubActions() {
       reader.onerror = () => reject(new Error('Không đọc được file'));
       reader.readAsText(file);
     });
+  };
+
+  const handleSaveR2PrefixPresets = async () => {
+    setSavingR2PrefixPresets(true);
+    try {
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert([{ key: R2_PREFIX_PRESETS_KEY, value: String(r2PrefixPresetsText || ''), updated_at: now }], { onConflict: 'key' });
+      if (error) throw error;
+      message.success('Đã lưu danh sách prefix R2.');
+    } catch (e: any) {
+      message.error(e?.message || 'Lưu danh sách prefix R2 thất bại.');
+    } finally {
+      setSavingR2PrefixPresets(false);
+    }
   };
 
   const handleTriggerUploadR2FromUrls = async () => {
@@ -333,6 +378,7 @@ export default function GitHubActions() {
         UPLOAD_R2_KEYS.reupload_existing,
         UPLOAD_R2_KEYS.create_folders,
         UPLOAD_R2_KEYS.notes,
+        R2_PREFIX_PRESETS_KEY,
       ]);
     const map: Record<string, string> = {};
     (data || []).forEach((r: { key: string; value: string }) => { map[r.key] = r.value; });
@@ -390,6 +436,17 @@ export default function GitHubActions() {
     };
     uploadForm.setFieldsValue(uploadDefaults);
     uploadUrlsForm.setFieldsValue({ create_folders: uploadDefaults.create_folders });
+
+    const presetsRaw = (map[R2_PREFIX_PRESETS_KEY] || '').toString();
+    const defaultPresets = presetsRaw
+      ? presetsRaw
+      : [
+          'Ảnh phim (thumbs)|thumbs|Ảnh thumbnail theo id phim',
+          'Ảnh phim (posters)|posters|Ảnh poster theo id phim',
+          'Slider|slider|Upload tức thời (giữ tên file gốc)',
+          'Banners|banners|Upload tức thời (giữ tên file gốc)',
+        ].join('\n');
+    setR2PrefixPresetsText(defaultPresets);
   };
 
   const fetchActions = async () => {
@@ -806,93 +863,115 @@ export default function GitHubActions() {
                     key: 'r2-settings',
                     label: 'Cài đặt',
                     children: (
-                      <Card
-                        title="Cài đặt upload ảnh R2"
-                        extra={
-                          <Button icon={<SaveOutlined />} onClick={handleSaveUploadSettings} loading={savingUploadSettings}>
-                            Lưu mặc định
-                          </Button>
-                        }
-                      >
-                        <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                          Các thông số này áp dụng cho upload tự động hoặc thủ công (GitHub Actions).
-                        </Text>
-                        <Form
-                          form={uploadForm}
-                          layout="vertical"
-                          initialValues={{
-                            mode: 'thumb,poster',
-                            quality: 70,
-                            thumb_quality: '',
-                            poster_quality: '',
-                            thumb_width: 238,
-                            thumb_height: 344,
-                            poster_width: 486,
-                            poster_height: 274,
-                            limit: 0,
-                            concurrency: 6,
-                            force_slugs: '',
-                            force_slugs_file: null,
-                            reupload_existing: false,
-                            create_folders: false,
-                            notes: '',
-                          }}
+                      <>
+                        <Card
+                          title="Cài đặt upload ảnh R2"
+                          extra={
+                            <Button icon={<SaveOutlined />} onClick={handleSaveUploadSettings} loading={savingUploadSettings}>
+                              Lưu mặc định
+                            </Button>
+                          }
                         >
-                          <Space wrap align="start">
-                            <Form.Item name="mode" label="Mode (thumb, poster, thumb,poster)">
-                              <Input style={{ width: '100%', maxWidth: 220 }} placeholder="thumb,poster" />
-                            </Form.Item>
+                          <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+                            Các thông số này áp dụng cho upload tự động hoặc thủ công (GitHub Actions).
+                          </Text>
+                          <Form
+                            form={uploadForm}
+                            layout="vertical"
+                            initialValues={{
+                              mode: 'thumb,poster',
+                              quality: 70,
+                              thumb_quality: '',
+                              poster_quality: '',
+                              thumb_width: 238,
+                              thumb_height: 344,
+                              poster_width: 486,
+                              poster_height: 274,
+                              limit: 0,
+                              concurrency: 6,
+                              force_slugs: '',
+                              force_slugs_file: null,
+                              reupload_existing: false,
+                              create_folders: false,
+                              notes: '',
+                            }}
+                          >
+                            <Space wrap align="start">
+                              <Form.Item name="mode" label="Mode (thumb, poster, thumb,poster)">
+                                <Input style={{ width: '100%', maxWidth: 220 }} placeholder="thumb,poster" />
+                              </Form.Item>
 
-                            <Form.Item name="quality" label="Quality (1-100)">
-                              <InputNumber min={1} max={100} style={{ width: '100%', maxWidth: 140 }} />
-                            </Form.Item>
+                              <Form.Item name="quality" label="Quality (1-100)">
+                                <InputNumber min={1} max={100} style={{ width: '100%', maxWidth: 140 }} />
+                              </Form.Item>
 
-                            <Form.Item name="thumb_quality" label="Thumb quality (override)">
-                              <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
-                            </Form.Item>
+                              <Form.Item name="thumb_quality" label="Thumb quality (override)">
+                                <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
+                              </Form.Item>
 
-                            <Form.Item name="poster_quality" label="Poster quality (override)">
-                              <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
-                            </Form.Item>
+                              <Form.Item name="poster_quality" label="Poster quality (override)">
+                                <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
+                              </Form.Item>
 
-                            <Form.Item name="thumb_width" label="Thumb width">
-                              <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
-                            </Form.Item>
+                              <Form.Item name="thumb_width" label="Thumb width">
+                                <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
+                              </Form.Item>
 
-                            <Form.Item name="thumb_height" label="Thumb height">
-                              <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
-                            </Form.Item>
+                              <Form.Item name="thumb_height" label="Thumb height">
+                                <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
+                              </Form.Item>
 
-                            <Form.Item name="poster_width" label="Poster width">
-                              <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
-                            </Form.Item>
+                              <Form.Item name="poster_width" label="Poster width">
+                                <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
+                              </Form.Item>
 
-                            <Form.Item name="poster_height" label="Poster height">
-                              <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
-                            </Form.Item>
+                              <Form.Item name="poster_height" label="Poster height">
+                                <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
+                              </Form.Item>
 
-                            <Form.Item name="limit" label="Limit (0 = no limit)">
-                              <InputNumber min={0} style={{ width: '100%', maxWidth: 170 }} />
-                            </Form.Item>
+                              <Form.Item name="limit" label="Limit (0 = no limit)">
+                                <InputNumber min={0} style={{ width: '100%', maxWidth: 170 }} />
+                              </Form.Item>
 
-                            <Form.Item name="concurrency" label="Concurrency (1-32)">
-                              <InputNumber min={1} max={32} style={{ width: '100%', maxWidth: 190 }} />
-                            </Form.Item>
+                              <Form.Item name="concurrency" label="Concurrency (1-32)">
+                                <InputNumber min={1} max={32} style={{ width: '100%', maxWidth: 190 }} />
+                              </Form.Item>
 
-                            <Form.Item name="reupload_existing" label="Upload lại nếu đã upload" valuePropName="checked">
-                              <Switch />
-                            </Form.Item>
+                              <Form.Item name="reupload_existing" label="Upload lại nếu đã upload" valuePropName="checked">
+                                <Switch />
+                              </Form.Item>
 
-                            <Form.Item name="create_folders" label="Tạo thư mục (marker .keep)" valuePropName="checked">
-                              <Switch />
-                            </Form.Item>
-                          </Space>
+                              <Form.Item name="create_folders" label="Tạo thư mục (marker .keep)" valuePropName="checked">
+                                <Switch />
+                              </Form.Item>
+                            </Space>
 
-                          <Form.Item name="notes" label="Ghi chú">
-                            <Input.TextArea rows={3} placeholder="Ghi chú quy ước thư mục/đặt tên..." />
-                          </Form.Item>
-                        </Form>
-                      </Card>
+                            <Form.Item name="notes" label="Ghi chú">
+                              <Input.TextArea rows={3} placeholder="Ghi chú quy ước thư mục/đặt tên..." />
+                            </Form.Item>
+                          </Form>
+                        </Card>
+
+                        <Card
+                          style={{ marginTop: 16 }}
+                          title="Danh sách prefix R2 (chọn khi upload)"
+                          extra={
+                            <Button icon={<SaveOutlined />} onClick={handleSaveR2PrefixPresets} loading={savingR2PrefixPresets}>
+                              Lưu prefix
+                            </Button>
+                          }
+                        >
+                          <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+                            Mỗi dòng: <b>tên hiển thị|prefix|ghi chú</b>. Ví dụ: <code>Slider|slider|Ảnh slider (giữ tên file gốc)</code>.
+                          </Text>
+                          <Input.TextArea
+                            rows={6}
+                            value={r2PrefixPresetsText}
+                            onChange={(e) => setR2PrefixPresetsText(e.target.value || '')}
+                            placeholder="Ảnh phim (thumbs)|thumbs|Ảnh thumbnail theo id phim\nSlider|slider|Giữ tên file gốc"
+                          />
+                        </Card>
+                      </>
                     ),
                   },
                   {
@@ -980,11 +1059,24 @@ export default function GitHubActions() {
                                         </Radio.Group>
                                       </Form.Item>
 
-                                      <Form.Item name="folder" label="Folder đích">
-                                        <Radio.Group optionType="button" buttonStyle="solid">
-                                          <Radio.Button value="thumbs">thumbs</Radio.Button>
-                                          <Radio.Button value="posters">posters</Radio.Button>
-                                        </Radio.Group>
+                                      <Form.Item name="folder" label="Prefix đích">
+                                        <Select
+                                          style={{ width: 260 }}
+                                          placeholder="Chọn prefix..."
+                                          options={(() => {
+                                            const presets = parseR2PrefixPresets(r2PrefixPresetsText);
+                                            const opts = presets.map((p) => ({
+                                              label: p.notes ? `${p.label} (${normalizePresetPrefixValue(p.prefix)})` : `${p.label} (${normalizePresetPrefixValue(p.prefix)})`,
+                                              value: normalizePresetPrefixValue(p.prefix),
+                                            }));
+                                            const hasThumbs = opts.some((o) => o.value === 'thumbs');
+                                            const hasPosters = opts.some((o) => o.value === 'posters');
+                                            if (!hasThumbs) opts.unshift({ label: 'thumbs (mặc định)', value: 'thumbs' });
+                                            if (!hasPosters) opts.unshift({ label: 'posters', value: 'posters' });
+                                            return opts;
+                                          })()}
+                                          showSearch
+                                        />
                                       </Form.Item>
 
                                       <Form.Item name="create_folders" label="Tạo thư mục (marker .keep)" valuePropName="checked">

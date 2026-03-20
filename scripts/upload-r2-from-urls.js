@@ -66,13 +66,29 @@ function parseNameUrlPairs(raw) {
 }
 
 function normalizeFolder(folder) {
-  const f = String(folder || '').trim();
-  const base = f.replace(/^\/+/, '').replace(/\/+$/, '');
-  if (!base) return 'thumbs';
-  if (base !== 'thumbs' && base !== 'posters') {
-    throw new Error('Invalid folder. Use thumbs | posters');
+  const raw = String(folder || '').trim();
+  const cleaned = raw
+    .replace(/\\/g, '/')
+    .replace(/\.+/g, '.')
+    .replace(/\/+?/g, '/')
+    .replace(/^\//, '')
+    .replace(/\/$/, '');
+
+  if (!cleaned) return 'thumbs';
+
+  const parts = cleaned.split('/').filter(Boolean);
+  const safeParts = [];
+  for (const seg of parts) {
+    const s = String(seg || '').trim();
+    if (!s || s === '.' || s === '..') {
+      throw new Error('Invalid folder. Must not contain . or ..');
+    }
+    safeParts.push(s.replace(/[^a-zA-Z0-9._-]/g, '_'));
   }
-  return base;
+  const out = safeParts.join('/');
+  if (!out) return 'thumbs';
+  if (out.length > 180) throw new Error('Invalid folder. Too long.');
+  return out;
 }
 
 function getR2Client() {
