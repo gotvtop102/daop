@@ -137,10 +137,15 @@ function expandImgUrl(url) {
   return u;
 }
 
-function isR2ImageUrl(u) {
-  const s = String(u || '').trim();
-  if (!/^https?:\/\//i.test(s)) return false;
-  return s.includes('/thumbs/') || s.includes('/posters/');
+function getR2Base() {
+  return String(process.env.R2_PUBLIC_URL || '').trim().replace(/\/$/, '');
+}
+
+function r2UrlById(id, folder) {
+  const base = getR2Base();
+  const idStr = String(id || '').trim();
+  if (!base || !idStr) return '';
+  return `${base}/${folder}/${idStr}.webp`;
 }
 
 function buildMovieRow(movie, headers, explicitId) {
@@ -173,17 +178,13 @@ function buildMovieRow(movie, headers, explicitId) {
   setIfExists('language', movie.lang_key || movie.language || '');
   setIfExists('episode_current', movie.episode_current || '');
   setIfExists('quality', movie.quality || '');
-  const thumbUrl = expandImgUrl(movie.thumb || '');
+  const thumbUrl = r2UrlById(movie.id, 'thumb') || expandImgUrl(movie.thumb || '');
   setIfExists('thumb_url', thumbUrl);
   setIfExists('thumb', thumbUrl);
-  const r2Thumb = movie.r2_thumb || movie.r2Thumb || (isR2ImageUrl(thumbUrl) ? thumbUrl : '');
-  setIfExists('r2_thumb', r2Thumb);
   const derivedPoster = (!movie.poster && thumbUrl) ? derivePosterFromThumb(thumbUrl) : '';
-  const posterUrl = expandImgUrl(movie.poster || '') || derivedPoster || thumbUrl || '';
+  const posterUrl = r2UrlById(movie.id, 'poster') || expandImgUrl(movie.poster || '') || derivedPoster || thumbUrl || '';
   setIfExists('poster_url', posterUrl);
   setIfExists('poster', posterUrl);
-  const r2Poster = movie.r2_poster || movie.r2Poster || (isR2ImageUrl(posterUrl) ? posterUrl : '');
-  setIfExists('r2_poster', r2Poster);
   const desc = movie.description || movie.content || '';
   setIfExists('description', desc);
   setIfExists('content', desc);

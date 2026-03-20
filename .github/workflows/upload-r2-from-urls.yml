@@ -1,0 +1,87 @@
+name: Upload R2 From URLs
+
+on:
+  workflow_dispatch:
+    inputs:
+      folder:
+        description: "Target folder: thumbs | posters"
+        required: false
+        default: "thumbs"
+      pairs:
+        description: "Optional: name|url pairs (newline separated). If provided, ids/urls will be ignored. name is output filename (e.g. 123.webp)."
+        required: false
+        default: ""
+      create_folders:
+        description: "Create folder marker object (folder/.keep) before uploading (true/false)"
+        required: false
+        default: "false"
+      ids:
+        description: "Movie IDs (newline separated). Must align with urls order."
+        required: false
+        default: ""
+      urls:
+        description: "Source image URLs (newline separated). Must align with ids order."
+        required: false
+        default: ""
+      quality:
+        description: "WebP quality (1-100)"
+        required: false
+        default: "70"
+      width:
+        description: "Resize width (0 = keep)"
+        required: false
+        default: "0"
+      height:
+        description: "Resize height (0 = keep)"
+        required: false
+        default: "0"
+      limit:
+        description: "Limit (0 = no limit)"
+        required: false
+        default: "0"
+      concurrency:
+        description: "Concurrency (1-16)"
+        required: false
+        default: "6"
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Upload to R2
+        run: |
+          node scripts/upload-r2-from-urls.js \
+            --folder "${{ inputs.folder }}" \
+            --pairs "${{ inputs.pairs }}" \
+            --create_folders "${{ inputs.create_folders }}" \
+            --ids "${{ inputs.ids }}" \
+            --urls "${{ inputs.urls }}" \
+            --quality "${{ inputs.quality }}" \
+            --width "${{ inputs.width }}" \
+            --height "${{ inputs.height }}" \
+            --limit "${{ inputs.limit }}" \
+            --concurrency "${{ inputs.concurrency }}" \
+            --out_log "tmp/r2_upload_from_urls.json"
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: r2_upload_from_urls_log
+          path: tmp/r2_upload_from_urls.json

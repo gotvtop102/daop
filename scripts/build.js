@@ -124,56 +124,82 @@ function writeAutoSliderFile(allMovies) {
 }
 
 async function ensureR2ImagesForNewCustomMovies(customMovies) {
+  // Removed
+}
+
+function getR2PublicBase() {
+  return String(process.env.R2_PUBLIC_URL || '').trim().replace(/\/$/, '');
+}
+
+function r2UrlById(id, folder) {
+  const base = getR2PublicBase();
+  const idStr = String(id || '').trim();
+  if (!base || !idStr) return '';
+  return `${base}/${folder}/${idStr}.webp`;
+}
+
+async function uploadMovieImageToR2ById(url, id, folder) {
+  const u = String(url || '').trim();
+  const idStr = String(id || '').trim();
+  if (!u || !idStr) return '';
+  try {
+    const res = await fetch(u);
+    if (!res.ok) return '';
+    const buf = Buffer.from(await res.arrayBuffer());
+    const ct = res.headers.get('content-type') || '';
+    const ext = guessExtFromContentType(ct) || guessExtFromUrl(u) || 'jpg';
+    const optimized = await optimizeImageBuffer(buf, ext);
+    const key = `${folder}/${idStr}.webp`;
+    const out = await uploadToR2(optimized, key, 'image/webp');
+    return out || '';
+  } catch {
+    return '';
+  }
+}
+
+async function ensureR2ImagesForAllMovies(movies) {
   const client = getR2Client();
   const bucket = process.env.R2_BUCKET_NAME;
-  const publicBase = String(process.env.R2_PUBLIC_URL || '').trim();
-  if (!client || !bucket || !publicBase) return;
-  const list = Array.isArray(customMovies) ? customMovies : [];
+  const base = getR2PublicBase();
+  if (!client || !bucket || !base) {
+    console.warn('R2 not configured (missing R2_* env). Images will be broken because build is in R2-only mode.');
+    return;
+  }
+  const list = Array.isArray(movies) ? movies : [];
   if (!list.length) return;
 
-  const targets = list.filter((m) => {
-    if (!m) return false;
-    const st = String(m._sheetUpdateStatus || '').toUpperCase();
-    if (st !== 'NEW' && st !== 'NEW2') return false;
-    if (!m.slug) return false;
-    const hasThumb = String(m.r2_thumb || '').trim();
-    const hasPoster = String(m.r2_poster || '').trim();
-    return !(hasThumb && hasPoster);
-  });
-  if (!targets.length) return;
-
-  console.log('4a. Uploading NEW images to R2 (missing only):', targets.length);
-  const concurrency = Math.max(1, Math.min(8, Number(process.env.R2_UPLOAD_CONCURRENCY || 4)));
+  const concurrency = Math.max(1, Math.min(10, Number(process.env.R2_UPLOAD_CONCURRENCY || 6)));
   let next = 0;
-  const workers = Array.from({ length: Math.min(concurrency, targets.length) }, () => (async () => {
+  console.log('6a. Ensuring R2 images (id-based) for all movies:', list.length);
+
+  const workers = Array.from({ length: Math.min(concurrency, list.length) }, () => (async () => {
     while (true) {
       const i = next;
       next++;
-      const m = targets[i];
+      const m = list[i];
       if (!m) break;
+      const idStr = m && m.id != null ? String(m.id).trim() : '';
+      if (!idStr) continue;
 
-      const slug = String(m.slug || '').trim();
-      if (!slug) continue;
+      const desiredThumb = r2UrlById(idStr, 'thumbs');
+      const desiredPoster = r2UrlById(idStr, 'posters');
 
       const thumbSrc = String(m.thumb || '').trim();
-      const posterSrc = String(m.poster || derivePosterFromThumb(thumbSrc) || '').trim();
+      const posterSrc = String(m.poster || derivePosterFromThumb(thumbSrc) || thumbSrc || '').trim();
 
-      if (!String(m.r2_thumb || '').trim() && thumbSrc) {
-        const r2Thumb = await uploadMovieImageToR2BySlug(thumbSrc, slug, 'thumbs');
-        if (r2Thumb) {
-          m.r2_thumb = r2Thumb;
-          m.thumb = r2Thumb;
-        }
+      // Upload best-effort, then enforce output URLs to match the R2-only structure.
+      if (thumbSrc && !String(thumbSrc).includes(`/thumbs/${idStr}.webp`)) {
+        await uploadMovieImageToR2ById(thumbSrc, idStr, 'thumbs');
       }
-      if (!String(m.r2_poster || '').trim() && posterSrc) {
-        const r2Poster = await uploadMovieImageToR2BySlug(posterSrc, slug, 'posters');
-        if (r2Poster) {
-          m.r2_poster = r2Poster;
-          m.poster = r2Poster;
-        }
+      if (posterSrc && !String(posterSrc).includes(`/posters/${idStr}.webp`)) {
+        await uploadMovieImageToR2ById(posterSrc, idStr, 'posters');
       }
+
+      m.thumb = desiredThumb;
+      m.poster = desiredPoster;
     }
   })());
+
   await Promise.all(workers);
 }
 
@@ -439,14 +465,12 @@ async function processImage(url, slug, folder = 'thumbs') {
 
     const ct = res.headers.get('content-type') || '';
     const ext = guessExtFromContentType(ct) || guessExtFromUrl(url) || 'jpg';
-    const fromUrlName = sanitizeR2Name((new URL(url).pathname || '').split('/').pop() || '');
-    const baseName = (fromUrlName || sanitizeR2Name(`${slug}.${ext}`) || `${slug}.${ext}`)
-      .replace(/\.(jpe?g|jpg|png|webp)$/i, '');
-    const filename = (baseName || slug) + (String(ext).toLowerCase() === 'gif' ? '.gif' : '.webp');
 
     const optimized = await optimizeImageBuffer(buf, ext);
-    const key = `${folder}/${filename}`;
-    const r2Url = await uploadToR2(optimized, key, String(ext).toLowerCase() === 'gif' ? 'image/gif' : 'image/webp');
+    const idStr = String(slug || '').trim();
+    if (!idStr) return url;
+    const key = `${folder}/${idStr}.webp`;
+    const r2Url = await uploadToR2(optimized, key, 'image/webp');
     return r2Url || url;
   } catch {
     return url;
@@ -456,8 +480,8 @@ async function processImage(url, slug, folder = 'thumbs') {
 /** Upload movie image to R2 using stable key by slug (thumbs/<slug>.webp or posters/<slug>.webp) */
 async function uploadMovieImageToR2BySlug(url, slug, folder) {
   if (!url) return '';
-  const s = String(slug || '').trim();
-  if (!s) return '';
+  const idStr = String(slug || '').trim();
+  if (!idStr) return '';
   try {
     const res = await fetch(url);
     if (!res.ok) return '';
@@ -465,7 +489,7 @@ async function uploadMovieImageToR2BySlug(url, slug, folder) {
     const ct = res.headers.get('content-type') || '';
     const ext = guessExtFromContentType(ct) || guessExtFromUrl(url) || 'jpg';
     const optimized = await optimizeImageBuffer(buf, ext);
-    const key = `${folder}/${sanitizeR2Name(s)}.webp`;
+    const key = `${folder}/${idStr}.webp`;
     const out = await uploadToR2(optimized, key, 'image/webp');
     return out || '';
   } catch {
@@ -869,10 +893,7 @@ async function fetchCustomMovies() {
       const moviesRows = valueRanges[0]?.values || [];
       const episodesRows = valueRanges[1]?.values || [];
       const movies = parseSheetMovies(moviesRows, episodesRows, { sheetId });
-      return movies.filter((m) => {
-        const st = (m && m._sheetUpdateStatus ? String(m._sheetUpdateStatus) : '').toUpperCase();
-        return st === 'NEW' || st === 'NEW2';
-      });
+      return movies;
     } catch (e) {
       console.warn('Google Sheets fetch failed, fallback Excel (nếu có):', e.message);
     }
@@ -885,10 +906,7 @@ async function fetchCustomMovies() {
     const moviesRows = XLSX.utils.sheet_to_json(moviesSheet, { header: 1 });
     const episodesRows = episodesSheet ? XLSX.utils.sheet_to_json(episodesSheet, { header: 1 }) : [];
     const movies = parseSheetMovies(moviesRows, episodesRows);
-    return movies.filter((m) => {
-      const st = (m && m._sheetUpdateStatus ? String(m._sheetUpdateStatus) : '').toUpperCase();
-      return st === 'NEW' || st === 'NEW2';
-    });
+    return movies;
   }
   return [];
 }
@@ -915,8 +933,6 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
   const idxUpdate = idx('update');
   const idxModified = idx('modified');
   const idxSlug = idx('slug');
-  const idxR2Thumb = idx('r2_thumb');
-  const idxR2Poster = idx('r2_poster');
   const idxThumbUrl = idx('thumb_url');
   const idxPosterUrl = idx('poster_url');
   const movies = [];
@@ -945,21 +961,16 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
 
     const sheetThumbUrl = (idxThumbUrl >= 0 ? (row[idxThumbUrl] ?? '') : (row[idx('thumb')] ?? '')).toString().trim();
     const sheetPosterUrl = (idxPosterUrl >= 0 ? (row[idxPosterUrl] ?? '') : (row[idx('poster')] ?? '')).toString().trim();
-    const sheetR2Thumb = (idxR2Thumb >= 0 ? (row[idxR2Thumb] ?? '') : '').toString().trim();
-    const sheetR2Poster = (idxR2Poster >= 0 ? (row[idxR2Poster] ?? '') : '').toString().trim();
-
-    const thumbPick = sheetR2Thumb || sheetThumbUrl || '';
-    const posterPick = sheetR2Poster || sheetPosterUrl || '';
+    const thumbPick = sheetThumbUrl || '';
+    const posterPick = sheetPosterUrl || '';
     const movie = {
       id: movieId,
       title: title.toString(),
       origin_name: (row[idx('origin_name')] || '').toString(),
       slug: baseSlug,
-      // Prefer R2 URLs if present, fallback to full URL stored in thumb_url/poster_url
+      // Source URLs from sheet. Build will upload to R2 and overwrite thumb/poster with id-based R2 URLs.
       thumb: thumbPick,
       poster: posterPick,
-      r2_thumb: sheetR2Thumb,
-      r2_poster: sheetR2Poster,
       _from_sheet: true,
       year: (row[idx('year')] || '').toString(),
       type: (row[idx('type')] || 'single').toString(),
@@ -996,8 +1007,6 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
       movie._sheetUpdateColIndex = idxUpdate;
       movie._sheetSlugColIndex = idxSlug;
       movie._sheetOriginalSlug = baseSlug;
-      movie._sheetR2ThumbColIndex = idxR2Thumb;
-      movie._sheetR2PosterColIndex = idxR2Poster;
     }
 
     movies.push(movie);
@@ -1135,28 +1144,6 @@ async function applySheetUpdateStatuses(movies) {
         valueInputOption: 'RAW',
         requestBody: { values: [[newVal]] },
       });
-
-      // Sync R2 links back to sheet for NEW/NEW2 (if columns exist)
-      if (m && m.r2_thumb && m._sheetR2ThumbColIndex >= 0) {
-        const c2 = colToLetter(m._sheetR2ThumbColIndex);
-        const r2Range = `movies!${c2}${rowNum}`;
-        await sheets.spreadsheets.values.update({
-          spreadsheetId: sheetId,
-          range: r2Range,
-          valueInputOption: 'RAW',
-          requestBody: { values: [[String(m.r2_thumb)]] },
-        });
-      }
-      if (m && m.r2_poster && m._sheetR2PosterColIndex >= 0) {
-        const c3 = colToLetter(m._sheetR2PosterColIndex);
-        const r2Range = `movies!${c3}${rowNum}`;
-        await sheets.spreadsheets.values.update({
-          spreadsheetId: sheetId,
-          range: r2Range,
-          valueInputOption: 'RAW',
-          requestBody: { values: [[String(m.r2_poster)]] },
-        });
-      }
     }
 
     for (const m of slugFix) {
@@ -3462,6 +3449,8 @@ async function main() {
   if (process.env.GENERATE_MOVIES_LIGHT === '1') {
     writeMoviesLight(allMovies);
   }
+  // R2-only: upload thumb/poster for all movies and enforce id-based R2 URLs in output.
+  await ensureR2ImagesForAllMovies(allMovies);
   const batchRes = writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
   const newLastModified = batchRes && batchRes.newLastModified ? batchRes.newLastModified : batchRes;
 

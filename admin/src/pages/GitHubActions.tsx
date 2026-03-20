@@ -34,6 +34,8 @@ const UPLOAD_R2_KEYS = {
   limit: 'upload_r2_limit',
   concurrency: 'upload_r2_concurrency',
   reupload_existing: 'upload_r2_reupload_existing',
+  create_folders: 'upload_r2_create_folders',
+  notes: 'upload_r2_notes',
 };
 
 type ActionItem = {
@@ -107,6 +109,8 @@ export default function GitHubActions() {
   const [form] = Form.useForm();
   const [uploadForm] = Form.useForm();
   const [deleteForm] = Form.useForm();
+  const [downloadForm] = Form.useForm();
+  const [uploadUrlsForm] = Form.useForm();
 
   const readTextFile = (file: File) => {
     return new Promise<string>((resolve, reject) => {
@@ -115,6 +119,52 @@ export default function GitHubActions() {
       reader.onerror = () => reject(new Error('Không đọc được file'));
       reader.readAsText(file);
     });
+  };
+
+  const handleTriggerUploadR2FromUrls = async () => {
+    setTriggering('upload-r2-from-urls');
+    try {
+      const values = await uploadUrlsForm.validateFields();
+      const payload: any = { ...values };
+      const res = await fetch(`${API_URL}/api/trigger-action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'upload-r2-from-urls', ...payload }),
+      });
+      const data = await res.json().catch(async () => ({ error: await res.text() }));
+      if (res.ok && data?.ok) {
+        message.success(data?.message || 'Đã kích hoạt upload R2 từ URLs.');
+      } else {
+        message.error(data?.error || data?.message || `Lỗi ${res.status}`);
+      }
+    } catch (e: any) {
+      message.error(e?.message || 'Không kết nối được API.');
+    } finally {
+      setTriggering(null);
+    }
+  };
+
+  const handleTriggerDownloadR2 = async () => {
+    setTriggering('download-r2-files');
+    try {
+      const values = await downloadForm.validateFields();
+      const payload: any = { ...values };
+      const res = await fetch(`${API_URL}/api/trigger-action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'download-r2-files', ...payload }),
+      });
+      const data = await res.json().catch(async () => ({ error: await res.text() }));
+      if (res.ok && data?.ok) {
+        message.success(data?.message || 'Đã kích hoạt download file R2. Vào Workflow Runs để tải artifact.');
+      } else {
+        message.error(data?.error || data?.message || `Lỗi ${res.status}`);
+      }
+    } catch (e: any) {
+      message.error(e?.message || 'Không kết nối được API.');
+    } finally {
+      setTriggering(null);
+    }
   };
 
   const handleTriggerUploadR2 = async () => {
@@ -215,6 +265,8 @@ export default function GitHubActions() {
           { key: UPLOAD_R2_KEYS.limit, value: String(values.limit ?? 0), updated_at: now },
           { key: UPLOAD_R2_KEYS.concurrency, value: String(values.concurrency ?? 6), updated_at: now },
           { key: UPLOAD_R2_KEYS.reupload_existing, value: values.reupload_existing ? '1' : '0', updated_at: now },
+          { key: UPLOAD_R2_KEYS.create_folders, value: values.create_folders ? '1' : '0', updated_at: now },
+          { key: UPLOAD_R2_KEYS.notes, value: String(values.notes ?? ''), updated_at: now },
         ],
         { onConflict: 'key' }
       );
@@ -279,6 +331,8 @@ export default function GitHubActions() {
         UPLOAD_R2_KEYS.limit,
         UPLOAD_R2_KEYS.concurrency,
         UPLOAD_R2_KEYS.reupload_existing,
+        UPLOAD_R2_KEYS.create_folders,
+        UPLOAD_R2_KEYS.notes,
       ]);
     const map: Record<string, string> = {};
     (data || []).forEach((r: { key: string; value: string }) => { map[r.key] = r.value; });
@@ -327,8 +381,15 @@ export default function GitHubActions() {
         if (!v) return false;
         return v === '1' || v === 'true' || v === 'yes' || v === 'on';
       })(),
+      create_folders: (() => {
+        const v = (map[UPLOAD_R2_KEYS.create_folders] || '').toString().trim().toLowerCase();
+        if (!v) return false;
+        return v === '1' || v === 'true' || v === 'yes' || v === 'on';
+      })(),
+      notes: (map[UPLOAD_R2_KEYS.notes] || '').toString(),
     };
     uploadForm.setFieldsValue(uploadDefaults);
+    uploadUrlsForm.setFieldsValue({ create_folders: uploadDefaults.create_folders });
   };
 
   const fetchActions = async () => {
@@ -736,191 +797,427 @@ export default function GitHubActions() {
             ),
           },
           {
-            key: 'upload-r2',
-            label: 'Upload ảnh R2',
+            key: 'r2-manager',
+            label: 'Quản lý ảnh R2',
             children: (
-              <Card
-                title="Upload movie images to R2"
-                extra={
-                  <Button icon={<SaveOutlined />} onClick={handleSaveUploadSettings} loading={savingUploadSettings}>
-                    Lưu mặc định
-                  </Button>
-                }
-              >
-                <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                  Chạy tải + nén + upload ảnh (thumb/poster) lên R2 bằng GitHub Actions.
-                </Text>
-
-                <Form
-                  form={uploadForm}
-                  layout="vertical"
-                  initialValues={{
-                    mode: 'thumb,poster',
-                    quality: 70,
-                    thumb_quality: '',
-                    poster_quality: '',
-                    thumb_width: 238,
-                    thumb_height: 344,
-                    poster_width: 486,
-                    poster_height: 274,
-                    limit: 0,
-                    concurrency: 6,
-                    force_slugs: '',
-                    force_slugs_file: null,
-                    reupload_existing: false,
-                  }}
-                >
-                  <Space wrap align="start">
-                    <Form.Item name="mode" label="Mode (thumb, poster, thumb,poster)">
-                      <Input style={{ width: '100%', maxWidth: 220 }} placeholder="thumb,poster" />
-                    </Form.Item>
-
-                    <Form.Item name="quality" label="Quality (1-100)">
-                      <InputNumber min={1} max={100} style={{ width: '100%', maxWidth: 140 }} />
-                    </Form.Item>
-
-                    <Form.Item name="thumb_quality" label="Thumb quality (override)">
-                      <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
-                    </Form.Item>
-
-                    <Form.Item name="poster_quality" label="Poster quality (override)">
-                      <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
-                    </Form.Item>
-
-                    <Form.Item name="thumb_width" label="Thumb width">
-                      <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
-                    </Form.Item>
-
-                    <Form.Item name="thumb_height" label="Thumb height">
-                      <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
-                    </Form.Item>
-
-                    <Form.Item name="poster_width" label="Poster width">
-                      <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
-                    </Form.Item>
-
-                    <Form.Item name="poster_height" label="Poster height">
-                      <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
-                    </Form.Item>
-
-                    <Form.Item name="limit" label="Limit (0 = no limit)">
-                      <InputNumber min={0} style={{ width: '100%', maxWidth: 170 }} />
-                    </Form.Item>
-
-                    <Form.Item name="concurrency" label="Concurrency (1-32)">
-                      <InputNumber min={1} max={32} style={{ width: '100%', maxWidth: 190 }} />
-                    </Form.Item>
-
-                    <Form.Item name="force_slugs" label="Force slugs (comma/newline separated)" style={{ minWidth: 0, flex: 1 }}>
-                      <Input.TextArea style={{ width: '100%', minWidth: 0 }} rows={3} placeholder="slug-1\nslug-2" />
-                    </Form.Item>
-
-                    <Form.Item name="force_slugs_file" label="File danh sách slug (.txt/.csv)" style={{ minWidth: 0, flex: 1 }}>
-                      <input
-                        type="file"
-                        accept=".txt,.csv,text/plain,text/csv"
-                        style={{ width: '100%' }}
-                        onChange={(e) => {
-                          const f = (e.target && (e.target as HTMLInputElement).files && (e.target as HTMLInputElement).files?.[0]) || null;
-                          uploadForm.setFieldsValue({ force_slugs_file: f });
-                        }}
-                      />
-                    </Form.Item>
-
-                    <Form.Item name="reupload_existing" label="Upload lại nếu đã upload" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-
-                    <Form.Item label=" ">
-                      <Button
-                        type="primary"
-                        icon={triggering === 'upload-movie-images-r2' ? <Spin size="small" /> : <PlayCircleOutlined />}
-                        onClick={handleTriggerUploadR2}
-                        loading={triggering === 'upload-movie-images-r2'}
-                        disabled={!!triggering}
+              <Tabs
+                items={[
+                  {
+                    key: 'r2-settings',
+                    label: 'Cài đặt',
+                    children: (
+                      <Card
+                        title="Cài đặt upload ảnh R2"
+                        extra={
+                          <Button icon={<SaveOutlined />} onClick={handleSaveUploadSettings} loading={savingUploadSettings}>
+                            Lưu mặc định
+                          </Button>
+                        }
                       >
-                        Upload ảnh
-                      </Button>
-                    </Form.Item>
-                  </Space>
-                </Form>
-              </Card>
-            ),
-          },
-          {
-            key: 'delete-r2',
-            label: 'Xóa ảnh R2',
-            children: (
-              <Card title="Delete movie images on R2">
-                <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                  Xóa ảnh trên R2 theo prefix (thư mục), theo keys, hoặc theo movie ids (đọc từ r2_upload_state.json). Mặc định chạy dry-run để an toàn.
-                </Text>
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+                          Các thông số này áp dụng cho upload tự động hoặc thủ công (GitHub Actions).
+                        </Text>
+                        <Form
+                          form={uploadForm}
+                          layout="vertical"
+                          initialValues={{
+                            mode: 'thumb,poster',
+                            quality: 70,
+                            thumb_quality: '',
+                            poster_quality: '',
+                            thumb_width: 238,
+                            thumb_height: 344,
+                            poster_width: 486,
+                            poster_height: 274,
+                            limit: 0,
+                            concurrency: 6,
+                            force_slugs: '',
+                            force_slugs_file: null,
+                            reupload_existing: false,
+                            create_folders: false,
+                            notes: '',
+                          }}
+                        >
+                          <Space wrap align="start">
+                            <Form.Item name="mode" label="Mode (thumb, poster, thumb,poster)">
+                              <Input style={{ width: '100%', maxWidth: 220 }} placeholder="thumb,poster" />
+                            </Form.Item>
 
-                <Form
-                  form={deleteForm}
-                  layout="vertical"
-                  initialValues={{
-                    mode: 'prefix',
-                    prefix: 'thumbs/',
-                    keys: '',
-                    movie_ids: '',
-                    kind: 'both',
-                    dry_run: true,
-                    limit: 0,
-                  }}
-                >
-                  <Space wrap align="start">
-                    <Form.Item name="mode" label="Mode">
-                      <Radio.Group optionType="button" buttonStyle="solid">
-                        <Radio.Button value="prefix">prefix</Radio.Button>
-                        <Radio.Button value="keys">keys</Radio.Button>
-                        <Radio.Button value="movie_ids">movie_ids</Radio.Button>
-                      </Radio.Group>
-                    </Form.Item>
+                            <Form.Item name="quality" label="Quality (1-100)">
+                              <InputNumber min={1} max={100} style={{ width: '100%', maxWidth: 140 }} />
+                            </Form.Item>
 
-                    <Form.Item name="kind" label="Loại ảnh">
-                      <Radio.Group optionType="button" buttonStyle="solid">
-                        <Radio.Button value="both">both</Radio.Button>
-                        <Radio.Button value="thumb">thumb</Radio.Button>
-                        <Radio.Button value="poster">poster</Radio.Button>
-                      </Radio.Group>
-                    </Form.Item>
+                            <Form.Item name="thumb_quality" label="Thumb quality (override)">
+                              <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
+                            </Form.Item>
 
-                    <Form.Item name="limit" label="Limit (0 = no limit)">
-                      <InputNumber min={0} style={{ width: 190 }} />
-                    </Form.Item>
+                            <Form.Item name="poster_quality" label="Poster quality (override)">
+                              <Input style={{ width: '100%', maxWidth: 190 }} placeholder="" />
+                            </Form.Item>
 
-                    <Form.Item name="dry_run" label="Dry run (không xóa thật)" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                  </Space>
+                            <Form.Item name="thumb_width" label="Thumb width">
+                              <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
+                            </Form.Item>
 
-                  <Form.Item name="prefix" label="Prefix (ví dụ: thumbs/ hoặc posters/)">
-                    <Input placeholder="thumbs/" />
-                  </Form.Item>
+                            <Form.Item name="thumb_height" label="Thumb height">
+                              <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
+                            </Form.Item>
 
-                  <Form.Item name="keys" label="Keys (mỗi dòng 1 key)">
-                    <Input.TextArea rows={3} placeholder="thumbs/a.jpg\nposters/b.jpg" />
-                  </Form.Item>
+                            <Form.Item name="poster_width" label="Poster width">
+                              <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
+                            </Form.Item>
 
-                  <Form.Item name="movie_ids" label="Movie IDs (mỗi dòng 1 id)">
-                    <Input.TextArea rows={3} placeholder="62a4...\n6264..." />
-                  </Form.Item>
+                            <Form.Item name="poster_height" label="Poster height">
+                              <InputNumber min={0} style={{ width: '100%', maxWidth: 140 }} />
+                            </Form.Item>
 
-                  <Form.Item>
-                    <Button
-                      danger
-                      type="primary"
-                      icon={triggering === 'delete-movie-images-r2' ? <Spin size="small" /> : <DeleteOutlined />}
-                      onClick={handleTriggerDeleteR2}
-                      loading={triggering === 'delete-movie-images-r2'}
-                      disabled={!!triggering}
-                    >
-                      Xóa ảnh R2
-                    </Button>
-                  </Form.Item>
-                </Form>
-              </Card>
+                            <Form.Item name="limit" label="Limit (0 = no limit)">
+                              <InputNumber min={0} style={{ width: '100%', maxWidth: 170 }} />
+                            </Form.Item>
+
+                            <Form.Item name="concurrency" label="Concurrency (1-32)">
+                              <InputNumber min={1} max={32} style={{ width: '100%', maxWidth: 190 }} />
+                            </Form.Item>
+
+                            <Form.Item name="reupload_existing" label="Upload lại nếu đã upload" valuePropName="checked">
+                              <Switch />
+                            </Form.Item>
+
+                            <Form.Item name="create_folders" label="Tạo thư mục (marker .keep)" valuePropName="checked">
+                              <Switch />
+                            </Form.Item>
+                          </Space>
+
+                          <Form.Item name="notes" label="Ghi chú">
+                            <Input.TextArea rows={3} placeholder="Ghi chú quy ước thư mục/đặt tên..." />
+                          </Form.Item>
+                        </Form>
+                      </Card>
+                    ),
+                  },
+                  {
+                    key: 'r2-upload',
+                    label: 'Upload',
+                    children: (
+                      <Card title="Upload ảnh lên R2">
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+                          Upload hàng loạt bằng GitHub Actions. Hỗ trợ force slugs (OPhim).
+                        </Text>
+
+                        <Tabs
+                          items={[
+                            {
+                              key: 'upload-by-slugs',
+                              label: 'Theo slug (OPhim)',
+                              children: (
+                                <Form form={uploadForm} layout="vertical">
+                                  <Space wrap align="start">
+                                    <Form.Item name="force_slugs" label="Danh sách slug (comma/newline)" style={{ minWidth: 0, flex: 1 }}>
+                                      <Input.TextArea style={{ width: '100%', minWidth: 0 }} rows={3} placeholder="slug-1\nslug-2" />
+                                    </Form.Item>
+
+                                    <Form.Item name="force_slugs_file" label="File slug (.txt/.csv)" style={{ minWidth: 0, flex: 1 }}>
+                                      <input
+                                        type="file"
+                                        accept=".txt,.csv,text/plain,text/csv"
+                                        style={{ width: '100%' }}
+                                        onChange={(e) => {
+                                          const f = (e.target && (e.target as HTMLInputElement).files && (e.target as HTMLInputElement).files?.[0]) || null;
+                                          uploadForm.setFieldsValue({ force_slugs_file: f });
+                                        }}
+                                      />
+                                    </Form.Item>
+
+                                    <Form.Item label=" ">
+                                      <Button
+                                        type="primary"
+                                        icon={triggering === 'upload-movie-images-r2' ? <Spin size="small" /> : <PlayCircleOutlined />}
+                                        onClick={handleTriggerUploadR2}
+                                        loading={triggering === 'upload-movie-images-r2'}
+                                        disabled={!!triggering}
+                                      >
+                                        Upload ảnh
+                                      </Button>
+                                    </Form.Item>
+                                  </Space>
+                                </Form>
+                              ),
+                            },
+                            {
+                              key: 'upload-by-urls',
+                              label: 'Theo URLs + IDs',
+                              children: (
+                                <>
+                                  <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+                                    Chọn 1 trong 2 cách:
+                                    <br />
+                                    - IDs + URLs: tên ảnh sẽ là <b>id phim</b> (folder/id.webp)
+                                    <br />
+                                    - Pairs name|link: mỗi dòng <b>name|link</b>, name là tên ảnh (folder/name.webp)
+                                  </Text>
+                                  <Form
+                                    form={uploadUrlsForm}
+                                    layout="vertical"
+                                    initialValues={{
+                                      mode: 'ids_urls',
+                                      folder: 'thumbs',
+                                      pairs: '',
+                                      ids: '',
+                                      urls: '',
+                                      create_folders: false,
+                                      quality: 70,
+                                      width: 0,
+                                      height: 0,
+                                      limit: 0,
+                                      concurrency: 6,
+                                    }}
+                                  >
+                                    <Space wrap align="start">
+                                      <Form.Item name="mode" label="Chế độ input">
+                                        <Radio.Group optionType="button" buttonStyle="solid">
+                                          <Radio.Button value="ids_urls">IDs + URLs</Radio.Button>
+                                          <Radio.Button value="pairs">name|link</Radio.Button>
+                                        </Radio.Group>
+                                      </Form.Item>
+
+                                      <Form.Item name="folder" label="Folder đích">
+                                        <Radio.Group optionType="button" buttonStyle="solid">
+                                          <Radio.Button value="thumbs">thumbs</Radio.Button>
+                                          <Radio.Button value="posters">posters</Radio.Button>
+                                        </Radio.Group>
+                                      </Form.Item>
+
+                                      <Form.Item name="create_folders" label="Tạo thư mục (marker .keep)" valuePropName="checked">
+                                        <Switch />
+                                      </Form.Item>
+
+                                      <Form.Item name="quality" label="Quality (1-100)">
+                                        <InputNumber min={1} max={100} style={{ width: 190 }} />
+                                      </Form.Item>
+
+                                      <Form.Item name="width" label="Width (0 = keep)">
+                                        <InputNumber min={0} style={{ width: 190 }} />
+                                      </Form.Item>
+
+                                      <Form.Item name="height" label="Height (0 = keep)">
+                                        <InputNumber min={0} style={{ width: 190 }} />
+                                      </Form.Item>
+
+                                      <Form.Item name="limit" label="Limit (0 = no limit)">
+                                        <InputNumber min={0} style={{ width: 190 }} />
+                                      </Form.Item>
+
+                                      <Form.Item name="concurrency" label="Concurrency (1-16)">
+                                        <InputNumber min={1} max={16} style={{ width: 190 }} />
+                                      </Form.Item>
+                                    </Space>
+
+                                    <Form.Item
+                                      noStyle
+                                      shouldUpdate={(prev, cur) => prev.mode !== cur.mode}
+                                    >
+                                      {({ getFieldValue }) => {
+                                        const mode = String(getFieldValue('mode') || 'ids_urls');
+                                        if (mode !== 'pairs') return null;
+                                        return (
+                                          <Form.Item
+                                            name="pairs"
+                                            label="Pairs (mỗi dòng 1: name|link)"
+                                            rules={[{ required: true, message: 'Nhập danh sách name|link' }]}
+                                          >
+                                            <Input.TextArea rows={6} placeholder="123|https://...\n456|https://..." />
+                                          </Form.Item>
+                                        );
+                                      }}
+                                    </Form.Item>
+
+                                    <Form.Item
+                                      noStyle
+                                      shouldUpdate={(prev, cur) => prev.mode !== cur.mode}
+                                    >
+                                      {({ getFieldValue }) => {
+                                        const mode = String(getFieldValue('mode') || 'ids_urls');
+                                        if (mode !== 'ids_urls') return null;
+                                        return (
+                                          <>
+                                            <Form.Item
+                                              name="ids"
+                                              label="Movie IDs (mỗi dòng 1 id, cùng thứ tự với URLs)"
+                                              rules={[{ required: true, message: 'Nhập danh sách IDs' }]}
+                                            >
+                                              <Input.TextArea rows={4} placeholder="62a4...\n6264..." />
+                                            </Form.Item>
+
+                                            <Form.Item
+                                              name="urls"
+                                              label="URLs (mỗi dòng 1 URL, cùng thứ tự với IDs)"
+                                              rules={[{ required: true, message: 'Nhập danh sách URLs' }]}
+                                            >
+                                              <Input.TextArea rows={6} placeholder="https://...\nhttps://..." />
+                                            </Form.Item>
+                                          </>
+                                        );
+                                      }}
+                                    </Form.Item>
+
+                                    <Form.Item>
+                                      <Button
+                                        type="primary"
+                                        icon={triggering === 'upload-r2-from-urls' ? <Spin size="small" /> : <PlayCircleOutlined />}
+                                        onClick={handleTriggerUploadR2FromUrls}
+                                        loading={triggering === 'upload-r2-from-urls'}
+                                        disabled={!!triggering}
+                                      >
+                                        Upload
+                                      </Button>
+                                    </Form.Item>
+                                  </Form>
+                                </>
+                              ),
+                            },
+                          ]}
+                        />
+                      </Card>
+                    ),
+                  },
+                  {
+                    key: 'r2-download',
+                    label: 'Download',
+                    children: (
+                      <Card title="Download ảnh từ R2">
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+                          Download theo folder (prefix) hoặc theo danh sách key. Kết quả sẽ được đóng gói thành artifact trong GitHub Actions run.
+                        </Text>
+
+                        <Form
+                          form={downloadForm}
+                          layout="vertical"
+                          initialValues={{
+                            mode: 'prefix',
+                            prefix: 'thumbs/',
+                            keys: '',
+                            limit: 0,
+                            concurrency: 6,
+                          }}
+                        >
+                          <Space wrap align="start">
+                            <Form.Item name="mode" label="Mode">
+                              <Radio.Group optionType="button" buttonStyle="solid">
+                                <Radio.Button value="prefix">prefix</Radio.Button>
+                                <Radio.Button value="keys">keys</Radio.Button>
+                              </Radio.Group>
+                            </Form.Item>
+
+                            <Form.Item name="limit" label="Limit (0 = no limit)">
+                              <InputNumber min={0} style={{ width: 190 }} />
+                            </Form.Item>
+
+                            <Form.Item name="concurrency" label="Concurrency (1-16)">
+                              <InputNumber min={1} max={16} style={{ width: 190 }} />
+                            </Form.Item>
+                          </Space>
+
+                          <Form.Item name="prefix" label="Prefix (ví dụ: thumbs/ hoặc posters/)">
+                            <Input placeholder="thumbs/" />
+                          </Form.Item>
+
+                          <Form.Item name="keys" label="Keys (mỗi dòng 1 key)">
+                            <Input.TextArea rows={4} placeholder="thumbs/123.webp\nposters/123.webp" />
+                          </Form.Item>
+
+                          <Form.Item>
+                            <Button
+                              type="primary"
+                              icon={triggering === 'download-r2-files' ? <Spin size="small" /> : <PlayCircleOutlined />}
+                              onClick={handleTriggerDownloadR2}
+                              loading={triggering === 'download-r2-files'}
+                              disabled={!!triggering}
+                            >
+                              Download
+                            </Button>
+                          </Form.Item>
+                        </Form>
+                      </Card>
+                    ),
+                  },
+                  {
+                    key: 'r2-delete',
+                    label: 'Delete',
+                    children: (
+                      <Card title="Delete ảnh trên R2">
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+                          Xóa ảnh theo prefix (thư mục), theo keys, hoặc theo movie ids (đọc từ r2_upload_state.json). Mặc định chạy dry-run để an toàn.
+                        </Text>
+
+                        <Form
+                          form={deleteForm}
+                          layout="vertical"
+                          initialValues={{
+                            mode: 'prefix',
+                            prefix: 'thumbs/',
+                            keys: '',
+                            movie_ids: '',
+                            kind: 'both',
+                            dry_run: true,
+                            limit: 0,
+                          }}
+                        >
+                          <Space wrap align="start">
+                            <Form.Item name="mode" label="Mode">
+                              <Radio.Group optionType="button" buttonStyle="solid">
+                                <Radio.Button value="prefix">prefix</Radio.Button>
+                                <Radio.Button value="keys">keys</Radio.Button>
+                                <Radio.Button value="movie_ids">movie_ids</Radio.Button>
+                              </Radio.Group>
+                            </Form.Item>
+
+                            <Form.Item name="kind" label="Loại ảnh">
+                              <Radio.Group optionType="button" buttonStyle="solid">
+                                <Radio.Button value="both">both</Radio.Button>
+                                <Radio.Button value="thumb">thumb</Radio.Button>
+                                <Radio.Button value="poster">poster</Radio.Button>
+                              </Radio.Group>
+                            </Form.Item>
+
+                            <Form.Item name="limit" label="Limit (0 = no limit)">
+                              <InputNumber min={0} style={{ width: 190 }} />
+                            </Form.Item>
+
+                            <Form.Item name="dry_run" label="Dry run (không xóa thật)" valuePropName="checked">
+                              <Switch />
+                            </Form.Item>
+                          </Space>
+
+                          <Form.Item name="prefix" label="Prefix (ví dụ: thumbs/ hoặc posters/)">
+                            <Input placeholder="thumbs/" />
+                          </Form.Item>
+
+                          <Form.Item name="keys" label="Keys (mỗi dòng 1 key)">
+                            <Input.TextArea rows={3} placeholder="thumbs/123.webp\nposters/123.webp" />
+                          </Form.Item>
+
+                          <Form.Item name="movie_ids" label="Movie IDs (mỗi dòng 1 id)">
+                            <Input.TextArea rows={3} placeholder="62a4...\n6264..." />
+                          </Form.Item>
+
+                          <Form.Item>
+                            <Button
+                              danger
+                              type="primary"
+                              icon={triggering === 'delete-movie-images-r2' ? <Spin size="small" /> : <DeleteOutlined />}
+                              onClick={handleTriggerDeleteR2}
+                              loading={triggering === 'delete-movie-images-r2'}
+                              disabled={!!triggering}
+                            >
+                              Xóa ảnh R2
+                            </Button>
+                          </Form.Item>
+                        </Form>
+                      </Card>
+                    ),
+                  },
+                ]}
+              />
             ),
           },
         ]}

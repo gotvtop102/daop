@@ -711,25 +711,21 @@
     const cardOrientation = (opts.cardOrientation === 'horizontal' || opts.cardOrientation === 'vertical')
       ? opts.cardOrientation
       : (opts.usePoster ? 'horizontal' : 'vertical');
-    const derivedPoster = (!m.poster && m.thumb && window.DAOP && typeof window.DAOP.derivePosterFromThumb === 'function')
-      ? window.DAOP.derivePosterFromThumb(m.thumb)
+    var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
+    var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
+    r2Domain = r2Domain.replace(/\/$/, '');
+    const idStr = (m && m.id != null) ? String(m.id) : '';
+    const primaryRaw = (cardOrientation === 'horizontal')
+      ? (r2Domain && idStr ? (r2Domain + '/posters/' + idStr + '.webp') : '')
+      : (r2Domain && idStr ? (r2Domain + '/thumbs/' + idStr + '.webp') : '');
+    const fallbackRaw = (r2Domain && idStr)
+      ? (r2Domain + '/thumbs/' + idStr + '.webp')
       : '';
-    const norm = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
-      ? window.DAOP.normalizeImgUrl
-      : function (x) { return x; };
-    const normOphim = (window.DAOP && typeof window.DAOP.normalizeImgUrlOphim === 'function')
-      ? window.DAOP.normalizeImgUrlOphim
-      : function (x) { return x; };
-    const primaryRaw = cardOrientation === 'horizontal'
-      ? (m.poster || derivedPoster || m.thumb || '')
-      : (m.thumb || m.poster || derivedPoster || '');
-    const fallbackRaw = m.thumb || '';
     const defaultImg = cardOrientation === 'horizontal'
       ? (baseUrl + '/images/default_poster.png')
       : (baseUrl + '/images/default_thumb.png');
-    const imgUrl = norm(primaryRaw).replace(/^\/\//, 'https://') || defaultImg;
-    const fallbackUrl = norm(fallbackRaw).replace(/^\/\//, 'https://') || defaultImg;
-    const ophimUrl = normOphim(primaryRaw).replace(/^\/\//, 'https://') || '';
+    const imgUrl = (primaryRaw || '').replace(/^\/\//, 'https://') || defaultImg;
+    const fallbackUrl = (fallbackRaw || '').replace(/^\/\//, 'https://') || defaultImg;
     const title = (m.title || '').replace(/</g, '&lt;');
     const origin = (m.origin_name || '').replace(/</g, '&lt;');
 
@@ -759,13 +755,6 @@
       (function(){
         var d = defaultImg.replace(/'/g, '%27');
         var f = (fallbackUrl || '').replace(/'/g, '%27');
-        var o = (ophimUrl || '').replace(/'/g, '%27');
-        if (o && o !== imgUrl) {
-          if (f && f !== imgUrl && f !== o) {
-            return ' onerror="this.onerror=function(){this.onerror=function(){this.onerror=null;this.src=\'' + d + '\';};this.src=\'' + f + '\';};this.src=\'' + o + '\';"';
-          }
-          return ' onerror="this.onerror=function(){this.onerror=null;this.src=\'' + d + '\';};this.src=\'' + o + '\';"';
-        }
         if (f && f !== imgUrl) {
           return ' onerror="this.onerror=function(){this.onerror=null;this.src=\'' + d + '\';};this.src=\'' + f + '\';"';
         }

@@ -422,15 +422,6 @@ async function main() {
       const buf = Buffer.from(await res.arrayBuffer());
       const ct = res.headers.get('content-type') || '';
       const ext = guessExtFromContentType(ct) || guessExtFromUrl(url) || 'jpg';
-      let fromUrlName = '';
-      try {
-        fromUrlName = sanitizeR2Name((new URL(url).pathname || '').split('/').pop() || '');
-      } catch {
-        fromUrlName = '';
-      }
-      const baseName = (fromUrlName || sanitizeR2Name(`${idStr}-${kind}.${ext}`) || `${idStr}-${kind}.${ext}`)
-        .replace(/\.(jpe?g|jpg|png|webp)$/i, '');
-      const filename = (baseName || `${idStr}-${kind}`) + '.webp';
 
       const q = kind === 'thumb' ? thumbQuality : posterQuality;
       const w = kind === 'thumb' ? thumbW : posterW;
@@ -438,7 +429,7 @@ async function main() {
 
       const optimized = await optimizeAndResize(buf, ext, { quality: q, width: w, height: h });
       const folder = kind === 'thumb' ? 'thumbs' : 'posters';
-      const key = `${folder}/${filename}`;
+      const key = `${folder}/${idStr}.webp`;
 
       try {
         await uploadToR2(optimized, key, 'image/webp');
