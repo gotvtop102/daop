@@ -325,6 +325,8 @@ async function main() {
     JSON.stringify(
       {
         mode,
+        reupload_existing_arg: args.reupload_existing != null ? String(args.reupload_existing) : null,
+        R2_REUPLOAD_EXISTING_env: process.env.R2_REUPLOAD_EXISTING != null ? String(process.env.R2_REUPLOAD_EXISTING) : null,
         reuploadExisting,
         fallbackOphim,
         forceSlugs: forceSlugSet ? forceSlugSet.size : 0,
