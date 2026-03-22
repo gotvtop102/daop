@@ -11,7 +11,7 @@ import sharp from 'sharp';
 import * as XLSX from 'xlsx';
 import { createClient } from '@supabase/supabase-js';
 import slugify from 'slugify';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import {
   removeMoviesLightScriptFromHtml as libRemoveMoviesLightScriptFromHtml,
   injectSiteNameIntoHtml as libInjectSiteNameIntoHtml,
@@ -54,6 +54,21 @@ const OPHIM_COUNTRIES_FALLBACK = {
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+async function r2KeyExists(client, bucket, key) {
+  if (!client || !bucket || !key) return false;
+  try {
+    await client.send(
+      new HeadObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      })
+    );
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function buildAutoSliderSlides(allMovies, opts) {
@@ -184,15 +199,24 @@ async function ensureR2ImagesForAllMovies(movies) {
       const desiredThumb = r2UrlById(idStr, 'thumbs');
       const desiredPoster = r2UrlById(idStr, 'posters');
 
-      const thumbSrc = String(m.thumb || '').trim();
-      const posterSrc = String(m.poster || derivePosterFromThumb(thumbSrc) || thumbSrc || '').trim();
+      const thumbSrc = String(m.thumb_url || m.thumb || '').trim();
+      const posterSrc = String(m.poster_url || m.poster || derivePosterFromThumb(thumbSrc) || thumbSrc || '').trim();
+
+      const thumbKey = `thumbs/${idStr}.webp`;
+      const posterKey = `posters/${idStr}.webp`;
 
       // Upload best-effort, then enforce output URLs to match the R2-only structure.
       if (thumbSrc && !String(thumbSrc).includes(`/thumbs/${idStr}.webp`)) {
-        await uploadMovieImageToR2ById(thumbSrc, idStr, 'thumbs');
+        const already = await r2KeyExists(client, bucket, thumbKey);
+        if (!already) {
+          await uploadMovieImageToR2ById(thumbSrc, idStr, 'thumbs');
+        }
       }
       if (posterSrc && !String(posterSrc).includes(`/posters/${idStr}.webp`)) {
-        await uploadMovieImageToR2ById(posterSrc, idStr, 'posters');
+        const already = await r2KeyExists(client, bucket, posterKey);
+        if (!already) {
+          await uploadMovieImageToR2ById(posterSrc, idStr, 'posters');
+        }
       }
 
       m.thumb = desiredThumb;
@@ -959,18 +983,20 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
     const updateStatus = updateRaw ? updateRaw.toUpperCase() : '';
     const sheetModified = (idxModified >= 0 ? (row[idxModified] ?? '') : '').toString().trim();
 
-    const sheetThumbUrl = (idxThumbUrl >= 0 ? (row[idxThumbUrl] ?? '') : (row[idx('thumb')] ?? '')).toString().trim();
-    const sheetPosterUrl = (idxPosterUrl >= 0 ? (row[idxPosterUrl] ?? '') : (row[idx('poster')] ?? '')).toString().trim();
-    const thumbPick = sheetThumbUrl || '';
-    const posterPick = sheetPosterUrl || '';
+    const sheetThumbUrl = (idxThumbUrl >= 0 ? (row[idxThumbUrl] ?? '') : '').toString().trim();
+    const sheetPosterUrl = (idxPosterUrl >= 0 ? (row[idxPosterUrl] ?? '') : '').toString().trim();
+    const sheetThumb = (row[idx('thumb')] ?? '').toString().trim();
+    const sheetPoster = (row[idx('poster')] ?? '').toString().trim();
+    const thumbPick = sheetThumb || '';
+    const posterPick = sheetPoster || '';
     const movie = {
       id: movieId,
       title: title.toString(),
       origin_name: (row[idx('origin_name')] || '').toString(),
       slug: baseSlug,
       // Source URLs from sheet. Build will upload to R2 and overwrite thumb/poster with id-based R2 URLs.
-      thumb: thumbPick,
-      poster: posterPick,
+      thumb: sheetThumbUrl || thumbPick,
+      poster: sheetPosterUrl || posterPick,
       _from_sheet: true,
       year: (row[idx('year')] || '').toString(),
       type: (row[idx('type')] || 'single').toString(),
@@ -2369,6 +2395,10 @@ function writeBatches(movies, prevLastModified, tmdbById, prevTmdbById) {
     if (!m) return m;
     const {
       imdb,
+      thumb,
+      poster,
+      thumb_url,
+      poster_url,
       cast,
       director,
       cast_meta,

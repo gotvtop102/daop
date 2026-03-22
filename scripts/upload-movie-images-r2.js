@@ -260,6 +260,14 @@ function parseBool(raw, fallback) {
   return !!fallback;
 }
 
+function isR2PublicUrl(u) {
+  const base = String(process.env.R2_PUBLIC_URL || '').trim().replace(/\/$/, '');
+  if (!base) return false;
+  const s = String(u || '').trim();
+  if (!s) return false;
+  return s.startsWith(base + '/');
+}
+
 async function fetchOphimDetailBySlug(base, slug) {
   const b = String(base || '').replace(/\/$/, '');
   const s = normalizeSlugLike(slug);
@@ -308,6 +316,10 @@ async function main() {
   const forceSlugSet = normalizeSlugSet(parseSlugList(args.force_slugs));
   const reuploadExisting = parseBool(args.reupload_existing, false);
 
+  const ophimBase = String(args.ophim_base || process.env.OPHIM_BASE_URL || 'https://ophim1.com/v1/api').replace(/\/$/, '');
+  const fallbackOphim = parseBool(args.fallback_ophim, true);
+  const ophimCacheBySlug = new Map();
+
   const limit = args.limit != null ? Math.max(0, Number(args.limit)) : 0;
   const concurrency = Math.max(1, Math.min(32, Number(args.concurrency || 6)));
 
@@ -328,7 +340,6 @@ async function main() {
     const sample = Array.from(forceSlugSet).slice(0, 12);
     console.log('force_slugs parsed:', forceSlugSet.size, sample.length ? `sample=${sample.join(', ')}` : '');
 
-    const ophimBase = String(args.ophim_base || process.env.OPHIM_BASE_URL || 'https://ophim1.com/v1/api').replace(/\/$/, '');
     console.log('Using OPhim base:', ophimBase);
 
     const slugs = Array.from(forceSlugSet);
@@ -382,16 +393,44 @@ async function main() {
     const inForceList = !!(forceSlugSet && slugStr && forceSlugSet.has(slugStr));
     const row = state.uploaded[idStr] || {};
 
+    const getOphimSource = async () => {
+      if (!fallbackOphim) return null;
+      if (!ophimBase) return null;
+      if (!slugStr) return null;
+      if (ophimCacheBySlug.has(slugStr)) return ophimCacheBySlug.get(slugStr);
+      try {
+        const got = await fetchOphimDetailBySlug(ophimBase, slugStr);
+        ophimCacheBySlug.set(slugStr, got);
+        return got;
+      } catch {
+        ophimCacheBySlug.set(slugStr, null);
+        return null;
+      }
+    };
+
     for (const kind of tasks) {
       const already = row && row[kind] && row[kind].ok;
-      if (already && !(inForceList && reuploadExisting)) {
+      // reupload_existing should force reupload regardless of force_slugs.
+      // force_slugs is only for selecting movies, not for enabling reupload.
+      if (already && !reuploadExisting) {
         skipped++;
         continue;
       }
 
-      const rawUrl = kind === 'thumb'
-        ? (m.thumb || '')
-        : (m.poster || derivePosterFromThumb(m.thumb || '') || '');
+      let rawUrl = kind === 'thumb'
+        ? (m.thumb_url || m.thumb || '')
+        : (m.poster_url || m.poster || derivePosterFromThumb(m.thumb_url || m.thumb || '') || '');
+
+      // If source is missing or points to R2 public url, try fallback to OPhim by slug.
+      if (!rawUrl || isR2PublicUrl(rawUrl)) {
+        const ophim = await getOphimSource();
+        if (ophim) {
+          rawUrl = kind === 'thumb'
+            ? (ophim.thumb || '')
+            : (ophim.poster || derivePosterFromThumb(ophim.thumb || '') || '');
+        }
+      }
+
       const url = normalizeSourceUrl(rawUrl);
       if (!url) {
         skipped++;

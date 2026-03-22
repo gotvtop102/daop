@@ -539,9 +539,6 @@ async function listMovies(
       movie[header] = row[i] ?? '';
     });
 
-    // Alias theo docs (không phân biệt thumb_url/thumb, poster_url/poster...)
-    if (movie.thumb && !movie.thumb_url) movie.thumb_url = movie.thumb;
-    if (movie.poster && !movie.poster_url) movie.poster_url = movie.poster;
     if (movie.content && !movie.description) movie.description = movie.content;
     if (movie.name && !movie.title) movie.title = movie.name;
     return movie;
@@ -646,8 +643,6 @@ async function getMovieBySlug(sheets: any, spreadsheetId: string, slug: string) 
       if (!header) return;
       m[header] = row[i] ?? '';
     });
-    if (m.thumb && !m.thumb_url) m.thumb_url = m.thumb;
-    if (m.poster && !m.poster_url) m.poster_url = m.poster;
     if (m.content && !m.description) m.description = m.content;
     if (m.name && !m.title) m.title = m.name;
     return m;
@@ -806,9 +801,6 @@ async function getMovie(sheets: any, spreadsheetId: string, id: string) {
     if (!header) return;
     movie[header] = dataRows[rowIndex][i] ?? '';
   });
-
-  if (movie.thumb && !movie.thumb_url) movie.thumb_url = movie.thumb;
-  if (movie.poster && !movie.poster_url) movie.poster_url = movie.poster;
   if (movie.content && !movie.description) movie.description = movie.content;
   if (movie.name && !movie.title) movie.title = movie.name;
 
@@ -836,8 +828,6 @@ async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
     'language',
     'quality',
     'episode_current',
-    'thumb_url',
-    'poster_url',
     'description',
     'status',
     'showtimes',
@@ -886,14 +876,12 @@ async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
     if (posterSrc && !r2Poster) {
       throw new Error('Upload R2 poster thất bại. Kiểm tra quyền bucket, R2_PUBLIC_URL, và link ảnh nguồn.');
     }
-    if (r2Thumb) {
-      movieData.thumb_url = r2Thumb;
-      movieData.thumb = r2Thumb;
-    }
-    if (r2Poster) {
-      movieData.poster_url = r2Poster;
-      movieData.poster = r2Poster;
-    }
+    // Do not persist image URLs into the sheet (thumb_url/poster_url columns removed).
+    // Keep only side-effect upload to R2.
+    movieData.thumb_url = '';
+    movieData.poster_url = '';
+    movieData.thumb = '';
+    movieData.poster = '';
   }
 
   // Convert object to row array

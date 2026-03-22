@@ -178,13 +178,6 @@ function buildMovieRow(movie, headers, explicitId) {
   setIfExists('language', movie.lang_key || movie.language || '');
   setIfExists('episode_current', movie.episode_current || '');
   setIfExists('quality', movie.quality || '');
-  const thumbUrl = r2UrlById(movie.id, 'thumb') || expandImgUrl(movie.thumb || '');
-  setIfExists('thumb_url', thumbUrl);
-  setIfExists('thumb', thumbUrl);
-  const derivedPoster = (!movie.poster && thumbUrl) ? derivePosterFromThumb(thumbUrl) : '';
-  const posterUrl = r2UrlById(movie.id, 'poster') || expandImgUrl(movie.poster || '') || derivedPoster || thumbUrl || '';
-  setIfExists('poster_url', posterUrl);
-  setIfExists('poster', posterUrl);
   const desc = movie.description || movie.content || '';
   setIfExists('description', desc);
   setIfExists('content', desc);

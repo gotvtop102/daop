@@ -262,12 +262,22 @@ export default function MovieEdit() {
   const [saving, setSaving] = useState(false);
   const [fetchingTMDB, setFetchingTMDB] = useState(false);
   const [posterPreview, setPosterPreview] = useState('');
+  const [thumbPreview, setThumbPreview] = useState('');
   const [spreadsheetId, setSpreadsheetId] = useState<string>('');
   const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
   const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
   const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
   const [configReady, setConfigReady] = useState<boolean>(false);
   const isNew = id === 'new';
+
+  const refreshSourcePreviews = (next?: { poster?: any; thumb?: any }) => {
+    const posterRaw = next && next.poster != null ? next.poster : form.getFieldValue('poster_url');
+    const thumbRaw = next && next.thumb != null ? next.thumb : form.getFieldValue('thumb_url');
+    const p = normalizeMovieImageUrl(String(posterRaw || '').trim(), 'poster');
+    const t = normalizeMovieImageUrl(String(thumbRaw || '').trim(), 'thumb');
+    setPosterPreview(p);
+    setThumbPreview(t);
+  };
 
   const isNormalizeMode = useMemo(() => {
     const v = String(searchParams.get('normalize') || '').trim();
@@ -498,6 +508,10 @@ export default function MovieEdit() {
     if (!isNew && id && spreadsheetId) {
       loadMovie(id);
     } else if (isNew) {
+      const existingId = String(form.getFieldValue('id') || '').trim();
+      if (!existingId) {
+        form.setFieldsValue({ id: String(Date.now()) });
+      }
       // Set default values for new movie
       form.setFieldsValue({
         type: typeFromQuery,
@@ -510,6 +524,7 @@ export default function MovieEdit() {
         is_exclusive: false,
         update: '',
       });
+      refreshSourcePreviews();
     }
   }, [id, typeFromQuery, spreadsheetId, serviceAccountKey, configReady]);
 
@@ -548,9 +563,6 @@ export default function MovieEdit() {
         throw new Error('Phim không tồn tại');
       }
 
-      const posterSlug = extractImageSlug(result.poster_url || '');
-      const thumbSlug = extractImageSlug(result.thumb_url || '');
-
       // Parse arrays from comma-separated strings
       form.setFieldsValue({
         ...result,
@@ -586,11 +598,7 @@ export default function MovieEdit() {
         setOriginalStatus({ state: 'idle' });
       }
 
-      const preview =
-        normalizeMovieImageUrl(result.poster_url || '', 'poster') ||
-        (posterSlug ? buildImageUrlFromSlug(posterSlug, 'poster') : '') ||
-        (thumbSlug ? buildImageUrlFromSlug(thumbSlug, 'thumb') : '');
-      setPosterPreview(preview);
+      refreshSourcePreviews({ poster: result.poster_url || '', thumb: result.thumb_url || '' });
     } catch (e: any) {
       message.error(e?.message || 'Không thể tải thông tin phim');
     } finally {
@@ -722,9 +730,7 @@ export default function MovieEdit() {
       };
 
       form.setFieldsValue(tmdbData);
-      if (tmdbData.poster_url) {
-        setPosterPreview(tmdbData.poster_url);
-      }
+      refreshSourcePreviews({ poster: tmdbData.poster_url, thumb: tmdbData.thumb_url });
       message.success('Đã lấy thông tin từ TMDB');
     } catch (e: any) {
       message.error(e?.message || 'Không thể lấy dữ liệu từ TMDB');
@@ -743,17 +749,19 @@ export default function MovieEdit() {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const apiBase = base || window.location.origin;
 
-      const posterUrlFull = normalizeMovieImageUrl(values.poster_url || '', 'poster');
-      const thumbUrlFull = normalizeMovieImageUrl(values.thumb_url || '', 'thumb');
+      const movieId = isNew ? String(values.id || '').trim() : String(id || '').trim();
+      if (isNew && !movieId) {
+        throw new Error('Thiếu id phim (không thể upload ảnh theo id)');
+      }
 
       // Convert arrays to comma-separated strings
       const payload = {
         ...values,
-        id: isNew ? undefined : id,
+        id: movieId,
         spreadsheetId,
         ...(serviceAccountKey ? { serviceAccountKey } : {}),
-        poster_url: posterUrlFull,
-        thumb_url: thumbUrlFull,
+        poster_url: String(values.poster_url || '').trim(),
+        thumb_url: String(values.thumb_url || '').trim(),
         genre: Array.isArray(values.genre) ? values.genre.join(',') : values.genre,
         country: Array.isArray(values.country) ? values.country.join(',') : values.country,
         director: Array.isArray(values.director) ? values.director.join(',') : values.director,
@@ -778,6 +786,8 @@ export default function MovieEdit() {
 
       message.success(isNew ? 'Đã thêm phim mới' : 'Đã cập nhật phim');
 
+      refreshSourcePreviews();
+
       if (isNew) {
         navigate(`/movies/${values.type}`);
       }
@@ -789,7 +799,11 @@ export default function MovieEdit() {
   };
 
   const handlePosterChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPosterPreview(normalizeMovieImageUrl(e.target.value, 'poster'));
+    refreshSourcePreviews({ poster: e.target.value });
+  };
+
+  const handleThumbChange = (e: ChangeEvent<HTMLInputElement>) => {
+    refreshSourcePreviews({ thumb: e.target.value });
   };
 
   return (
@@ -1137,6 +1151,16 @@ export default function MovieEdit() {
 
             <Col xs={24} lg={8}>
               <Card title="Poster phim" style={{ marginBottom: 16 }}>
+                <Form.Item name="id" label="ID" rules={[{ required: true, message: 'Thiếu ID' }]}>
+                  <Input
+                    disabled={!isNew}
+                    placeholder={isNew ? 'Nhập ID (vd: 123456)' : undefined}
+                    onChange={() => {
+                      refreshSourcePreviews();
+                    }}
+                  />
+                </Form.Item>
+
                 <Form.Item
                   name="poster_url"
                   label="URL Poster"
@@ -1148,18 +1172,27 @@ export default function MovieEdit() {
 
                 <div style={{ textAlign: 'center', marginTop: 16 }}>
                   <Image
-                    src={posterPreview || 'https://via.placeholder.com/300x450?text=No+Image'}
+                    src={posterPreview || '/images/default_poster.png'}
                     alt="Poster preview"
                     style={{ maxWidth: '100%', borderRadius: 8 }}
-                    fallback="https://via.placeholder.com/300x450?text=Error"
+                    fallback="/images/default_poster.png"
                   />
                 </div>
 
                 <Divider />
 
                 <Form.Item name="thumb_url" label="URL Thumbnail (nếu có)" extra={renderOriginalExtra('thumb_url', { label: 'Bản gốc' })}>
-                  <Input placeholder="https://..." />
+                  <Input placeholder="https://..." onChange={handleThumbChange} />
                 </Form.Item>
+
+                <div style={{ textAlign: 'center', marginTop: 16 }}>
+                  <Image
+                    src={thumbPreview || '/images/default_thumb.png'}
+                    alt="Thumb preview"
+                    style={{ maxWidth: '100%', borderRadius: 8 }}
+                    fallback="/images/default_thumb.png"
+                  />
+                </div>
               </Card>
 
               <Card title="Thông tin bổ sung">
