@@ -18,6 +18,10 @@ on:
         description: 'Sau khi build xong thì tải/nén/upload ảnh thumb/poster lên R2 (true/false)'
         required: false
         default: 'false'
+      reupload_existing:
+        description: 'Upload lại ảnh đã upload (bỏ qua r2_upload_state.json) (true/false)'
+        required: false
+        default: 'false'
 
 jobs:
   build_deploy:
@@ -99,13 +103,16 @@ jobs:
 
       - name: Upload movie images to R2 (after TMDB build)
         if: ${{ inputs.upload_images == 'true' }}
-        run: node scripts/upload-movie-images-r2.js
+        run: |
+          node scripts/upload-movie-images-r2.js \
+            --reupload_existing "${{ inputs.reupload_existing }}"
         env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
           R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          R2_REUPLOAD_EXISTING: ${{ inputs.reupload_existing }}
 
       - name: Commit & push TMDB
         run: |
