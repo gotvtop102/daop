@@ -1188,20 +1188,14 @@
             return;
           }
 
-          var norm = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
-            ? window.DAOP.normalizeImgUrl
-            : function (x) { return x; };
-          var normOphim = (window.DAOP && typeof window.DAOP.normalizeImgUrlOphim === 'function')
-            ? window.DAOP.normalizeImgUrlOphim
-            : function (x) { return x; };
-          var derivedPoster = (!movie.poster && movie.thumb && window.DAOP && typeof window.DAOP.derivePosterFromThumb === 'function')
-            ? window.DAOP.derivePosterFromThumb(movie.thumb)
-            : '';
           var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
           var defaultPoster = baseUrl + '/images/default_poster.png';
-          var posterRaw = (movie.poster || derivedPoster || movie.thumb || '');
-          var poster = norm(posterRaw).replace(/^\/\//, 'https://') || defaultPoster;
-          var posterOphim = normOphim(posterRaw).replace(/^\/\//, 'https://') || '';
+          var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
+          var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
+          r2Domain = r2Domain.replace(/\/$/, '');
+          var idStr = (movie && movie.id != null) ? String(movie.id) : '';
+          var poster = (r2Domain && idStr) ? (r2Domain + '/posters/' + idStr + '.webp') : '';
+          if (!poster) poster = defaultPoster;
           var title = (movie.title || '').replace(/</g, '&lt;');
           var slugSafe = esc(movie.slug || slug);
 
@@ -1212,7 +1206,7 @@
             '    <div class="watch-player-sticky">' +
             '      <div data-role="player"></div>' +
             '    </div>' +
-            '    <img alt="" style="position:absolute;left:-99999px;top:-99999px;width:1px;height:1px;opacity:0" src="' + esc(poster) + '"' + imgOnErrorAttr(posterOphim, '', defaultPoster) + '>' +
+            '    <img alt="" style="position:absolute;left:-99999px;top:-99999px;width:1px;height:1px;opacity:0" src="' + esc(poster) + '" onerror="this.onerror=null;this.src=\'' + esc(defaultPoster) + '\';">' +
             '    <div class="watch-player-meta" style="margin-top:0.75rem;">' +
             '      <div class="watch-player-meta-head">' +
             '        <a class="watch-back-btn" href="/phim/' + esc(movie.slug || slug) + '.html" aria-label="Về trang chi tiết">' +

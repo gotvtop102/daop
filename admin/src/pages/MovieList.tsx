@@ -116,95 +116,12 @@ export default function MovieList() {
     loadConfig();
   }, []);
 
-  const normalizeMovieImageUrl = (raw: string) => {
-    const u = String(raw || '').trim();
-    if (!u) return '';
+  const buildR2MovieImageUrl = (id: string, kind: 'thumb' | 'poster') => {
+    const idStr = String(id || '').trim();
+    if (!idStr) return '';
     const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
-    const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
-    const extractImageSlug = (rawSlug: string) => {
-      const x = String(rawSlug || '').trim();
-      if (!x) return '';
-      let name = x;
-      if (/^https?:\/\//i.test(x)) {
-        try {
-          const parsed = new URL(x);
-          const p = parsed.pathname || '';
-          const underKnownDomain =
-            (!!r2 && parsed.origin === r2) ||
-            (!!ophim && parsed.origin === ophim);
-          if (!underKnownDomain && p.indexOf('/uploads/') !== 0) {
-            return x;
-          }
-          name = p.split('/').pop() || '';
-        } catch {
-          name = x.split('/').pop() || '';
-        }
-      } else if (x.startsWith('/')) {
-        if (x.indexOf('/uploads/') !== 0) return x;
-        name = x.split('/').pop() || '';
-      }
-      name = name.split('?')[0].split('#')[0];
-      name = name.replace(/\.(jpe?g|jpg|png|webp|gif)$/i, '');
-      name = name
-        .replace(/[-_]?thumb$/i, '')
-        .replace(/[-_]?poster$/i, '')
-        .trim();
-      return name;
-    };
-    const buildImageUrlFromSlug = (slug: string, kind: 'thumb' | 'poster') => {
-      const s = String(slug || '').trim();
-      if (!s) return '';
-      if (r2) return `${r2}/${kind === 'poster' ? 'posters' : 'thumbs'}/${s}.webp`;
-      if (ophim) return `${ophim}/uploads/${kind === 'poster' ? 'posters' : 'thumbs'}/${s}.webp`;
-      return '';
-    };
-    const toWebpName = (filename: string) => {
-      const f = String(filename || '').trim();
-      if (!f) return '';
-      if (/\.gif$/i.test(f)) return f;
-      return f.replace(/\.(jpe?g|jpg|png|webp)$/i, '') + '.webp';
-    };
-    const buildR2FromUploadsPath = (uploadsPath: string) => {
-      const p = String(uploadsPath || '').trim();
-      if (!p || p.indexOf('/uploads/') !== 0) return '';
-      if (!r2) return '';
-      let filename = '';
-      try {
-        filename = p.split('/').pop() || '';
-      } catch {
-        filename = '';
-      }
-      if (!filename) return '';
-      const lower = filename.toLowerCase();
-      const folder = lower.indexOf('poster') >= 0 ? 'posters' : 'thumbs';
-      return r2 + '/' + folder + '/' + toWebpName(filename);
-    };
-
-    if (/^https?:\/\//i.test(u)) {
-      try {
-        const parsed = new URL(u);
-        const p = parsed.pathname || '';
-        if (p.indexOf('/uploads/') === 0) {
-          const r2u = buildR2FromUploadsPath(p);
-          if (r2u) return r2u;
-          if (ophim) return ophim + p;
-        }
-      } catch {
-        // ignore
-      }
-      return u;
-    }
-
-    if (u.startsWith('//')) return 'https:' + u;
-    if (u.startsWith('/uploads/')) {
-      const r2u = buildR2FromUploadsPath(u);
-      if (r2u) return r2u;
-      if (ophim) return ophim + u;
-    }
-
-    // slug-only
-    const slug = extractImageSlug(u);
-    return slug && !/^https?:\/\//i.test(slug) ? buildImageUrlFromSlug(slug, 'thumb') : u;
+    if (!r2) return '';
+    return `${r2}/${kind === 'poster' ? 'posters' : 'thumbs'}/${idStr}.webp`;
   };
 
   // Load movies from Google Sheets via API
@@ -376,12 +293,12 @@ export default function MovieList() {
       width: 80,
       render: (url: string, record: Movie) => (
         <Image
-          src={normalizeMovieImageUrl(url || record.poster_url || '')}
+          src={buildR2MovieImageUrl(record.id, 'poster') || '/images/default_poster.png'}
           alt={record.title}
           width={60}
           height={90}
           style={{ objectFit: 'cover', borderRadius: 4 }}
-          fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+          fallback="/images/default_poster.png"
         />
       ),
     },

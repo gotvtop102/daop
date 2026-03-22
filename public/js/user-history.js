@@ -205,35 +205,23 @@
           try {
             isFav = !!(us2 && us2.getFavorites && us2.getFavorites().has(h.slug));
           } catch (eFav0) {}
-          var norm = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
-            ? window.DAOP.normalizeImgUrl
-            : function (x) { return x; };
-          var normOphim = (window.DAOP && typeof window.DAOP.normalizeImgUrlOphim === 'function')
-            ? window.DAOP.normalizeImgUrlOphim
-            : function (x) { return x; };
           var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
           var defaultImg = baseUrl + '/images/default_thumb.png';
           if (!defaultImg) defaultImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="96" height="64"%3E%3Crect fill="%2321262d" width="96" height="64"/%3E%3C/svg%3E';
 
-          var posterRaw = (m.poster || '');
-          if (!posterRaw) posterRaw = (m.thumb || '');
-          var poster = norm(posterRaw).replace(/^\/\//, 'https://') || defaultImg;
-          var posterOphim = normOphim(posterRaw).replace(/^\/\//, 'https://') || '';
+          var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
+          var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
+          r2Domain = r2Domain.replace(/\/$/, '');
+          var idStr = (m && m.id != null) ? String(m.id) : '';
+          var poster = (r2Domain && idStr) ? (r2Domain + '/thumbs/' + idStr + '.webp') : '';
+          if (!poster) poster = defaultImg;
           var posterEsc = safeText(poster).replace(/"/g, '&quot;');
-          var oEsc = String(posterOphim || '').replace(/'/g, '%27');
           var dEsc = String(defaultImg || '').replace(/'/g, '%27');
 
           var html = '' +
             '<div class="user-history-item">' +
-            '  <a class="user-history-thumb" href="' + href + '"><img loading="lazy" decoding="async" src="' + posterEsc + '"' +
-            (function(){
-              if (oEsc && oEsc !== posterEsc) {
-                return ' onerror="this.onerror=function(){this.onerror=null;this.src=\'' + dEsc + '\';};this.src=\'' + oEsc + '\';"';
-              }
-              return ' onerror="this.onerror=null;this.src=\'' + dEsc + '\';"';
-            })() +
-            ' alt=""></a>' +
-            '  <div class="user-history-main">' +
+            '  <a class="user-history-thumb" href="' + href + '"><img loading="lazy" decoding="async" src="' + posterEsc + '" onerror="this.onerror=null;this.src=\'' + dEsc + '\';" alt="' + title + '"></a>' +
+            '  <div class="user-history-meta">' +
             '    <a class="user-history-title" href="' + href + '">' + title + '</a>' +
             '    <div class="user-history-meta">Tập: <strong>' + ep + '</strong>' + (last ? ' • ' + last : '') + '</div>' +
             '  </div>' +
