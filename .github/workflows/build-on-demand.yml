@@ -10,6 +10,10 @@ on:
         description: 'Sau khi build xong thì tải/nén/upload ảnh thumb/poster lên R2 (true/false)'
         required: false
         default: 'false'
+      reupload_existing:
+        description: 'Upload lại ảnh đã upload (bỏ qua r2_upload_state.json) (true/false)'
+        required: false
+        default: 'false'
       start_page:
         description: 'Trang bắt đầu (OPhim), 0 = mặc định'
         required: false
@@ -177,7 +181,9 @@ jobs:
 
       - name: Upload movie images to R2 (after build)
         if: ${{ env.UPLOAD_IMAGES == 'true' }}
-        run: node scripts/upload-movie-images-r2.js
+        run: |
+          node scripts/upload-movie-images-r2.js \
+            --reupload_existing "${{ inputs.reupload_existing }}"
         env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
