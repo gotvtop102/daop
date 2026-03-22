@@ -56,6 +56,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const twoPhase = (twoPhaseRaw === true || twoPhaseRaw === 'true' || phase === '2');
   const uploadImagesRaw = req.body?.upload_images ?? req.query?.upload_images;
   const uploadImages = uploadImagesRaw != null ? String(uploadImagesRaw) : undefined;
+  const reuploadExistingRaw = req.body?.reupload_existing ?? req.query?.reupload_existing;
+  const reuploadExisting = reuploadExistingRaw != null ? String(reuploadExistingRaw) : undefined;
 
   const repo = GITHUB_REPO.trim();
   const headers = {
@@ -99,6 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (startPage !== undefined) inputs.start_page = startPage;
       if (endPage !== undefined) inputs.end_page = endPage;
       if (uploadImages !== undefined) inputs.upload_images = uploadImages;
+      if (reuploadExisting !== undefined) inputs.reupload_existing = reuploadExisting;
 
       const url = twoPhase
         ? `https://api.github.com/repos/${repo}/actions/workflows/core-then-tmdb.yml/dispatches`
@@ -145,6 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (endPage !== undefined) inputs.end_page = endPage;
       if (clean !== undefined) inputs.clean = clean;
       if (uploadImages !== undefined) inputs.upload_images = uploadImages;
+      if (reuploadExisting !== undefined) inputs.reupload_existing = reuploadExisting;
       const r = await fetch(
         `https://api.github.com/repos/${repo}/actions/workflows/core-then-tmdb.yml/dispatches`,
         {
@@ -188,6 +192,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (startPage !== undefined) inputs.start_page = startPage;
       if (endPage !== undefined) inputs.end_page = endPage;
       if (uploadImages !== undefined) inputs.upload_images = uploadImages;
+      if (reuploadExisting !== undefined) inputs.reupload_existing = reuploadExisting;
 
       const url = twoPhase
         ? `https://api.github.com/repos/${repo}/actions/workflows/core-then-tmdb.yml/dispatches`
