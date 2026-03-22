@@ -314,11 +314,27 @@ async function main() {
   const posterH = Number(args.poster_height || 274);
 
   const forceSlugSet = normalizeSlugSet(parseSlugList(args.force_slugs));
-  const reuploadExisting = parseBool(args.reupload_existing, false);
+  const reuploadExisting = parseBool(args.reupload_existing, false) || parseBool(process.env.R2_REUPLOAD_EXISTING, false);
 
   const ophimBase = String(args.ophim_base || process.env.OPHIM_BASE_URL || 'https://ophim1.com/v1/api').replace(/\/$/, '');
   const fallbackOphim = parseBool(args.fallback_ophim, true);
   const ophimCacheBySlug = new Map();
+
+  console.log(
+    'Args:',
+    JSON.stringify(
+      {
+        mode,
+        reuploadExisting,
+        fallbackOphim,
+        forceSlugs: forceSlugSet ? forceSlugSet.size : 0,
+        limit: args.limit != null ? String(args.limit) : '',
+        concurrency: args.concurrency != null ? String(args.concurrency) : '',
+      },
+      null,
+      2
+    )
+  );
 
   const limit = args.limit != null ? Math.max(0, Number(args.limit)) : 0;
   const concurrency = Math.max(1, Math.min(32, Number(args.concurrency || 6)));
@@ -368,6 +384,9 @@ async function main() {
 
   let done = 0;
   let skipped = 0;
+  let skippedAlready = 0;
+  let skippedNoUrl = 0;
+  let skippedNoId = 0;
   let uploaded = 0;
   let failed = 0;
   const failureSamples = [];
@@ -387,7 +406,11 @@ async function main() {
 
   const processOne = async (m) => {
     const idStr = m && m.id != null ? String(m.id) : '';
-    if (!idStr) return;
+    if (!idStr) {
+      skipped++;
+      skippedNoId++;
+      return;
+    }
 
     const slugStr = normalizeSlugLike(m && (m.slug || '') ? String(m.slug) : '');
     const inForceList = !!(forceSlugSet && slugStr && forceSlugSet.has(slugStr));
@@ -414,6 +437,7 @@ async function main() {
       // force_slugs is only for selecting movies, not for enabling reupload.
       if (already && !reuploadExisting) {
         skipped++;
+        skippedAlready++;
         continue;
       }
 
@@ -433,7 +457,17 @@ async function main() {
 
       const url = normalizeSourceUrl(rawUrl);
       if (!url) {
-        skipped++;
+        // If we're reuploading (or forcing uploads) and still have no source URL,
+        // treat as a failure so it's visible (instead of being silently skipped).
+        if (reuploadExisting || inForceList) {
+          failed++;
+          state.uploaded[idStr] = state.uploaded[idStr] || {};
+          state.uploaded[idStr][kind] = { ok: false, at: Date.now(), reason: 'no_source_url' };
+          if (failureSamples.length < 8) failureSamples.push({ id: idStr, kind, url: '', reason: 'no_source_url' });
+        } else {
+          skipped++;
+          skippedNoUrl++;
+        }
         continue;
       }
 
@@ -513,7 +547,22 @@ async function main() {
     }
   }
 
-  console.log('Done. uploaded=', uploaded, 'skipped=', skipped, 'failed=', failed, 'state=', statePath);
+  console.log(
+    'Done. uploaded=',
+    uploaded,
+    'skipped=',
+    skipped,
+    '(already=',
+    skippedAlready,
+    'no_url=',
+    skippedNoUrl,
+    'no_id=',
+    skippedNoId,
+    ') failed=',
+    failed,
+    'state=',
+    statePath
+  );
   return;
 }
 

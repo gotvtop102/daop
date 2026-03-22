@@ -86,6 +86,7 @@ jobs:
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
           R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          R2_REUPLOAD_EXISTING: ${{ inputs.reupload_existing }}
 
       - name: Commit upload state
         run: |
