@@ -139,6 +139,12 @@ export default function GitHubActions() {
     return s.replace(/\\/g, '/').replace(/^\//, '').replace(/\/$/, '');
   };
 
+  const normalizeR2PrefixForDelete = (p: string) => {
+    const base = normalizePresetPrefixValue(p);
+    if (!base) return '';
+    return base.endsWith('/') ? base : base + '/';
+  };
+
   const readTextFile = (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
@@ -1252,16 +1258,72 @@ export default function GitHubActions() {
                             </Form.Item>
                           </Space>
 
-                          <Form.Item name="prefix" label="Prefix (ví dụ: thumbs/ hoặc posters/)">
-                            <Input placeholder="thumbs/" />
+                          <Form.Item noStyle shouldUpdate={(prev, cur) => prev.mode !== cur.mode}>
+                            {({ getFieldValue }) => {
+                              const mode = String(getFieldValue('mode') || 'prefix');
+                              if (mode !== 'prefix') return null;
+                              return (
+                                <Form.Item
+                                  name="prefix"
+                                  label="Prefix (thư mục trên R2)"
+                                  rules={[{ required: true, message: 'Chọn prefix để xóa' }]}
+                                  normalize={normalizeR2PrefixForDelete}
+                                >
+                                  <Select
+                                    style={{ width: 320 }}
+                                    placeholder="Chọn prefix..."
+                                    options={(() => {
+                                      const presets = parseR2PrefixPresets(r2PrefixPresetsText);
+                                      const opts = presets.map((p) => {
+                                        const base = normalizePresetPrefixValue(p.prefix);
+                                        return {
+                                          label: `${p.label} (${base}/)`,
+                                          value: base ? `${base}/` : '',
+                                        };
+                                      }).filter((o) => !!o.value);
+                                      const hasThumbs = opts.some((o) => o.value === 'thumbs/');
+                                      const hasPosters = opts.some((o) => o.value === 'posters/');
+                                      if (!hasThumbs) opts.unshift({ label: 'thumbs/', value: 'thumbs/' });
+                                      if (!hasPosters) opts.unshift({ label: 'posters/', value: 'posters/' });
+                                      return opts;
+                                    })()}
+                                    showSearch
+                                  />
+                                </Form.Item>
+                              );
+                            }}
                           </Form.Item>
 
-                          <Form.Item name="keys" label="Keys (mỗi dòng 1 key)">
-                            <Input.TextArea rows={3} placeholder="thumbs/123.webp\nposters/123.webp" />
+                          <Form.Item noStyle shouldUpdate={(prev, cur) => prev.mode !== cur.mode}>
+                            {({ getFieldValue }) => {
+                              const mode = String(getFieldValue('mode') || 'prefix');
+                              if (mode !== 'keys') return null;
+                              return (
+                                <Form.Item
+                                  name="keys"
+                                  label="Keys (mỗi dòng 1 key)"
+                                  rules={[{ required: true, message: 'Nhập danh sách keys để xóa' }]}
+                                >
+                                  <Input.TextArea rows={3} placeholder="thumbs/123.webp\nposters/123.webp" />
+                                </Form.Item>
+                              );
+                            }}
                           </Form.Item>
 
-                          <Form.Item name="movie_ids" label="Movie IDs (mỗi dòng 1 id)">
-                            <Input.TextArea rows={3} placeholder="62a4...\n6264..." />
+                          <Form.Item noStyle shouldUpdate={(prev, cur) => prev.mode !== cur.mode}>
+                            {({ getFieldValue }) => {
+                              const mode = String(getFieldValue('mode') || 'prefix');
+                              if (mode !== 'movie_ids') return null;
+                              return (
+                                <Form.Item
+                                  name="movie_ids"
+                                  label="Movie IDs (mỗi dòng 1 id)"
+                                  rules={[{ required: true, message: 'Nhập danh sách movie ids' }]}
+                                >
+                                  <Input.TextArea rows={3} placeholder="62a4...\n6264..." />
+                                </Form.Item>
+                              );
+                            }}
                           </Form.Item>
 
                           <Form.Item>

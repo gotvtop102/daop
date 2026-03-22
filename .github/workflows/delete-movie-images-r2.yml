@@ -7,7 +7,7 @@ on:
         required: false
         default: "prefix"
       prefix:
-        description: "Prefix to delete (e.g. thumbs/ or posters/)"
+        description: "Prefix to delete (e.g. thumbs/ posters/ slider/ banners/)"
         required: false
         default: ""
       keys:
