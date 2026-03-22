@@ -414,7 +414,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const inputs: Record<string, string> = {};
       const pick = (k: string) => (req.body?.[k] ?? req.query?.[k]);
 
-      const keys = ['folder', 'pairs', 'create_folders', 'ids', 'urls', 'quality', 'width', 'height', 'limit', 'concurrency'];
+      const keys = ['folder', 'pairs', 'ids', 'urls', 'quality', 'width', 'height', 'limit', 'concurrency'];
       for (const k of keys) {
         const v = pick(k);
         if (v != null && String(v).trim() !== '') inputs[k] = String(v);

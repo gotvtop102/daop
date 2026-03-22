@@ -11,10 +11,6 @@ on:
         description: "Optional: name|url pairs (newline separated). If provided, ids/urls will be ignored. name is output filename (e.g. 123.webp)."
         required: false
         default: ""
-      create_folders:
-        description: "Create folder marker object (folder/.keep) before uploading (true/false)"
-        required: false
-        default: "false"
       ids:
         description: "Movie IDs (newline separated). Must align with urls order."
         required: false
@@ -65,7 +61,6 @@ jobs:
           node scripts/upload-r2-from-urls.js \
             --folder "${{ inputs.folder }}" \
             --pairs "${{ inputs.pairs }}" \
-            --create_folders "${{ inputs.create_folders }}" \
             --ids "${{ inputs.ids }}" \
             --urls "${{ inputs.urls }}" \
             --quality "${{ inputs.quality }}" \

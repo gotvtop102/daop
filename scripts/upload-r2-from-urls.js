@@ -160,8 +160,6 @@ async function main() {
   const ids = parseList(args.ids);
   const urls = parseList(args.urls);
   const pairsRaw = String(args.pairs || '').trim();
-  const createFolders = String(args.create_folders || '').trim().toLowerCase();
-  const shouldCreateFolders = createFolders === '1' || createFolders === 'true' || createFolders === 'yes' || createFolders === 'on';
   const limit = Math.max(0, Number(args.limit || 0) || 0);
   const concurrency = Math.max(1, Math.min(16, Number(args.concurrency || 6) || 6));
 
@@ -198,15 +196,6 @@ async function main() {
   fs.ensureDirSync(path.dirname(outLog));
 
   console.log('Upload R2 from URLs', { folder, count: chosen.length, concurrency, mode: usePairs ? 'pairs' : 'ids_urls' });
-
-  if (shouldCreateFolders) {
-    try {
-      await uploadToR2(client, bucket, `${folder}/.keep`, Buffer.from(''));
-      console.log('Created folder marker:', `${folder}/.keep`);
-    } catch (e) {
-      console.warn('Failed to create folder marker (ignored):', e && e.message ? e.message : String(e));
-    }
-  }
 
   let next = 0;
   const results = [];

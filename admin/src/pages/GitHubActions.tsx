@@ -36,8 +36,6 @@ const UPLOAD_R2_KEYS = {
   limit: 'upload_r2_limit',
   concurrency: 'upload_r2_concurrency',
   reupload_existing: 'upload_r2_reupload_existing',
-  create_folders: 'upload_r2_create_folders',
-  notes: 'upload_r2_notes',
 };
 
 type ActionItem = {
@@ -310,8 +308,6 @@ export default function GitHubActions() {
           { key: UPLOAD_R2_KEYS.limit, value: String(values.limit ?? 0), updated_at: now },
           { key: UPLOAD_R2_KEYS.concurrency, value: String(values.concurrency ?? 6), updated_at: now },
           { key: UPLOAD_R2_KEYS.reupload_existing, value: values.reupload_existing ? '1' : '0', updated_at: now },
-          { key: UPLOAD_R2_KEYS.create_folders, value: values.create_folders ? '1' : '0', updated_at: now },
-          { key: UPLOAD_R2_KEYS.notes, value: String(values.notes ?? ''), updated_at: now },
         ],
         { onConflict: 'key' }
       );
@@ -376,8 +372,6 @@ export default function GitHubActions() {
         UPLOAD_R2_KEYS.limit,
         UPLOAD_R2_KEYS.concurrency,
         UPLOAD_R2_KEYS.reupload_existing,
-        UPLOAD_R2_KEYS.create_folders,
-        UPLOAD_R2_KEYS.notes,
         R2_PREFIX_PRESETS_KEY,
       ]);
     const map: Record<string, string> = {};
@@ -427,15 +421,8 @@ export default function GitHubActions() {
         if (!v) return false;
         return v === '1' || v === 'true' || v === 'yes' || v === 'on';
       })(),
-      create_folders: (() => {
-        const v = (map[UPLOAD_R2_KEYS.create_folders] || '').toString().trim().toLowerCase();
-        if (!v) return false;
-        return v === '1' || v === 'true' || v === 'yes' || v === 'on';
-      })(),
-      notes: (map[UPLOAD_R2_KEYS.notes] || '').toString(),
     };
     uploadForm.setFieldsValue(uploadDefaults);
-    uploadUrlsForm.setFieldsValue({ create_folders: uploadDefaults.create_folders });
 
     const presetsRaw = (map[R2_PREFIX_PRESETS_KEY] || '').toString();
     const defaultPresets = presetsRaw
@@ -892,8 +879,6 @@ export default function GitHubActions() {
                               force_slugs: '',
                               force_slugs_file: null,
                               reupload_existing: false,
-                              create_folders: false,
-                              notes: '',
                             }}
                           >
                             <Space wrap align="start">
@@ -940,15 +925,7 @@ export default function GitHubActions() {
                               <Form.Item name="reupload_existing" label="Upload lại nếu đã upload" valuePropName="checked">
                                 <Switch />
                               </Form.Item>
-
-                              <Form.Item name="create_folders" label="Tạo thư mục (marker .keep)" valuePropName="checked">
-                                <Switch />
-                              </Form.Item>
                             </Space>
-
-                            <Form.Item name="notes" label="Ghi chú">
-                              <Input.TextArea rows={3} placeholder="Ghi chú quy ước thư mục/đặt tên..." />
-                            </Form.Item>
                           </Form>
                         </Card>
 
@@ -1043,7 +1020,6 @@ export default function GitHubActions() {
                                       pairs: '',
                                       ids: '',
                                       urls: '',
-                                      create_folders: false,
                                       quality: 70,
                                       width: 0,
                                       height: 0,
@@ -1077,10 +1053,6 @@ export default function GitHubActions() {
                                           })()}
                                           showSearch
                                         />
-                                      </Form.Item>
-
-                                      <Form.Item name="create_folders" label="Tạo thư mục (marker .keep)" valuePropName="checked">
-                                        <Switch />
                                       </Form.Item>
 
                                       <Form.Item name="quality" label="Quality (1-100)">
