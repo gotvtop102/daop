@@ -588,13 +588,24 @@ export default function GitHubActions() {
   const doTrigger = async (actionId: string) => {
     setTriggering(actionId);
     try {
-      const body: { action: string; start_page?: number; end_page?: number; two_phase?: boolean; upload_images?: string } = { action: actionId };
+      const body: {
+        action: string;
+        start_page?: number;
+        end_page?: number;
+        two_phase?: boolean;
+        upload_images?: string;
+        reupload_existing?: string;
+      } = { action: actionId };
       if (actionId === 'update-data' || actionId === 'clean-rebuild') {
         const values = form.getFieldsValue();
         if (values.start_page != null) body.start_page = values.start_page;
         if (values.end_page != null) body.end_page = values.end_page;
         body.two_phase = !!twoPhase;
         body.upload_images = autoUploadImagesAfterBuild ? 'true' : 'false';
+        if (autoUploadImagesAfterBuild) {
+          const reuploadExisting = !!uploadForm.getFieldValue('reupload_existing');
+          body.reupload_existing = reuploadExisting ? 'true' : 'false';
+        }
       }
       const res = await fetch(`${API_URL}/api/trigger-action`, {
         method: 'POST',
