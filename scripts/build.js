@@ -66,7 +66,18 @@ async function r2KeyExists(client, bucket, key) {
       })
     );
     return true;
-  } catch {
+  } catch (e) {
+    const status = e && e.$metadata && typeof e.$metadata.httpStatusCode === 'number'
+      ? e.$metadata.httpStatusCode
+      : undefined;
+    // Only treat true "missing" as not existing.
+    if (status === 404) return false;
+    // If HeadObject is forbidden/unauthorized, we can't reliably check existence.
+    // Assume it exists to avoid reuploading everything on every build.
+    if (status === 401 || status === 403) {
+      console.warn('WARNING: R2 HeadObject not allowed (HTTP ' + status + '). Assuming key exists to avoid mass reupload. key=' + key);
+      return true;
+    }
     return false;
   }
 }
