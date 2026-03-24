@@ -9,6 +9,17 @@ import sharp from 'sharp';
 const DEFAULT_SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
 const SERVICE_ACCOUNT_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_KEY || process.env.GOOGLE_SHEETS_JSON;
 
+function colToLetter(colIndex: number) {
+  let n = Number(colIndex);
+  if (!Number.isFinite(n) || n < 0) return 'A';
+  let s = '';
+  while (n >= 0) {
+    s = String.fromCharCode((n % 26) + 65) + s;
+    n = Math.floor(n / 26) - 1;
+  }
+  return s;
+}
+
 function isR2Configured() {
   return !!(
     process.env.R2_ACCOUNT_ID &&
@@ -17,6 +28,58 @@ function isR2Configured() {
     process.env.R2_BUCKET_NAME &&
     process.env.R2_PUBLIC_URL
   );
+}
+
+async function updateMovieShowtimesOnly(sheets: any, spreadsheetId: string, movieId: string, body: any) {
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: 'movies!A:Z',
+  });
+
+  const rows = (response.data.values || []) as any[][];
+  if (rows.length < 2) {
+    throw new Error('Movies sheet has no data');
+  }
+
+  const headers = (rows[0] || []).map(normalizeHeader);
+  const idxId = headers.indexOf('id');
+  const idxShowtimes = headers.indexOf('showtimes');
+  const idxModified = headers.indexOf('modified');
+  const idxUpdate = headers.indexOf('update');
+
+  if (idxId < 0) throw new Error('Sheet missing id column');
+  if (idxShowtimes < 0) throw new Error('Sheet missing showtimes column');
+
+  const idToFind = String(movieId ?? '').trim();
+  const dataRows = rows.slice(1);
+  const existingRowIndex = dataRows.findIndex((row: any[]) => String(row[idxId] ?? '').trim() === idToFind);
+  if (existingRowIndex < 0) {
+    throw new Error('Movie not found');
+  }
+  const actualRow = existingRowIndex + 2; // +1 header, +1 1-based
+
+  const showtimesVal = String((body as any)?.showtimes ?? '').trim();
+  const modifiedVal = new Date().toISOString();
+
+  const updates: Array<{ range: string; values: any[][] }> = [];
+  updates.push({ range: `movies!${colToLetter(idxShowtimes)}${actualRow}`, values: [[showtimesVal]] });
+  if (idxModified >= 0) {
+    updates.push({ range: `movies!${colToLetter(idxModified)}${actualRow}`, values: [[modifiedVal]] });
+  }
+  if (idxUpdate >= 0) {
+    updates.push({ range: `movies!${colToLetter(idxUpdate)}${actualRow}`, values: [['NEW']] });
+  }
+
+  for (const u of updates) {
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: u.range,
+      valueInputOption: 'RAW',
+      requestBody: { values: u.values },
+    });
+  }
+
+  return { success: true, id: idToFind, updated: ['showtimes', ...(idxModified >= 0 ? ['modified'] : []), ...(idxUpdate >= 0 ? ['update'] : [])] };
 }
 
 function normalizeSourceImageUrl(u: string) {
@@ -432,6 +495,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(405).json({ error: 'Method not allowed' });
         }
         const result = await saveMovie(sheets, spreadsheetId, req.body);
+        return res.status(200).json(result);
+      }
+
+      case 'updateShowtimes': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        const id = (req.query as any)?.id || (req.body as any)?.id;
+        if (!id) return res.status(400).json({ error: 'Missing movie ID' });
+        const result = await updateMovieShowtimesOnly(sheets, spreadsheetId, String(id), req.body);
         return res.status(200).json(result);
       }
 

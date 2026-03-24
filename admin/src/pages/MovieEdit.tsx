@@ -98,6 +98,7 @@ const UPDATE_OPTIONS = [
   { value: 'OK2', label: 'OK2' },
   { value: 'COPY', label: 'COPY' },
   { value: 'COPY2', label: 'COPY2' },
+  { value: 'TIME', label: 'TIME' },
 ];
 
 const normalizeLooseText = (input: any) => {
@@ -770,6 +771,49 @@ export default function MovieEdit() {
       const movieId = isNew ? String(values.id || '').trim() : String(id || '').trim();
       if (isNew && !movieId) {
         throw new Error('Thiếu id phim (không thể upload ảnh theo id)');
+      }
+
+      const updateMode = String(values.update || '').trim().toUpperCase();
+      if (updateMode === 'TIME') {
+        if (isNew) {
+          throw new Error('TIME chỉ dùng khi cập nhật phim đã tồn tại');
+        }
+
+        const res = await fetch(`${apiBase}/api/movies?action=updateShowtimes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: movieId,
+            showtimes: String(values.showtimes || '').trim(),
+            spreadsheetId,
+            ...(serviceAccountKey ? { serviceAccountKey } : {}),
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(err || `HTTP ${res.status}`);
+        }
+
+        const result = await res.json();
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        // Trigger build to apply showtimes changes
+        try {
+          await fetch(`${apiBase}/api/trigger-build`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason: 'update_showtimes', id: movieId }),
+          });
+        } catch (e) {
+          // ignore build trigger errors here; user can manually trigger
+        }
+
+        message.success('Đã cập nhật lịch chiếu (showtimes) và trigger build');
+        refreshSourcePreviews();
+        return;
       }
 
       // Convert arrays to comma-separated strings

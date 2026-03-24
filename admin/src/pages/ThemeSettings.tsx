@@ -11,11 +11,13 @@ const THEME_KEYS = [
   'theme_footer_text', 'theme_section_title', 'theme_filter_label',
   'theme_pagination', 'theme_link',
   'theme_slider_title', 'theme_slider_meta', 'theme_slider_desc',
+  'theme_showtimes_color',
   'theme_movie_card_title', 'theme_movie_card_meta',
   'theme_header_logo_light', 'theme_header_link_light',
   'theme_footer_text_light', 'theme_section_title_light', 'theme_filter_label_light',
   'theme_pagination_light', 'theme_link_light',
   'theme_slider_title_light', 'theme_slider_meta_light', 'theme_slider_desc_light',
+  'theme_showtimes_color_light',
   'theme_movie_card_title_light', 'theme_movie_card_meta_light',
 ] as const;
 
@@ -46,6 +48,7 @@ const DEFAULTS: Record<string, string> = {
   theme_slider_title: '#d23737',
   theme_slider_meta: 'rgba(255,255,255,0.75)',
   theme_slider_desc: 'rgba(255,255,255,0.7)',
+  theme_showtimes_color: '',
   theme_movie_card_title: '#ffffff',
   theme_movie_card_meta: '#8b949e',
   theme_header_logo_light: '#1f2328',
@@ -57,6 +60,7 @@ const DEFAULTS: Record<string, string> = {
   theme_slider_title_light: '#d23737',
   theme_slider_meta_light: 'rgba(255,255,255,0.75)',
   theme_slider_desc_light: 'rgba(255,255,255,0.7)',
+  theme_showtimes_color_light: '',
   theme_movie_card_title_light: '#1f2328',
   theme_movie_card_meta_light: '#5c6773',
 };
@@ -88,6 +92,7 @@ const LABELS: Record<string, string> = {
   theme_slider_title: 'Slider trang chủ: tiêu đề',
   theme_slider_meta: 'Slider: dòng 2 (năm | quốc gia)',
   theme_slider_desc: 'Slider: mô tả',
+  theme_showtimes_color: 'Lịch chiếu (Showtimes): màu chữ',
   theme_movie_card_title: 'Thẻ phim: tiêu đề',
   theme_movie_card_meta: 'Thẻ phim: dòng phụ (năm, tập)',
   theme_header_logo_light: 'Header - Light theme: màu logo/tên site',
@@ -99,6 +104,7 @@ const LABELS: Record<string, string> = {
   theme_slider_title_light: 'Slider - Light theme: tiêu đề',
   theme_slider_meta_light: 'Slider - Light theme: dòng 2 (năm | quốc gia)',
   theme_slider_desc_light: 'Slider - Light theme: mô tả',
+  theme_showtimes_color_light: 'Lịch chiếu (Showtimes) - Light theme: màu chữ',
   theme_movie_card_title_light: 'Thẻ phim - Light theme: tiêu đề',
   theme_movie_card_meta_light: 'Thẻ phim - Light theme: dòng phụ (năm, tập)',
 };
@@ -270,6 +276,11 @@ export default function ThemeSettings() {
                       <ColorValueInput defaultValue={DEFAULTS.theme_slider_desc} placeholder="vd: rgba(255,255,255,0.7) hoặc #aaa" />
                     </Form.Item>
 
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Lịch chiếu (Showtimes)</h3>
+                    <Form.Item name="theme_showtimes_color" label={LABELS.theme_showtimes_color}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_showtimes_color} placeholder="Để trống = dùng màu mặc định" />
+                    </Form.Item>
+
                     <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
                     <Form.Item name="theme_movie_card_title" label={LABELS.theme_movie_card_title}>
                       <ColorValueInput defaultValue={DEFAULTS.theme_movie_card_title} />
@@ -349,6 +360,11 @@ export default function ThemeSettings() {
                     </Form.Item>
                     <Form.Item name="theme_slider_desc_light" label={LABELS.theme_slider_desc_light}>
                       <ColorValueInput defaultValue={DEFAULTS.theme_slider_desc_light} placeholder="vd: rgba(255,255,255,0.7) hoặc #aaa" />
+                    </Form.Item>
+
+                    <h3 style={{ marginTop: 24, marginBottom: 12 }}>Lịch chiếu (Showtimes)</h3>
+                    <Form.Item name="theme_showtimes_color_light" label={LABELS.theme_showtimes_color_light}>
+                      <ColorValueInput defaultValue={DEFAULTS.theme_showtimes_color_light} placeholder="Để trống = dùng màu mặc định" />
                     </Form.Item>
 
                     <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
