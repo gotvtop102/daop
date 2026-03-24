@@ -152,6 +152,14 @@ jobs:
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
           R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
 
+      - name: Upload CORE public data artifact (2-phase)
+        if: ${{ env.TWO_PHASE == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-data-core
+          path: public/data
+          if-no-files-found: error
+
       - name: Commit & push CORE (2-phase)
         if: ${{ env.TWO_PHASE == 'true' }}
         run: |
@@ -179,6 +187,13 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '3.91.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
+
+      - name: Restore CORE public data before TMDB_ONLY (2-phase)
+        if: ${{ env.TWO_PHASE == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: public-data-core
+          path: public/data
 
       - name: Build TMDB ONLY (2-phase)
         if: ${{ env.TWO_PHASE == 'true' }}
