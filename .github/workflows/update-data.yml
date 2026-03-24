@@ -131,13 +131,6 @@ jobs:
             git push
           fi
 
-      - name: Export to Google Sheets (after 1-phase)
-        if: ${{ env.TWO_PHASE != 'true' }}
-        run: node scripts/export-to-sheets.js
-        env:
-          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
-          GOOGLE_SHEETS_JSON: ${{ secrets.GOOGLE_SHEETS_JSON }}
-
       - name: Build CORE (2-phase, skip TMDB)
         if: ${{ env.TWO_PHASE == 'true' }}
         run: npm run build
@@ -277,13 +270,6 @@ jobs:
             done
           fi
 
-      - name: Export to Google Sheets (after 2-phase)
-        if: ${{ env.TWO_PHASE == 'true' }}
-        run: node scripts/export-to-sheets.js
-        env:
-          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
-          GOOGLE_SHEETS_JSON: ${{ secrets.GOOGLE_SHEETS_JSON }}
-
       - name: Deploy TMDB to Cloudflare Pages (2-phase)
         if: ${{ env.TWO_PHASE == 'true' }}
         uses: cloudflare/wrangler-action@v3
@@ -292,3 +278,10 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '3.91.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
+
+      - name: Export to Google Sheets (after 2-phase deploy)
+        if: ${{ env.TWO_PHASE == 'true' }}
+        run: node scripts/export-to-sheets.js
+        env:
+          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+          GOOGLE_SHEETS_JSON: ${{ secrets.GOOGLE_SHEETS_JSON }}
