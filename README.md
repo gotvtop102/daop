@@ -169,7 +169,7 @@ Trang chủ load `public/data/config/homepage-sections.json` (build xuất từ 
 |------------------------|--------------------|-------------------|
 | Phim bộ                | type: series       | /phim-bo.html     |
 | Phim lẻ                | type: single       | /phim-le.html     |
-| Phim 4K                | quality_4k         | /danh-sach/phim-4k.html |
+| Phim 4K                | quality_4k         | /chu-de/phim-4k.html |
 | Thể loại (mẫu)         | genre: hanh-dong   | /the-loai/        |
 | Quốc gia (mẫu)         | country: au-my     | /quoc-gia/        |
 | Năm phát hành (mẫu)    | year: 2024         | /nam-phat-hanh/   |

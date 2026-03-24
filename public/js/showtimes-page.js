@@ -158,7 +158,22 @@
       if (!listEl) return;
       listEl.innerHTML = '<p>Đang tải...</p>';
 
-      var getById = window.DAOP && window.DAOP.getMovieLightByIdAsync;
+      var loadDetail = window.DAOP && window.DAOP.loadMovieDetail;
+      var getLight = window.DAOP && window.DAOP.getMovieLightByIdAsync;
+      var getById = function (id) {
+        if (typeof loadDetail === 'function') {
+          return new Promise(function (resolve) {
+            try {
+              loadDetail(id, function (m) { resolve(m || null); });
+            } catch (e) {
+              resolve(null);
+            }
+          });
+        }
+        if (typeof getLight === 'function') return getLight(id);
+        return Promise.resolve(null);
+      };
+
       if (typeof getById !== 'function') {
         listEl.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
         return;

@@ -29,7 +29,7 @@ Tài liệu đối chiếu từng yêu cầu trong **DA.txt** với hiện trạ
 
 | Yêu cầu | Trạng thái |
 |---------|------------|
-| OPhim: danh-sach/phim-moi phân trang, /phim/{slug} chi tiết, delay 200ms | ✅ |
+| OPhim API: /danh-sach/phim-moi phân trang, /phim/{slug} chi tiết, delay 200ms | ✅ |
 | Google Sheets (service account) hoặc Excel fallback | ✅ |
 | TMDB credits, keywords cho phim có tmdb_id | ✅ |
 | Xử lý ảnh: fetch → sharp WebP 80% → upload R2 | ✅ (processImage có; gọi tùy chọn) |
@@ -50,7 +50,7 @@ Tài liệu đối chiếu từng yêu cầu trong **DA.txt** với hiện trạ
 
 | Yêu cầu | Trạng thái |
 |---------|------------|
-| Cấu trúc thư mục public/ đúng DA.txt | ✅ (the-loai, quoc-gia, nam-phat-hanh, danh-sach, dien-vien, phim) |
+| Cấu trúc thư mục public/ đúng DA.txt | ✅ (the-loai, quoc-gia, nam-phat-hanh, chu-de, dien-vien, phim) |
 | Trang chủ: homepage-sections.json, banners.json, section type/genre/status | ✅ |
 | Card phim: title + origin_name | ✅ |
 | CategoryPage: baseFilter, filter năm/thể loại/quốc gia/4K/độc quyền, pagination | ✅ |

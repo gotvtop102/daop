@@ -68,8 +68,6 @@
         var a = links[i];
         var href = (a.getAttribute('href') || '').trim();
         if (
-          href === '/danh-sach/' ||
-          href === (BASE + '/danh-sach/') ||
           href === '/chu-de/' ||
           href === (BASE + '/chu-de/')
         ) {

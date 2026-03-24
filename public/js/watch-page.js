@@ -7,6 +7,90 @@
     } catch (e) {}
   }
 
+  function initPlaybackControls(hostEl, videoEl, chosenPlayer, playerConfig, jwInstance) {
+    try {
+      if (!hostEl || !videoEl) return;
+      playerConfig = playerConfig || {};
+      var enabled = playerConfig.playback_speed_enabled !== false;
+      var step = parseInt(playerConfig.seek_step_seconds, 10);
+      if (!isFinite(step) || step <= 0) step = 10;
+      var speeds = Array.isArray(playerConfig.playback_speed_options) ? playerConfig.playback_speed_options : [0.5, 0.75, 1, 1.25, 1.5, 2];
+      if (!speeds.length) speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
+      var defaultSpeed = Number(playerConfig.playback_speed_default);
+      if (!isFinite(defaultSpeed) || defaultSpeed <= 0) defaultSpeed = 1;
+      if (speeds.indexOf(defaultSpeed) < 0) speeds = speeds.concat([defaultSpeed]).sort(function (a, b) { return a - b; });
+
+      var bar = hostEl.querySelector('[data-role="playback"]');
+      if (!bar) return;
+      if (!enabled) {
+        bar.style.display = 'none';
+        return;
+      }
+
+      bar.style.display = '';
+      var speedOptions = speeds.map(function (s) {
+        var val = Number(s);
+        if (!isFinite(val) || val <= 0) return '';
+        var selected = val === defaultSpeed ? ' selected' : '';
+        return '<option value="' + val + '"' + selected + '>' + val + 'x</option>';
+      }).filter(Boolean).join('');
+
+      bar.innerHTML =
+        '<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;">' +
+        '  <div style="display:flex;gap:8px;align-items:center;">' +
+        '    <span style="font-size:0.85rem;color:#8b949e;">Tua</span>' +
+        '    <button type="button" data-role="seek-back" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">-' + step + 's</button>' +
+        '    <button type="button" data-role="seek-fwd" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">+' + step + 's</button>' +
+        '  </div>' +
+        '  <label style="display:flex;gap:8px;align-items:center;">' +
+        '    <span style="font-size:0.85rem;color:#8b949e;">Tốc độ</span>' +
+        '    <select data-role="speed" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + speedOptions + '</select>' +
+        '  </label>' +
+        '</div>';
+
+      function getCurrentTime() {
+        try {
+          if (chosenPlayer === 'jwplayer' && jwInstance && typeof jwInstance.getPosition === 'function') {
+            return Number(jwInstance.getPosition()) || 0;
+          }
+        } catch (e) {}
+        return Number(videoEl.currentTime) || 0;
+      }
+
+      function seekTo(t) {
+        try {
+          if (!isFinite(t) || t < 0) t = 0;
+          if (chosenPlayer === 'jwplayer' && jwInstance && typeof jwInstance.seek === 'function') {
+            jwInstance.seek(t);
+            return;
+          }
+        } catch (e) {}
+        try { videoEl.currentTime = t; } catch (e2) {}
+      }
+
+      function setSpeed(rate) {
+        rate = Number(rate);
+        if (!isFinite(rate) || rate <= 0) rate = 1;
+        try {
+          if (chosenPlayer === 'jwplayer' && jwInstance && typeof jwInstance.setPlaybackRate === 'function') {
+            jwInstance.setPlaybackRate(rate);
+            return;
+          }
+        } catch (e) {}
+        try { videoEl.playbackRate = rate; } catch (e2) {}
+      }
+
+      setSpeed(defaultSpeed);
+
+      var btnBack = bar.querySelector('[data-role="seek-back"]');
+      var btnFwd = bar.querySelector('[data-role="seek-fwd"]');
+      var selSpeed = bar.querySelector('[data-role="speed"]');
+      if (btnBack) btnBack.onclick = function () { seekTo(getCurrentTime() - step); };
+      if (btnFwd) btnFwd.onclick = function () { seekTo(getCurrentTime() + step); };
+      if (selSpeed) selSpeed.onchange = function () { setSpeed(selSpeed.value); };
+    } catch (e) {}
+  }
+
   function isM3u8Url(url) {
     if (!url) return false;
     var u = String(url);
@@ -475,6 +559,7 @@
       '<div class="watch-player-card">' +
       '<div class="watch-player-wrap">' +
       '<div class="watch-player-quality" data-role="quality" style="display:none;margin:0 0 8px;"></div>' +
+      '<div class="watch-player-playback" data-role="playback" style="display:none;margin:0 0 8px;"></div>' +
       playerHtml +
       '<div class="watch-next-overlay" data-role="next-overlay" style="display:none;">' +
       '  <button type="button" class="watch-next-btn" data-role="next-btn">Tập tiếp theo</button>' +
@@ -530,6 +615,7 @@
               tooltips: { controls: playerConfig.plyr_tooltips === 'controls', seek: playerConfig.plyr_tooltips === 'seek' }
             });
             plyrInstance.on('timeupdate', reportTime);
+            initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
           } catch (e) {}
         }).catch(function () {});
         break;
@@ -571,6 +657,7 @@
             jwp.on('time', function (e) {
               reportTime();
             });
+            initPlaybackControls(container, video, chosenPlayer, playerConfig, jwp);
           } catch (e) {}
         }).catch(function () {});
         break;
@@ -647,12 +734,14 @@
             }
             var fluidPlayer = window.fluidPlayer(video, fluidConfig);
             video.addEventListener('timeupdate', reportTime);
+            initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
           } catch (e) {}
         }).catch(function () {});
         break;
 
       default:
         // Native player - do nothing extra
+        initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
         break;
     }
   }
