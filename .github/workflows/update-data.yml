@@ -188,6 +188,12 @@ jobs:
           wranglerVersion: '3.91.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
+      - name: Clean public/data before restoring CORE artifact (2-phase)
+        if: ${{ env.TWO_PHASE == 'true' }}
+        run: |
+          rm -rf public/data
+          mkdir -p public/data
+
       - name: Restore CORE public data before TMDB_ONLY (2-phase)
         if: ${{ env.TWO_PHASE == 'true' }}
         uses: actions/download-artifact@v4

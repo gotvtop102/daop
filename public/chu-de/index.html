@@ -74,9 +74,10 @@
       function render(items){
         grid.innerHTML = items.map(function(it){
           var label = (it.label || '').replace(/</g,'&lt;');
-          return '<a class="genre-card list-card" href="' + (base + it.href).replace(/\\/\\/g,'/') + '"><span class="genre-icon">' + (it.icon||'🎬') + '</span><span class="genre-name">' + label + '</span></a>';
+          return '<a class="genre-card list-card" href="' + (base + it.href).replace(/\/\//g,'/') + '"><span class="genre-icon">' + (it.icon||'🎬') + '</span><span class="genre-name">' + label + '</span></a>';
         }).join('');
       }
+      render(defaultList);
       fetch(base + '/data/config/list-order.json').then(function(r){ return r.json(); }).then(function(arr){
         if (Array.isArray(arr) && arr.length) render(arr);
         else render(defaultList);
