@@ -891,7 +891,18 @@ async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
     return val || '';
   });
 
-  if (isNew) {
+  // Some clients pre-generate id for new movies.
+  // If an id is provided but not found in the sheet, treat it as a new movie.
+  let existingRowIndex = -1;
+  if (!isNew) {
+    const dataRows = rows.slice(1);
+    const idToFind = String(movieData.id ?? '').trim();
+    existingRowIndex = dataRows.findIndex((row: any[]) => String(row[0] ?? '').trim() === idToFind);
+  }
+
+  const shouldAppend = isNew || existingRowIndex === -1;
+
+  if (shouldAppend) {
     // Append new row
     await sheets.spreadsheets.values.append({
       spreadsheetId,
@@ -901,14 +912,7 @@ async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
     });
   } else {
     // Find and update existing row
-    const dataRows = rows.slice(1);
-    const rowIndex = dataRows.findIndex((row: any[]) => String(row[0] ?? '') === String(movieData.id));
-
-    if (rowIndex === -1) {
-      throw new Error('Movie not found');
-    }
-
-    const actualRow = rowIndex + 2; // +1 for header, +1 for 1-based indexing
+    const actualRow = existingRowIndex + 2; // +1 for header, +1 for 1-based indexing
     await sheets.spreadsheets.values.update({
       spreadsheetId,
       range: `movies!A${actualRow}:${String.fromCharCode(65 + headers.length - 1)}${actualRow}`,
@@ -917,7 +921,7 @@ async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
     });
   }
 
-  return { success: true, id: movieData.id, isNew };
+  return { success: true, id: movieData.id, isNew: shouldAppend };
 }
 
 // Delete movie
