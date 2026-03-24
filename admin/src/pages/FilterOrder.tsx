@@ -52,17 +52,17 @@ const LANG_OPTIONS: Record<string, string> = {
 
 /** Mục trang Danh sách: id -> { label, href, icon } */
 const LIST_OPTIONS: Record<string, { label: string; href: string; icon: string }> = {
-  'lich-chieu': { label: 'Lịch chiếu', href: '/danh-sach/lich-chieu.html', icon: '📅' },
-  'phim-4k': { label: 'Phim 4K', href: '/danh-sach/phim-4k.html', icon: '📺' },
+  'lich-chieu': { label: 'Lịch chiếu', href: '/chu-de/lich-chieu.html', icon: '📅' },
+  'phim-4k': { label: 'Phim 4K', href: '/chu-de/phim-4k.html', icon: '📺' },
   'shows': { label: 'TV Shows', href: '/shows.html', icon: '📺' },
   'hoat-hinh': { label: 'Hoạt hình', href: '/hoat-hinh.html', icon: '🎬' },
-  'phim-vietsub': { label: 'Phim Vietsub', href: '/danh-sach/phim-vietsub.html', icon: '🇻🇳' },
-  'phim-thuyet-minh': { label: 'Phim Thuyết minh', href: '/danh-sach/phim-thuyet-minh.html', icon: '🎙️' },
-  'phim-long-tieng': { label: 'Phim Lồng tiếng', href: '/danh-sach/phim-long-tieng.html', icon: '🔊' },
-  'phim-doc-quyen': { label: 'Phim Độc quyền', href: '/danh-sach/phim-doc-quyen.html', icon: '⭐' },
-  'phim-dang-chieu': { label: 'Phim đang chiếu', href: '/danh-sach/phim-dang-chieu.html', icon: '🎞️' },
-  'phim-sap-chieu': { label: 'Phim sắp chiếu', href: '/danh-sach/phim-sap-chieu.html', icon: '📅' },
-  'phim-chieu-rap': { label: 'Phim chiếu rạp', href: '/danh-sach/phim-chieu-rap.html', icon: '🎭' },
+  'phim-vietsub': { label: 'Phim Vietsub', href: '/chu-de/phim-vietsub.html', icon: '🇻🇳' },
+  'phim-thuyet-minh': { label: 'Phim Thuyết minh', href: '/chu-de/phim-thuyet-minh.html', icon: '🎙️' },
+  'phim-long-tieng': { label: 'Phim Lồng tiếng', href: '/chu-de/phim-long-tieng.html', icon: '🔊' },
+  'phim-doc-quyen': { label: 'Phim Độc quyền', href: '/chu-de/phim-doc-quyen.html', icon: '⭐' },
+  'phim-dang-chieu': { label: 'Phim đang chiếu', href: '/chu-de/phim-dang-chieu.html', icon: '🎞️' },
+  'phim-sap-chieu': { label: 'Phim sắp chiếu', href: '/chu-de/phim-sap-chieu.html', icon: '📅' },
+  'phim-chieu-rap': { label: 'Phim chiếu rạp', href: '/chu-de/phim-chieu-rap.html', icon: '🎭' },
   'the-loai': { label: 'Thể loại', href: '/the-loai/', icon: '🎬' },
   'quoc-gia': { label: 'Quốc gia', href: '/quoc-gia/', icon: '🌐' },
   'nam-phat-hanh': { label: 'Năm phát hành', href: '/nam-phat-hanh/', icon: '📅' },
@@ -225,7 +225,7 @@ export default function FilterOrder() {
 
         {renderOrderList('Thứ tự Kiểu ngôn ngữ', displayLangOrder, LANG_OPTIONS, moveLang)}
 
-        {renderOrderList('Thứ tự trang Hot Play', displayListOrder, Object.fromEntries(listIds.map(id => [id, LIST_OPTIONS[id].label])), moveList)}
+        {renderOrderList('Thứ tự trang Chủ đề', displayListOrder, Object.fromEntries(listIds.map(id => [id, LIST_OPTIONS[id].label])), moveList)}
 
         <Button type="primary" onClick={onSave} loading={saving}>
           Lưu

@@ -411,11 +411,6 @@ async function main() {
   const moviesToAppend = [];
   const episodesToAppend = [];
   const moviesToUpdate = [];
-  const moviesToCopyAppend = [];
-  const episodesToCopyAppend = [];
-  const episodesToCopyUpdate = [];
-  let copyEpisodesAppendCount = 0;
-  let copyEpisodesOverwriteCount = 0;
 
   let skippedCount = 0;
   for (const m of movies) {
@@ -439,67 +434,11 @@ async function main() {
     const sheetModified = existing.modified || '';
     const shouldUpdate = sheetModified ? (localModified && localModified > sheetModified) : false;
     if (shouldUpdate) {
-      const u = String(existing.update || '').toUpperCase().trim();
-      if (idxUpdate >= 0 && (u === 'OK' || u === 'OK2')) {
-        const copyMovie = { ...m, update_status: (u === 'OK2' ? 'COPY2' : 'COPY') };
-        // User yêu cầu giữ nguyên id gốc cho COPY/COPY2
-        const copyMovieId = existing.id || m.id;
-        const row = buildMovieRow(copyMovie, movieHeaders, copyMovieId);
-        moviesToCopyAppend.push(row);
-
-        // Đồng bộ episodes: add missing rows, overwrite link cells for existing rows.
-        const localEpRows = buildEpisodeRows(copyMovieId, m, epHeaders);
-        if (localEpRows.length) {
-          const lastCol = colToLetter(Math.max(0, epHeaders.length - 1));
-          const idxLinkM3U8 = headerIndexFromHeaders(epHeaders, 'link_m3u8');
-          const idxLinkEmbed = headerIndexFromHeaders(epHeaders, 'link_embed');
-          const idxLinkBackup = headerIndexFromHeaders(epHeaders, 'link_backup');
-          const idxLinkVip1 = headerIndexFromHeaders(epHeaders, 'link_vip1');
-          const idxLinkVip2 = headerIndexFromHeaders(epHeaders, 'link_vip2');
-          const idxLinkVip3 = headerIndexFromHeaders(epHeaders, 'link_vip3');
-          const idxLinkVip4 = headerIndexFromHeaders(epHeaders, 'link_vip4');
-          const idxLinkVip5 = headerIndexFromHeaders(epHeaders, 'link_vip5');
-          const linkIndices = [idxLinkM3U8, idxLinkEmbed, idxLinkBackup, idxLinkVip1, idxLinkVip2, idxLinkVip3, idxLinkVip4, idxLinkVip5].filter(
-            (x) => x >= 0
-          );
-
-          for (const epRow of localEpRows) {
-            const key = getEpisodeKeyFromRow(epRow, epHeaders);
-            const existingSheetRow = episodeKeyToSheetRow.get(key);
-            if (!existingSheetRow) {
-              episodesToCopyAppend.push(epRow);
-              copyEpisodesAppendCount++;
-              continue;
-            }
-
-            const existingArr = episodesRows[existingSheetRow - 1] || [];
-            const nextArr = [...existingArr];
-
-            let changed = false;
-            for (const idx of linkIndices) {
-              const nextVal = String(epRow?.[idx] ?? '').trim();
-              if (!nextVal) continue;
-              const curVal = String(nextArr?.[idx] ?? '').trim();
-              if (curVal !== nextVal) {
-                nextArr[idx] = nextVal;
-                changed = true;
-              }
-            }
-
-            if (changed) {
-              const range = `episodes!A${existingSheetRow}:${lastCol}${existingSheetRow}`;
-              episodesToCopyUpdate.push({ range, values: [new Array(epHeaders.length).fill('').map((_, i) => nextArr[i] ?? '')] });
-              copyEpisodesOverwriteCount++;
-            }
-          }
-        }
-      } else {
-        moviesToUpdate.push({
-          movie: m,
-          sheetId: existing.id,
-          rowIndex: existing.rowIndex,
-        });
-      }
+      moviesToUpdate.push({
+        movie: m,
+        sheetId: existing.id,
+        rowIndex: existing.rowIndex,
+      });
     } else {
       skippedCount++;
     }
@@ -509,16 +448,13 @@ async function main() {
     moviesToAppend.length,
     ', update =',
     moviesToUpdate.length,
-    ', copy-append =',
-    moviesToCopyAppend.length,
     ', skip =',
     skippedCount
   );
 
   const hasAppend = moviesToAppend.length > 0;
   const hasUpdate = moviesToUpdate.length > 0;
-  const hasCopyAppend = moviesToCopyAppend.length > 0;
-  if (!hasAppend && !hasUpdate && !hasCopyAppend) {
+  if (!hasAppend && !hasUpdate) {
     console.log('3. Không có phim mới hoặc phim có cập nhật. Kết thúc.');
     return;
   }
@@ -543,20 +479,114 @@ async function main() {
     }
   }
 
-  if (hasCopyAppend) {
-    console.log('3a2. Append COPY', moviesToCopyAppend.length, 'phim và', episodesToCopyAppend.length, 'tập...');
-    console.log('3a2a. COPY episodes overwrite:', copyEpisodesOverwriteCount);
-    console.log('3a2b. COPY episodes append:', copyEpisodesAppendCount);
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: sheetId,
-      range: 'movies!A1',
-      valueInputOption: 'RAW',
-      insertDataOption: 'INSERT_ROWS',
-      requestBody: { values: moviesToCopyAppend },
-    });
+  if (hasUpdate) {
+    console.log('3b. Update', moviesToUpdate.length, 'phim (chỉ update episode_current + append tập mới)...');
 
-    if (episodesToCopyUpdate.length) {
-      const batches = chunkArray(episodesToCopyUpdate, 100);
+    const idxEpCurrent = movieHeaders.indexOf('episode_current');
+    const movieFieldUpdates = [];
+    let movieFieldUpdateCount = 0;
+
+    const idxLinkM3U8 = headerIndexFromHeaders(epHeaders, 'link_m3u8');
+    const idxLinkEmbed = headerIndexFromHeaders(epHeaders, 'link_embed');
+    const idxLinkBackup = headerIndexFromHeaders(epHeaders, 'link_backup');
+    const idxLinkVip1 = headerIndexFromHeaders(epHeaders, 'link_vip1');
+    const idxLinkVip2 = headerIndexFromHeaders(epHeaders, 'link_vip2');
+    const idxLinkVip3 = headerIndexFromHeaders(epHeaders, 'link_vip3');
+    const idxLinkVip4 = headerIndexFromHeaders(epHeaders, 'link_vip4');
+    const idxLinkVip5 = headerIndexFromHeaders(epHeaders, 'link_vip5');
+    const linkIndices = [
+      idxLinkM3U8,
+      idxLinkEmbed,
+      idxLinkBackup,
+      idxLinkVip1,
+      idxLinkVip2,
+      idxLinkVip3,
+      idxLinkVip4,
+      idxLinkVip5,
+    ].filter((x) => x >= 0);
+
+    for (const { movie: m, rowIndex } of moviesToUpdate) {
+      if (idxEpCurrent >= 0) {
+        movieFieldUpdates.push({
+          range: `movies!${colToLetter(idxEpCurrent)}${rowIndex}`,
+          values: [[String(m.episode_current || '').trim()]],
+        });
+      }
+      if (idxModified >= 0) {
+        const v = String(m.modified || m.updated_at || '').trim();
+        if (v) {
+          movieFieldUpdates.push({
+            range: `movies!${colToLetter(idxModified)}${rowIndex}`,
+            values: [[v]],
+          });
+        }
+      }
+      if (idxUpdate >= 0) {
+        movieFieldUpdates.push({
+          range: `movies!${colToLetter(idxUpdate)}${rowIndex}`,
+          values: [['']],
+        });
+      }
+    }
+
+    if (movieFieldUpdates.length) {
+      const batches = chunkArray(movieFieldUpdates, 100);
+      for (const data of batches) {
+        await sheets.spreadsheets.values.batchUpdate({
+          spreadsheetId: sheetId,
+          requestBody: {
+            valueInputOption: 'RAW',
+            data,
+          },
+        });
+        movieFieldUpdateCount += data.length;
+      }
+    }
+
+    const episodesToAppendOnly = [];
+    const episodesToUpdateOnly = [];
+    let episodeOverwriteCount = 0;
+    const lastEpCol = colToLetter(Math.max(0, epHeaders.length - 1));
+    for (const { movie: m, sheetId: numericId } of moviesToUpdate) {
+      const epRows = buildEpisodeRows(numericId, m, epHeaders);
+      for (const epRow of epRows) {
+        const key = getEpisodeKeyFromRow(epRow, epHeaders);
+        if (!key) continue;
+
+        const existingSheetRow = episodeKeyToSheetRow.get(key);
+        if (!existingSheetRow) {
+          episodesToAppendOnly.push(epRow);
+          continue;
+        }
+
+        if (!linkIndices.length) continue;
+        const existingArr = episodesRows[existingSheetRow - 1] || [];
+        const nextArr = [...existingArr];
+
+        let changed = false;
+        for (const idx of linkIndices) {
+          const nextVal = String(epRow?.[idx] ?? '').trim();
+          if (!nextVal) continue;
+          const curVal = String(nextArr?.[idx] ?? '').trim();
+          if (curVal !== nextVal) {
+            nextArr[idx] = nextVal;
+            changed = true;
+          }
+        }
+
+        if (changed) {
+          const range = `episodes!A${existingSheetRow}:${lastEpCol}${existingSheetRow}`;
+          episodesToUpdateOnly.push({
+            range,
+            values: [new Array(epHeaders.length).fill('').map((_, i) => nextArr[i] ?? '')],
+          });
+          episodeOverwriteCount++;
+        }
+      }
+    }
+
+    if (episodesToUpdateOnly.length) {
+      const batches = chunkArray(episodesToUpdateOnly, 100);
       for (const data of batches) {
         await sheets.spreadsheets.values.batchUpdate({
           spreadsheetId: sheetId,
@@ -567,72 +597,20 @@ async function main() {
         });
       }
     }
-    if (episodesToCopyAppend.length) {
+
+    if (episodesToAppendOnly.length > 0) {
       await sheets.spreadsheets.values.append({
         spreadsheetId: sheetId,
         range: 'episodes!A1',
         valueInputOption: 'RAW',
         insertDataOption: 'INSERT_ROWS',
-        requestBody: { values: episodesToCopyAppend },
-      });
-    }
-  }
-
-  if (hasUpdate) {
-    console.log('3b. Update', moviesToUpdate.length, 'phim (ghi đè row + episodes)...');
-    const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-    const epSheet = meta.data.sheets?.find((s) => (s.properties?.title || '').toLowerCase() === 'episodes');
-    const epSheetId = epSheet?.properties?.sheetId ?? 1;
-
-    for (const { movie: m, sheetId: numericId, rowIndex } of moviesToUpdate) {
-      const movieRow = buildMovieRow(m, movieHeaders, numericId);
-      const lastCol = colToLetter(Math.max(0, movieHeaders.length - 1));
-      const range = `movies!A${rowIndex}:${lastCol}${rowIndex}`;
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: sheetId,
-        range,
-        valueInputOption: 'RAW',
-        requestBody: { values: [movieRow] },
+        requestBody: { values: episodesToAppendOnly },
       });
     }
 
-    const allRowsToDelete = [];
-    for (const { sheetId: numericId } of moviesToUpdate) {
-      const rows = movieIdToEpRows.get(String(numericId)) || [];
-      allRowsToDelete.push(...rows);
-    }
-    const sortedToDelete = [...new Set(allRowsToDelete)].sort((a, b) => b - a);
-    if (sortedToDelete.length > 0) {
-      const requests = sortedToDelete.map((rowIdx) => ({
-        deleteDimension: {
-          range: {
-            sheetId: epSheetId,
-            dimension: 'ROWS',
-            startIndex: rowIdx,
-            endIndex: rowIdx + 1,
-          },
-        },
-      }));
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: sheetId,
-        requestBody: { requests },
-      });
-    }
-
-    const allNewEpisodes = [];
-    for (const { movie: m, sheetId: numericId } of moviesToUpdate) {
-      const epRows = buildEpisodeRows(numericId, m, epHeaders);
-      allNewEpisodes.push(...epRows);
-    }
-    if (allNewEpisodes.length > 0) {
-      await sheets.spreadsheets.values.append({
-        spreadsheetId: sheetId,
-        range: 'episodes!A1',
-        valueInputOption: 'RAW',
-        insertDataOption: 'INSERT_ROWS',
-        requestBody: { values: allNewEpisodes },
-      });
-    }
+    console.log('   Movie fields updated cells:', movieFieldUpdateCount);
+    console.log('   Episodes appended:', episodesToAppendOnly.length);
+    console.log('   Episodes overwritten (links changed):', episodeOverwriteCount);
   }
 
   console.log('   Hoàn tất export-to-sheets.');

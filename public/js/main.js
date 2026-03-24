@@ -67,13 +67,19 @@
       for (var i = 0; i < links.length; i++) {
         var a = links[i];
         var href = (a.getAttribute('href') || '').trim();
-        if (href === '/danh-sach/' || href === (BASE + '/danh-sach/')) {
+        if (
+          href === '/danh-sach/' ||
+          href === (BASE + '/danh-sach/') ||
+          href === '/chu-de/' ||
+          href === (BASE + '/chu-de/')
+        ) {
           target = a;
           break;
         }
       }
       if (!target) return;
-      target.textContent = 'Hot Play';
+      target.textContent = 'Chủ đề';
+      target.setAttribute('href', (BASE + '/chu-de/').replace(/\/\//g, '/'));
       if (navMain.firstChild !== target) {
         navMain.insertBefore(target, navMain.firstChild);
       }

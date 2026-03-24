@@ -57,7 +57,6 @@ const items = [
       { key: '/movies/hoathinh', icon: <UnorderedListOutlined />, label: <Link to="/movies/hoathinh">Hoạt hình</Link> },
       { key: '/movies/tvshows', icon: <UnorderedListOutlined />, label: <Link to="/movies/tvshows">TV Show</Link> },
       { key: '/movies/unbuilt', icon: <UnorderedListOutlined />, label: <Link to="/movies/unbuilt">Phim chưa build</Link> },
-      { key: '/movies/normalize', icon: <UnorderedListOutlined />, label: <Link to="/movies/normalize">Cần chuẩn hóa</Link> },
       { key: '/movies/duplicates', icon: <UnorderedListOutlined />, label: <Link to="/movies/duplicates">Trùng lặp</Link> },
     ],
   },
@@ -84,7 +83,7 @@ export default function Layout() {
 
   useEffect(() => {
     const giaoDienPaths = ['/slider', '/menu-background', '/filter-order', '/homepage-sections', '/category-page-settings', '/theme', '/static-pages'];
-    const moviePaths = ['/movies/single', '/movies/series', '/movies/hoathinh', '/movies/tvshows', '/movies/unbuilt', '/movies/normalize', '/movies/duplicates', '/movies/edit', '/movies/episodes'];
+    const moviePaths = ['/movies/single', '/movies/series', '/movies/hoathinh', '/movies/tvshows', '/movies/unbuilt', '/movies/duplicates', '/movies/edit', '/movies/episodes'];
     if (giaoDienPaths.includes(location.pathname)) {
       setOpenKeys(['/giao-dien']);
     } else if (moviePaths.some(p => location.pathname.startsWith(p))) {

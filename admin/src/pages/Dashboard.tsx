@@ -85,15 +85,6 @@ export default function Dashboard() {
             unbuiltUrl.searchParams.append('spreadsheetId', sid);
             if (sak) unbuiltUrl.searchParams.append('serviceAccountKey', sak);
 
-            const normalizeUrl = new URL(`${base}/api/movies`);
-            normalizeUrl.searchParams.append('action', 'list');
-            normalizeUrl.searchParams.append('type', 'all');
-            normalizeUrl.searchParams.append('copyOnly', '1');
-            normalizeUrl.searchParams.append('page', '1');
-            normalizeUrl.searchParams.append('limit', '1');
-            normalizeUrl.searchParams.append('spreadsheetId', sid);
-            if (sak) normalizeUrl.searchParams.append('serviceAccountKey', sak);
-
             const duplicatesUrl = new URL(`${base}/api/movies`);
             duplicatesUrl.searchParams.append('action', 'list');
             duplicatesUrl.searchParams.append('type', 'all');
@@ -103,16 +94,12 @@ export default function Dashboard() {
             duplicatesUrl.searchParams.append('spreadsheetId', sid);
             if (sak) duplicatesUrl.searchParams.append('serviceAccountKey', sak);
 
-            const [unbuiltRes, normalizeRes, duplicatesRes] = await Promise.all([
+            const [unbuiltRes, duplicatesRes] = await Promise.all([
               fetch(unbuiltUrl.toString(), { cache: 'no-store' }),
-              fetch(normalizeUrl.toString(), { cache: 'no-store' }),
               fetch(duplicatesUrl.toString(), { cache: 'no-store' }),
             ]);
 
             const unbuiltData = await unbuiltRes.json().catch(async () => ({ error: await unbuiltRes.text() }));
-            const normalizeData = await normalizeRes
-              .json()
-              .catch(async () => ({ error: await normalizeRes.text() }));
             const duplicatesData = await duplicatesRes
               .json()
               .catch(async () => ({ error: await duplicatesRes.text() }));
@@ -120,7 +107,6 @@ export default function Dashboard() {
             setStats((prev) => ({
               ...prev,
               movies_unbuilt: Number(unbuiltData?.total || 0),
-              movies_normalize: Number(normalizeData?.total || 0),
               movies_duplicates: Number(duplicatesData?.total || 0),
             }));
           }
@@ -128,7 +114,6 @@ export default function Dashboard() {
           setStats((prev) => ({
             ...prev,
             movies_unbuilt: prev.movies_unbuilt ?? 0,
-            movies_normalize: prev.movies_normalize ?? 0,
             movies_duplicates: prev.movies_duplicates ?? 0,
           }));
         }
@@ -288,17 +273,8 @@ export default function Dashboard() {
       value: stats.movies_unbuilt ?? 0,
       icon: <UnorderedListOutlined />,
       color: '#ff4d4f',
-      hint: 'Trên sheet: update=NEW (hoặc NEW2)',
+      hint: 'Trên sheet: update=NEW',
       to: '/movies/unbuilt',
-    },
-    {
-      key: 'movies_normalize',
-      title: 'Cần chuẩn hóa',
-      value: stats.movies_normalize ?? 0,
-      icon: <UnorderedListOutlined />,
-      color: '#faad14',
-      hint: 'Trên sheet: update=COPY (hoặc COPY2)',
-      to: '/movies/normalize',
     },
     {
       key: 'movies_duplicates',

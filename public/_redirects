@@ -3,3 +3,7 @@
 
 # Diễn viên: proxying 200 (Cloudflare). Nếu không hoạt động, build sẽ tạo file HTML từng diễn viên.
 /dien-vien/* /dien-vien/index.html 200
+
+# Chủ đề (trước đây là Danh sách)
+/danh-sach /chu-de/ 301
+/danh-sach/* /chu-de/:splat 301

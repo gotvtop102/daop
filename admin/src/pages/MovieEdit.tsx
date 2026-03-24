@@ -93,12 +93,7 @@ const COUNTRY_OPTIONS = [
 
 const UPDATE_OPTIONS = [
   { value: 'NEW', label: 'NEW' },
-  { value: 'NEW2', label: 'NEW2' },
-  { value: 'OK', label: 'OK' },
-  { value: 'OK2', label: 'OK2' },
-  { value: 'COPY', label: 'COPY' },
-  { value: 'COPY2', label: 'COPY2' },
-  { value: 'TIME', label: 'TIME' },
+  { value: 'TIME-EXCLUSIVE', label: 'TIME-EXCLUSIVE' },
 ];
 
 const normalizeLooseText = (input: any) => {
@@ -254,12 +249,6 @@ export default function MovieEdit() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [originalMovie, setOriginalMovie] = useState<any>(null);
-  const [originalStatus, setOriginalStatus] = useState<{
-    state: 'idle' | 'loading' | 'done' | 'error';
-    message?: string;
-    slug?: string;
-  }>({ state: 'idle' });
   const [saving, setSaving] = useState(false);
   const [fetchingTMDB, setFetchingTMDB] = useState(false);
   const [posterPreview, setPosterPreview] = useState('');
@@ -284,102 +273,6 @@ export default function MovieEdit() {
 
     setPosterPreview(p);
     setThumbPreview(t);
-  };
-
-  const isNormalizeMode = useMemo(() => {
-    const v = String(searchParams.get('normalize') || '').trim();
-    return v === '1' || v.toLowerCase() === 'true';
-  }, [searchParams]);
-
-  const applyFromOriginal = (field: keyof MovieForm) => {
-    if (!originalMovie) return;
-    let v: any = originalMovie[field as any];
-    if (v == null) return;
-
-    if (field === 'year') {
-      const n = Number(String(v || '').trim());
-      if (Number.isFinite(n) && n > 0) v = n;
-    }
-
-    if (field === 'is_exclusive') {
-      const s = String(v ?? '').trim().toLowerCase();
-      v = s === '1' || s === 'true' || s === 'yes';
-    }
-
-    if (field === 'genre' || field === 'country' || field === 'director' || field === 'actor') {
-      if (typeof v === 'string') {
-        v = v
-          .split(',')
-          .map((x) => String(x || '').trim())
-          .filter(Boolean);
-      }
-      if (!Array.isArray(v)) v = [];
-    }
-
-    form.setFieldsValue({ [field]: v } as any);
-    message.success(`Đã chuyển dữ liệu: ${String(field)}`);
-  };
-
-  const renderOriginalExtra = (
-    field: keyof MovieForm,
-    opts?: {
-      label?: string;
-      asPre?: boolean;
-      mapValue?: (v: any) => any;
-      emptyText?: string;
-      prepend?: ReactNode;
-    }
-  ) => {
-    if (!isNormalizeMode) return opts?.prepend || null;
-    if (!originalMovie) return opts?.prepend || null;
-
-    const raw = originalMovie[field as any];
-    const mapped = opts?.mapValue ? opts.mapValue(raw) : raw;
-    const text = String(mapped ?? '').trim();
-    const emptyText = opts?.emptyText ?? '(trống)';
-
-    return (
-      <Space direction="vertical" size={4} style={{ width: '100%' }}>
-        {opts?.prepend ? <div>{opts.prepend}</div> : null}
-        <div style={{ fontSize: 12, color: '#888' }}>
-          <span style={{ fontWeight: 600 }}>{opts?.label || 'Bản gốc'}:</span>{' '}
-          <span style={{ whiteSpace: opts?.asPre ? 'pre-wrap' : 'normal' }}>{text || emptyText}</span>
-        </div>
-        <Button size="small" onClick={() => applyFromOriginal(field)}>
-          Chuyển dữ liệu
-        </Button>
-      </Space>
-    );
-  };
-
-  const loadOriginalBySlug = async (slug: string) => {
-    const s = String(slug || '').trim();
-    if (!s) return;
-    if (!spreadsheetId) return;
-
-    const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-    const base = envBase || window.location.origin;
-
-    setOriginalStatus({ state: 'loading', slug: s });
-
-    const res = await fetch(`${base}/api/movies`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'getBySlug',
-        spreadsheetId,
-        ...(serviceAccountKey ? { serviceAccountKey } : {}),
-        slug: s,
-      }),
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(err || `HTTP ${res.status}`);
-    }
-    const data = await res.json();
-    if (data?.error) throw new Error(data.error);
-    setOriginalMovie(data);
-    setOriginalStatus({ state: 'done', slug: s });
   };
 
   // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
@@ -580,31 +473,6 @@ export default function MovieEdit() {
         year: result.year ? parseInt(result.year) : undefined,
       });
 
-      if (isNormalizeMode) {
-        const u = String(result.update || '').trim().toUpperCase();
-        if (u === 'COPY' || u === 'COPY2') {
-          const slug = String(result.slug || '').trim();
-          if (slug) {
-            try {
-              await loadOriginalBySlug(slug);
-            } catch (e: any) {
-              setOriginalMovie(null);
-              setOriginalStatus({ state: 'error', slug, message: e?.message || 'Không thể tải bản gốc để đối chiếu' });
-              message.warning(e?.message || 'Không thể tải bản gốc để đối chiếu');
-            }
-          } else {
-            setOriginalMovie(null);
-            setOriginalStatus({ state: 'error', message: 'Bản COPY không có slug nên không thể tìm bản gốc.' });
-          }
-        } else {
-          setOriginalMovie(null);
-          setOriginalStatus({ state: 'idle' });
-        }
-      } else {
-        setOriginalMovie(null);
-        setOriginalStatus({ state: 'idle' });
-      }
-
       refreshSourcePreviews({ poster: result.poster_url || '', thumb: result.thumb_url || '' });
     } catch (e: any) {
       message.error(e?.message || 'Không thể tải thông tin phim');
@@ -780,17 +648,18 @@ export default function MovieEdit() {
       }
 
       const updateMode = String(values.update || '').trim().toUpperCase();
-      if (updateMode === 'TIME') {
+      if (updateMode === 'TIME-EXCLUSIVE') {
         if (isNew) {
-          throw new Error('TIME chỉ dùng khi cập nhật phim đã tồn tại');
+          throw new Error('TIME-EXCLUSIVE chỉ dùng khi cập nhật phim đã tồn tại');
         }
 
-        const res = await fetch(`${apiBase}/api/movies?action=updateShowtimes`, {
+        const res = await fetch(`${apiBase}/api/movies?action=updateShowtimesExclusive`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: movieId,
             showtimes: String(values.showtimes || '').trim(),
+            is_exclusive: Boolean(values.is_exclusive),
             spreadsheetId,
             ...(serviceAccountKey ? { serviceAccountKey } : {}),
           }),
@@ -811,13 +680,13 @@ export default function MovieEdit() {
           await fetch(`${apiBase}/api/trigger-build`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason: 'update_showtimes', id: movieId }),
+            body: JSON.stringify({ reason: 'update_showtimes_exclusive', id: movieId }),
           });
         } catch (e) {
           // ignore build trigger errors here; user can manually trigger
         }
 
-        message.success('Đã cập nhật lịch chiếu (showtimes) và trigger build');
+        message.success('Đã cập nhật showtimes + exclusive và trigger build');
         refreshSourcePreviews();
         return;
       }
@@ -877,63 +746,6 @@ export default function MovieEdit() {
   return (
     <Spin spinning={loading} tip="Đang tải...">
       <div>
-        {isNormalizeMode ? (
-          <Card title="Dữ liệu bản gốc (chỉ đọc)" style={{ marginBottom: 16 }}>
-            {!originalMovie ? (
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <div style={{ color: '#666' }}>
-                  {originalStatus.state === 'loading'
-                    ? 'Đang tải bản gốc...'
-                    : originalStatus.state === 'error'
-                      ? (originalStatus.message || 'Không thể tải bản gốc để đối chiếu.')
-                      : 'Chưa tải bản gốc để đối chiếu.'}
-                </div>
-                <Space wrap>
-                  <Button
-                    onClick={() => {
-                      const slug = String(originalStatus.slug || (form.getFieldValue('slug') as any) || '').trim();
-                      if (!slug) {
-                        message.warning('Không có slug để tải bản gốc');
-                        return;
-                      }
-                      loadOriginalBySlug(slug).catch((e: any) => {
-                        setOriginalMovie(null);
-                        setOriginalStatus({ state: 'error', slug, message: e?.message || 'Không thể tải bản gốc để đối chiếu' });
-                        message.warning(e?.message || 'Không thể tải bản gốc để đối chiếu');
-                      });
-                    }}
-                    loading={originalStatus.state === 'loading'}
-                  >
-                    Tải lại bản gốc
-                  </Button>
-                </Space>
-              </Space>
-            ) : (
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <div style={{ color: '#666' }}>Bản gốc đã tải. Xem dữ liệu bản gốc ngay dưới từng mục để đối chiếu.</div>
-                <Button
-                  size="small"
-                  onClick={() => {
-                    const slug = String(originalStatus.slug || (form.getFieldValue('slug') as any) || '').trim();
-                    if (!slug) {
-                      message.warning('Không có slug để tải bản gốc');
-                      return;
-                    }
-                    loadOriginalBySlug(slug).catch((e: any) => {
-                      setOriginalMovie(null);
-                      setOriginalStatus({ state: 'error', slug, message: e?.message || 'Không thể tải bản gốc để đối chiếu' });
-                      message.warning(e?.message || 'Không thể tải bản gốc để đối chiếu');
-                    });
-                  }}
-                  loading={originalStatus.state === 'loading'}
-                >
-                  Tải lại bản gốc
-                </Button>
-              </Space>
-            )}
-          </Card>
-        ) : null}
-
         <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
           <Col>
             <Space>
@@ -1021,7 +833,6 @@ export default function MovieEdit() {
                       name="title"
                       label="Tên phim (Tiếng Việt)"
                       rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}
-                      extra={renderOriginalExtra('title', { label: 'Bản gốc' })}
                     >
                       <Input placeholder="Nhập tên phim tiếng Việt" />
                     </Form.Item>
@@ -1031,7 +842,6 @@ export default function MovieEdit() {
                       name="origin_name"
                       label="Tên gốc (Tiếng Anh)"
                       rules={[{ required: true, message: 'Vui lòng nhập tên gốc' }]}
-                      extra={renderOriginalExtra('origin_name', { label: 'Bản gốc' })}
                     >
                       <Input placeholder="Nhập tên gốc tiếng Anh" />
                     </Form.Item>
@@ -1046,7 +856,6 @@ export default function MovieEdit() {
                       rules={[
                         { required: true, message: 'Vui lòng nhập slug' },
                       ]}
-                      extra={renderOriginalExtra('slug', { label: 'Bản gốc' })}
                     >
                       <Input placeholder="vd: than-kiem-hanh" />
                     </Form.Item>
@@ -1059,7 +868,6 @@ export default function MovieEdit() {
                       name="type"
                       label="Loại phim"
                       rules={[{ required: true }]}
-                      extra={renderOriginalExtra('type', { label: 'Bản gốc' })}
                     >
                       <Select placeholder="Chọn loại phim">
                         {TYPE_OPTIONS.map((opt) => (
@@ -1075,7 +883,6 @@ export default function MovieEdit() {
                       name="year"
                       label="Năm phát hành"
                       rules={[{ required: true }]}
-                      extra={renderOriginalExtra('year', { label: 'Bản gốc' })}
                     >
                       <InputNumber
                         style={{ width: '100%' }}
@@ -1090,7 +897,6 @@ export default function MovieEdit() {
                       name="quality"
                       label="Chất lượng"
                       rules={[{ required: true }]}
-                      extra={renderOriginalExtra('quality', { label: 'Bản gốc' })}
                     >
                       <Select placeholder="Chọn chất lượng">
                         {QUALITY_OPTIONS.map((opt) => (
@@ -1109,7 +915,6 @@ export default function MovieEdit() {
                       name="status"
                       label="Trạng thái"
                       rules={[{ required: true }]}
-                      extra={renderOriginalExtra('status', { label: 'Bản gốc' })}
                     >
                       <Select placeholder="Chọn trạng thái">
                         {STATUS_OPTIONS.map((opt) => (
@@ -1124,7 +929,6 @@ export default function MovieEdit() {
                     <Form.Item
                       name="episode_current"
                       label="Tập hiện tại"
-                      extra={renderOriginalExtra('episode_current', { label: 'Bản gốc' })}
                     >
                       <Input placeholder="VD: 10" />
                     </Form.Item>
@@ -1133,7 +937,6 @@ export default function MovieEdit() {
                     <Form.Item
                       name="episode_total"
                       label="Tổng số tập"
-                      extra={renderOriginalExtra('episode_total', { label: 'Bản gốc' })}
                     >
                       <Input placeholder="VD: 16" />
                     </Form.Item>
@@ -1144,7 +947,6 @@ export default function MovieEdit() {
                   name="genre"
                   label="Thể loại"
                   rules={[{ required: true, message: 'Vui lòng chọn thể loại' }]}
-                  extra={renderOriginalExtra('genre', { label: 'Bản gốc' })}
                 >
                   <Select mode="multiple" placeholder="Chọn thể loại">
                     {GENRE_OPTIONS.map((g) => (
@@ -1159,7 +961,6 @@ export default function MovieEdit() {
                   name="country"
                   label="Quốc gia"
                   rules={[{ required: true, message: 'Vui lòng chọn quốc gia' }]}
-                  extra={renderOriginalExtra('country', { label: 'Bản gốc' })}
                 >
                   <Select mode="multiple" placeholder="Chọn quốc gia">
                     {COUNTRY_OPTIONS.map((c) => (
@@ -1172,7 +973,7 @@ export default function MovieEdit() {
 
                 <Row gutter={16}>
                   <Col xs={24} md={12}>
-                    <Form.Item name="language" label="Ngôn ngữ" extra={renderOriginalExtra('language', { label: 'Bản gốc' })}>
+                    <Form.Item name="language" label="Ngôn ngữ">
                       <Input placeholder="VD: Vietsub, Thuyết minh" />
                     </Form.Item>
                   </Col>
@@ -1183,13 +984,9 @@ export default function MovieEdit() {
                     <Form.Item
                       name="showtimes"
                       label="Showtimes (lịch chiếu)"
-                      extra={renderOriginalExtra('showtimes', {
-                        label: 'Bản gốc',
-                        asPre: true,
-                        prepend: "Sheet: cột showtimes. VD: 'Tập mới mỗi thứ 6' hoặc để trống nếu không có.",
-                      })}
+                      extra="Sheet: cột showtimes. VD: 'Tập mới mỗi thứ 6' hoặc để trống nếu không có."
                     >
-                      <Input placeholder="VD: Tập mới mỗi thứ 6" />
+                      <Input.TextArea rows={2} placeholder="VD: Tập mới mỗi thứ 6" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} md={12}>
@@ -1197,10 +994,7 @@ export default function MovieEdit() {
                       name="is_exclusive"
                       label="Exclusive"
                       valuePropName="checked"
-                      extra={renderOriginalExtra('is_exclusive', {
-                        label: 'Bản gốc',
-                        prepend: 'Sheet: cột is_exclusive. Build nhận 0/1 hoặc true/false. Bật nếu là phim độc quyền.',
-                      })}
+                      extra="Sheet: cột is_exclusive. Build nhận 0/1 hoặc true/false. Bật nếu là phim độc quyền."
                     >
                       <Switch />
                     </Form.Item>
@@ -1210,19 +1004,18 @@ export default function MovieEdit() {
                 <Form.Item
                   name="update"
                   label="Update"
-                  extra="Sheet: cột update (không bắt buộc). NEW: ép build coi phim thay đổi và có thể tự đổi NEW→OK sau build; OK: bản ổn định (export không ghi đè); COPY: dòng lịch sử."
-                  rules={[{ required: true, message: 'Vui lòng chọn Update' }]}
+                  extra="Sheet: cột update (không bắt buộc). NEW: ép build coi phim thay đổi; sau build/update sẽ tự clear về trống."
                 >
-                  <Select placeholder="Chọn update">
+                  <Select placeholder="Chọn update" allowClear>
                     {UPDATE_OPTIONS.map((o) => (
-                      <Option key={o.value} value={o.value}>
+                      <Select.Option key={o.value} value={o.value}>
                         {o.label}
-                      </Option>
+                      </Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
 
-                <Form.Item name="description" label="Mô tả phim" extra={renderOriginalExtra('description', { label: 'Bản gốc', asPre: true })}>
+                <Form.Item name="description" label="Mô tả phim">
                   <TextArea
                     rows={4}
                     placeholder="Nhập mô tả phim..."
@@ -1249,7 +1042,6 @@ export default function MovieEdit() {
                   name="poster_url"
                   label="URL Poster"
                   rules={[{ required: isNew, message: 'Vui lòng nhập URL poster' }]}
-                  extra={renderOriginalExtra('poster_url', { label: 'Bản gốc' })}
                 >
                   <Input placeholder="https://..." onChange={handlePosterChange} />
                 </Form.Item>
@@ -1265,7 +1057,7 @@ export default function MovieEdit() {
 
                 <Divider />
 
-                <Form.Item name="thumb_url" label="URL Thumbnail (nếu có)" extra={renderOriginalExtra('thumb_url', { label: 'Bản gốc' })}>
+                <Form.Item name="thumb_url" label="URL Thumbnail (nếu có)">
                   <Input placeholder="https://..." onChange={handleThumbChange} />
                 </Form.Item>
 
@@ -1280,11 +1072,11 @@ export default function MovieEdit() {
               </Card>
 
               <Card title="Thông tin bổ sung">
-                <Form.Item name="director" label="Đạo diễn" extra={renderOriginalExtra('director', { label: 'Bản gốc' })}>
+                <Form.Item name="director" label="Đạo diễn">
                   <Select mode="tags" placeholder="Nhập tên đạo diễn" />
                 </Form.Item>
 
-                <Form.Item name="actor" label="Diễn viên" extra={renderOriginalExtra('actor', { label: 'Bản gốc' })}>
+                <Form.Item name="actor" label="Diễn viên">
                   <Select mode="tags" placeholder="Nhập tên diễn viên" />
                 </Form.Item>
               </Card>

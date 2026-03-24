@@ -404,7 +404,7 @@ export default function GoogleSheetsPage() {
               <br />
               <Text code>is_exclusive</Text>: phim độc quyền. Nhận 0/1 hoặc true/false.
               <br />
-              <Text code>update</Text>: NEW/OK/COPY (tùy chọn) để kiểm soát build & export.
+              <Text code>update</Text>: NEW (tùy chọn) để kiểm soát build & export.
               <br />
               <Text code>note</Text>: ghi chú nội bộ cho admin (không dùng để hiển thị).
             </Text>

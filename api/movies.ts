@@ -82,6 +82,71 @@ async function updateMovieShowtimesOnly(sheets: any, spreadsheetId: string, movi
   return { success: true, id: idToFind, updated: ['showtimes', ...(idxModified >= 0 ? ['modified'] : []), ...(idxUpdate >= 0 ? ['update'] : [])] };
 }
 
+async function updateMovieShowtimesExclusiveOnly(sheets: any, spreadsheetId: string, movieId: string, body: any) {
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: 'movies!A:Z',
+  });
+
+  const rows = (response.data.values || []) as any[][];
+  if (rows.length < 2) {
+    throw new Error('Movies sheet has no data');
+  }
+
+  const headers = (rows[0] || []).map(normalizeHeader);
+  const idxId = headers.indexOf('id');
+  const idxShowtimes = headers.indexOf('showtimes');
+  const idxIsExclusive = headers.indexOf('is_exclusive');
+  const idxModified = headers.indexOf('modified');
+  const idxUpdate = headers.indexOf('update');
+
+  if (idxId < 0) throw new Error('Sheet missing id column');
+  if (idxShowtimes < 0) throw new Error('Sheet missing showtimes column');
+  if (idxIsExclusive < 0) throw new Error('Sheet missing is_exclusive column');
+
+  const idToFind = String(movieId ?? '').trim();
+  const dataRows = rows.slice(1);
+  const existingRowIndex = dataRows.findIndex((row: any[]) => String(row[idxId] ?? '').trim() === idToFind);
+  if (existingRowIndex < 0) {
+    throw new Error('Movie not found');
+  }
+  const actualRow = existingRowIndex + 2; // +1 header, +1 1-based
+
+  const showtimesVal = String((body as any)?.showtimes ?? '').trim();
+  const isExclusiveVal = (body as any)?.is_exclusive ? '1' : '0';
+  const modifiedVal = new Date().toISOString();
+
+  const updates: Array<{ range: string; values: any[][] }> = [];
+  updates.push({ range: `movies!${colToLetter(idxShowtimes)}${actualRow}`, values: [[showtimesVal]] });
+  updates.push({ range: `movies!${colToLetter(idxIsExclusive)}${actualRow}`, values: [[isExclusiveVal]] });
+  if (idxModified >= 0) {
+    updates.push({ range: `movies!${colToLetter(idxModified)}${actualRow}`, values: [[modifiedVal]] });
+  }
+  if (idxUpdate >= 0) {
+    updates.push({ range: `movies!${colToLetter(idxUpdate)}${actualRow}`, values: [['NEW']] });
+  }
+
+  for (const u of updates) {
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: u.range,
+      valueInputOption: 'RAW',
+      requestBody: { values: u.values },
+    });
+  }
+
+  return {
+    success: true,
+    id: idToFind,
+    updated: [
+      'showtimes',
+      'is_exclusive',
+      ...(idxModified >= 0 ? ['modified'] : []),
+      ...(idxUpdate >= 0 ? ['update'] : []),
+    ],
+  };
+}
+
 function normalizeSourceImageUrl(u: string) {
   const s = String(u || '').trim();
   if (!s) return '';
@@ -442,24 +507,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
 
-        return res.status(200).json({ success: true, sheets: results });
+        return res.status(200).json({ ok: true, results });
       }
 
       case 'list': {
-        const { type, page = '1', limit = '50', search = '', unbuilt, copyOnly, duplicates } = req.query;
+        const { type, page = '1', limit = '50', search = '', unbuilt, duplicates } = req.query;
         const unbuiltOnly = String(unbuilt || '').trim() === '1' || String(unbuilt || '').trim().toLowerCase() === 'true';
-        const onlyCopies = String(copyOnly || '').trim() === '1' || String(copyOnly || '').trim().toLowerCase() === 'true';
         const duplicatesOnly =
           String(duplicates || '').trim() === '1' || String(duplicates || '').trim().toLowerCase() === 'true';
         const result = await listMovies(
           sheets,
           spreadsheetId,
-          type as string,
-          parseInt(page as string),
-          parseInt(limit as string),
-          search as string,
+          String(type || 'all'),
+          Number(page) || 1,
+          Number(limit) || 50,
+          String(search || ''),
           unbuiltOnly,
-          onlyCopies,
           duplicatesOnly
         );
         return res.status(200).json(result);
@@ -472,110 +535,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json(movie);
       }
 
-      case 'normalizeCopy': {
-        if (req.method !== 'POST') {
-          return res.status(405).json({ error: 'Method not allowed' });
-        }
-        const copyId = (req.body as any)?.copyId || (req.body as any)?.id;
-        const deleteCopy = Boolean((req.body as any)?.deleteCopy);
-        if (!copyId) return res.status(400).json({ error: 'Missing copyId' });
-        const result = await normalizeCopyToOriginal(sheets, spreadsheetId, String(copyId), { deleteCopy });
-        return res.status(200).json(result);
-      }
-
-      case 'get': {
-        const id = (req.query as any)?.id || (req.body as any)?.id;
-        if (!id) return res.status(400).json({ error: 'Missing movie ID' });
-        const movie = await getMovie(sheets, spreadsheetId, id as string);
-        return res.status(200).json(movie);
-      }
-
-      case 'save': {
-        if (req.method !== 'POST') {
-          return res.status(405).json({ error: 'Method not allowed' });
-        }
-        const result = await saveMovie(sheets, spreadsheetId, req.body);
-        return res.status(200).json(result);
-      }
-
-      case 'updateShowtimes': {
-        if (req.method !== 'POST') {
-          return res.status(405).json({ error: 'Method not allowed' });
-        }
-        const id = (req.query as any)?.id || (req.body as any)?.id;
-        if (!id) return res.status(400).json({ error: 'Missing movie ID' });
-        const result = await updateMovieShowtimesOnly(sheets, spreadsheetId, String(id), req.body);
-        return res.status(200).json(result);
-      }
-
-      case 'delete': {
-        if (req.method !== 'DELETE') {
-          return res.status(405).json({ error: 'Method not allowed' });
-        }
-        const { id } = req.query;
-        if (!id) return res.status(400).json({ error: 'Missing movie ID' });
-        const result = await deleteMovie(sheets, spreadsheetId, id as string);
-        return res.status(200).json(result);
-      }
-
-      case 'episodes': {
-        const movie_id = (req.query as any)?.movie_id || (req.body as any)?.movie_id;
-        if (!movie_id) return res.status(400).json({ error: 'Missing movie_id' });
-        const debug =
-          String((req.query as any)?.debug ?? (req.body as any)?.debug ?? '').trim() === '1' ||
-          String((req.query as any)?.debug ?? (req.body as any)?.debug ?? '').trim().toLowerCase() === 'true';
-
-        if (req.method === 'GET') {
-          const episodes = await getEpisodes(sheets, spreadsheetId, movie_id as string, debug);
-          return res.status(200).json(episodes);
-        }
-
-        if (req.method === 'POST') {
-          // Support 2 modes:
-          // - Read mode: POST with no episodes => return episodes (useful when client wants to send credentials via body)
-          // - Write mode: POST with episodes => save
-          const body = req.body as any;
-          const rawEpisodes = Array.isArray(body) ? body : body?.episodes;
-          if (!rawEpisodes) {
-            const episodes = await getEpisodes(sheets, spreadsheetId, movie_id as string, debug);
-            return res.status(200).json(episodes);
-          }
-          const episodes = Array.isArray(rawEpisodes) ? rawEpisodes : [];
-          const result = await saveEpisodes(sheets, spreadsheetId, movie_id as string, episodes);
-          return res.status(200).json(result);
-        }
-
-        return res.status(405).json({ error: 'Method not allowed' });
-      }
-
-      case 'deleteRows': {
-        if (req.method !== 'POST') {
-          return res.status(405).json({ error: 'Method not allowed' });
-        }
-        const sheet = String(req.body?.sheet || req.query.sheet || 'movies').trim();
-        const startRow = Number(req.body?.startRow ?? req.query.startRow);
-        const endRow = Number(req.body?.endRow ?? req.query.endRow);
-        if (!sheet) return res.status(400).json({ error: 'Missing sheet' });
-        if (!Number.isFinite(startRow) || startRow < 2) {
-          return res.status(400).json({ error: 'startRow must be a number >= 2 (row 1 is header)' });
-        }
-        if (!Number.isFinite(endRow) || endRow < startRow) {
-          return res.status(400).json({ error: 'endRow must be a number >= startRow' });
-        }
-
-        const result = await deleteRows(sheets, spreadsheetId, sheet, startRow, endRow);
-        return res.status(200).json(result);
-      }
-
       default:
-        return res.status(400).json({ error: 'Unknown action' });
+        return res.status(400).json({ error: `Unknown action: ${action}` });
     }
-  } catch (error: any) {
-    console.error('Movies API Error:', error);
-    return res.status(500).json({
-      error: error.message || 'Internal server error',
-      details: error.stack,
-    });
+  } catch (e: any) {
+    console.error('API movies error:', e?.message || e);
+    return res.status(500).json({ error: e?.message || 'Internal server error' });
   }
 }
 
@@ -583,12 +548,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 async function listMovies(
   sheets: any,
   spreadsheetId: string,
-  type?: string,
+  type: string,
   page: number = 1,
   limit: number = 50,
   search: string = '',
   unbuiltOnly: boolean = false,
-  copyOnly: boolean = false,
   duplicatesOnly: boolean = false
 ) {
   const response = await sheets.spreadsheets.values.get({
@@ -625,14 +589,7 @@ async function listMovies(
   if (unbuiltOnly) {
     movies = movies.filter((m: any) => {
       const u = String(m.update || '').trim().toUpperCase();
-      return u === 'NEW' || u === 'NEW2';
-    });
-  }
-
-  if (copyOnly) {
-    movies = movies.filter((m: any) => {
-      const u = String(m.update || '').trim().toUpperCase();
-      return u === 'COPY' || u === 'COPY2';
+      return u === 'NEW';
     });
   }
 
@@ -721,7 +678,7 @@ async function getMovieBySlug(sheets: any, spreadsheetId: string, slug: string) 
     return m;
   };
 
-  // Prefer original rows (not COPY/COPY2). If multiple, prefer OK/OK2.
+  // Prefer first match (no special handling for COPY/OK statuses).
   const candidates = dataRows
     .map((row: any[], i: number) => ({ row, i, slug: String((idxSlug >= 0 ? row[idxSlug] : '') ?? '').trim() }))
     .filter((x: { row: any[]; i: number; slug: string }) => x.slug === s);
@@ -731,128 +688,13 @@ async function getMovieBySlug(sheets: any, spreadsheetId: string, slug: string) 
     .map((c: { row: any[]; i: number; slug: string }) => {
       const obj = pickRow(c.row);
       obj._rowIndex = c.i + 2;
-      const u = String(obj.update || '').trim().toUpperCase();
-      const isCopy = u === 'COPY' || u === 'COPY2';
-      const isOk = u === 'OK' || u === 'OK2';
-      return { obj, score: (isCopy ? 0 : 10) + (isOk ? 5 : 0) };
+      return { obj, score: 1 };
     })
     .sort((a: { score: number }, b: { score: number }) => b.score - a.score);
 
   return scored[0]?.obj || null;
 }
 
-async function normalizeCopyToOriginal(
-  sheets: any,
-  spreadsheetId: string,
-  copyId: string,
-  opts?: { deleteCopy?: boolean }
-) {
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range: 'movies!A:Z',
-  });
-
-  const rows = response.data.values || [];
-  if (rows.length < 2) throw new Error('Movies sheet is empty');
-
-  const headers = (rows[0] || []).map(normalizeHeader);
-  const dataRows = rows.slice(1);
-  const idxId = 0;
-  const idxSlug = headers.indexOf('slug');
-  const idxUpdate = headers.indexOf('update');
-  if (idxSlug < 0) throw new Error('Missing slug column');
-  if (idxUpdate < 0) throw new Error('Missing update column');
-
-  const idStr = String(copyId);
-  const idMatches = dataRows
-    .map((r: any[], i: number) => ({ r, i, id: String(r[idxId] ?? '') }))
-    .filter((x: { r: any[]; i: number; id: string }) => x.id === idStr);
-  if (!idMatches.length) throw new Error('Copy movie not found');
-
-  const pickUpdate = (row: any[]) => String(row[idxUpdate] ?? '').trim().toUpperCase();
-  const copyMatch = idMatches.find((x: { r: any[]; i: number; id: string }) => {
-    const u = pickUpdate(x.r);
-    return u === 'COPY' || u === 'COPY2';
-  });
-  const copyRowIndex = (copyMatch ? copyMatch.i : idMatches[0].i);
-
-  const copyObj: any = {};
-  headers.forEach((h: string, i: number) => {
-    if (!h) return;
-    copyObj[h] = dataRows[copyRowIndex][i] ?? '';
-  });
-  const copyUpdate = String(copyObj.update || '').trim().toUpperCase();
-  if (copyUpdate !== 'COPY' && copyUpdate !== 'COPY2') {
-    throw new Error('Selected row is not a COPY/COPY2 movie');
-  }
-  const slug = String(copyObj.slug || '').trim();
-  if (!slug) throw new Error('Copy row missing slug');
-
-  // Find original: same slug, prefer OK/OK2, and never overwrite a COPY row.
-  const originalCandidates = dataRows
-    .map((r: any[], i: number) => {
-      const obj: any = {};
-      headers.forEach((h: string, j: number) => {
-        if (!h) return;
-        obj[h] = r[j] ?? '';
-      });
-      const s = String(obj.slug || '').trim();
-      const u = String(obj.update || '').trim().toUpperCase();
-      const isCopy = u === 'COPY' || u === 'COPY2';
-      const isOk = u === 'OK' || u === 'OK2';
-      return { i, obj, s, u, isCopy, isOk };
-    })
-    .filter((x: { s: string; isCopy: boolean }) => x.s === slug && !x.isCopy);
-  if (!originalCandidates.length) throw new Error('Original movie not found for this slug');
-  originalCandidates.sort((a: { isOk: boolean }, b: { isOk: boolean }) => Number(b.isOk) - Number(a.isOk));
-  const original = originalCandidates[0];
-
-  const originalId = String(original.obj.id ?? '').trim();
-  if (!originalId) throw new Error('Original row missing id');
-
-  // Overwrite original fields with copy fields but keep original id.
-  const next: any = { ...original.obj, ...copyObj };
-  next.id = originalId;
-  next.slug = slug;
-  next.modified = new Date().toISOString();
-  const isFlow2 = String(original.u || '').toUpperCase().endsWith('2');
-  next.update = isFlow2 ? 'NEW2' : 'NEW';
-
-  const rowData = headers.map((h: string) => {
-    const val = next[h];
-    if (Array.isArray(val)) return val.join(',');
-    return val || '';
-  });
-
-  const actualRow = original.i + 2;
-  await sheets.spreadsheets.values.update({
-    spreadsheetId,
-    range: `movies!A${actualRow}:${String.fromCharCode(65 + headers.length - 1)}${actualRow}`,
-    valueInputOption: 'RAW',
-    requestBody: { values: [rowData] },
-  });
-
-  let copyDeleted = false;
-  if (opts?.deleteCopy) {
-    const copyActualRow = copyRowIndex + 2;
-    await sheets.spreadsheets.values.clear({
-      spreadsheetId,
-      range: `movies!A${copyActualRow}:Z${copyActualRow}`,
-    });
-    copyDeleted = true;
-  }
-
-  return {
-    success: true,
-    slug,
-    copyId: String(copyId),
-    originalId,
-    originalRow: actualRow,
-    copyDeleted,
-  };
-}
-
-// Get single movie
 async function getMovie(sheets: any, spreadsheetId: string, id: string) {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,

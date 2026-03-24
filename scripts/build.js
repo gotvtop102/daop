@@ -1031,8 +1031,8 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
       keywords: [],
     };
 
-    // NEW/NEW2: ép modified=now để chắc chắn build lại/batch thay đổi, và lưu info để update lại sheet NEW->OK/NEW2 sau build.
-    if (updateStatus === 'NEW' || updateStatus === 'NEW2') {
+    // NEW: ép modified=now để chắc chắn build lại/batch thay đổi, và lưu info để clear update sau build.
+    if (updateStatus === 'NEW') {
       movie.modified = new Date().toISOString();
       movie._sheetUpdateStatus = updateStatus;
     } else if (updateStatus) {
@@ -1143,7 +1143,7 @@ async function applySheetUpdateStatuses(movies) {
   const need = (movies || []).filter(
     (m) =>
       m &&
-      (m._sheetUpdateStatus === 'NEW' || m._sheetUpdateStatus === 'NEW2') &&
+      m._sheetUpdateStatus === 'NEW' &&
       m._sheetRowNumber &&
       m._sheetUpdateColIndex >= 0
   );
@@ -1174,12 +1174,11 @@ async function applySheetUpdateStatuses(movies) {
       const col = colToLetter(m._sheetUpdateColIndex);
       const rowNum = Number(m._sheetRowNumber);
       const range = `movies!${col}${rowNum}`;
-      const newVal = m._sheetUpdateStatus === 'NEW2' ? 'OK2' : 'OK';
       await sheets.spreadsheets.values.update({
         spreadsheetId: sheetId,
         range,
         valueInputOption: 'RAW',
-        requestBody: { values: [[newVal]] },
+        requestBody: { values: [['']] },
       });
     }
 
@@ -1196,7 +1195,7 @@ async function applySheetUpdateStatuses(movies) {
     }
 
     if (need.length) {
-      console.log('   Google Sheets: updated', need.length, 'rows update NEW/NEW2 -> OK/OK2');
+      console.log('   Google Sheets: updated', need.length, 'rows update NEW -> (blank)');
     }
     if (slugFix.length) {
       console.log('   Google Sheets: updated', slugFix.length, 'rows slug (auto-fix collisions)');
@@ -1448,12 +1447,11 @@ function mergeMovies(ophim, custom) {
   const usedSlugs = new Set(bySlug.keys());
 
   // Custom (từ Google Sheets/Excel):
-  // - NEW/NEW2: luôn được build (build mới / build lại), nhưng nếu trùng slug với OPhim/custom thì auto thêm hậu tố và sync ngược lại sheet.
-  // - OK/OK2/COPY/COPY2: vẫn được dùng như nguồn custom nếu không đụng OPhim; nếu slug trùng OPhim thì giữ OPhim và bỏ qua custom.
+  // - NEW: luôn được build (build mới / build lại), nhưng nếu trùng slug với OPhim/custom thì auto thêm hậu tố và sync ngược lại sheet.
   for (const m of custom) {
     if (!m || !m.slug) continue;
     const st = (m._sheetUpdateStatus || '').toString().toUpperCase();
-    const isNew = st === 'NEW' || st === 'NEW2';
+    const isNew = st === 'NEW';
 
     const exists = usedSlugs.has(m.slug);
     if (exists) {
@@ -1465,7 +1463,7 @@ function mergeMovies(ophim, custom) {
           usedSlugs.add(fixed);
         }
       } else {
-        console.warn('   Sheet movie skipped (slug collision, not NEW/NEW2):', m.slug, st || '(empty)');
+        console.warn('   Sheet movie skipped (slug collision, not NEW):', m.slug, st || '(empty)');
         continue;
       }
     } else {
@@ -3387,7 +3385,7 @@ async function main() {
   const custom = await fetchCustomMovies();
   console.log('   Custom count:', custom.length);
 
-  // NEW/NEW2: upload images to R2 if missing (store urls back to sheet later)
+  // NEW: upload images to R2 if missing (store urls back to sheet later)
   await ensureR2ImagesForNewCustomMovies(custom);
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');
@@ -3495,7 +3493,7 @@ async function main() {
     fs.writeFileSync(path.join(PUBLIC_DATA, 'last_modified.json'), JSON.stringify(newLastModified, null, 2));
   } catch {}
 
-  console.log('6b. Sync update status back to Google Sheets (NEW -> OK)...');
+  console.log('6b. Sync update status back to Google Sheets (NEW -> blank)...');
   await applySheetUpdateStatuses(custom);
 
   const buildVersion = { builtAt: new Date().toISOString() };
