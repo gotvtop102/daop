@@ -1,15 +1,27 @@
 [
   {
-    "id": "lich-chieu",
-    "label": "Lịch chiếu",
-    "href": "/chu-de/lich-chieu.html",
-    "icon": "📅"
+    "id": "phim-doc-quyen",
+    "label": "Phim Độc quyền",
+    "href": "/danh-sach/phim-doc-quyen.html",
+    "icon": "⭐"
   },
   {
     "id": "phim-4k",
     "label": "Phim 4K",
-    "href": "/chu-de/phim-4k.html",
+    "href": "/danh-sach/phim-4k.html",
     "icon": "📺"
+  },
+  {
+    "id": "phim-dang-chieu",
+    "label": "Phim đang chiếu",
+    "href": "/danh-sach/phim-dang-chieu.html",
+    "icon": "🎞️"
+  },
+  {
+    "id": "phim-sap-chieu",
+    "label": "Phim sắp chiếu",
+    "href": "/danh-sach/phim-sap-chieu.html",
+    "icon": "📅"
   },
   {
     "id": "shows",
@@ -26,43 +38,25 @@
   {
     "id": "phim-vietsub",
     "label": "Phim Vietsub",
-    "href": "/chu-de/phim-vietsub.html",
+    "href": "/danh-sach/phim-vietsub.html",
     "icon": "🇻🇳"
   },
   {
     "id": "phim-thuyet-minh",
     "label": "Phim Thuyết minh",
-    "href": "/chu-de/phim-thuyet-minh.html",
+    "href": "/danh-sach/phim-thuyet-minh.html",
     "icon": "🎙️"
   },
   {
     "id": "phim-long-tieng",
     "label": "Phim Lồng tiếng",
-    "href": "/chu-de/phim-long-tieng.html",
+    "href": "/danh-sach/phim-long-tieng.html",
     "icon": "🔊"
-  },
-  {
-    "id": "phim-doc-quyen",
-    "label": "Phim Độc quyền",
-    "href": "/chu-de/phim-doc-quyen.html",
-    "icon": "⭐"
-  },
-  {
-    "id": "phim-dang-chieu",
-    "label": "Phim đang chiếu",
-    "href": "/chu-de/phim-dang-chieu.html",
-    "icon": "🎞️"
-  },
-  {
-    "id": "phim-sap-chieu",
-    "label": "Phim sắp chiếu",
-    "href": "/chu-de/phim-sap-chieu.html",
-    "icon": "📅"
   },
   {
     "id": "phim-chieu-rap",
     "label": "Phim chiếu rạp",
-    "href": "/chu-de/phim-chieu-rap.html",
+    "href": "/danh-sach/phim-chieu-rap.html",
     "icon": "🎭"
   },
   {
