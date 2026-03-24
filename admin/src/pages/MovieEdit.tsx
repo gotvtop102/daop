@@ -274,8 +274,14 @@ export default function MovieEdit() {
   const refreshSourcePreviews = (next?: { poster?: any; thumb?: any }) => {
     const posterRaw = next && next.poster != null ? next.poster : form.getFieldValue('poster_url');
     const thumbRaw = next && next.thumb != null ? next.thumb : form.getFieldValue('thumb_url');
-    const p = normalizeMovieImageUrl(String(posterRaw || '').trim(), 'poster');
-    const t = normalizeMovieImageUrl(String(thumbRaw || '').trim(), 'thumb');
+    const movieId = String(form.getFieldValue('id') || id || '').trim();
+
+    const p0 = normalizeMovieImageUrl(String(posterRaw || '').trim(), 'poster');
+    const t0 = normalizeMovieImageUrl(String(thumbRaw || '').trim(), 'thumb');
+
+    const p = p0 || (movieId ? buildImageUrlFromSlug(movieId, 'poster') : '');
+    const t = t0 || (movieId ? buildImageUrlFromSlug(movieId, 'thumb') : '');
+
     setPosterPreview(p);
     setThumbPreview(t);
   };
@@ -1242,7 +1248,7 @@ export default function MovieEdit() {
                 <Form.Item
                   name="poster_url"
                   label="URL Poster"
-                  rules={[{ required: true, message: 'Vui lòng nhập URL poster' }]}
+                  rules={[{ required: isNew, message: 'Vui lòng nhập URL poster' }]}
                   extra={renderOriginalExtra('poster_url', { label: 'Bản gốc' })}
                 >
                   <Input placeholder="https://..." onChange={handlePosterChange} />
