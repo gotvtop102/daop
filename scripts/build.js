@@ -2039,12 +2039,15 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
   const langMap = { vietsub: [], thuyetminh: [], longtieng: [], khac: [] };
   const quality4kIds = [];
   const exclusiveIds = [];
+  const showtimesIds = [];
   const yearsSet = new Set();
   for (const m of movies) {
     const q = (m.quality || '').toString().toLowerCase();
     const is4k = !!m.is_4k || /4k|uhd|2160p/.test(q);
     if (is4k) quality4kIds.push(m.id);
     if (m.is_exclusive) exclusiveIds.push(m.id);
+    const st = (m.showtimes || '').toString().trim();
+    if (st) showtimesIds.push(m.id);
     if (m.type) {
       if (!typeMap[m.type]) typeMap[m.type] = [];
       typeMap[m.type].push(m.id);
@@ -2160,6 +2163,7 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
     langMap,
     quality4kIds,
     exclusiveIds,
+    showtimesIds,
     genreNames,
     countryNames,
     filterOrder,

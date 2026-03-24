@@ -2527,6 +2527,106 @@ body.site-header--collapsed .site-header {
   color: var(--muted);
   margin-bottom: 0.5rem;
 }
+
+.movie-detail-info .meta-line--showtimes {
+  color: var(--showtimes-color, var(--accent));
+}
+
+body.theme-light .movie-detail-info .meta-line--showtimes {
+  color: var(--showtimes-color-light, var(--accent-light));
+}
+
+.md-info-val--showtimes {
+  color: var(--showtimes-color, var(--text));
+  font-weight: 700;
+}
+
+body.theme-light .md-info-val--showtimes {
+  color: var(--showtimes-color-light, var(--text));
+}
+
+.showtimes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.showtimes-item {
+  display: block;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  padding: 0.85rem 1rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.showtimes-item:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.showtimes-item-title {
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.showtimes-item-origin {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.showtimes-item-meta {
+  margin-top: 0.25rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.showtimes-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(240, 246, 252, 0.12);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.showtimes-year {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.showtimes-item-st {
+  margin-top: 0.45rem;
+  color: var(--showtimes-color, var(--accent));
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+body.theme-light .showtimes-item {
+  background: var(--light-card);
+  border-color: var(--light-border);
+}
+
+body.theme-light .showtimes-item-title {
+  color: var(--light-text);
+}
+
+body.theme-light .showtimes-item-origin,
+body.theme-light .showtimes-badge,
+body.theme-light .showtimes-year {
+  color: var(--light-muted);
+}
+
+body.theme-light .showtimes-item-st {
+  color: var(--showtimes-color-light, var(--accent-light));
+}
 .movie-detail-info .action-buttons {
   margin-top: 0.75rem;
   display: flex;

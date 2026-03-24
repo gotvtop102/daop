@@ -56,6 +56,30 @@
     });
   }
 
+  function initHotPlayNav() {
+    try {
+      var header = document.querySelector('.site-header');
+      if (!header) return;
+      var navMain = header.querySelector('.site-nav-main');
+      if (!navMain) return;
+      var links = Array.prototype.slice.call(navMain.querySelectorAll('a[href]'));
+      var target = null;
+      for (var i = 0; i < links.length; i++) {
+        var a = links[i];
+        var href = (a.getAttribute('href') || '').trim();
+        if (href === '/danh-sach/' || href === (BASE + '/danh-sach/')) {
+          target = a;
+          break;
+        }
+      }
+      if (!target) return;
+      target.textContent = 'Hot Play';
+      if (navMain.firstChild !== target) {
+        navMain.insertBefore(target, navMain.firstChild);
+      }
+    } catch (e) {}
+  }
+
   /** Ẩn màn hình Loading (bật/tắt + thời gian tối đa theo site_settings) */
   function initLoadingScreen() {
     var el = document.getElementById('loading-screen');
@@ -115,9 +139,11 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initLoadingScreen);
     document.addEventListener('DOMContentLoaded', initThemeToggle);
+    document.addEventListener('DOMContentLoaded', initHotPlayNav);
   } else {
     initLoadingScreen();
     initThemeToggle();
+    initHotPlayNav();
   }
 
   /** Load JSON config from data/config/ */
@@ -1294,6 +1320,8 @@
     if (settings.theme_movie_card_title_light) root.style.setProperty('--movie-card-title-color-light', settings.theme_movie_card_title_light);
     if (settings.theme_movie_card_meta) root.style.setProperty('--movie-card-meta-color', settings.theme_movie_card_meta);
     if (settings.theme_movie_card_meta_light) root.style.setProperty('--movie-card-meta-color-light', settings.theme_movie_card_meta_light);
+    if (settings.theme_showtimes_color) root.style.setProperty('--showtimes-color', settings.theme_showtimes_color);
+    if (settings.theme_showtimes_color_light) root.style.setProperty('--showtimes-color-light', settings.theme_showtimes_color_light);
     var logo = document.querySelector('.site-logo');
     if (logo && settings.logo_url) {
       logo.innerHTML = '<img src="' + (settings.logo_url || '').replace(/"/g, '&quot;') + '" alt="' + (settings.site_name || '').replace(/"/g, '&quot;') + '">';

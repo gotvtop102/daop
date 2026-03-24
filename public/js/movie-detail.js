@@ -475,7 +475,8 @@
       return slug ? '<a href="' + base0 + '/dien-vien/' + slug + '.html">' + safe + '</a>' : safe;
     }).join(', ');
     var directorStr = (movie.director || []).join(', ');
-    var showtimes = movie.status === 'theater' && movie.showtimes ? '<p class="meta-line">Lịch chiếu: ' + (movie.showtimes || '').replace(/</g, '&lt;') + '</p>' : '';
+    var showtimesRaw = (movie && movie.showtimes != null) ? String(movie.showtimes).trim() : '';
+    var showtimes = showtimesRaw ? '<p class="meta-line meta-line--showtimes">Lịch chiếu: ' + showtimesRaw.replace(/</g, '&lt;') + '</p>' : '';
 
     var watchHref = base + '/xem-phim/' + encodeURIComponent(movie.slug || '') + '.html';
     var watchLabel = 'Xem ngay';
@@ -498,7 +499,7 @@
       (movie.year ? '<div class="md-info-line"><span class="md-info-key">Năm</span><span class="md-info-val">' + esc(movie.year) + '</span></div>' : '') +
       (movie.quality ? '<div class="md-info-line"><span class="md-info-key">Chất lượng</span><span class="md-info-val">' + esc(movie.quality) + '</span></div>' : '') +
       (movie.episode_current ? '<div class="md-info-line"><span class="md-info-key">Tập</span><span class="md-info-val">' + esc(movie.episode_current) + '</span></div>' : '') +
-      (showtimes ? '<div class="md-info-line"><span class="md-info-key">Lịch chiếu</span><span class="md-info-val">' + esc(movie.showtimes || '') + '</span></div>' : '');
+      (showtimes ? '<div class="md-info-line"><span class="md-info-key">Lịch chiếu</span><span class="md-info-val md-info-val--showtimes">' + esc(showtimesRaw) + '</span></div>' : '');
 
     var html = '' +
       '<div class="movie-detail-wrap">' +
