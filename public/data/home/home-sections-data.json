@@ -1349,6 +1349,7 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69bc1529ccc6cea268841d51",
       "699d89e24ea2111da8bdef64",
       "697053ae32adc86a1e713b10",
       "69b8cf9ef65d22d617b5c6f0",
@@ -1360,10 +1361,53 @@
       "69c26789b06c99c72200086f",
       "646115566a30601d55662f3b",
       "67ff8c12bee774075c03e8cb",
-      "686e71b010265ba3d6bcaffd",
-      "68ce4a31c249561d39637789"
+      "686e71b010265ba3d6bcaffd"
     ],
     "movies": [
+      {
+        "id": "69bc1529ccc6cea268841d51",
+        "title": "Công Thức Tình Yêu",
+        "origin_name": "Recipe For Love",
+        "slug": "cong-thuc-tinh-yeu",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 9",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-25T00:34:35.000Z"
+      },
       {
         "id": "699d89e24ea2111da8bdef64",
         "title": "Thiên Đường (Phần 2)",
@@ -1784,54 +1828,6 @@
         ],
         "lang_key": "Vietsub",
         "episode_current": "Tập 314",
-        "quality": "4K",
-        "status": "ongoing",
-        "showtimes": "Mỗi ngày cập nhật 02 tập mới",
-        "is_4k": true,
-        "is_exclusive": true,
-        "chieurap": true,
-        "sub_docquyen": false,
-        "modified": "2026-03-24T17:28:14.539Z"
-      },
-      {
-        "id": "68ce4a31c249561d39637789",
-        "title": "Trí Tuệ Tiềm Năng (Phần 2)",
-        "origin_name": "High Potential",
-        "slug": "tri-tue-tiem-nang-phan-2-2",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/68ce4a31c249561d39637789.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/68ce4a31c249561d39637789.webp",
-        "year": "2025",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          },
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "name": "Pháp",
-            "slug": "phap"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 15",
         "quality": "4K",
         "status": "ongoing",
         "showtimes": "Mỗi ngày cập nhật 02 tập mới",
@@ -2387,6 +2383,7 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69bc1529ccc6cea268841d51",
       "699d89e24ea2111da8bdef64",
       "697053ae32adc86a1e713b10",
       "69b8cf9ef65d22d617b5c6f0",
@@ -2397,10 +2394,53 @@
       "69666e52ae6f0c1fdf35955b",
       "68f9f11ea2d805aecaf99b2e",
       "69abad79e263b2a94620a194",
-      "697858b354ca9185bbab0ef5",
-      "69c26789b06c99c72200086f"
+      "697858b354ca9185bbab0ef5"
     ],
     "movies": [
+      {
+        "id": "69bc1529ccc6cea268841d51",
+        "title": "Công Thức Tình Yêu",
+        "origin_name": "Recipe For Love",
+        "slug": "cong-thuc-tinh-yeu",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 9",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-25T00:34:35.000Z"
+      },
       {
         "id": "699d89e24ea2111da8bdef64",
         "title": "Thiên Đường (Phần 2)",
@@ -2813,42 +2853,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-24T17:33:06.000Z"
-      },
-      {
-        "id": "69c26789b06c99c72200086f",
-        "title": "Minh Tinh Đại Trinh Thám (Phần 11)",
-        "origin_name": "Who's the Murderer (Season 11)",
-        "slug": "minh-tinh-dai-trinh-tham-phan-11",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c26789b06c99c72200086f.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c26789b06c99c72200086f.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-24T17:29:28.000Z"
       }
     ]
   },
@@ -2894,6 +2898,7 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69bc1529ccc6cea268841d51",
       "699d89e24ea2111da8bdef64",
       "69b8cf9ef65d22d617b5c6f0",
       "69abad07ccc6cea2688008c6",
@@ -2905,10 +2910,53 @@
       "62a1a4ae7a956fb5db030134",
       "62bd3e259464119c3454b6ba",
       "62d1e31f0376e41264a0aad7",
-      "62d841c00376e41264b61afa",
-      "644f757ed95ac616c32b8c56"
+      "62d841c00376e41264b61afa"
     ],
     "movies": [
+      {
+        "id": "69bc1529ccc6cea268841d51",
+        "title": "Công Thức Tình Yêu",
+        "origin_name": "Recipe For Love",
+        "slug": "cong-thuc-tinh-yeu",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 9",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-25T00:34:35.000Z"
+      },
       {
         "id": "699d89e24ea2111da8bdef64",
         "title": "Thiên Đường (Phần 2)",
@@ -3361,50 +3409,6 @@
         ],
         "lang_key": "Vietsub",
         "episode_current": "Tập 571",
-        "quality": "4K",
-        "status": "ongoing",
-        "showtimes": "Mỗi ngày cập nhật 02 tập mới",
-        "is_4k": true,
-        "is_exclusive": true,
-        "chieurap": true,
-        "sub_docquyen": false,
-        "modified": "2026-03-24T17:28:14.539Z"
-      },
-      {
-        "id": "644f757ed95ac616c32b8c56",
-        "title": "Đấu Phá Thương Khung Ngoại Truyện",
-        "origin_name": "Fights Break Sphere S5",
-        "slug": "dau-pha-thuong-khung-ngoai-truyen-2",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/644f757ed95ac616c32b8c56.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/644f757ed95ac616c32b8c56.webp",
-        "year": "2023",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-djong"
-          },
-          {
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          },
-          {
-            "name": "Võ Thuật",
-            "slug": "vo-thuat"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 191",
         "quality": "4K",
         "status": "ongoing",
         "showtimes": "Mỗi ngày cập nhật 02 tập mới",
@@ -6183,6 +6187,7 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69bc1529ccc6cea268841d51",
       "699d89e24ea2111da8bdef64",
       "697053ae32adc86a1e713b10",
       "69b8cf9ef65d22d617b5c6f0",
@@ -6197,10 +6202,53 @@
       "69c26789b06c99c72200086f",
       "625c61c8941a26e421dc5d16",
       "627b9e9cdb9df06c65952600",
-      "62a1a4ae7a956fb5db030134",
-      "62bd3e259464119c3454b6ba"
+      "62a1a4ae7a956fb5db030134"
     ],
     "movies": [
+      {
+        "id": "69bc1529ccc6cea268841d51",
+        "title": "Công Thức Tình Yêu",
+        "origin_name": "Recipe For Love",
+        "slug": "cong-thuc-tinh-yeu",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 9",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-25T00:34:35.000Z"
+      },
       {
         "id": "699d89e24ea2111da8bdef64",
         "title": "Thiên Đường (Phần 2)",
@@ -6753,42 +6801,6 @@
         ],
         "lang_key": "Vietsub",
         "episode_current": "Tập 203",
-        "quality": "4K",
-        "status": "ongoing",
-        "showtimes": "Mỗi ngày cập nhật 02 tập mới",
-        "is_4k": true,
-        "is_exclusive": true,
-        "chieurap": true,
-        "sub_docquyen": false,
-        "modified": "2026-03-24T17:28:14.539Z"
-      },
-      {
-        "id": "62bd3e259464119c3454b6ba",
-        "title": "Thử Thách Thần Tượng",
-        "origin_name": "RUNNING MAN",
-        "slug": "thu-thach-than-tuong-2",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/62bd3e259464119c3454b6ba.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/62bd3e259464119c3454b6ba.webp",
-        "year": "2010",
-        "type": "tvshows",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 794",
         "quality": "4K",
         "status": "ongoing",
         "showtimes": "Mỗi ngày cập nhật 02 tập mới",
@@ -7500,6 +7512,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69bc1529ccc6cea268841d51",
       "69b8cf9ef65d22d617b5c6f0",
       "62bd3e259464119c3454b6ba",
       "686e71b010265ba3d6bcaffd",
@@ -7513,11 +7526,54 @@
       "69abb1c2f063d23bbbd03d3e",
       "6943a6f5d6caf55037c2b7bb",
       "69aba7d4ccc6cea2688005cb",
-      "69bc1529ccc6cea268841d51",
       "69bd063ef063d23bbbd48d45",
       "69a12fda4ea2111da8bf4850"
     ],
     "movies": [
+      {
+        "id": "69bc1529ccc6cea268841d51",
+        "title": "Công Thức Tình Yêu",
+        "origin_name": "Recipe For Love",
+        "slug": "cong-thuc-tinh-yeu",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 9",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-25T00:34:35.000Z"
+      },
       {
         "id": "69b8cf9ef65d22d617b5c6f0",
         "title": "Cực Hạn",
@@ -7985,46 +8041,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-20T23:04:11.000Z"
-      },
-      {
-        "id": "69bc1529ccc6cea268841d51",
-        "title": "Công Thức Tình Yêu",
-        "origin_name": "Recipe For Love",
-        "slug": "cong-thuc-tinh-yeu",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Gia Đình",
-            "slug": "gia-djinh"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 5",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-20T22:59:50.000Z"
       },
       {
         "id": "69bd063ef063d23bbbd48d45",
