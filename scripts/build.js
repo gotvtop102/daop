@@ -1536,8 +1536,16 @@ function mergeMovies(ophim, custom) {
     if (!m || !m.slug) continue;
     const st = (m._sheetUpdateStatus || '').toString().toUpperCase();
     const isNew = st === 'NEW';
+    const idStr = m && m.id != null ? String(m.id) : '';
 
-    const exists = usedSlugs.has(m.slug);
+    const existingBySlug = usedSlugs.has(m.slug) ? bySlug.get(m.slug) : null;
+    const isSelfSlug = !!(
+      existingBySlug &&
+      idStr &&
+      existingBySlug.id != null &&
+      String(existingBySlug.id) === idStr
+    );
+    const exists = !!existingBySlug && !isSelfSlug;
     if (exists) {
       if (isNew) {
         const old = m.slug;
@@ -1556,11 +1564,14 @@ function mergeMovies(ophim, custom) {
 
     // If this custom id already exists in merged output, keep merged record.
     // This loop is only for slug normalization of custom entries.
-    const idStr = m && m.id != null ? String(m.id) : '';
     if (idStr && mergedById.has(idStr)) {
       const cur = mergedById.get(idStr);
       if (cur && cur.slug !== m.slug) {
+        const prevSlug = cur.slug;
         cur.slug = m.slug;
+        if (prevSlug && bySlug.get(prevSlug) === cur) {
+          bySlug.delete(prevSlug);
+        }
       }
       bySlug.set(m.slug, cur || m);
     } else {
