@@ -481,6 +481,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const sheets = await getSheetsClient(serviceAccountKey);
 
     switch (action) {
+      case 'get': {
+        const id = (req.query as any)?.id || (req.body as any)?.id;
+        if (!id) return res.status(400).json({ error: 'Missing id' });
+        const movie = await getMovie(sheets, spreadsheetId, String(id));
+        if (!movie) return res.status(404).json({ error: 'Movie not found' });
+        return res.status(200).json(movie);
+      }
+
       case 'countRows': {
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
@@ -533,6 +541,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!slug) return res.status(400).json({ error: 'Missing slug' });
         const movie = await getMovieBySlug(sheets, spreadsheetId, slug as string);
         return res.status(200).json(movie);
+      }
+
+      case 'save': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const result = await saveMovie(sheets, spreadsheetId, req.body || {});
+        return res.status(200).json(result);
+      }
+
+      case 'delete': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const id = (req.query as any)?.id || (req.body as any)?.id;
+        if (!id) return res.status(400).json({ error: 'Missing id' });
+        const result = await deleteMovie(sheets, spreadsheetId, String(id));
+        return res.status(200).json(result);
+      }
+
+      case 'updateShowtimes': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const id = (req.query as any)?.id || (req.body as any)?.id;
+        if (!id) return res.status(400).json({ error: 'Missing id' });
+        const result = await updateMovieShowtimesOnly(sheets, spreadsheetId, String(id), req.body || {});
+        return res.status(200).json(result);
+      }
+
+      case 'updateShowtimesExclusive': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const id = (req.query as any)?.id || (req.body as any)?.id;
+        if (!id) return res.status(400).json({ error: 'Missing id' });
+        const result = await updateMovieShowtimesExclusiveOnly(sheets, spreadsheetId, String(id), req.body || {});
+        return res.status(200).json(result);
       }
 
       default:
