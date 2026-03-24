@@ -745,6 +745,8 @@
     var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
     r2Domain = r2Domain.replace(/\/$/, '');
     const idStr = (m && m.id != null) ? String(m.id) : '';
+    const thumbFromIndex = (m && m.thumb) ? window.DAOP.normalizeImgUrl(m.thumb) : '';
+    const posterFromIndex = (m && m.poster) ? window.DAOP.normalizeImgUrl(m.poster) : '';
     const primaryRaw = (cardOrientation === 'horizontal')
       ? (r2Domain && idStr ? (r2Domain + '/posters/' + idStr + '.webp') : '')
       : (r2Domain && idStr ? (r2Domain + '/thumbs/' + idStr + '.webp') : '');
@@ -754,8 +756,12 @@
     const defaultImg = cardOrientation === 'horizontal'
       ? (baseUrl + '/images/default_poster.png')
       : (baseUrl + '/images/default_thumb.png');
-    const imgUrl = (primaryRaw || '').replace(/^\/\//, 'https://') || defaultImg;
-    const fallbackUrl = (fallbackRaw || '').replace(/^\/\//, 'https://') || defaultImg;
+    const fromIndexPrimary = cardOrientation === 'horizontal'
+      ? (posterFromIndex || thumbFromIndex)
+      : (thumbFromIndex || posterFromIndex);
+    const primaryResolved = (primaryRaw || '').replace(/^\/\//, 'https://') || fromIndexPrimary || '';
+    const imgUrl = primaryResolved || defaultImg;
+    const fallbackUrl = ((fallbackRaw || '').replace(/^\/\//, 'https://') || fromIndexPrimary || '').replace(/^\/\//, 'https://') || defaultImg;
     const title = (m.title || '').replace(/</g, '&lt;');
     const origin = (m.origin_name || '').replace(/</g, '&lt;');
 
@@ -1278,6 +1284,7 @@
   /** Áp dụng site-settings lên trang: theme, logo, favicon, footer, TMDB, slider */
   window.DAOP.applySiteSettings = function (settings) {
     if (!settings) return;
+    window.DAOP.siteSettings = Object.assign({}, window.DAOP.siteSettings || {}, settings);
     window.DAOP.siteName = settings.site_name || 'DAOP Phim';
     window.DAOP.supabaseUserUrl = settings.supabase_user_url || settings.supabaseUserUrl || window.DAOP.supabaseUserUrl || '';
     window.DAOP.supabaseUserAnonKey = settings.supabase_user_anon_key || settings.supabaseUserAnonKey || window.DAOP.supabaseUserAnonKey || '';
@@ -1324,8 +1331,8 @@
     if (settings.theme_movie_card_title_light) root.style.setProperty('--movie-card-title-color-light', settings.theme_movie_card_title_light);
     if (settings.theme_movie_card_meta) root.style.setProperty('--movie-card-meta-color', settings.theme_movie_card_meta);
     if (settings.theme_movie_card_meta_light) root.style.setProperty('--movie-card-meta-color-light', settings.theme_movie_card_meta_light);
-    if (settings.theme_showtimes_color) root.style.setProperty('--showtimes-color', settings.theme_showtimes_color);
-    if (settings.theme_showtimes_color_light) root.style.setProperty('--showtimes-color-light', settings.theme_showtimes_color_light);
+    root.style.setProperty('--showtimes-color', settings.theme_showtimes_color || '#ffffff');
+    root.style.setProperty('--showtimes-color-light', settings.theme_showtimes_color_light || '#ffffff');
     var logo = document.querySelector('.site-logo');
     if (logo && settings.logo_url) {
       logo.innerHTML = '<img src="' + (settings.logo_url || '').replace(/"/g, '&quot;') + '" alt="' + (settings.site_name || '').replace(/"/g, '&quot;') + '">';

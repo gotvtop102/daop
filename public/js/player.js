@@ -107,6 +107,8 @@
                 try { hls.currentLevel = v; } catch (e3) {}
               };
             }
+            var auxScope = (mountEl.closest && mountEl.closest('.player-overlay')) || (mountEl.closest && mountEl.closest('.watch-player-wrap')) || mountEl.parentElement;
+            if (auxScope) attachPlayerAuxToPlyr(auxScope, videoEl);
           };
 
           hls.on(HlsCtor.Events.MANIFEST_PARSED, renderQuality);
@@ -206,6 +208,25 @@
       if (btnBack) btnBack.onclick = function () { seekTo(getCurrentTime() - step); };
       if (btnFwd) btnFwd.onclick = function () { seekTo(getCurrentTime() + step); };
       if (selSpeed) selSpeed.onchange = function () { setSpeed(selSpeed.value); };
+    } catch (e) {}
+  }
+
+  /** Đưa playback + chất lượng HLS vào trong .plyr (trên .plyr__controls) để ẩn/hiện cùng thanh điều khiển */
+  function attachPlayerAuxToPlyr(scopeEl, videoEl) {
+    try {
+      if (!scopeEl || !videoEl) return;
+      var plyrRoot = videoEl.closest && videoEl.closest('.plyr');
+      if (!plyrRoot) return;
+      var ctrls = plyrRoot.querySelector('.plyr__controls');
+      var quality = scopeEl.querySelector('[data-role="quality"]');
+      var playback = scopeEl.querySelector('[data-role="playback"]');
+      function move(node) {
+        if (!node || node.parentNode === plyrRoot) return;
+        if (ctrls) plyrRoot.insertBefore(node, ctrls);
+        else plyrRoot.appendChild(node);
+      }
+      if (quality && quality.style.display !== 'none') move(quality);
+      if (playback && playback.style.display !== 'none') move(playback);
     } catch (e) {}
   }
 
@@ -478,7 +499,7 @@
       if (chosenPlayer !== 'jwplayer') {
         initHlsQuality(video, link, playerConfig, overlay.querySelector('[data-role="quality"]'));
       }
-      initPlayerByType(chosenPlayer, video, opts, playerConfig);
+      initPlayerByType(chosenPlayer, video, opts, playerConfig, overlay);
       initPlaybackControls(overlay, video, chosenPlayer, playerConfig, null);
     }
     overlay.querySelector('.close-player').addEventListener('click', function () {
@@ -493,7 +514,7 @@
     });
   }
 
-  function initPlayerByType(playerType, videoEl, opts, config) {
+  function initPlayerByType(playerType, videoEl, opts, config, hostEl) {
     config = config || {};
     
     function reportTime() {
@@ -517,6 +538,11 @@
               tooltips: { controls: config.plyr_tooltips === 'controls', seek: config.plyr_tooltips === 'seek' }
             });
             plyrInstance.on('timeupdate', reportTime);
+            function syncAux() {
+              if (hostEl) attachPlayerAuxToPlyr(hostEl, videoEl);
+            }
+            plyrInstance.on('ready', syncAux);
+            syncAux();
           } catch (e) {}
         }).catch(function () {
           attachProgressAndInitPlayer(opts, videoEl, 'native');

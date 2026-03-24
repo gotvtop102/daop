@@ -91,6 +91,24 @@
     } catch (e) {}
   }
 
+  function attachPlayerAuxToPlyr(scopeEl, videoEl) {
+    try {
+      if (!scopeEl || !videoEl) return;
+      var plyrRoot = videoEl.closest && videoEl.closest('.plyr');
+      if (!plyrRoot) return;
+      var ctrls = plyrRoot.querySelector('.plyr__controls');
+      var quality = scopeEl.querySelector('[data-role="quality"]');
+      var playback = scopeEl.querySelector('[data-role="playback"]');
+      function move(node) {
+        if (!node || node.parentNode === plyrRoot) return;
+        if (ctrls) plyrRoot.insertBefore(node, ctrls);
+        else plyrRoot.appendChild(node);
+      }
+      if (quality && quality.style.display !== 'none') move(quality);
+      if (playback && playback.style.display !== 'none') move(playback);
+    } catch (e) {}
+  }
+
   function isM3u8Url(url) {
     if (!url) return false;
     var u = String(url);
@@ -188,6 +206,8 @@
                 try { hls.currentLevel = v; } catch (e3) {}
               };
             }
+            var auxScope = (mountEl.closest && mountEl.closest('.watch-player-wrap')) || mountEl.parentElement;
+            if (auxScope) attachPlayerAuxToPlyr(auxScope, videoEl);
           };
 
           hls.on(HlsCtor.Events.MANIFEST_PARSED, renderQuality);
@@ -616,6 +636,11 @@
             });
             plyrInstance.on('timeupdate', reportTime);
             initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
+            function syncAux() {
+              attachPlayerAuxToPlyr(container, video);
+            }
+            plyrInstance.on('ready', syncAux);
+            syncAux();
           } catch (e) {}
         }).catch(function () {});
         break;

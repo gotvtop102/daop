@@ -31,7 +31,15 @@
       .then(function (r) { return r.json(); })
       .catch(function () { return {}; })
       .then(function (settings) {
-        self.settings = settings;
+        self.settings = settings || {};
+        window.DAOP = window.DAOP || {};
+        if (settings && Object.keys(settings).length && window.DAOP.applySiteSettings) {
+          try {
+            window.DAOP.applySiteSettings(settings);
+          } catch (eApply) {}
+        } else if (settings && Object.keys(settings).length) {
+          window.DAOP.siteSettings = Object.assign({}, window.DAOP.siteSettings || {}, settings);
+        }
         var extra = parseInt(settings.category_grid_columns_extra || settings.grid_columns_extra || '8', 10);
         if ([6, 8, 10, 12, 14, 16].indexOf(extra) < 0) extra = 8;
         self.gridColumnsOptions = [2, 3, 4, extra];

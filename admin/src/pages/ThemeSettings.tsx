@@ -48,7 +48,7 @@ const DEFAULTS: Record<string, string> = {
   theme_slider_title: '#d23737',
   theme_slider_meta: 'rgba(255,255,255,0.75)',
   theme_slider_desc: 'rgba(255,255,255,0.7)',
-  theme_showtimes_color: '',
+  theme_showtimes_color: '#ffffff',
   theme_movie_card_title: '#ffffff',
   theme_movie_card_meta: '#8b949e',
   theme_header_logo_light: '#1f2328',
@@ -60,7 +60,7 @@ const DEFAULTS: Record<string, string> = {
   theme_slider_title_light: '#d23737',
   theme_slider_meta_light: 'rgba(255,255,255,0.75)',
   theme_slider_desc_light: 'rgba(255,255,255,0.7)',
-  theme_showtimes_color_light: '',
+  theme_showtimes_color_light: '#ffffff',
   theme_movie_card_title_light: '#1f2328',
   theme_movie_card_meta_light: '#5c6773',
 };
@@ -92,7 +92,7 @@ const LABELS: Record<string, string> = {
   theme_slider_title: 'Slider trang chủ: tiêu đề',
   theme_slider_meta: 'Slider: dòng 2 (năm | quốc gia)',
   theme_slider_desc: 'Slider: mô tả',
-  theme_showtimes_color: 'Lịch chiếu (Showtimes): màu chữ',
+  theme_showtimes_color: 'Lịch chiếu: màu chữ trên hero trang chi tiết phim (mặc định trắng)',
   theme_movie_card_title: 'Thẻ phim: tiêu đề',
   theme_movie_card_meta: 'Thẻ phim: dòng phụ (năm, tập)',
   theme_header_logo_light: 'Header - Light theme: màu logo/tên site',
@@ -104,7 +104,7 @@ const LABELS: Record<string, string> = {
   theme_slider_title_light: 'Slider - Light theme: tiêu đề',
   theme_slider_meta_light: 'Slider - Light theme: dòng 2 (năm | quốc gia)',
   theme_slider_desc_light: 'Slider - Light theme: mô tả',
-  theme_showtimes_color_light: 'Lịch chiếu (Showtimes) - Light theme: màu chữ',
+  theme_showtimes_color_light: 'Lịch chiếu (Light): màu chữ hero trang chi tiết (mặc định trắng)',
   theme_movie_card_title_light: 'Thẻ phim - Light theme: tiêu đề',
   theme_movie_card_meta_light: 'Thẻ phim - Light theme: dòng phụ (năm, tập)',
 };
@@ -278,7 +278,7 @@ export default function ThemeSettings() {
 
                     <h3 style={{ marginTop: 24, marginBottom: 12 }}>Lịch chiếu (Showtimes)</h3>
                     <Form.Item name="theme_showtimes_color" label={LABELS.theme_showtimes_color}>
-                      <ColorValueInput defaultValue={DEFAULTS.theme_showtimes_color} placeholder="Để trống = dùng màu mặc định" />
+                      <ColorValueInput defaultValue={DEFAULTS.theme_showtimes_color} placeholder="Mặc định #ffffff (trang danh sách lịch chiếu dùng màu accent)" />
                     </Form.Item>
 
                     <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
@@ -364,7 +364,7 @@ export default function ThemeSettings() {
 
                     <h3 style={{ marginTop: 24, marginBottom: 12 }}>Lịch chiếu (Showtimes)</h3>
                     <Form.Item name="theme_showtimes_color_light" label={LABELS.theme_showtimes_color_light}>
-                      <ColorValueInput defaultValue={DEFAULTS.theme_showtimes_color_light} placeholder="Để trống = dùng màu mặc định" />
+                      <ColorValueInput defaultValue={DEFAULTS.theme_showtimes_color_light} placeholder="Mặc định #ffffff" />
                     </Form.Item>
 
                     <h3 style={{ marginTop: 24, marginBottom: 12 }}>Thẻ phim (danh sách)</h3>
