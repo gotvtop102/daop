@@ -91,24 +91,6 @@
     } catch (e) {}
   }
 
-  function attachPlayerAuxToPlyr(scopeEl, videoEl) {
-    try {
-      if (!scopeEl || !videoEl) return;
-      var plyrRoot = videoEl.closest && videoEl.closest('.plyr');
-      if (!plyrRoot) return;
-      var ctrls = plyrRoot.querySelector('.plyr__controls');
-      var quality = scopeEl.querySelector('[data-role="quality"]');
-      var playback = scopeEl.querySelector('[data-role="playback"]');
-      function move(node) {
-        if (!node || node.parentNode === plyrRoot) return;
-        if (ctrls) plyrRoot.insertBefore(node, ctrls);
-        else plyrRoot.appendChild(node);
-      }
-      if (quality && quality.style.display !== 'none') move(quality);
-      if (playback && playback.style.display !== 'none') move(playback);
-    } catch (e) {}
-  }
-
   function isM3u8Url(url) {
     if (!url) return false;
     var u = String(url);
@@ -136,7 +118,7 @@
     }
   }
 
-  function initHlsQuality(videoEl, link, playerConfig, mountEl) {
+  function initHlsQuality(videoEl, link, playerConfig, mountEl, auxPlayerType) {
     try {
       if (!videoEl || !isM3u8Url(link)) return;
       if (!playerConfig || playerConfig.hls_quality_enabled === false) return;
@@ -207,7 +189,9 @@
               };
             }
             var auxScope = (mountEl.closest && mountEl.closest('.watch-player-wrap')) || mountEl.parentElement;
-            if (auxScope) attachPlayerAuxToPlyr(auxScope, videoEl);
+            if (auxScope && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+              window.DAOP.attachPlayerAuxControls(auxScope, videoEl, auxPlayerType || 'plyr', {});
+            }
           };
 
           hls.on(HlsCtor.Events.MANIFEST_PARSED, renderQuality);
@@ -593,7 +577,7 @@
 
     var qualityMount = container.querySelector('[data-role="quality"]');
     if (chosenPlayer !== 'jwplayer') {
-      initHlsQuality(video, ctx.link, playerConfig, qualityMount);
+      initHlsQuality(video, ctx.link, playerConfig, qualityMount, chosenPlayer);
     }
 
     function loadScript(src) {
@@ -635,12 +619,17 @@
               tooltips: { controls: playerConfig.plyr_tooltips === 'controls', seek: playerConfig.plyr_tooltips === 'seek' }
             });
             plyrInstance.on('timeupdate', reportTime);
-            initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
-            function syncAux() {
-              attachPlayerAuxToPlyr(container, video);
-            }
-            plyrInstance.on('ready', syncAux);
-            syncAux();
+            plyrInstance.on('ready', function () {
+              try {
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'plyr', {});
+                }
+                initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'plyr', {});
+                }
+              } catch (eReady) {}
+            });
           } catch (e) {}
         }).catch(function () {});
         break;
@@ -658,6 +647,15 @@
             });
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
+              try {
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'videojs', {});
+                }
+                initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'videojs', {});
+                }
+              } catch (eVjs) {}
             });
           } catch (e) {}
         }).catch(function () {});
@@ -682,7 +680,17 @@
             jwp.on('time', function (e) {
               reportTime();
             });
-            initPlaybackControls(container, video, chosenPlayer, playerConfig, jwp);
+            jwp.on('ready', function () {
+              try {
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'jwplayer', { jwInstance: jwp });
+                }
+                initPlaybackControls(container, video, chosenPlayer, playerConfig, jwp);
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'jwplayer', { jwInstance: jwp });
+                }
+              } catch (eJw) {}
+            });
           } catch (e) {}
         }).catch(function () {});
         break;
@@ -697,6 +705,19 @@
             if (playerConfig.vidstack_theme === 'minimal') player.setAttribute('data-theme', 'minimal');
             video.parentNode.replaceChild(player, video);
             player.addEventListener('time-update', reportTime);
+            setTimeout(function () {
+              try {
+                var v = player.querySelector && player.querySelector('video');
+                if (!v) return;
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, v, 'vidstack', { mediaPlayerEl: player });
+                }
+                initPlaybackControls(container, v, chosenPlayer, playerConfig, null);
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, v, 'vidstack', { mediaPlayerEl: player });
+                }
+              } catch (eVs) {}
+            }, 0);
           } catch (e) {}
         }).catch(function () {});
         break;
@@ -718,6 +739,20 @@
             }
             var clapprPlayer = new window.Clappr.Player(clapprConfig);
             clapprPlayer.on(window.Clappr.Events.PLAYER_TIMEUPDATE, reportTime);
+            setTimeout(function () {
+              try {
+                var croot = container.querySelector && container.querySelector('.clappr-container');
+                var v = container.querySelector && container.querySelector('video');
+                if (!v) return;
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, v, 'clappr', { clapprContainer: croot });
+                }
+                initPlaybackControls(container, v, chosenPlayer, playerConfig, null);
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, v, 'clappr', { clapprContainer: croot });
+                }
+              } catch (eCl) {}
+            }, 250);
           } catch (e) {}
         }).catch(function () {});
         break;
@@ -734,6 +769,17 @@
             };
             var mePlayer = new window.MediaElementPlayer(video, meConfig);
             video.addEventListener('timeupdate', reportTime);
+            setTimeout(function () {
+              try {
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'mediaelement', {});
+                }
+                initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'mediaelement', {});
+                }
+              } catch (eMe) {}
+            }, 0);
           } catch (e) {}
         }).catch(function () {});
         break;
@@ -759,14 +805,31 @@
             }
             var fluidPlayer = window.fluidPlayer(video, fluidConfig);
             video.addEventListener('timeupdate', reportTime);
-            initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
+            setTimeout(function () {
+              try {
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'fluidplayer', {});
+                }
+                initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(container, video, 'fluidplayer', {});
+                }
+              } catch (eFp) {}
+            }, 0);
           } catch (e) {}
         }).catch(function () {});
         break;
 
       default:
-        // Native player - do nothing extra
-        initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
+        try {
+          if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+            window.DAOP.attachPlayerAuxControls(container, video, 'native', {});
+          }
+          initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
+          if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+            window.DAOP.attachPlayerAuxControls(container, video, 'native', {});
+          }
+        } catch (eNat) {}
         break;
     }
   }
@@ -1487,7 +1550,8 @@
             '    <div class="grid-toolbar" id="watch-rec-toolbar" aria-label="Tùy chọn hiển thị"></div>' +
             '  </div>' +
             '  <div class="movies-grid" id="watch-recommend-grid"></div>' +
-            '</section>';
+            '</section>' +
+            '<div class="ad-slot" data-ad-position="watch_bottom"></div>';
 
           var initial = pickInitialEpisode(movie, window.DAOP && window.DAOP.serverSources);
           initEpisodesUI(movie, rootEl, initial);

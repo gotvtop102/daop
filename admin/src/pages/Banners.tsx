@@ -47,12 +47,16 @@ function joinPositions(arr: any): string {
 const POSITION_PRESETS: Array<{ value: string; label: string }> = [
   { value: 'home_top', label: 'Trang chủ - Top (home_top)' },
   { value: 'home_mid', label: 'Trang chủ - Giữa (home_mid)' },
+  { value: 'home_bottom', label: 'Trang chủ - Cuối (home_bottom)' },
   { value: 'category_top', label: 'Danh mục - Top (category_top)' },
   { value: 'category_mid', label: 'Danh mục - Giữa (category_mid)' },
+  { value: 'category_bottom', label: 'Danh mục - Cuối (category_bottom)' },
   { value: 'detail_top', label: 'Chi tiết - Top (detail_top)' },
   { value: 'detail_mid', label: 'Chi tiết - Giữa (detail_mid)' },
+  { value: 'detail_bottom', label: 'Chi tiết - Cuối (detail_bottom)' },
   { value: 'watch_top', label: 'Xem phim - Top (watch_top)' },
   { value: 'watch_mid', label: 'Xem phim - Giữa (watch_mid)' },
+  { value: 'watch_bottom', label: 'Xem phim - Cuối (watch_bottom)' },
 ];
 
 export default function Banners() {

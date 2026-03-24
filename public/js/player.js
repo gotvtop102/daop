@@ -37,7 +37,7 @@
     }
   }
 
-  function initHlsQuality(videoEl, link, playerConfig, mountEl) {
+  function initHlsQuality(videoEl, link, playerConfig, mountEl, auxPlayerType) {
     try {
       if (!videoEl || !isM3u8Url(link)) return;
       if (!playerConfig || playerConfig.hls_quality_enabled === false) return;
@@ -108,7 +108,9 @@
               };
             }
             var auxScope = (mountEl.closest && mountEl.closest('.player-overlay')) || (mountEl.closest && mountEl.closest('.watch-player-wrap')) || mountEl.parentElement;
-            if (auxScope) attachPlayerAuxToPlyr(auxScope, videoEl);
+            if (auxScope && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+              window.DAOP.attachPlayerAuxControls(auxScope, videoEl, auxPlayerType || 'plyr', {});
+            }
           };
 
           hls.on(HlsCtor.Events.MANIFEST_PARSED, renderQuality);
@@ -208,25 +210,6 @@
       if (btnBack) btnBack.onclick = function () { seekTo(getCurrentTime() - step); };
       if (btnFwd) btnFwd.onclick = function () { seekTo(getCurrentTime() + step); };
       if (selSpeed) selSpeed.onchange = function () { setSpeed(selSpeed.value); };
-    } catch (e) {}
-  }
-
-  /** Đưa playback + chất lượng HLS vào trong .plyr (trên .plyr__controls) để ẩn/hiện cùng thanh điều khiển */
-  function attachPlayerAuxToPlyr(scopeEl, videoEl) {
-    try {
-      if (!scopeEl || !videoEl) return;
-      var plyrRoot = videoEl.closest && videoEl.closest('.plyr');
-      if (!plyrRoot) return;
-      var ctrls = plyrRoot.querySelector('.plyr__controls');
-      var quality = scopeEl.querySelector('[data-role="quality"]');
-      var playback = scopeEl.querySelector('[data-role="playback"]');
-      function move(node) {
-        if (!node || node.parentNode === plyrRoot) return;
-        if (ctrls) plyrRoot.insertBefore(node, ctrls);
-        else plyrRoot.appendChild(node);
-      }
-      if (quality && quality.style.display !== 'none') move(quality);
-      if (playback && playback.style.display !== 'none') move(playback);
     } catch (e) {}
   }
 
@@ -497,10 +480,9 @@
     var video = document.getElementById('daop-video');
     if (video && !isEmbed) {
       if (chosenPlayer !== 'jwplayer') {
-        initHlsQuality(video, link, playerConfig, overlay.querySelector('[data-role="quality"]'));
+        initHlsQuality(video, link, playerConfig, overlay.querySelector('[data-role="quality"]'), chosenPlayer);
       }
       initPlayerByType(chosenPlayer, video, opts, playerConfig, overlay);
-      initPlaybackControls(overlay, video, chosenPlayer, playerConfig, null);
     }
     overlay.querySelector('.close-player').addEventListener('click', function () {
       if (overlay) overlay.remove();
@@ -538,11 +520,17 @@
               tooltips: { controls: config.plyr_tooltips === 'controls', seek: config.plyr_tooltips === 'seek' }
             });
             plyrInstance.on('timeupdate', reportTime);
-            function syncAux() {
-              if (hostEl) attachPlayerAuxToPlyr(hostEl, videoEl);
-            }
-            plyrInstance.on('ready', syncAux);
-            syncAux();
+            plyrInstance.on('ready', function () {
+              try {
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'plyr', {});
+                }
+                initPlaybackControls(hostEl, videoEl, 'plyr', config, null);
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'plyr', {});
+                }
+              } catch (eReady) {}
+            });
           } catch (e) {}
         }).catch(function () {
           attachProgressAndInitPlayer(opts, videoEl, 'native');
@@ -562,6 +550,15 @@
             });
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
+              try {
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'videojs', {});
+                }
+                initPlaybackControls(hostEl, videoEl, 'videojs', config, null);
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'videojs', {});
+                }
+              } catch (eVjs) {}
             });
           } catch (e) {}
         }).catch(function () {
@@ -589,6 +586,17 @@
             jwp.on('time', function (e) {
               reportTime();
             });
+            jwp.on('ready', function () {
+              try {
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'jwplayer', { jwInstance: jwp });
+                }
+                initPlaybackControls(hostEl, videoEl, 'jwplayer', config, jwp);
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'jwplayer', { jwInstance: jwp });
+                }
+              } catch (eJw) {}
+            });
           } catch (e) {}
         }).catch(function () {
           attachProgressAndInitPlayer(opts, videoEl, 'native');
@@ -605,6 +613,19 @@
             if (config.vidstack_theme === 'minimal') player.setAttribute('data-theme', 'minimal');
             videoEl.parentNode.replaceChild(player, videoEl);
             player.addEventListener('time-update', reportTime);
+            setTimeout(function () {
+              try {
+                var v = player.querySelector && player.querySelector('video');
+                if (!v || !hostEl) return;
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, v, 'vidstack', { mediaPlayerEl: player });
+                }
+                initPlaybackControls(hostEl, v, 'vidstack', config, null);
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, v, 'vidstack', { mediaPlayerEl: player });
+                }
+              } catch (eVs) {}
+            }, 0);
           } catch (e) {}
         }).catch(function () {
           attachProgressAndInitPlayer(opts, videoEl, 'native');
@@ -628,6 +649,20 @@
             }
             var clapprPlayer = new window.Clappr.Player(clapprConfig);
             clapprPlayer.on(window.Clappr.Events.PLAYER_TIMEUPDATE, reportTime);
+            setTimeout(function () {
+              try {
+                var croot = hostEl && hostEl.querySelector && hostEl.querySelector('.clappr-container');
+                var v = hostEl && hostEl.querySelector && hostEl.querySelector('video');
+                if (!v || !hostEl) return;
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, v, 'clappr', { clapprContainer: croot });
+                }
+                initPlaybackControls(hostEl, v, 'clappr', config, null);
+                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, v, 'clappr', { clapprContainer: croot });
+                }
+              } catch (eCl) {}
+            }, 250);
           } catch (e) {}
         }).catch(function () {
           attachProgressAndInitPlayer(opts, videoEl, 'native');
@@ -646,6 +681,17 @@
             };
             var mePlayer = new window.MediaElementPlayer(videoEl, meConfig);
             videoEl.addEventListener('timeupdate', reportTime);
+            setTimeout(function () {
+              try {
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'mediaelement', {});
+                }
+                initPlaybackControls(hostEl, videoEl, 'mediaelement', config, null);
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'mediaelement', {});
+                }
+              } catch (eMe) {}
+            }, 0);
           } catch (e) {}
         }).catch(function () {
           attachProgressAndInitPlayer(opts, videoEl, 'native');
@@ -673,6 +719,17 @@
             }
             var fluidPlayer = window.fluidPlayer(videoEl, fluidConfig);
             videoEl.addEventListener('timeupdate', reportTime);
+            setTimeout(function () {
+              try {
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'fluidplayer', {});
+                }
+                initPlaybackControls(hostEl, videoEl, 'fluidplayer', config, null);
+                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'fluidplayer', {});
+                }
+              } catch (eFp) {}
+            }, 0);
           } catch (e) {}
         }).catch(function () {
           attachProgressAndInitPlayer(opts, videoEl, 'native');
@@ -680,7 +737,16 @@
         break;
         
       default:
-        attachProgressAndInitPlayer(opts, videoEl, 'native');
+        try {
+          if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+            window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'native', {});
+          }
+          initPlaybackControls(hostEl, videoEl, 'native', config, null);
+          if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
+            window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'native', {});
+          }
+        } catch (eNat) {}
+        break;
     }
   }
 

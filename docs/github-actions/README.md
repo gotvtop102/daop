@@ -2,7 +2,7 @@
 
 ## Workflows
 
-1. **update-data.yml** – Chạy hàng ngày (cron), gọi `npm run build` với secrets (TMDB, OPhim, Supabase Admin, R2, Google Sheets). Commit và push thay đổi vào repo.
+1. **update-data.yml** – Chạy hàng ngày (cron), gọi `npm run build` với secrets (TMDB, OPhim, Supabase Admin, R2, Google Sheets). Commit và push thay đổi vào repo. **Cuối workflow**, nếu các bước trước thành công, tự động chạy `scripts/export-to-sheets.js` (cần `GOOGLE_SHEETS_ID`, `GOOGLE_SHEETS_JSON`).
 2. **build-on-demand.yml** – Kích hoạt bằng `repository_dispatch` (event `build-on-demand`). Admin Panel gọi webhook → GitHub API trigger workflow này. Chạy build với flag `--incremental` nếu cần.
 3. **deploy.yml** – Sau khi build xong (hoặc push nhánh chính), dùng `cloudflare/pages-action` để deploy thư mục `public/` lên Cloudflare Pages.
 

@@ -17,6 +17,28 @@
     this._renderSeq = 0;
   }
 
+  /** Đảm bảo mọi trang dùng CategoryPage đều có slot Top / Cuối (nhiều file HTML chỉ có grid + phân trang). */
+  CategoryPage.prototype.ensureCategoryAdSlots = function () {
+    var grid = document.getElementById(this.gridId);
+    var pag = document.getElementById(this.paginationId);
+    if (!grid || !pag || !grid.parentNode) return;
+    if (!document.getElementById('category-ad-top')) {
+      var top = document.createElement('div');
+      top.id = 'category-ad-top';
+      top.className = 'ad-slot';
+      top.setAttribute('data-ad-position', 'category_top');
+      grid.parentNode.insertBefore(top, grid);
+    }
+    if (!document.getElementById('category-ad-bottom')) {
+      var bot = document.createElement('div');
+      bot.id = 'category-ad-bottom';
+      bot.className = 'ad-slot';
+      bot.setAttribute('data-ad-position', 'category_bottom');
+      if (pag.nextSibling) pag.parentNode.insertBefore(bot, pag.nextSibling);
+      else pag.parentNode.appendChild(bot);
+    }
+  };
+
   CategoryPage.prototype.init = function () {
     var self = this;
     var filtersData = window.filtersData || {};
@@ -56,6 +78,7 @@
         window.DAOP.siteName = settings.site_name || 'DAOP Phim';
         document.title = self.title + ' | ' + window.DAOP.siteName;
         self.buildFilterUI(baseSet, filtersData);
+        self.ensureCategoryAdSlots();
         self.buildGridToolbar();
         self.applyFilters(baseSet, filtersData);
         self.applyGridClass();
@@ -277,7 +300,6 @@
   CategoryPage.prototype.renderPage = function () {
     var grid = document.getElementById(this.gridId);
     if (!grid) return;
-    var topSlot = document.getElementById('category-ad-top');
     var perPage = this.itemsPerPage;
     var start = (this.currentPage - 1) * perPage;
     var slice = this.filteredIds.slice(start, start + perPage);
@@ -288,14 +310,26 @@
     var seq = ++this._renderSeq;
     grid.innerHTML = '<p>Đang tải...</p>';
 
+    function renderCategoryTopBottomSlots() {
+      var topSlot = document.getElementById('category-ad-top');
+      var bottomSlot = document.getElementById('category-ad-bottom');
+      if (window.DAOP && typeof window.DAOP.renderAdSlot === 'function') {
+        if (topSlot) window.DAOP.renderAdSlot(topSlot, 'category_top');
+        if (bottomSlot) window.DAOP.renderAdSlot(bottomSlot, 'category_bottom');
+      }
+    }
+
     var render = window.DAOP && window.DAOP.renderMovieCard;
     var getById = window.DAOP && window.DAOP.getMovieLightByIdAsync;
     if (!render) {
       grid.innerHTML = '<p>Lỗi: không thể hiển thị danh sách.</p>';
+      renderCategoryTopBottomSlots();
     } else if (!slice.length) {
       grid.innerHTML = '<p>Không có phim nào.</p>';
+      renderCategoryTopBottomSlots();
     } else if (typeof getById !== 'function') {
       grid.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+      renderCategoryTopBottomSlots();
     } else {
       Promise.all(slice.map(function (id) {
         var k = String(id);
@@ -324,9 +358,7 @@
           }
           grid.innerHTML = html2 || '<p>Không có phim nào.</p>';
 
-          if (topSlot && window.DAOP && typeof window.DAOP.renderAdSlot === 'function') {
-            window.DAOP.renderAdSlot(topSlot, 'category_top');
-          }
+          renderCategoryTopBottomSlots();
           if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
             window.DAOP.renderAdsInDocument(grid);
           }
@@ -334,6 +366,7 @@
         .catch(function () {
           if (seq !== self._renderSeq) return;
           grid.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+          renderCategoryTopBottomSlots();
         });
     }
 

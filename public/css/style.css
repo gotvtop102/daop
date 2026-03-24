@@ -2987,14 +2987,31 @@ body.theme-light .showtimes-item-st {
   border: none;
 }
 
-/* Playback speed / HLS quality: inside Plyr, show & hide with main controls */
+/* Tốc độ / tua / chất lượng HLS: gắn trong UI player (Plyr, Video.js, JW, …) */
 .plyr [data-role="quality"],
-.plyr [data-role="playback"] {
+.plyr [data-role="playback"],
+.video-js .vjs-control-bar [data-role="quality"],
+.video-js .vjs-control-bar [data-role="playback"],
+.mejs__controls [data-role="quality"],
+.mejs__controls [data-role="playback"],
+.jwplayer [data-role="quality"],
+.jwplayer [data-role="playback"],
+.fluid_video_wrapper [data-role="quality"],
+.fluid_video_wrapper [data-role="playback"],
+media-player [data-role="quality"],
+media-player [data-role="playback"],
+.clappr-container [data-role="quality"],
+.clappr-container [data-role="playback"] {
   margin: 0 !important;
-  padding: 6px 10px 2px;
-  width: 100%;
+  padding: 4px 8px;
+  max-width: 100%;
   box-sizing: border-box;
   flex-shrink: 0;
+}
+.plyr [data-role="quality"],
+.plyr [data-role="playback"] {
+  padding: 6px 10px 2px;
+  width: 100%;
 }
 .plyr.plyr--hide-controls [data-role="quality"],
 .plyr.plyr--hide-controls [data-role="playback"] {
@@ -3005,6 +3022,36 @@ body.theme-light .showtimes-item-st {
 .plyr:not(.plyr--hide-controls) [data-role="playback"] {
   opacity: 1;
   transition: opacity 0.2s ease;
+}
+.video-js.vjs-user-inactive .vjs-control-bar [data-role="quality"],
+.video-js.vjs-user-inactive .vjs-control-bar [data-role="playback"] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.video-js.vjs-user-active .vjs-control-bar [data-role="quality"],
+.video-js.vjs-user-active .vjs-control-bar [data-role="playback"] {
+  opacity: 1;
+}
+/* Trình phát native HTML5: thanh phụ trong ô video */
+.player-aux-native-wrap {
+  position: relative;
+}
+.player-aux-native-wrap .player-aux-stack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  pointer-events: auto;
+}
+.player-overlay.player-aux-native-wrap .player-aux-stack {
+  bottom: 3.5rem;
+  max-width: min(90vw, 1100px);
+  margin: 0 auto;
 }
 
 .watch-player-sticky {

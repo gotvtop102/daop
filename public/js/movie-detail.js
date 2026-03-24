@@ -435,7 +435,8 @@
       '        <div class="md-desc"></div>' +
       '      </section>' +
       '    </div>' +
-      '</div>' +
+      '    <div class="ad-slot" data-ad-position="detail_bottom"></div>' +
+      '  </div>' +
       '</div>';
     var el = document.getElementById('movie-detail');
     if (el) el.innerHTML = html;
@@ -550,6 +551,7 @@
       '       <div class="movies-grid" id="similar-grid"><p>Đang tải...</p></div>' +
       '     </section>' +
       '   </div>' +
+      '   <div class="ad-slot" data-ad-position="detail_bottom"></div>' +
       '</div>' +
       '</div>';
     var el = document.getElementById('movie-detail');
@@ -583,6 +585,10 @@
         el: '#twikoo-comments',
         path: window.location.pathname,
       });
+    }
+
+    if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+      window.DAOP.renderAdsInDocument(el || document);
     }
   }
 
