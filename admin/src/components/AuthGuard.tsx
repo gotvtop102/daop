@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Spin } from 'antd';
 import { supabase } from '../lib/supabase';
+import { ensureAccessSubsystemLoaded } from '../lib/accessIntegrity';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -11,6 +12,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const check = async () => {
+      if (!ensureAccessSubsystemLoaded()) {
+        setLoading(false);
+        navigate('/login', { replace: true });
+        return;
+      }
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         setLoading(false);

@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Layout as AntLayout, Menu, Button, message, Drawer, Grid } from 'antd';
+import { useState, useEffect, useMemo } from 'react';
+import { Layout as AntLayout, Menu, Button, message, Drawer, Grid, Modal, Input } from 'antd';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LogoutOutlined, MenuOutlined, SafetyOutlined } from '@ant-design/icons';
+import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
+import { useAccess } from '../context/AccessContext';
+import type { MenuProps } from 'antd';
 import {
   DashboardOutlined,
   PictureOutlined,
@@ -21,52 +23,87 @@ import {
 const { Header, Sider, Content, Footer } = AntLayout;
 const { useBreakpoint } = Grid;
 
-const items = [
-  { key: '/', icon: <DashboardOutlined />, label: <Link to="/">Dashboard</Link> },
-  {
-    key: '/ads',
-    icon: <PictureOutlined />,
-    label: <Link to="/ads">Quảng cáo</Link>,
-    children: [
-      { key: '/banners', icon: <PictureOutlined />, label: <Link to="/banners">Banner</Link> },
-      { key: '/preroll', icon: <PlaySquareOutlined />, label: <Link to="/preroll">Video Ads (Pre/Mid/Post)</Link> },
-    ],
-  },
-  {
-    key: '/giao-dien',
-    icon: <AppstoreOutlined />,
-    label: 'Giao diện',
-    children: [
-      { key: '/slider', icon: <PictureOutlined />, label: <Link to="/slider">Slider</Link> },
-      { key: '/menu-background', icon: <PictureOutlined />, label: <Link to="/menu-background">Nền menu</Link> },
-      { key: '/filter-order', icon: <AppstoreOutlined />, label: <Link to="/filter-order">Sắp xếp bộ lọc</Link> },
-      { key: '/homepage-sections', icon: <AppstoreOutlined />, label: <Link to="/homepage-sections">Sections</Link> },
-      { key: '/category-page-settings', icon: <AppstoreOutlined />, label: <Link to="/category-page-settings">Trang danh mục</Link> },
-      { key: '/theme', icon: <SettingOutlined />, label: <Link to="/theme">Theme</Link> },
-      { key: '/static-pages', icon: <FileTextOutlined />, label: <Link to="/static-pages">Trang tĩnh</Link> },
-    ],
-  },
-  { key: '/settings', icon: <SettingOutlined />, label: <Link to="/settings">Cài đặt</Link> },
-  {
-    key: '/movies',
-    icon: <VideoCameraOutlined />,
-    label: 'Quản lý phim',
-    children: [
-      { key: '/movies/single', icon: <UnorderedListOutlined />, label: <Link to="/movies/single">Phim lẻ</Link> },
-      { key: '/movies/series', icon: <UnorderedListOutlined />, label: <Link to="/movies/series">Phim bộ</Link> },
-      { key: '/movies/hoathinh', icon: <UnorderedListOutlined />, label: <Link to="/movies/hoathinh">Hoạt hình</Link> },
-      { key: '/movies/tvshows', icon: <UnorderedListOutlined />, label: <Link to="/movies/tvshows">TV Show</Link> },
-      { key: '/movies/unbuilt', icon: <UnorderedListOutlined />, label: <Link to="/movies/unbuilt">Phim chưa build</Link> },
-      { key: '/movies/duplicates', icon: <UnorderedListOutlined />, label: <Link to="/movies/duplicates">Trùng lặp</Link> },
-    ],
-  },
-  { key: '/google-sheets', icon: <FileTextOutlined />, label: <Link to="/google-sheets">Google Sheets</Link> },
-  { key: '/player-settings', icon: <PlaySquareOutlined />, label: <Link to="/player-settings">Player</Link> },
-  { key: '/donate', icon: <DollarOutlined />, label: <Link to="/donate">Donate</Link> },
-  { key: '/github-actions', icon: <ThunderboltOutlined />, label: <Link to="/github-actions">GitHub Actions</Link> },
-  { key: '/audit-logs', icon: <AuditOutlined />, label: <Link to="/audit-logs">Audit</Link> },
-  { key: '/supabase-tools', icon: <ToolOutlined />, label: <Link to="/supabase-tools">Supabase Tools</Link> },
-];
+function navLabel(to: string, text: string, locked: boolean) {
+  if (locked) {
+    return (
+      <span style={{ cursor: 'not-allowed', opacity: 0.45 }} title="Cần kích hoạt">
+        {text}
+      </span>
+    );
+  }
+  return <Link to={to}>{text}</Link>;
+}
+
+function buildMenuItems(hasAccess: boolean): MenuProps['items'] {
+  const L = (to: string, text: string, locked: boolean) => navLabel(to, text, locked);
+  return [
+    { key: '/', icon: <DashboardOutlined />, label: <Link to="/">Dashboard</Link> },
+    {
+      key: '/ads',
+      icon: <PictureOutlined />,
+      disabled: !hasAccess,
+      label: L('/ads', 'Quảng cáo', !hasAccess),
+      children: [
+        {
+          key: '/banners',
+          icon: <PictureOutlined />,
+          disabled: !hasAccess,
+          label: L('/banners', 'Banner', !hasAccess),
+        },
+        {
+          key: '/preroll',
+          icon: <PlaySquareOutlined />,
+          disabled: !hasAccess,
+          label: L('/preroll', 'Video Ads (Pre/Mid/Post)', !hasAccess),
+        },
+      ],
+    },
+    {
+      key: '/giao-dien',
+      icon: <AppstoreOutlined />,
+      label: 'Giao diện',
+      children: [
+        { key: '/slider', icon: <PictureOutlined />, label: <Link to="/slider">Slider</Link> },
+        { key: '/menu-background', icon: <PictureOutlined />, label: <Link to="/menu-background">Nền menu</Link> },
+        { key: '/filter-order', icon: <AppstoreOutlined />, label: <Link to="/filter-order">Sắp xếp bộ lọc</Link> },
+        { key: '/homepage-sections', icon: <AppstoreOutlined />, label: <Link to="/homepage-sections">Sections</Link> },
+        {
+          key: '/category-page-settings',
+          icon: <AppstoreOutlined />,
+          label: <Link to="/category-page-settings">Trang danh mục</Link>,
+        },
+        { key: '/theme', icon: <SettingOutlined />, label: <Link to="/theme">Theme</Link> },
+        { key: '/static-pages', icon: <FileTextOutlined />, label: <Link to="/static-pages">Trang tĩnh</Link> },
+      ],
+    },
+    { key: '/settings', icon: <SettingOutlined />, label: <Link to="/settings">Cài đặt</Link> },
+    {
+      key: '/movies',
+      icon: <VideoCameraOutlined />,
+      disabled: !hasAccess,
+      label: hasAccess ? 'Quản lý phim' : <span style={{ opacity: 0.45 }}>Quản lý phim</span>,
+      children: [
+        { key: '/movies/single', icon: <UnorderedListOutlined />, disabled: !hasAccess, label: L('/movies/single', 'Phim lẻ', !hasAccess) },
+        { key: '/movies/series', icon: <UnorderedListOutlined />, disabled: !hasAccess, label: L('/movies/series', 'Phim bộ', !hasAccess) },
+        { key: '/movies/hoathinh', icon: <UnorderedListOutlined />, disabled: !hasAccess, label: L('/movies/hoathinh', 'Hoạt hình', !hasAccess) },
+        { key: '/movies/tvshows', icon: <UnorderedListOutlined />, disabled: !hasAccess, label: L('/movies/tvshows', 'TV Show', !hasAccess) },
+        { key: '/movies/unbuilt', icon: <UnorderedListOutlined />, disabled: !hasAccess, label: L('/movies/unbuilt', 'Phim chưa build', !hasAccess) },
+        { key: '/movies/duplicates', icon: <UnorderedListOutlined />, disabled: !hasAccess, label: L('/movies/duplicates', 'Trùng lặp', !hasAccess) },
+      ],
+    },
+    { key: '/google-sheets', icon: <FileTextOutlined />, label: <Link to="/google-sheets">Google Sheets</Link> },
+    { key: '/player-settings', icon: <PlaySquareOutlined />, label: <Link to="/player-settings">Player</Link> },
+    { key: '/donate', icon: <DollarOutlined />, label: <Link to="/donate">Donate</Link> },
+    { key: '/github-actions', icon: <ThunderboltOutlined />, label: <Link to="/github-actions">GitHub Actions</Link> },
+    { key: '/audit-logs', icon: <AuditOutlined />, label: <Link to="/audit-logs">Audit</Link> },
+    {
+      key: '/supabase-tools',
+      icon: <ToolOutlined />,
+      disabled: !hasAccess,
+      label: L('/supabase-tools', 'Supabase Tools', !hasAccess),
+    },
+  ];
+}
 
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -76,6 +113,11 @@ export default function Layout() {
   const navigate = useNavigate();
   const screens = useBreakpoint();
   const isMobile = !screens.md; // md = 768px and up
+  const { hasAccess, unlockModalOpen, setUnlockModalOpen, submitCode } = useAccess();
+  const [codeInput, setCodeInput] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const items = useMemo(() => buildMenuItems(hasAccess), [hasAccess]);
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -149,6 +191,15 @@ export default function Layout() {
           <div className="admin-brand">DAOP Admin</div>
         </div>
         <div className="admin-header-actions">
+          {hasAccess ? (
+            <Button size={isMobile ? 'small' : 'middle'} style={{ color: '#faad14', borderColor: '#d4af37' }} disabled>
+              Vip
+            </Button>
+          ) : (
+            <Button size={isMobile ? 'small' : 'middle'} type="default" onClick={() => setUnlockModalOpen(true)}>
+              Active
+            </Button>
+          )}
           <Button type="primary" size={isMobile ? 'small' : 'middle'} onClick={triggerBuild}>
             {isMobile ? 'Build' : 'Build website'}
           </Button>
@@ -157,6 +208,40 @@ export default function Layout() {
           </Button>
         </div>
       </Header>
+
+      <Modal
+        title="Kích hoạt"
+        open={unlockModalOpen}
+        onCancel={() => {
+          setUnlockModalOpen(false);
+          setCodeInput('');
+        }}
+        okText="Kích hoạt"
+        confirmLoading={submitting}
+        onOk={async () => {
+          setSubmitting(true);
+          try {
+            const r = await submitCode(codeInput);
+            if (r.ok) {
+              message.success('Đã kích hoạt');
+              setCodeInput('');
+              return;
+            }
+            message.error(r.message || 'Không kích hoạt được');
+            return Promise.reject();
+          } finally {
+            setSubmitting(false);
+          }
+        }}
+        destroyOnClose
+      >
+        <p style={{ marginBottom: 8 }}>Nhập khóa để mở Quảng cáo, Quản lý phim và Supabase Tools.</p>
+        <Input.Password
+          placeholder="Khóa kích hoạt"
+          value={codeInput}
+          onChange={(e) => setCodeInput(e.target.value)}
+        />
+      </Modal>
 
       {isMobile ? (
         <Drawer

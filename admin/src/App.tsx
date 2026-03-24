@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import AuthGuard from './components/AuthGuard';
+import AccessRouteGuard from './components/AccessRouteGuard';
+import { AccessProvider } from './context/AccessContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Ads from './pages/Ads';
@@ -29,10 +31,10 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<AuthGuard><Layout /></AuthGuard>}>
+        <Route path="/" element={<AuthGuard><AccessProvider><Layout /></AccessProvider></AuthGuard>}>
           <Route index element={<Dashboard />} />
-          <Route path="ads" element={<Ads />} />
-          <Route path="banners" element={<Banners />} />
+          <Route path="ads" element={<AccessRouteGuard><Ads /></AccessRouteGuard>} />
+          <Route path="banners" element={<AccessRouteGuard><Banners /></AccessRouteGuard>} />
           <Route path="slider" element={<Slider />} />
           <Route path="menu-background" element={<MenuBackground />} />
           <Route path="filter-order" element={<FilterOrder />} />
@@ -44,13 +46,13 @@ export default function App() {
           <Route path="google-sheets" element={<GoogleSheetsPage />} />
           <Route path="donate" element={<DonateSettings />} />
           <Route path="static-pages" element={<StaticPages />} />
-          <Route path="preroll" element={<PrerollAds />} />
+          <Route path="preroll" element={<AccessRouteGuard><PrerollAds /></AccessRouteGuard>} />
           <Route path="audit-logs" element={<AuditLogs />} />
-          <Route path="supabase-tools" element={<SupabaseTools />} />
+          <Route path="supabase-tools" element={<AccessRouteGuard><SupabaseTools /></AccessRouteGuard>} />
           <Route path="github-actions" element={<GitHubActions />} />
-          <Route path="movies/:category" element={<MovieList />} />
-          <Route path="movies/edit/:id" element={<MovieEdit />} />
-          <Route path="movies/episodes/:id" element={<EpisodeEdit />} />
+          <Route path="movies/:category" element={<AccessRouteGuard><MovieList /></AccessRouteGuard>} />
+          <Route path="movies/edit/:id" element={<AccessRouteGuard><MovieEdit /></AccessRouteGuard>} />
+          <Route path="movies/episodes/:id" element={<AccessRouteGuard><EpisodeEdit /></AccessRouteGuard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
