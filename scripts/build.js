@@ -1423,14 +1423,72 @@ async function enrichTmdb(movies) {
 
 /** 4. Hợp nhất và xử lý ảnh (optional: upload R2) */
 function mergeMovies(ophim, custom) {
-  const bySlug = new Map();
-  for (const m of ophim) {
-    if (!m || !m.slug) continue;
-    if (bySlug.has(m.slug)) {
-      console.warn('   Duplicate slug from OPhim, keep first:', m.slug);
+  const getModTs = (m) => {
+    if (!m) return 0;
+    const v = m.modified || m.updated_at || '';
+    const t = Date.parse(String(v));
+    return Number.isFinite(t) ? t : 0;
+  };
+
+  const isEmptyVal = (v) => {
+    if (v == null) return true;
+    if (typeof v === 'string') return v.trim() === '';
+    if (Array.isArray(v)) return v.length === 0;
+    return false;
+  };
+
+  const mergeCustomAndOphim = (customMovie, ophimMovie) => {
+    if (!customMovie) return ophimMovie;
+    if (!ophimMovie) return customMovie;
+
+    const cTs = getModTs(customMovie);
+    const oTs = getModTs(ophimMovie);
+
+    // Custom is primary by default.
+    // If OPhim is newer, use OPhim as base (to reflect upstream changes) but preserve custom-only fields.
+    const base = (oTs > cTs) ? { ...ophimMovie } : { ...customMovie };
+    const secondary = (oTs > cTs) ? customMovie : ophimMovie;
+
+    // Merge: fill missing/empty fields from secondary.
+    // When base is OPhim (newer), this effectively preserves custom overrides for fields that OPhim doesn't have.
+    for (const [k, v] of Object.entries(secondary)) {
+      if (!(k in base) || isEmptyVal(base[k])) {
+        base[k] = v;
+      }
+    }
+
+    if (base.id != null) base.id = String(base.id);
+    return base;
+  };
+
+  const ophimById = new Map();
+  for (const m of ophim || []) {
+    const idStr = m && m.id != null ? String(m.id) : '';
+    if (!idStr) continue;
+    const cur = ophimById.get(idStr);
+    if (!cur) {
+      ophimById.set(idStr, m);
       continue;
     }
-    bySlug.set(m.slug, m);
+    const curTs = getModTs(cur);
+    const nextTs = getModTs(m);
+    if (nextTs > curTs) ophimById.set(idStr, m);
+    else console.warn('   Duplicate id from OPhim, keep newer/first:', idStr);
+  }
+
+  const customById = new Map();
+  for (const m of custom || []) {
+    const idStr = m && m.id != null ? String(m.id) : '';
+    if (!idStr) continue;
+    const cur = customById.get(idStr);
+    if (!cur) {
+      customById.set(idStr, m);
+      continue;
+    }
+    const curTs = getModTs(cur);
+    const nextTs = getModTs(m);
+    if (nextTs > curTs) customById.set(idStr, m);
+    else console.warn('   Duplicate id from Sheet/Custom, keep newer/first:', idStr);
   }
 
   function ensureUniqueSlug(base, used) {
@@ -1442,6 +1500,33 @@ function mergeMovies(ophim, custom) {
       s = raw + '-' + n;
     }
     return s;
+  }
+
+  const allIds = new Set([...ophimById.keys(), ...customById.keys()]);
+  const mergedById = new Map();
+  for (const idStr of allIds) {
+    const cm = customById.get(idStr);
+    const om = ophimById.get(idStr);
+    if (cm && om) {
+      const out = mergeCustomAndOphim(cm, om);
+      mergedById.set(idStr, out);
+    } else {
+      const only = (cm || om);
+      if (only) mergedById.set(idStr, { ...only, id: String(idStr) });
+    }
+  }
+
+  // Create stable output order: keep existing behavior (sort by id like batches will later do).
+  const mergedRaw = Array.from(mergedById.values()).sort((a, b) => String(a.id).localeCompare(String(b.id)));
+
+  const bySlug = new Map();
+  for (const m of mergedRaw) {
+    if (!m || !m.slug) continue;
+    if (bySlug.has(m.slug)) {
+      console.warn('   Duplicate slug in merged output, keep first:', m.slug);
+      continue;
+    }
+    bySlug.set(m.slug, m);
   }
 
   const usedSlugs = new Set(bySlug.keys());
@@ -1470,7 +1555,18 @@ function mergeMovies(ophim, custom) {
       usedSlugs.add(m.slug);
     }
 
-    bySlug.set(m.slug, m);
+    // If this custom id already exists in merged output, keep merged record.
+    // This loop is only for slug normalization of custom entries.
+    const idStr = m && m.id != null ? String(m.id) : '';
+    if (idStr && mergedById.has(idStr)) {
+      const cur = mergedById.get(idStr);
+      if (cur && cur.slug !== m.slug) {
+        cur.slug = m.slug;
+      }
+      bySlug.set(m.slug, cur || m);
+    } else {
+      bySlug.set(m.slug, m);
+    }
   }
   const merged = Array.from(bySlug.values());
 
@@ -3282,10 +3378,32 @@ async function main() {
       throw new Error('TMDB_ONLY requires existing built movies in public/data/batches (prevMoviesById is empty). Run CORE/full build first.');
     }
 
-    let allMovies = Array.from(prevMoviesById.values());
-    console.log('TMDB_ONLY: loaded movies from existing batches:', allMovies.length);
+    let allMovies = [];
     try {
       const wins = loadBatchWindowsOrThrow();
+      const batchDir = path.join(PUBLIC_DATA, 'batches');
+      const loaded = [];
+      if (wins && Array.isArray(wins.windows) && wins.windows.length) {
+        for (const w of wins.windows) {
+          const start = w && typeof w.start === 'number' ? w.start : null;
+          const end = w && typeof w.end === 'number' ? w.end : null;
+          if (start == null || end == null) continue;
+          const file = path.join(batchDir, `batch_${start}_${end}.js`);
+          try {
+            const raw = await fs.readFile(file, 'utf8');
+            const batch = parseWindowArray(raw, 'moviesBatch');
+            if (Array.isArray(batch) && batch.length) {
+              for (const bm of batch) loaded.push(bm);
+            }
+          } catch {}
+        }
+      }
+      if (loaded.length) {
+        allMovies = loaded;
+      } else {
+        allMovies = Array.from(prevMoviesById.values());
+      }
+
       if (wins && typeof wins.total === 'number' && wins.total > 0 && wins.total !== allMovies.length) {
         const moviesLightPath = path.join(PUBLIC_DATA, 'movies-light.js');
         if (await fs.pathExists(moviesLightPath)) {
@@ -3299,7 +3417,10 @@ async function main() {
           } catch {}
         }
       }
-    } catch {}
+    } catch {
+      allMovies = Array.from(prevMoviesById.values());
+    }
+    console.log('TMDB_ONLY: loaded movies from existing batches:', allMovies.length);
 
     const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
     const shouldEnrich = (m) => {
