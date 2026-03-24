@@ -518,6 +518,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ ok: true, results });
       }
 
+      case 'deleteRows': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const sheet = String((req.body as any)?.sheet || (req.body as any)?.tab || 'movies').trim() || 'movies';
+        const startRow = Number((req.body as any)?.startRow);
+        const endRow = Number((req.body as any)?.endRow);
+
+        if (!Number.isFinite(startRow) || startRow < 2) {
+          return res.status(400).json({ error: 'startRow must be a number and >= 2 (row 1 is header)' });
+        }
+        if (!Number.isFinite(endRow) || endRow < startRow) {
+          return res.status(400).json({ error: 'endRow must be a number and >= startRow' });
+        }
+
+        const result = await deleteRows(sheets, spreadsheetId, sheet, startRow, endRow);
+        return res.status(200).json(result);
+      }
+
       case 'list': {
         const { type, page = '1', limit = '50', search = '', unbuilt, duplicates } = req.query;
         const unbuiltOnly = String(unbuilt || '').trim() === '1' || String(unbuilt || '').trim().toLowerCase() === 'true';
