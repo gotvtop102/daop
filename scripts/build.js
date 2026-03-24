@@ -1739,15 +1739,7 @@ function writeHomeSectionsData(movies) {
         }
         else if (st === 'quality_4k') ok = !!m.is_4k;
         else if (st === 'exclusive') {
-          const subDocQuyenRaw = m && m.sub_docquyen != null ? String(m.sub_docquyen).trim().toLowerCase() : '';
-          ok =
-            !!m.is_exclusive ||
-            m.sub_docquyen === true ||
-            subDocQuyenRaw === '1' ||
-            subDocQuyenRaw === 'true' ||
-            subDocQuyenRaw === 'yes' ||
-            subDocQuyenRaw === 'on' ||
-            subDocQuyenRaw === 'ok';
+          ok = !!m.is_exclusive;
         } else if (st === 'vietsub') {
           const lk = String(m.lang_key || '').toLowerCase();
           const lkNorm = normalizeSearchText(lk);
@@ -2052,16 +2044,7 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
     const q = (m.quality || '').toString().toLowerCase();
     const is4k = !!m.is_4k || /4k|uhd|2160p/.test(q);
     if (is4k) quality4kIds.push(m.id);
-    const subDocQuyenRaw = m && m.sub_docquyen != null ? String(m.sub_docquyen).trim().toLowerCase() : '';
-    const isExclusive =
-      !!m.is_exclusive ||
-      m.sub_docquyen === true ||
-      subDocQuyenRaw === '1' ||
-      subDocQuyenRaw === 'true' ||
-      subDocQuyenRaw === 'yes' ||
-      subDocQuyenRaw === 'on' ||
-      subDocQuyenRaw === 'ok';
-    if (isExclusive) exclusiveIds.push(m.id);
+    if (m.is_exclusive) exclusiveIds.push(m.id);
     if (m.type) {
       if (!typeMap[m.type]) typeMap[m.type] = [];
       typeMap[m.type].push(m.id);

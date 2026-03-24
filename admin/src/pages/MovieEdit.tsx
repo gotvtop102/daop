@@ -607,7 +607,20 @@ export default function MovieEdit() {
   };
 
   const fetchTMDBData = async () => {
-    const tmdbId = form.getFieldValue('tmdb_id');
+    const tmdbTypeRaw = String(form.getFieldValue('tmdb_type') || '').trim().toLowerCase();
+    const tmdbType: 'movie' | 'tv' | '' = (tmdbTypeRaw === 'movie' || tmdbTypeRaw === 'tv') ? (tmdbTypeRaw as any) : '';
+    if (!tmdbType) {
+      message.warning('Vui lòng chọn TMDB Type (movie hoặc tv)');
+      return;
+    }
+    const rawTmdbId = form.getFieldValue('tmdb_id');
+    const tmdbId = (() => {
+      const s = String(rawTmdbId ?? '').trim();
+      if (!s) return '';
+      // Allow pasting full TMDB URLs or text like "movie/123".
+      const m = s.match(/\b(\d{2,})\b/);
+      return m ? m[1] : s;
+    })();
     if (!tmdbId) {
       message.warning('Vui lòng nhập TMDB ID');
       return;
@@ -637,14 +650,12 @@ export default function MovieEdit() {
         return { ok: res.ok, status: res.status, data: await safeJson(res) };
       };
 
-      // Auto detect: try movie first, then tv
-      const movieVi = await fetchDetails('movie', 'vi-VN');
-      const tvVi = movieVi.ok ? null : await fetchDetails('tv', 'vi-VN');
-      const resource: 'movie' | 'tv' = movieVi.ok ? 'movie' : 'tv';
-      const viData = movieVi.ok ? movieVi.data : tvVi?.data;
-      if (!viData || (viData as any)?.error) {
+      const viRes = await fetchDetails(tmdbType, 'vi-VN');
+      if (!viRes.ok || !viRes.data || (viRes.data as any)?.error) {
         throw new Error('Không tìm thấy phim trên TMDB');
       }
+      const resource: 'movie' | 'tv' = tmdbType;
+      const viData: any = viRes.data;
 
       // Fallback EN for missing fields
       const enData = await fetchDetails(resource, 'en-US').then((r) => (r.ok ? r.data : null)).catch(() => null);
@@ -698,16 +709,23 @@ export default function MovieEdit() {
 
       const episodeCount = Number((viData as any)?.number_of_episodes || (enData as any)?.number_of_episodes || 0);
       const seasonCount = Number((viData as any)?.number_of_seasons || (enData as any)?.number_of_seasons || 0);
-      const currentType = String(form.getFieldValue('type') || typeFromQuery || '').trim();
+      const currentTypeRaw = String(form.getFieldValue('type') || typeFromQuery || '').trim();
       const suggestedType = resource === 'movie' ? 'single' : (episodeCount > 1 || seasonCount > 1 ? 'series' : 'single');
       const nextType =
-        !currentType || currentType === 'single' || currentType === 'series'
+        !currentTypeRaw || currentTypeRaw === 'single' || currentTypeRaw === 'series'
           ? suggestedType
-          : currentType;
+          : currentTypeRaw;
 
       // Theo yêu cầu: ảnh dọc (poster_path) => thumb, ảnh ngang (backdrop_path) => poster
       const backdropPath = asStr((viData as any).backdrop_path) || asStr((enData as any)?.backdrop_path);
       const posterPath = asStr((viData as any).poster_path) || asStr((enData as any)?.poster_path);
+
+      const posterUrl = (backdropPath
+        ? `https://image.tmdb.org/t/p/w780${backdropPath}`
+        : (posterPath ? `https://image.tmdb.org/t/p/w780${posterPath}` : ''));
+      const thumbUrl = (posterPath
+        ? `https://image.tmdb.org/t/p/w500${posterPath}`
+        : (backdropPath ? `https://image.tmdb.org/t/p/w500${backdropPath}` : ''));
 
       const genres = (viData as any).genres || (enData as any)?.genres || [];
       const countries =
@@ -719,8 +737,8 @@ export default function MovieEdit() {
         type: nextType,
         title: titleVi,
         origin_name: originName,
-        poster_url: backdropPath ? `https://image.tmdb.org/t/p/w780${backdropPath}` : '',
-        thumb_url: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : '',
+        poster_url: posterUrl,
+        thumb_url: thumbUrl,
         year,
         genre: normalizeGenres((genres || []).map((g: any) => g?.name).filter(Boolean) || []),
         country: normalizeCountries(countries),
@@ -911,6 +929,23 @@ export default function MovieEdit() {
               <Card title="Lấy dữ liệu từ TMDB" style={{ marginBottom: 16 }}>
                 <Space direction="vertical" style={{ width: '100%' }}>
                   <Row gutter={16} align="middle">
+                    <Col>
+                      <Form.Item
+                        name="tmdb_type"
+                        label="TMDB Type"
+                        rules={[{ required: true, message: 'Chọn movie hoặc tv' }]}
+                        style={{ margin: 0 }}
+                      >
+                        <Select
+                          style={{ width: 140 }}
+                          placeholder="movie/tv"
+                          options={[
+                            { label: 'movie', value: 'movie' },
+                            { label: 'tv', value: 'tv' },
+                          ]}
+                        />
+                      </Form.Item>
+                    </Col>
                     <Col flex="auto">
                       <Form.Item name="tmdb_id" label="TMDB ID" style={{ margin: 0 }}>
                         <Input placeholder="Nhập TMDB ID để tự động lấy thông tin" />
