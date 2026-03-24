@@ -171,12 +171,20 @@ jobs:
             git commit -m "chore: update data (core)"
             STASH_BEFORE=$(git stash list | wc -l)
             git stash push -m "temp" || true
-            git pull --rebase origin main
-            STASH_AFTER=$(git stash list | wc -l)
-            if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
-              git stash pop
-            fi
-            git push
+            for i in 1 2 3; do
+              git pull --rebase origin main || true
+              STASH_AFTER=$(git stash list | wc -l)
+              if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
+                git stash pop || true
+              fi
+              if git push; then
+                break
+              fi
+              if [ "$i" -eq 3 ]; then
+                exit 1
+              fi
+              sleep 2
+            done
           fi
 
       - name: Deploy CORE to Cloudflare Pages (2-phase)
@@ -246,12 +254,20 @@ jobs:
             git commit -m "chore: update data (tmdb only)"
             STASH_BEFORE=$(git stash list | wc -l)
             git stash push -m "temp" || true
-            git pull --rebase origin main
-            STASH_AFTER=$(git stash list | wc -l)
-            if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
-              git stash pop
-            fi
-            git push
+            for i in 1 2 3; do
+              git pull --rebase origin main || true
+              STASH_AFTER=$(git stash list | wc -l)
+              if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
+                git stash pop || true
+              fi
+              if git push; then
+                break
+              fi
+              if [ "$i" -eq 3 ]; then
+                exit 1
+              fi
+              sleep 2
+            done
           fi
 
       - name: Deploy TMDB to Cloudflare Pages (2-phase)

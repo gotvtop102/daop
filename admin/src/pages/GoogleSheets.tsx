@@ -88,7 +88,9 @@ export default function GoogleSheetsPage() {
         throw new Error(data?.error || data?.message || `Lỗi ${res.status}`);
       }
 
-      const rows: any[] = Array.isArray(data?.sheets) ? data.sheets : [];
+      const rows: any[] = Array.isArray((data as any)?.results)
+        ? (data as any).results
+        : (Array.isArray((data as any)?.sheets) ? (data as any).sheets : []);
       const content = rows
         .map((x: any) => {
           const sheet = String(x?.sheet || '').trim();

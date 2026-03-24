@@ -3143,9 +3143,10 @@ async function writeDefaultConfig() {
       countryOrder: [],
       videoTypeOrder: ['tvshows', 'hoathinh', '4k', 'exclusive'],
       langOrder: ['vietsub', 'thuyetminh', 'longtieng', 'khac'],
-      listOrder: ['phim-4k', 'shows', 'hoat-hinh', 'phim-vietsub', 'phim-thuyet-minh', 'phim-long-tieng', 'phim-doc-quyen', 'phim-dang-chieu', 'phim-sap-chieu', 'phim-chieu-rap', 'the-loai', 'quoc-gia', 'nam-phat-hanh', 'dien-vien'],
+      listOrder: ['lich-chieu', 'phim-4k', 'shows', 'hoat-hinh', 'phim-vietsub', 'phim-thuyet-minh', 'phim-long-tieng', 'phim-doc-quyen', 'phim-dang-chieu', 'phim-sap-chieu', 'phim-chieu-rap', 'the-loai', 'quoc-gia', 'nam-phat-hanh', 'dien-vien'],
     },
     'list-order.json': [
+      { id: 'lich-chieu', label: 'Lịch chiếu', href: '/danh-sach/lich-chieu.html', icon: '📅' },
       { id: 'phim-4k', label: 'Phim 4K', href: '/danh-sach/phim-4k.html', icon: '📺' },
       { id: 'shows', label: 'TV Shows', href: '/shows.html', icon: '📺' },
       { id: 'hoat-hinh', label: 'Hoạt hình', href: '/hoat-hinh.html', icon: '🎬' },

@@ -7,6 +7,121 @@
     } catch (e) {}
   }
 
+  function isM3u8Url(url) {
+    if (!url) return false;
+    var u = String(url);
+    var clean = u.split('#')[0];
+    var qIndex = clean.indexOf('?');
+    if (qIndex >= 0) clean = clean.slice(0, qIndex);
+    return /\.m3u8$/i.test(clean) || /\/hls\//i.test(u) || /\/stream\//i.test(u);
+  }
+
+  function loadScriptOnce(src, key) {
+    try {
+      window.DAOP = window.DAOP || {};
+      var k = key || ('__script__' + src);
+      if (window.DAOP[k]) return window.DAOP[k];
+      window.DAOP[k] = new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+      return window.DAOP[k];
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  function initHlsQuality(videoEl, link, playerConfig, mountEl) {
+    try {
+      if (!videoEl || !isM3u8Url(link)) return;
+      if (!playerConfig || playerConfig.hls_quality_enabled === false) return;
+
+      if (videoEl.__daop_hls && typeof videoEl.__daop_hls.destroy === 'function') {
+        try { videoEl.__daop_hls.destroy(); } catch (e0) {}
+        videoEl.__daop_hls = null;
+      }
+
+      var cdn = String(playerConfig.hls_js_cdn || 'https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js');
+      return loadScriptOnce(cdn, '__hlsjs__').then(function () {
+        var HlsCtor = window.Hls;
+        if (!HlsCtor) return;
+
+        if (HlsCtor.isSupported && HlsCtor.isSupported()) {
+          var hls = new HlsCtor({
+            startLevel: (playerConfig.hls_start_level != null ? playerConfig.hls_start_level : -1),
+            capLevelToPlayerSize: playerConfig.hls_cap_level_to_player_size !== false
+          });
+          videoEl.__daop_hls = hls;
+
+          hls.loadSource(String(link));
+          hls.attachMedia(videoEl);
+
+          var renderQuality = function () {
+            if (!mountEl) return;
+            if (!hls.levels || !hls.levels.length) return;
+
+            var levels = (hls.levels || []).map(function (lv, idx) {
+              return { idx: idx, height: lv && lv.height ? lv.height : 0, width: lv && lv.width ? lv.width : 0, bitrate: lv && lv.bitrate ? lv.bitrate : 0 };
+            });
+            levels.sort(function (a, b) {
+              var ha = a.height || 0;
+              var hb = b.height || 0;
+              if (ha !== hb) return hb - ha;
+              return (b.bitrate || 0) - (a.bitrate || 0);
+            });
+
+            var uniq = [];
+            var seen = {};
+            levels.forEach(function (lv) {
+              var key = String(lv.height || 0);
+              if (seen[key]) return;
+              seen[key] = true;
+              uniq.push(lv);
+            });
+
+            if (!uniq.length) return;
+
+            mountEl.style.display = '';
+            var options = '<option value="-1">Auto</option>';
+            uniq.forEach(function (lv) {
+              var label = lv.height ? (lv.height + 'p') : ('Level ' + lv.idx);
+              options += '<option value="' + lv.idx + '">' + label + '</option>';
+            });
+            mountEl.innerHTML = '<label style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">' +
+              '<span style="font-size:0.85rem;color:#8b949e;">Chất lượng</span>' +
+              '<select data-role="hls-quality" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + options + '</select>' +
+              '</label>';
+
+            var sel = mountEl.querySelector('[data-role="hls-quality"]');
+            if (sel) {
+              sel.value = String(hls.currentLevel != null ? hls.currentLevel : -1);
+              sel.onchange = function () {
+                var v = parseInt(sel.value || '-1', 10);
+                if (!isFinite(v)) v = -1;
+                try { hls.currentLevel = v; } catch (e3) {}
+              };
+            }
+          };
+
+          hls.on(HlsCtor.Events.MANIFEST_PARSED, renderQuality);
+          hls.on(HlsCtor.Events.LEVEL_SWITCHED, function () {
+            try {
+              if (!mountEl) return;
+              var sel = mountEl.querySelector('[data-role="hls-quality"]');
+              if (!sel) return;
+              sel.value = String(hls.currentLevel != null ? hls.currentLevel : -1);
+            } catch (e4) {}
+          });
+        } else {
+          try { videoEl.src = String(link); } catch (e2) {}
+        }
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
   function ensureSiteSettings(done) {
     try {
       window.DAOP = window.DAOP || {};
@@ -359,6 +474,7 @@
     container.innerHTML =
       '<div class="watch-player-card">' +
       '<div class="watch-player-wrap">' +
+      '<div class="watch-player-quality" data-role="quality" style="display:none;margin:0 0 8px;"></div>' +
       playerHtml +
       '<div class="watch-next-overlay" data-role="next-overlay" style="display:none;">' +
       '  <button type="button" class="watch-next-btn" data-role="next-btn">Tập tiếp theo</button>' +
@@ -369,6 +485,11 @@
 
     var video = document.getElementById('watch-video');
     if (!video || isEmbed) return;
+
+    var qualityMount = container.querySelector('[data-role="quality"]');
+    if (chosenPlayer !== 'jwplayer') {
+      initHlsQuality(video, ctx.link, playerConfig, qualityMount);
+    }
 
     function loadScript(src) {
       return new Promise(function (resolve, reject) {
