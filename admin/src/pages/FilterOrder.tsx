@@ -52,6 +52,7 @@ const LANG_OPTIONS: Record<string, string> = {
 
 /** Mục trang Danh sách: id -> { label, href, icon } */
 const LIST_OPTIONS: Record<string, { label: string; href: string; icon: string }> = {
+  'lich-chieu': { label: 'Lịch chiếu', href: '/danh-sach/lich-chieu.html', icon: '📅' },
   'phim-4k': { label: 'Phim 4K', href: '/danh-sach/phim-4k.html', icon: '📺' },
   'shows': { label: 'TV Shows', href: '/shows.html', icon: '📺' },
   'hoat-hinh': { label: 'Hoạt hình', href: '/hoat-hinh.html', icon: '🎬' },
@@ -224,7 +225,7 @@ export default function FilterOrder() {
 
         {renderOrderList('Thứ tự Kiểu ngôn ngữ', displayLangOrder, LANG_OPTIONS, moveLang)}
 
-        {renderOrderList('Thứ tự trang Danh sách', displayListOrder, Object.fromEntries(listIds.map(id => [id, LIST_OPTIONS[id].label])), moveList)}
+        {renderOrderList('Thứ tự trang Hot Play', displayListOrder, Object.fromEntries(listIds.map(id => [id, LIST_OPTIONS[id].label])), moveList)}
 
         <Button type="primary" onClick={onSave} loading={saving}>
           Lưu

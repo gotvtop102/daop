@@ -28,6 +28,8 @@ const SITE_SETTINGS_KEYS = [
   'favicon_url',
   'r2_img_domain',
   'ophim_img_domain',
+  'theme_showtimes_color',
+  'theme_showtimes_color_light',
   'home_prebuild_enabled',
   'home_prebuild_limit',
   'home_prebuild_enable_series',
@@ -92,6 +94,8 @@ export default function SiteSettings() {
         favicon_url: data.favicon_url ?? '',
         r2_img_domain: data.r2_img_domain ?? 'https://pub-62eef44669df48e4bca5388a38e69522.r2.dev',
         ophim_img_domain: data.ophim_img_domain ?? 'https://img.ophim.live',
+        theme_showtimes_color: data.theme_showtimes_color ?? '',
+        theme_showtimes_color_light: data.theme_showtimes_color_light ?? '',
         home_prebuild_enabled: data.home_prebuild_enabled !== 'false',
         home_prebuild_limit: data.home_prebuild_limit ?? '24',
         home_prebuild_enable_series: data.home_prebuild_enable_series !== 'false',
@@ -394,6 +398,16 @@ export default function SiteSettings() {
                       <Switch />
                     </Form.Item>
                     <p style={{ color: '#666', fontSize: 12, marginTop: -8, marginBottom: 16 }}>Tắt = không hiển thị nút Xem / danh sách tập phát trên trang chi tiết phim.</p>
+
+                    <Card title="Màu Lịch chiếu (Showtimes)" style={{ marginTop: 8 }}>
+                      <Form.Item name="theme_showtimes_color" label="Màu lịch chiếu (theme tối)" tooltip="Ví dụ: #f59e0b. Để trống = dùng màu mặc định">
+                        <Input placeholder="#f59e0b" />
+                      </Form.Item>
+                      <Form.Item name="theme_showtimes_color_light" label="Màu lịch chiếu (theme sáng)" tooltip="Ví dụ: #b45309. Để trống = dùng màu mặc định">
+                        <Input placeholder="#b45309" />
+                      </Form.Item>
+                    </Card>
+
                     <Form.Item name="detail_hide_header_default" label="Mặc định ẩn Header ở trang chi tiết" valuePropName="checked">
                       <Switch />
                     </Form.Item>
