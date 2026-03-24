@@ -2947,7 +2947,7 @@ async function exportConfigFromSupabase() {
       return defaultLangOrder;
     }
   })();
-  const defaultListOrder = ['phim-4k', 'shows', 'hoat-hinh', 'phim-vietsub', 'phim-thuyet-minh', 'phim-long-tieng', 'phim-doc-quyen', 'phim-dang-chieu', 'phim-sap-chieu', 'phim-chieu-rap', 'the-loai', 'quoc-gia', 'nam-phat-hanh', 'dien-vien'];
+  const defaultListOrder = ['lich-chieu', 'phim-4k', 'shows', 'hoat-hinh', 'phim-vietsub', 'phim-thuyet-minh', 'phim-long-tieng', 'phim-doc-quyen', 'phim-dang-chieu', 'phim-sap-chieu', 'phim-chieu-rap', 'the-loai', 'quoc-gia', 'nam-phat-hanh', 'dien-vien'];
   const filterListOrder = (() => {
     try {
       const v = mergedSettings.filter_list_order;
@@ -2959,6 +2959,7 @@ async function exportConfigFromSupabase() {
     }
   })();
   const listOptionsMap = {
+    'lich-chieu': { label: 'Lịch chiếu', href: '/chu-de/lich-chieu.html', icon: '📅' },
     'phim-4k': { label: 'Phim 4K', href: '/chu-de/phim-4k.html', icon: '📺' },
     'shows': { label: 'TV Shows', href: '/shows.html', icon: '📺' },
     'hoat-hinh': { label: 'Hoạt hình', href: '/hoat-hinh.html', icon: '🎬' },
@@ -3042,6 +3043,34 @@ async function exportConfigFromSupabase() {
       vip3: 'VIP 3',
       vip4: 'VIP 4',
       vip5: 'VIP 5',
+    },
+    player_config: {
+      loop: false,
+      muted: false,
+      preload: 'metadata',
+      autoplay: false,
+      controls: true,
+      playback_speed_enabled: true,
+      playback_speed_default: 1,
+      playback_speed_options: [0.5, 0.75, 1, 1.25, 1.5, 2],
+      seek_step_seconds: 10,
+      hls_quality_enabled: true,
+      hls_js_cdn: 'https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js',
+      hls_start_level: -1,
+      hls_cap_level_to_player_size: true,
+      midroll_vast: '',
+      preroll_vast: '',
+      postroll_vast: '',
+      midroll_source: 'video',
+      preroll_source: 'video',
+      midroll_enabled: false,
+      postroll_source: 'video',
+      preroll_enabled: true,
+      postroll_enabled: false,
+      jwplayer_license_key: '',
+      midroll_max_per_video: 2,
+      midroll_interval_seconds: 600,
+      midroll_min_watch_seconds: 120,
     },
   };
   const mergedPlayerSettings = { ...defaultPlayerSettings, ...playerSettingsObj };

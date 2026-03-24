@@ -52,6 +52,25 @@
     return 2;
   }
 
+  function getPosterUrl(m, baseUrl) {
+    var base = baseUrl || '';
+    var defaultPoster = base + '/images/default_poster.png';
+    try {
+      var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
+      var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
+      r2Domain = r2Domain.replace(/\/$/, '');
+      var idStr = (m && m.id != null) ? String(m.id) : '';
+      if (r2Domain && idStr) return r2Domain + '/posters/' + idStr + '.webp';
+    } catch (e) {}
+
+    var thumb = (m && m.thumb) ? String(m.thumb) : '';
+    if (thumb && window.DAOP && typeof window.DAOP.derivePosterFromThumb === 'function') {
+      var p = window.DAOP.derivePosterFromThumb(thumb);
+      if (p) return p;
+    }
+    return thumb || defaultPoster;
+  }
+
   function renderRow(m, baseUrl) {
     var title = (m && (m.title || m.name)) ? String(m.title || m.name) : '';
     var origin = (m && m.origin_name) ? String(m.origin_name) : '';
@@ -59,9 +78,14 @@
     var st = (m && m.showtimes) ? String(m.showtimes).trim() : '';
     var status = (m && m.status) ? String(m.status).trim() : '';
     var year = (m && m.year) ? String(m.year).trim() : '';
+    var poster = getPosterUrl(m, baseUrl);
 
     return '' +
       '<a class="showtimes-item" href="' + esc(href) + '">' +
+        '<div class="showtimes-item-inner">' +
+          '<div class="showtimes-item-cover">' +
+            '<img loading="lazy" decoding="async" src="' + esc(poster) + '" alt="" onerror="this.onerror=null;this.src=\'' + esc((baseUrl || '') + '/images/default_poster.png') + '\';">' +
+          '</div>' +
         '<div class="showtimes-item-main">' +
           '<div class="showtimes-item-title">' + esc(title) + (origin ? ' <span class="showtimes-item-origin">(' + esc(origin) + ')</span>' : '') + '</div>' +
           '<div class="showtimes-item-meta">' +
@@ -69,6 +93,7 @@
             (year ? '<span class="showtimes-year">' + esc(year) + '</span>' : '') +
           '</div>' +
           '<div class="showtimes-item-st">' + esc(st) + '</div>' +
+        '</div>' +
         '</div>' +
       '</a>';
   }
