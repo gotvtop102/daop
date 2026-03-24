@@ -5915,11 +5915,11 @@
       "69b78048f65d22d617b55d97",
       "695352d854ca9185bba8155f",
       "69b4de70458948c679aa8d38",
-      "69b23bfcd88856be77204d9f",
       "69bb7ceaf937c3b5a1186a98",
       "69045e95df2f0059996054c5",
       "67209e4087a7be4c2dd1c330",
-      "69c1005ef063d23bbbd5a3a9"
+      "69c1005ef063d23bbbd5a3a9",
+      "69b50bab46046a8eb693af22"
     ],
     "movies": [
       {
@@ -6320,40 +6320,6 @@
         "modified": "2026-03-24T11:15:26.000Z"
       },
       {
-        "id": "69b23bfcd88856be77204d9f",
-        "title": "Vạn Phúc Kim An",
-        "origin_name": "Glory Back",
-        "slug": "van-phuc-kim-an",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b23bfcd88856be77204d9f.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b23bfcd88856be77204d9f.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a220de0fc277084dfd16d",
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 25",
-        "quality": "FHD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-24T11:15:12.000Z"
-      },
-      {
         "id": "69bb7ceaf937c3b5a1186a98",
         "title": "Cận Kề Bóng Tối",
         "origin_name": "Dark and Dawn",
@@ -6518,6 +6484,45 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-23T16:42:14.000Z"
+      },
+      {
+        "id": "69b50bab46046a8eb693af22",
+        "title": "Định Mệnh Vượt Xa Kịch Bản",
+        "origin_name": "Fate Beyond Script",
+        "slug": "dinh-menh-vuot-xa-kich-ban",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b50bab46046a8eb693af22.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b50bab46046a8eb693af22.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (28/28)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-23T11:32:50.000Z"
       }
     ]
   },
