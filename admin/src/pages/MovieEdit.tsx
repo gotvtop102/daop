@@ -977,7 +977,6 @@ export default function MovieEdit() {
                       <Form.Item
                         name="tmdb_type"
                         label="TMDB Type"
-                        rules={[{ required: true, message: 'Chọn movie hoặc tv' }]}
                         style={{ margin: 0 }}
                       >
                         <Select
