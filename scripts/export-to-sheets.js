@@ -182,6 +182,7 @@ function buildMovieRow(movie, headers, explicitId) {
   setIfExists('description', desc);
   setIfExists('content', desc);
   setIfExists('status', movie.status || '');
+  setIfExists('chieurap', movie.chieurap ? '1' : '0');
   setIfExists('showtimes', movie.showtimes || '');
   const tmdbId = movie.tmdb?.id || movie.tmdb_id;
   if (tmdbId) setIfExists('tmdb_id', tmdbId);
@@ -483,6 +484,7 @@ async function main() {
     console.log('3b. Update', moviesToUpdate.length, 'phim (chỉ update episode_current + append tập mới)...');
 
     const idxEpCurrent = movieHeaders.indexOf('episode_current');
+    const idxChieuRap = headerIndexFromHeaders(movieHeaders, 'chieurap');
     const movieFieldUpdates = [];
     let movieFieldUpdateCount = 0;
 
@@ -520,6 +522,12 @@ async function main() {
             values: [[v]],
           });
         }
+      }
+      if (idxChieuRap >= 0) {
+        movieFieldUpdates.push({
+          range: `movies!${colToLetter(idxChieuRap)}${rowIndex}`,
+          values: [[m.chieurap ? '1' : '0']],
+        });
       }
       if (idxUpdate >= 0) {
         movieFieldUpdates.push({
