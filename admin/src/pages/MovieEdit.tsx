@@ -54,14 +54,22 @@ interface MovieForm {
   tmdb_id: string;
   language: string;
   showtimes: string;
+  chieurap: boolean;
   is_exclusive: boolean;
   update?: string;
 }
 
 const STATUS_OPTIONS = [
-  { value: 'current', label: 'Đang chiếu' },
-  { value: 'upcoming', label: 'Sắp chiếu' },
-  { value: 'theater', label: 'Chiếu rạp' },
+  { value: 'ongoing', label: 'Đang cập nhật' },
+  { value: 'completed', label: 'Hoàn thành' },
+  { value: 'trailer', label: 'Trailer' },
+];
+
+const LANGUAGE_OPTIONS = [
+  { value: 'Vietsub', label: 'Vietsub' },
+  { value: 'Thuyết minh', label: 'Thuyết minh' },
+  { value: 'Lồng tiếng', label: 'Lồng tiếng' },
+  { value: 'Raw', label: 'Raw' },
 ];
 
 const QUALITY_OPTIONS = [
@@ -417,6 +425,7 @@ export default function MovieEdit() {
         type: typeFromQuery,
         year: new Date().getFullYear(),
         status: 'current',
+        chieurap: false,
         quality: 'HD',
         genre: [],
         country: [],
@@ -974,12 +983,28 @@ export default function MovieEdit() {
                 <Row gutter={16}>
                   <Col xs={24} md={12}>
                     <Form.Item name="language" label="Ngôn ngữ">
-                      <Input placeholder="VD: Vietsub, Thuyết minh" />
+                      <Select
+                        placeholder="Chọn ngôn ngữ"
+                        allowClear
+                        showSearch
+                        optionFilterProp="label"
+                        options={LANGUAGE_OPTIONS}
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
 
                 <Row gutter={16}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      name="chieurap"
+                      label="Phim chiếu rạp"
+                      valuePropName="checked"
+                      extra="Sheet: cột chieurap. Bật nếu là phim chiếu rạp."
+                    >
+                      <Switch />
+                    </Form.Item>
+                  </Col>
                   <Col xs={24} md={12}>
                     <Form.Item
                       name="showtimes"

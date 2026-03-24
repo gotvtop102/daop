@@ -28,7 +28,8 @@ Sẽ tạo ra **custom_movies_template.xlsx**. Đổi tên thành `custom_movies
 | thumb_url hoặc thumb | Không | URL ảnh thumb |
 | poster_url hoặc poster | Không | URL ảnh poster. Nếu trống, build dùng thumb; nếu có tmdb_id và TMDB_API_KEY, build lấy poster từ TMDB. |
 | description hoặc content | Không | Mô tả |
-| status | Không | current / upcoming / theater |
+| status | Không | current / upcoming |
+| chieurap | Không | 0/1 hoặc true/false. `true` = phim chiếu rạp |
 | showtimes | Không | Thông tin suất chiếu (tùy dùng) |
 | is_exclusive | Không | 0/1 hoặc true/false |
 | tmdb_id | Không | ID TMDB (số) |

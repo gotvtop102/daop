@@ -815,6 +815,7 @@ async function saveMovie(sheets: any, spreadsheetId: string, movieData: any) {
     'episode_current',
     'description',
     'status',
+    'chieurap',
     'showtimes',
     'is_exclusive',
     'tmdb_id',

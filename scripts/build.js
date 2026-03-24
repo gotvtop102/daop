@@ -56,6 +56,16 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function parseBooleanFlag(v, defaultVal = false) {
+  if (v == null || v === '') return !!defaultVal;
+  const t = String(v).trim().toLowerCase();
+  if (t === '0' || t === 'false' || t === 'off' || t === 'no' || t === 'n' || t === 'none') return false;
+  if (t === '1' || t === 'true' || t === 'on' || t === 'yes' || t === 'y' || t === 'ok') return true;
+  const n = Number(t);
+  if (!Number.isNaN(n)) return n !== 0;
+  return true;
+}
+
 async function r2KeyExists(client, bucket, key) {
   if (!client || !bucket || !key) return false;
   try {
@@ -837,7 +847,7 @@ function normalizeOPhimMovie(m, slug, cdnBase = 'https://img.ophim.live') {
     is_exclusive: false,
     status: (m.status || '').toString(),
     showtimes: (m.showtimes || '').toString(),
-    chieurap: m.chieurap || false,
+    chieurap: parseBooleanFlag(m.chieurap, false),
     sub_docquyen: m.sub_docquyen || false,
     episodes: m.episodes || [],
     time: m.time,
@@ -954,17 +964,6 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
     const i = headers.indexOf(name);
     return i >= 0 ? i : headers.indexOf(name.replace('_', ' '));
   };
-  const parseOnOff = (v, defaultVal) => {
-    if (v == null || v === '') return !!defaultVal;
-    const t = String(v).trim().toLowerCase();
-    if (t === '0' || t === 'false' || t === 'off' || t === 'no' || t === 'n' || t === 'none') return false;
-    if (t === '1' || t === 'true' || t === 'on' || t === 'yes' || t === 'y' || t === 'ok') return true;
-    // fallback: number
-    const n = Number(t);
-    if (!Number.isNaN(n)) return n !== 0;
-    // fallback: non-empty string means true
-    return true;
-  };
   const idxUpdate = idx('update');
   const idxModified = idx('modified');
   const idxSlug = idx('slug');
@@ -1018,10 +1017,10 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
       quality,
       modified: (idxModified >= 0 ? sheetModified : new Date().toISOString()),
       is_4k: is4k,
-      is_exclusive: parseOnOff(row[idx('is_exclusive')], false),
+      is_exclusive: parseBooleanFlag(row[idx('is_exclusive')], false),
       status: (row[idx('status')] || '').toString(),
       showtimes: (row[idx('showtimes')] || '').toString(),
-      chieurap: false,
+      chieurap: parseBooleanFlag(row[idx('chieurap')], false),
       sub_docquyen: false,
       episodes: [],
       description: (row[idx('description')] || row[idx('content')] || '').toString(),
@@ -2158,7 +2157,7 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
     if (!statusMap.theater) statusMap.theater = [];
 
     const showtimes = (m.showtimes || '').toString().toLowerCase();
-    const isTheater = !!m.chieurap || statusKey.includes('chiếu rạp') || statusKey.includes('chieu rap') || showtimes.includes('rạp') || showtimes.includes('rap');
+    const isTheater = !!m.chieurap;
     if (isTheater) statusMap.theater.push(m.id);
 
     const isUpcoming =

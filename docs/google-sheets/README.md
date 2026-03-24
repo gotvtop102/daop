@@ -41,12 +41,15 @@ Hàng đầu tiên mỗi sheet = **header** (không phân biệt hoa thường; 
 | thumb_url hoặc thumb | ✓ | URL ảnh |
 | poster_url hoặc poster | ✓ | URL ảnh |
 | description hoặc content | ✓ | Mô tả |
-| status | ✓ | current / upcoming / theater |
+| status | ✓ | current / upcoming |
+| chieurap | ✓ | 0/1 hoặc true/false. **`true` = phim chiếu rạp** |
 | showtimes | ✓ | |
 | is_exclusive | ✓ | 0/1 hoặc true/false |
 | tmdb_id | ✓ | Số |
 | modified | ✓ (cho export) | ISO 8601 (vd. `2026-02-23T10:00:00.000Z`). **Bắt buộc** để export-to-sheets biết phim nào cần cập nhật. Nếu thiếu cột này, export chỉ append phim mới, không update phim đã có. |
 | update | ✓ (tùy chọn) | Workflow đồng bộ theo trạng thái: `NEW` (xem mục bên dưới). |
+
+> Khuyến nghị đặt cột `chieurap` ngay sau cột `status` để đồng bộ với template mặc định.
 
 ### Cột `update` (NEW) – workflow kiểm soát build & export
 
