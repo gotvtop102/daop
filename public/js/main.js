@@ -305,6 +305,56 @@
       return top;
     }
 
+    function setTopHidden(top, hidden) {
+      if (!top) return;
+      try {
+        top.classList.toggle('player-aux-hidden', !!hidden);
+      } catch (e) {}
+    }
+
+    function isControlsHidden(el) {
+      if (!el) return false;
+      try {
+        var cs = window.getComputedStyle ? window.getComputedStyle(el) : null;
+        if (!cs) return false;
+        if (cs.display === 'none' || cs.visibility === 'hidden') return true;
+        var op = parseFloat(cs.opacity);
+        if (isFinite(op) && op <= 0.05) return true;
+      } catch (e) {}
+      return false;
+    }
+
+    function syncTopWithControls(top, controlsEl, rootEl) {
+      if (!top || !controlsEl) return;
+
+      function update() {
+        var hidden = false;
+        try {
+          hidden = isControlsHidden(controlsEl);
+        } catch (e) {}
+        // JWPlayer uses a class flag when controls are hidden
+        try {
+          if (!hidden && rootEl && rootEl.classList && rootEl.classList.contains('jw-flag-controls-hidden')) hidden = true;
+        } catch (e2) {}
+        setTopHidden(top, hidden);
+      }
+
+      update();
+
+      try {
+        var obs = new MutationObserver(function () { update(); });
+        obs.observe(controlsEl, { attributes: true, attributeFilter: ['class', 'style'] });
+        if (rootEl) obs.observe(rootEl, { attributes: true, attributeFilter: ['class', 'style'] });
+      } catch (e3) {}
+
+      try {
+        // Some players don't mutate styles, they only toggle on mouse events.
+        var onMove = function () { setTimeout(update, 0); };
+        (rootEl || scopeEl).addEventListener('mousemove', onMove);
+        (rootEl || scopeEl).addEventListener('touchstart', onMove, { passive: true });
+      } catch (e4) {}
+    }
+
     var pt = String(playerType || '').toLowerCase();
     try {
       if (pt === 'plyr') {
@@ -313,6 +363,8 @@
         var topP = ensureTopOverlay(plyrRoot);
         if (quality) move(quality, topP, null);
         if (playback) move(playback, topP, null);
+        var pctr = plyrRoot.querySelector('.plyr__controls');
+        if (pctr) syncTopWithControls(topP, pctr, plyrRoot);
         return;
       }
       if (pt === 'videojs') {
@@ -321,6 +373,8 @@
         var topV = ensureTopOverlay(vj);
         if (quality) move(quality, topV, null);
         if (playback) move(playback, topV, null);
+        var vbar = vj.querySelector('.vjs-control-bar');
+        if (vbar) syncTopWithControls(topV, vbar, vj);
         return;
       }
       if (pt === 'jwplayer') {
@@ -331,6 +385,8 @@
         var topJ = ensureTopOverlay(container);
         if (quality) move(quality, topJ, null);
         if (playback) move(playback, topJ, null);
+        var jbar = container.querySelector('.jw-controlbar') || container.querySelector('.jw-control-bar') || container.querySelector('[class*="controlbar"]');
+        if (jbar) syncTopWithControls(topJ, jbar, container);
         return;
       }
       if (pt === 'vidstack') {
@@ -339,6 +395,8 @@
         var topVS = ensureTopOverlay(root);
         if (quality) move(quality, topVS, null);
         if (playback) move(playback, topVS, null);
+        var vsCtr = root.querySelector('[data-media-controls]') || root.querySelector('[data-controls]') || root.querySelector('.vds-controls') || root.querySelector('media-controls');
+        if (vsCtr) syncTopWithControls(topVS, vsCtr, root);
         return;
       }
       if (pt === 'clappr') {
@@ -347,6 +405,8 @@
         var topC = ensureTopOverlay(croot);
         if (quality) move(quality, topC, null);
         if (playback) move(playback, topC, null);
+        var cctr = croot.querySelector('.clappr-controls') || croot.querySelector('.media-control');
+        if (cctr) syncTopWithControls(topC, cctr, croot);
         return;
       }
       if (pt === 'mediaelement') {
@@ -355,6 +415,8 @@
         var topME = ensureTopOverlay(meroot);
         if (quality) move(quality, topME, null);
         if (playback) move(playback, topME, null);
+        var mebar = meroot.querySelector('.mejs__controls');
+        if (mebar) syncTopWithControls(topME, mebar, meroot);
         return;
       }
       if (pt === 'fluidplayer') {
@@ -364,6 +426,8 @@
         var topF = ensureTopOverlay(fp);
         if (quality) move(quality, topF, null);
         if (playback) move(playback, topF, null);
+        var fpbar = fp.querySelector('.fluid_controls_container') || fp.querySelector('.fluid_player_controls_container');
+        if (fpbar) syncTopWithControls(topF, fpbar, fp);
         return;
       }
       var wr = scopeEl.querySelector && scopeEl.querySelector('.watch-player-wrap');
@@ -372,6 +436,7 @@
       var topN = ensureTopOverlay(anchor);
       if (quality) move(quality, topN, null);
       if (playback) move(playback, topN, null);
+      // For native: no reliable auto-hide, keep always visible unless custom controls are provided.
     } catch (e) {}
   };
 
