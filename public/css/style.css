@@ -2703,6 +2703,46 @@ body.theme-light .showtimes-year {
 body.theme-light .showtimes-item-st {
   color: var(--accent-hover);
 }
+.player-aux-top-wrap {
+  position: relative;
+}
+
+.player-aux-top {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.player-aux-top [data-role="quality"],
+.player-aux-top [data-role="playback"] {
+  pointer-events: auto;
+}
+
+.player-aux-top .watch-player-quality,
+.player-aux-top .watch-player-playback,
+.player-aux-top .player-quality,
+.player-aux-top .player-playback {
+  background: rgba(13, 17, 23, 0.75);
+  border: 1px solid rgba(240, 246, 252, 0.12);
+  border-radius: 10px;
+  padding: 8px 10px;
+  backdrop-filter: blur(8px);
+}
+
+body.theme-light .player-aux-top .watch-player-quality,
+body.theme-light .player-aux-top .watch-player-playback,
+body.theme-light .player-aux-top .player-quality,
+body.theme-light .player-aux-top .player-playback {
+  background: rgba(251, 246, 239, 0.80);
+  border-color: rgba(31, 35, 40, 0.18);
+}
+
 .movie-detail-info .action-buttons {
   margin-top: 0.75rem;
   display: flex;
@@ -2990,8 +3030,8 @@ body.theme-light .showtimes-item-st {
 /* Tốc độ / tua / chất lượng HLS: gắn trong UI player (Plyr, Video.js, JW, …) */
 .plyr [data-role="quality"],
 .plyr [data-role="playback"],
-.video-js .vjs-control-bar [data-role="quality"],
-.video-js .vjs-control-bar [data-role="playback"],
+.video-js [data-role="quality"],
+.video-js [data-role="playback"],
 .mejs__controls [data-role="quality"],
 .mejs__controls [data-role="playback"],
 .jwplayer [data-role="quality"],
@@ -3023,14 +3063,14 @@ media-player [data-role="playback"],
   opacity: 1;
   transition: opacity 0.2s ease;
 }
-.video-js.vjs-user-inactive .vjs-control-bar [data-role="quality"],
-.video-js.vjs-user-inactive .vjs-control-bar [data-role="playback"] {
+.video-js.vjs-user-inactive [data-role="quality"],
+.video-js.vjs-user-inactive [data-role="playback"] {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
 }
-.video-js.vjs-user-active .vjs-control-bar [data-role="quality"],
-.video-js.vjs-user-active .vjs-control-bar [data-role="playback"] {
+.video-js.vjs-user-active [data-role="quality"],
+.video-js.vjs-user-active [data-role="playback"] {
   opacity: 1;
 }
 /* Trình phát native HTML5: thanh phụ trong ô video */
