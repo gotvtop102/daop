@@ -19,7 +19,7 @@ export function AccessProvider({ children }: { children: ReactNode }) {
     let alive = true;
     const load = async () => {
       const enabled = await syncAccessForCurrentUser();
-      if (alive && enabled) setHasAccess(true);
+      if (alive) setHasAccess(enabled);
     };
     void load();
     return () => {
