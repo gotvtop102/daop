@@ -550,9 +550,6 @@ begin
 
   execute 'drop trigger if exists trg_audit_player_settings on public.player_settings';
   execute 'create trigger trg_audit_player_settings after insert or update or delete on public.player_settings for each row execute function public.audit_log_write()';
-
-  execute 'drop trigger if exists trg_audit_admin_access_state on public.admin_access_state';
-  execute 'create trigger trg_audit_admin_access_state after insert or update or delete on public.admin_access_state for each row execute function public.audit_log_write()';
 exception
   when undefined_table then
     null;
