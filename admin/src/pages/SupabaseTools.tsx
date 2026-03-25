@@ -376,7 +376,59 @@ create policy "Admin only" on public.site_settings for all using (public.is_admi
 create policy "Admin only" on public.static_pages for all using (public.is_admin());
 create policy "Admin only" on public.donate_settings for all using (public.is_admin());
 create policy "Admin only" on public.player_settings for all using (public.is_admin());
-create policy "Admin only" on public.audit_logs for all using (public.is_admin());`;
+create policy "Admin only" on public.audit_logs for all using (public.is_admin());
+
+-- ================================
+-- VIP ACCESS STATE (admin_access_state)
+-- ================================
+-- Lưu quyền đã active theo user đang đăng nhập.
+create table if not exists public.admin_access_state (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  enabled boolean not null default false,
+  vip_key_id uuid null,
+  updated_at timestamptz not null default now()
+);
+
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_admin_access_state_updated_at on public.admin_access_state;
+create trigger trg_admin_access_state_updated_at
+before update on public.admin_access_state
+for each row execute function public.set_updated_at();
+
+alter table public.admin_access_state enable row level security;
+
+grant select, insert, update on public.admin_access_state to authenticated;
+
+drop policy if exists admin_access_state_select_own on public.admin_access_state;
+create policy admin_access_state_select_own
+on public.admin_access_state
+for select
+to authenticated
+using (auth.uid() = user_id);
+
+drop policy if exists admin_access_state_insert_own on public.admin_access_state;
+create policy admin_access_state_insert_own
+on public.admin_access_state
+for insert
+to authenticated
+with check (auth.uid() = user_id);
+
+drop policy if exists admin_access_state_update_own on public.admin_access_state;
+create policy admin_access_state_update_own
+on public.admin_access_state
+for update
+to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);`;
 
     const fixRlsSql = `-- Sửa RLS: role admin nằm trong app_metadata của JWT (từ raw_app_meta_data)
 -- Chạy trong SQL Editor của project Supabase Admin nếu Admin đăng nhập được nhưng không đọc/ghi được dữ liệu
