@@ -4,7 +4,7 @@
     "videojs": "Video.js",
     "jwplayer": "JWPlayer"
   },
-  "default_player": "vidstack",
+  "default_player": "clappr",
   "warning_enabled_global": true,
   "warning_text": "Cảnh báo: Phim chứa hình ảnh đường lưỡi bò phi pháp xâm phạm chủ quyền biển đảo Việt Nam.",
   "link_type_labels": {
@@ -23,21 +23,19 @@
     "preload": "metadata",
     "autoplay": false,
     "controls": true,
+    "clappr_mute": false,
     "midroll_vast": "",
     "preroll_vast": "",
     "postroll_vast": "",
-    "vidstack_load": "idle",
     "midroll_source": "video",
     "preroll_source": "video",
-    "vidstack_icons": "default",
-    "vidstack_theme": "default",
+    "clappr_autoPlay": false,
     "midroll_enabled": false,
     "postroll_source": "video",
     "preroll_enabled": true,
+    "clappr_watermark": "",
     "postroll_enabled": false,
     "seek_step_seconds": 10,
-    "vidstack_chapters": false,
-    "vidstack_thumbnails": false,
     "midroll_max_per_video": 2,
     "playback_speed_default": 1,
     "playback_speed_enabled": true,
@@ -49,6 +47,8 @@
       1.5,
       2
     ],
+    "clappr_hideMediaControl": false,
+    "clappr_watermarkPosition": "top-right",
     "midroll_interval_seconds": 600,
     "midroll_min_watch_seconds": 120
   }
