@@ -4,6 +4,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { useAccess } from '../context/AccessContext';
+import { setAccessEnabled } from '../lib/accessGate';
 import type { MenuProps } from 'antd';
 import {
   DashboardOutlined,
@@ -138,6 +139,7 @@ export default function Layout() {
   }, [location.pathname]);
 
   const handleLogout = async () => {
+    setAccessEnabled(false);
     await supabase.auth.signOut();
     navigate('/login', { replace: true });
   };

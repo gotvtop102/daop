@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import { activateAccessWithCode, isAccessEnabled } from '../lib/accessGate';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { activateAccessWithCode, isAccessEnabled, syncAccessForCurrentUser } from '../lib/accessGate';
 
 type AccessContextValue = {
   hasAccess: boolean;
@@ -14,6 +14,18 @@ const AccessContext = createContext<AccessContextValue | null>(null);
 export function AccessProvider({ children }: { children: ReactNode }) {
   const [hasAccess, setHasAccess] = useState(() => isAccessEnabled());
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      const enabled = await syncAccessForCurrentUser();
+      if (alive && enabled) setHasAccess(true);
+    };
+    void load();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const refreshAccess = useCallback(() => {
     setHasAccess(isAccessEnabled());

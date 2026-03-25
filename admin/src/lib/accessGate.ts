@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { supabase } from './supabase';
 
 const _urlB64 = 'aHR0cHM6Ly9sYWt1cXNwZWlidmpwaGZtdWxocC5zdXBhYmFzZS5jbw==';
 const _anonB64 =
@@ -8,6 +9,9 @@ const _tableB64 = 'dmlwX2tleQ==';
 const _colCodeB64 = 'a2V5';
 const _colMarkB64 = 'Y2hlY2s=';
 const _colIdB64 = 'aWQ=';
+const _stateTableB64 = 'YWRtaW5fYWNjZXNzX3N0YXRl';
+const _stateUserB64 = 'dXNlcl9pZA==';
+const _stateEnabledB64 = 'ZW5hYmxlZA==';
 
 function _d(b64: string): string {
   try {
@@ -97,5 +101,44 @@ export async function activateAccessWithCode(input: string): Promise<ActivationO
   }
 
   setAccessEnabled(true);
+  await persistAccessForCurrentUser(true);
   return { ok: true };
+}
+
+export async function persistAccessForCurrentUser(on: boolean): Promise<void> {
+  const { data } = await supabase.auth.getSession();
+  const userId = data.session?.user?.id;
+  if (!userId) return;
+
+  const tableName = _d(_stateTableB64);
+  const userCol = _d(_stateUserB64);
+  const enabledCol = _d(_stateEnabledB64);
+
+  await supabase
+    .from(tableName)
+    .upsert({ [userCol]: userId, [enabledCol]: on, updated_at: new Date().toISOString() }, { onConflict: userCol });
+}
+
+export async function syncAccessForCurrentUser(): Promise<boolean> {
+  if (isAccessEnabled()) return true;
+
+  const { data } = await supabase.auth.getSession();
+  const userId = data.session?.user?.id;
+  if (!userId) return false;
+
+  const tableName = _d(_stateTableB64);
+  const userCol = _d(_stateUserB64);
+  const enabledCol = _d(_stateEnabledB64);
+
+  const { data: row, error } = await supabase
+    .from(tableName)
+    .select(enabledCol)
+    .eq(userCol, userId)
+    .maybeSingle();
+
+  if (error || !row) return false;
+
+  const enabled = Boolean((row as any)[enabledCol]);
+  if (enabled) setAccessEnabled(true);
+  return enabled;
 }
