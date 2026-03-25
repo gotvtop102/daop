@@ -284,97 +284,27 @@
       } catch (e) {}
     }
 
-    function ensureTopOverlay(root) {
-      if (!root) return null;
-      try {
-        root.classList.add('player-aux-top-wrap');
-      } catch (e) {}
-      var top = null;
-      try {
-        top = root.querySelector('.player-aux-top');
-      } catch (e2) {}
-      if (!top) {
-        top = document.createElement('div');
-        top.className = 'player-aux-top';
-        try {
-          root.insertBefore(top, root.firstChild);
-        } catch (e3) {
-          try { root.appendChild(top); } catch (e4) {}
-        }
-      }
-      return top;
-    }
-
-    function setTopHidden(top, hidden) {
-      if (!top) return;
-      try {
-        top.classList.toggle('player-aux-hidden', !!hidden);
-      } catch (e) {}
-    }
-
-    function isControlsHidden(el) {
-      if (!el) return false;
-      try {
-        var cs = window.getComputedStyle ? window.getComputedStyle(el) : null;
-        if (!cs) return false;
-        if (cs.display === 'none' || cs.visibility === 'hidden') return true;
-        var op = parseFloat(cs.opacity);
-        if (isFinite(op) && op <= 0.05) return true;
-      } catch (e) {}
-      return false;
-    }
-
-    function syncTopWithControls(top, controlsEl, rootEl) {
-      if (!top || !controlsEl) return;
-
-      function update() {
-        var hidden = false;
-        try {
-          hidden = isControlsHidden(controlsEl);
-        } catch (e) {}
-        // JWPlayer uses a class flag when controls are hidden
-        try {
-          if (!hidden && rootEl && rootEl.classList && rootEl.classList.contains('jw-flag-controls-hidden')) hidden = true;
-        } catch (e2) {}
-        setTopHidden(top, hidden);
-      }
-
-      update();
-
-      try {
-        var obs = new MutationObserver(function () { update(); });
-        obs.observe(controlsEl, { attributes: true, attributeFilter: ['class', 'style'] });
-        if (rootEl) obs.observe(rootEl, { attributes: true, attributeFilter: ['class', 'style'] });
-      } catch (e3) {}
-
-      try {
-        // Some players don't mutate styles, they only toggle on mouse events.
-        var onMove = function () { setTimeout(update, 0); };
-        (rootEl || scopeEl).addEventListener('mousemove', onMove);
-        (rootEl || scopeEl).addEventListener('touchstart', onMove, { passive: true });
-      } catch (e4) {}
-    }
-
     var pt = String(playerType || '').toLowerCase();
     try {
       if (pt === 'plyr') {
         var plyrRoot = videoEl.closest && videoEl.closest('.plyr');
         if (!plyrRoot) return;
-        var topP = ensureTopOverlay(plyrRoot);
-        if (quality) move(quality, topP, null);
-        if (playback) move(playback, topP, null);
         var pctr = plyrRoot.querySelector('.plyr__controls');
-        if (pctr) syncTopWithControls(topP, pctr, plyrRoot);
+        if (quality) move(quality, plyrRoot, pctr);
+        if (playback) move(playback, plyrRoot, pctr);
         return;
       }
       if (pt === 'videojs') {
         var vj = videoEl.closest && videoEl.closest('.video-js');
         if (!vj) return;
-        var topV = ensureTopOverlay(vj);
-        if (quality) move(quality, topV, null);
-        if (playback) move(playback, topV, null);
         var vbar = vj.querySelector('.vjs-control-bar');
-        if (vbar) syncTopWithControls(topV, vbar, vj);
+        if (vbar) {
+          if (playback) move(playback, vbar, vbar.firstChild);
+          if (quality) move(quality, vbar, vbar.firstChild);
+        } else {
+          if (quality) move(quality, vj, vj.firstChild);
+          if (playback) move(playback, vj, vj.firstChild);
+        }
         return;
       }
       if (pt === 'jwplayer') {
@@ -382,61 +312,70 @@
         var container = jw && typeof jw.getContainer === 'function' ? jw.getContainer() : null;
         if (!container) container = scopeEl.querySelector('.jwplayer');
         if (!container) return;
-        var topJ = ensureTopOverlay(container);
-        if (quality) move(quality, topJ, null);
-        if (playback) move(playback, topJ, null);
         var jbar = container.querySelector('.jw-controlbar') || container.querySelector('.jw-control-bar') || container.querySelector('[class*="controlbar"]');
-        if (jbar) syncTopWithControls(topJ, jbar, container);
+        if (jbar) {
+          if (playback) move(playback, jbar, jbar.firstChild);
+          if (quality) move(quality, jbar, jbar.firstChild);
+        } else {
+          if (quality) move(quality, container, container.firstChild);
+          if (playback) move(playback, container, container.firstChild);
+        }
         return;
       }
       if (pt === 'vidstack') {
         var root = extra.mediaPlayerEl || scopeEl.querySelector('media-player');
         if (!root) return;
-        var topVS = ensureTopOverlay(root);
-        if (quality) move(quality, topVS, null);
-        if (playback) move(playback, topVS, null);
-        var vsCtr = root.querySelector('[data-media-controls]') || root.querySelector('[data-controls]') || root.querySelector('.vds-controls') || root.querySelector('media-controls');
-        if (vsCtr) syncTopWithControls(topVS, vsCtr, root);
+        var before = root.firstChild;
+        if (quality) move(quality, root, before);
+        if (playback) move(playback, root, before);
         return;
       }
       if (pt === 'clappr') {
         var croot = extra.clapprContainer || scopeEl.querySelector('.clappr-container') || scopeEl.querySelector('[data-player]');
         if (!croot) return;
-        var topC = ensureTopOverlay(croot);
-        if (quality) move(quality, topC, null);
-        if (playback) move(playback, topC, null);
-        var cctr = croot.querySelector('.clappr-controls') || croot.querySelector('.media-control');
-        if (cctr) syncTopWithControls(topC, cctr, croot);
+        if (quality) move(quality, croot, null);
+        if (playback) move(playback, croot, null);
         return;
       }
       if (pt === 'mediaelement') {
         var meroot = videoEl.closest && videoEl.closest('.mejs__container');
         if (!meroot) return;
-        var topME = ensureTopOverlay(meroot);
-        if (quality) move(quality, topME, null);
-        if (playback) move(playback, topME, null);
         var mebar = meroot.querySelector('.mejs__controls');
-        if (mebar) syncTopWithControls(topME, mebar, meroot);
+        if (mebar) {
+          if (playback) move(playback, mebar, mebar.firstChild);
+          if (quality) move(quality, mebar, mebar.firstChild);
+        } else {
+          if (quality) move(quality, meroot, meroot.firstChild);
+          if (playback) move(playback, meroot, meroot.firstChild);
+        }
         return;
       }
       if (pt === 'fluidplayer') {
         var fp = videoEl.closest && videoEl.closest('.fluid_video_wrapper');
         if (!fp) fp = videoEl.parentElement;
         if (!fp) return;
-        var topF = ensureTopOverlay(fp);
-        if (quality) move(quality, topF, null);
-        if (playback) move(playback, topF, null);
         var fpbar = fp.querySelector('.fluid_controls_container') || fp.querySelector('.fluid_player_controls_container');
-        if (fpbar) syncTopWithControls(topF, fpbar, fp);
+        if (fpbar) {
+          if (playback) move(playback, fpbar, fpbar.firstChild);
+          if (quality) move(quality, fpbar, fpbar.firstChild);
+        } else {
+          if (quality) move(quality, fp, fp.firstChild);
+          if (playback) move(playback, fp, fp.firstChild);
+        }
         return;
       }
       var wr = scopeEl.querySelector && scopeEl.querySelector('.watch-player-wrap');
       var anchor = wr || videoEl.parentElement;
       if (!anchor) return;
-      var topN = ensureTopOverlay(anchor);
-      if (quality) move(quality, topN, null);
-      if (playback) move(playback, topN, null);
-      // For native: no reliable auto-hide, keep always visible unless custom controls are provided.
+      anchor.classList.add('player-aux-native-wrap');
+      var stack = anchor.querySelector('.player-aux-stack');
+      if (!stack) {
+        stack = document.createElement('div');
+        stack.className = 'player-aux-stack';
+        anchor.appendChild(stack);
+      }
+      if (quality) move(quality, stack, null);
+      if (playback) move(playback, stack, null);
     } catch (e) {}
   };
 

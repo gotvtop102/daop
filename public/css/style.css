@@ -3035,8 +3035,8 @@ body.theme-light .player-aux-top .player-playback {
 /* Tốc độ / tua / chất lượng HLS: gắn trong UI player (Plyr, Video.js, JW, …) */
 .plyr [data-role="quality"],
 .plyr [data-role="playback"],
-.video-js [data-role="quality"],
-.video-js [data-role="playback"],
+.video-js .vjs-control-bar [data-role="quality"],
+.video-js .vjs-control-bar [data-role="playback"],
 .mejs__controls [data-role="quality"],
 .mejs__controls [data-role="playback"],
 .jwplayer [data-role="quality"],
@@ -3070,17 +3070,15 @@ media-player [data-role="playback"],
   visibility: visible;
   transition: opacity 0.2s ease;
 }
-.video-js.vjs-user-inactive [data-role="quality"],
-.video-js.vjs-user-inactive [data-role="playback"] {
-  opacity: 0 !important;
-  visibility: hidden;
-  pointer-events: none !important;
+.video-js.vjs-user-inactive .vjs-control-bar [data-role="quality"],
+.video-js.vjs-user-inactive .vjs-control-bar [data-role="playback"] {
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 0.2s ease;
 }
-.video-js.vjs-user-active:not(.vjs-user-inactive) [data-role="quality"],
-.video-js.vjs-user-active:not(.vjs-user-inactive) [data-role="playback"] {
+.video-js.vjs-user-active .vjs-control-bar [data-role="quality"],
+.video-js.vjs-user-active .vjs-control-bar [data-role="playback"] {
   opacity: 1;
-  visibility: visible;
 }
 /* Trình phát native HTML5: thanh phụ trong ô video */
 .player-aux-native-wrap {
