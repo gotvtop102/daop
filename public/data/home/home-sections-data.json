@@ -1405,35 +1405,40 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "690d5c6726683d7f739fd5d0",
+      "69bc1529ccc6cea268841d51",
+      "69843f824ea2111da8b72fb3",
+      "698466edae6f0c1fdf37f989",
+      "69a12fda4ea2111da8bf4850",
+      "698099011d0b515454a62a96",
+      "69abad07ccc6cea2688008c6",
+      "69c4b767f07c400a86d5798e",
+      "69bd3bb2f063d23bbbd4a0e3",
       "69b9275e32adc86a1e815cde",
       "692eadd4f8d2b25ec830f9ef",
       "69ba4f6a124287e08262555c",
-      "69c4e6a0400bf394bd951298",
-      "69c4e7c1eea244e3e8b8bba4",
-      "69c4e924e263b2a94626ae68",
-      "69474097ae6f0c1fdf32f4bd",
-      "69815ed532adc86a1e7283f3",
-      "69c4a56854ca9185bbbd1c26",
-      "69bfc6ce400bf394bd942519",
-      "69c4bee8f65d22d617b880f2",
-      "69a7ff72400bf394bd8e4007",
-      "69c4b767f07c400a86d5798e"
+      "69c4e6a0400bf394bd951298"
     ],
     "movies": [
       {
-        "id": "69b9275e32adc86a1e815cde",
-        "title": "Xin Chào 1983",
-        "origin_name": "Dream of Golden Years",
-        "slug": "xin-chao-1983",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
-        "year": 2026,
+        "id": "690d5c6726683d7f739fd5d0",
+        "title": "Những Ông Bố Của Ma Ri",
+        "origin_name": "Marie and Her Three Daddies",
+        "slug": "nhung-ong-bo-cua-ma-ri",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/690d5c6726683d7f739fd5d0.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/690d5c6726683d7f739fd5d0.webp",
+        "year": 2025,
         "type": "series",
         "genre": [
           {
             "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
           },
           {
             "id": "620f3d2b91fa4af90ab697fe",
@@ -1443,7 +1448,330 @@
         ],
         "country": [
           {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 111",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-27T00:23:09.000Z"
+      },
+      {
+        "id": "69bc1529ccc6cea268841d51",
+        "title": "Công Thức Tình Yêu",
+        "origin_name": "Recipe For Love",
+        "slug": "cong-thuc-tinh-yeu",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 14",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T23:12:26.000Z"
+      },
+      {
+        "id": "69843f824ea2111da8b72fb3",
+        "title": "Món Quà Của Kluay",
+        "origin_name": "The Gift",
+        "slug": "mon-qua-cua-kluay",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69843f824ea2111da8b72fb3.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69843f824ea2111da8b72fb3.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 16",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T23:08:26.000Z"
+      },
+      {
+        "id": "698466edae6f0c1fdf37f989",
+        "title": "Money, My Love",
+        "origin_name": "Money, My Love",
+        "slug": "money-my-love",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/698466edae6f0c1fdf37f989.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/698466edae6f0c1fdf37f989.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 16",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T22:54:25.000Z"
+      },
+      {
+        "id": "69a12fda4ea2111da8bf4850",
+        "title": "Con Tôi Hẹn Hò (Phần 2)",
+        "origin_name": "When Our Kids Fall In Love",
+        "slug": "con-toi-hen-ho-phan-2",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69a12fda4ea2111da8bf4850.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69a12fda4ea2111da8bf4850.webp",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T22:15:16.000Z"
+      },
+      {
+        "id": "698099011d0b515454a62a96",
+        "title": "Câu Lạc Bộ Bạn Bí Mật",
+        "origin_name": "The Secret Friends Club",
+        "slug": "cau-lac-bo-ban-bi-mat",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/698099011d0b515454a62a96.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/698099011d0b515454a62a96.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 8",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T22:14:59.000Z"
+      },
+      {
+        "id": "69abad07ccc6cea2688008c6",
+        "title": "Pinanong",
+        "origin_name": "Pinanong",
+        "slug": "pinanong",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69abad07ccc6cea2688008c6.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69abad07ccc6cea2688008c6.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 15",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T21:35:57.000Z"
+      },
+      {
+        "id": "69c4b767f07c400a86d5798e",
+        "title": "Toà Án Gia Đình",
+        "origin_name": "Hold A Court Now",
+        "slug": "toa-an-gia-dinh",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b767f07c400a86d5798e.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b767f07c400a86d5798e.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
             "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 6",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:20:17.000Z"
+      },
+      {
+        "id": "69bd3bb2f063d23bbbd4a0e3",
+        "title": "Đông Qua Xuân Đến",
+        "origin_name": "Live up to Your Youth",
+        "slug": "dong-qua-xuan-den",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bd3bb2f063d23bbbd4a0e3.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bd3bb2f063d23bbbd4a0e3.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:19:53.000Z"
+      },
+      {
+        "id": "69b9275e32adc86a1e815cde",
+        "title": "Xin Chào 1983",
+        "origin_name": "Dream of Golden Years",
+        "slug": "xin-chao-1983",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+        "year": "2026",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -1466,18 +1794,16 @@
         "slug": "truc-ngoc",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/692eadd4f8d2b25ec830f9ef.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692eadd4f8d2b25ec830f9ef.webp",
-        "year": 2025,
+        "year": "2025",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -1485,7 +1811,7 @@
         "lang_key": "Vietsub + Thuyết Minh",
         "episode_current": "Hoàn tất (40/40)",
         "quality": "HD",
-        "status": "completed",
+        "status": "ongoing",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -1500,28 +1826,24 @@
         "slug": "vung-dat-madison-phan-1",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69ba4f6a124287e08262555c.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69ba4f6a124287e08262555c.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           },
           {
-            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -1534,7 +1856,7 @@
         "is_4k": false,
         "is_exclusive": false,
         "chieurap": false,
-        "sub_docquyen": true,
+        "sub_docquyen": false,
         "modified": "2026-03-26T16:37:37.000Z"
       },
       {
@@ -1544,28 +1866,24 @@
         "slug": "thanh-tra-hole",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e6a0400bf394bd951298.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e6a0400bf394bd951298.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f84d291fa4af90ab6b3f4",
             "name": "Bí ẩn",
             "slug": "bi-an"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           },
           {
-            "id": "620a2370e0fc277084dfd91e",
             "name": "Anh",
             "slug": "anh"
           }
@@ -1580,335 +1898,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-26T16:18:01.000Z"
-      },
-      {
-        "id": "69c4e7c1eea244e3e8b8bba4",
-        "title": "Một Điều Rất Tồi Tệ Sắp Xảy Ra",
-        "origin_name": "Something Very Bad Is Going to Happen",
-        "slug": "mot-dieu-rat-toi-te-sap-xay-ra",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e7c1eea244e3e8b8bba4.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e7c1eea244e3e8b8bba4.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (8/8)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T16:17:45.000Z"
-      },
-      {
-        "id": "69c4e924e263b2a94626ae68",
-        "title": "Nữ Công Tố Viên Sayuri Herrera",
-        "origin_name": "The Prosecutor",
-        "slug": "nu-cong-to-vien-sayuri-herrera",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e924e263b2a94626ae68.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e924e263b2a94626ae68.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620e0e64d9648f114cde7728",
-            "name": "Tài Liệu",
-            "slug": "tai-lieu"
-          }
-        ],
-        "country": [
-          {
-            "id": "6212611d1f1609c9d93466cc",
-            "name": "Mexico",
-            "slug": "mexico"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (3/3)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T16:17:30.000Z"
-      },
-      {
-        "id": "69474097ae6f0c1fdf32f4bd",
-        "title": "Fourever You (Phần 2)",
-        "origin_name": "Fourever You (Season 2)",
-        "slug": "fourever-you-phan-2",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69474097ae6f0c1fdf32f4bd.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69474097ae6f0c1fdf32f4bd.webp",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2318e0fc277084dfd77a",
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 12",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T15:16:30.000Z"
-      },
-      {
-        "id": "69815ed532adc86a1e7283f3",
-        "title": "Ngục Tù Tình Thân",
-        "origin_name": "The Act",
-        "slug": "nguc-tu-tinh-than",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69815ed532adc86a1e7283f3.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69815ed532adc86a1e7283f3.webp",
-        "year": 2019,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620a2238e0fc277084dfd291",
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (8/8)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:20:50.000Z"
-      },
-      {
-        "id": "69c4a56854ca9185bbbd1c26",
-        "title": "Bậc Thầy Tình Dục (Phần 3)",
-        "origin_name": "Masters of Sex (Season 3)",
-        "slug": "bac-thay-tinh-duc-phan-3",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4a56854ca9185bbbd1c26.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4a56854ca9185bbbd1c26.webp",
-        "year": 2015,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (12/12)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:19:05.000Z"
-      },
-      {
-        "id": "69bfc6ce400bf394bd942519",
-        "title": "Săn Tội Huyết Oán",
-        "origin_name": "Hunting For Crime · Red Deep Grudge",
-        "slug": "san-toi-huyet-oan",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bfc6ce400bf394bd942519.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 14",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T13:57:40.000Z"
-      },
-      {
-        "id": "69c4bee8f65d22d617b880f2",
-        "title": "Em là niềm vui đến muộn",
-        "origin_name": "You Are My Fateful Love",
-        "slug": "em-la-niem-vui-den-muon",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4bee8f65d22d617b880f2.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4bee8f65d22d617b880f2.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Chile",
-            "slug": "chile"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T12:57:20.000Z"
-      },
-      {
-        "id": "69a7ff72400bf394bd8e4007",
-        "title": "Cuộc Săn Đuổi",
-        "origin_name": "The Hunt",
-        "slug": "cuoc-san-duoi-2026",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69a7ff72400bf394bd8e4007.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69a7ff72400bf394bd8e4007.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Pháp",
-            "slug": "phap"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 5",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T12:07:53.000Z"
-      },
-      {
-        "id": "69c4b767f07c400a86d5798e",
-        "title": "Toà Án Gia Đình",
-        "origin_name": "Hold A Court Now",
-        "slug": "toa-an-gia-dinh",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b767f07c400a86d5798e.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b767f07c400a86d5798e.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T11:41:28.000Z"
       }
     ]
   },
@@ -1959,23 +1948,20 @@
         "slug": "lan-ranh-do-2026",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e6720a0114095c84c783.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e6720a0114095c84c783.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "single",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a2318e0fc277084dfd77a",
             "name": "Thái Lan",
             "slug": "thai-lan"
           }
@@ -1998,23 +1984,20 @@
         "slug": "sat-thu-tinh-duc",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ab3dda6ce23e8ea93f43.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ab3dda6ce23e8ea93f43.webp",
-        "year": 2024,
+        "year": "2024",
         "type": "single",
         "genre": [
           {
-            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
-            "slug": "hanh-dong"
+            "slug": "hanh-djong"
           },
           {
-            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -2022,7 +2005,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -2037,23 +2020,20 @@
         "slug": "tham-hoa-hoan-mi",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ad0097c71dcd0d79b2b6.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ad0097c71dcd0d79b2b6.webp",
-        "year": 2023,
+        "year": "2023",
         "type": "single",
         "genre": [
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -2061,7 +2041,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -2076,23 +2056,20 @@
         "slug": "nhom-ban-bat-hao",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ac761d0b515454b79fbe.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ac761d0b515454b79fbe.webp",
-        "year": 2022,
+        "year": "2022",
         "type": "single",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a2381e0fc277084dfd9c6",
             "name": "Canada",
             "slug": "canada"
           }
@@ -2100,7 +2077,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -2115,18 +2092,16 @@
         "slug": "ngoi-nha-cam-bay",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ac010a0114095c84b470.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ac010a0114095c84b470.webp",
-        "year": 2018,
+        "year": "2018",
         "type": "single",
         "genre": [
           {
-            "id": "620a22ace0fc277084dfd531",
             "name": "Kinh Dị",
             "slug": "kinh-di"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -2134,7 +2109,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -2149,18 +2124,16 @@
         "slug": "adam",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4aabe988d934ea9f78950.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4aabe988d934ea9f78950.webp",
-        "year": 2020,
+        "year": "2020",
         "type": "single",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -2168,7 +2141,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -2183,28 +2156,24 @@
         "slug": "doi-tra-va-trom-cap",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ab944ea2111da8c854a0.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ab944ea2111da8c854a0.webp",
-        "year": 2019,
+        "year": "2019",
         "type": "single",
         "genre": [
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           },
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -2212,7 +2181,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -2227,23 +2196,20 @@
         "slug": "dac-vu-bi-mat",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ad7597c71dcd0d79b2eb.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ad7597c71dcd0d79b2eb.webp",
-        "year": 2025,
+        "year": "2025",
         "type": "single",
         "genre": [
           {
-            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
-            "slug": "hanh-dong"
+            "slug": "hanh-djong"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           },
           {
-            "id": "620a2381e0fc277084dfd9c6",
             "name": "Canada",
             "slug": "canada"
           }
@@ -2251,7 +2217,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -2266,28 +2232,24 @@
         "slug": "con-gai-mao-danh",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4aa36f65d22d617b8778a.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4aa36f65d22d617b8778a.webp",
-        "year": 2018,
+        "year": "2018",
         "type": "single",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           },
           {
-            "id": "620a2381e0fc277084dfd9c6",
             "name": "Canada",
             "slug": "canada"
           }
@@ -2295,7 +2257,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -2439,27 +2401,27 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69bc1529ccc6cea268841d51",
+      "69633cb1b06c99c722eca306",
+      "69843f824ea2111da8b72fb3",
+      "698466edae6f0c1fdf37f989",
+      "698099011d0b515454a62a96",
+      "69592eec0a0114095c701ba0",
+      "69abad07ccc6cea2688008c6",
+      "69c4b767f07c400a86d5798e",
+      "69bd3bb2f063d23bbbd4a0e3",
       "69b9275e32adc86a1e815cde",
       "69ba4f6a124287e08262555c",
-      "69c4e6720a0114095c84c783",
-      "69c4e6a0400bf394bd951298",
-      "69c4e7c1eea244e3e8b8bba4",
-      "69c4e924e263b2a94626ae68",
-      "69bfc6ce400bf394bd942519",
-      "69c4bee8f65d22d617b880f2",
-      "69c4bd68ccc6cea268860b58",
-      "69bb9587f937c3b5a1186fc6",
-      "69a7ff72400bf394bd8e4007",
-      "69c4b767f07c400a86d5798e"
+      "69c4e6720a0114095c84c783"
     ],
     "movies": [
       {
-        "id": "69b9275e32adc86a1e815cde",
-        "title": "Xin Chào 1983",
-        "origin_name": "Dream of Golden Years",
-        "slug": "xin-chao-1983",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+        "id": "69bc1529ccc6cea268841d51",
+        "title": "Công Thức Tình Yêu",
+        "origin_name": "Recipe For Love",
+        "slug": "cong-thuc-tinh-yeu",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
         "year": 2026,
         "type": "series",
         "genre": [
@@ -2469,6 +2431,284 @@
             "slug": "hai-huoc"
           },
           {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 14",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T23:12:26.000Z"
+      },
+      {
+        "id": "69633cb1b06c99c722eca306",
+        "title": "Chén Thánh Của Eris",
+        "origin_name": "The Holy Grail of Eris",
+        "slug": "chen-thanh-cua-eris",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69633cb1b06c99c722eca306.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69633cb1b06c99c722eca306.webp",
+        "year": 2026,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T23:08:39.000Z"
+      },
+      {
+        "id": "69843f824ea2111da8b72fb3",
+        "title": "Món Quà Của Kluay",
+        "origin_name": "The Gift",
+        "slug": "mon-qua-cua-kluay",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69843f824ea2111da8b72fb3.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69843f824ea2111da8b72fb3.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 16",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T23:08:26.000Z"
+      },
+      {
+        "id": "698466edae6f0c1fdf37f989",
+        "title": "Money, My Love",
+        "origin_name": "Money, My Love",
+        "slug": "money-my-love",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/698466edae6f0c1fdf37f989.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/698466edae6f0c1fdf37f989.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 16",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T22:54:25.000Z"
+      },
+      {
+        "id": "698099011d0b515454a62a96",
+        "title": "Câu Lạc Bộ Bạn Bí Mật",
+        "origin_name": "The Secret Friends Club",
+        "slug": "cau-lac-bo-ban-bi-mat",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/698099011d0b515454a62a96.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/698099011d0b515454a62a96.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 8",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T22:14:59.000Z"
+      },
+      {
+        "id": "69592eec0a0114095c701ba0",
+        "title": "Án Phạt Dũng Giả",
+        "origin_name": "Sentenced to Be a Hero",
+        "slug": "an-phat-dung-gia",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69592eec0a0114095c701ba0.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69592eec0a0114095c701ba0.webp",
+        "year": 2026,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T21:36:15.000Z"
+      },
+      {
+        "id": "69abad07ccc6cea2688008c6",
+        "title": "Pinanong",
+        "origin_name": "Pinanong",
+        "slug": "pinanong",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69abad07ccc6cea2688008c6.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69abad07ccc6cea2688008c6.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 15",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T21:35:57.000Z"
+      },
+      {
+        "id": "69c4b767f07c400a86d5798e",
+        "title": "Toà Án Gia Đình",
+        "origin_name": "Hold A Court Now",
+        "slug": "toa-an-gia-dinh",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b767f07c400a86d5798e.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b767f07c400a86d5798e.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
             "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
@@ -2477,6 +2717,76 @@
         "country": [
           {
             "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 6",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:20:17.000Z"
+      },
+      {
+        "id": "69bd3bb2f063d23bbbd4a0e3",
+        "title": "Đông Qua Xuân Đến",
+        "origin_name": "Live up to Your Youth",
+        "slug": "dong-qua-xuan-den",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bd3bb2f063d23bbbd4a0e3.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bd3bb2f063d23bbbd4a0e3.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:19:53.000Z"
+      },
+      {
+        "id": "69b9275e32adc86a1e815cde",
+        "title": "Xin Chào 1983",
+        "origin_name": "Dream of Golden Years",
+        "slug": "xin-chao-1983",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+        "year": "2026",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -2499,28 +2809,24 @@
         "slug": "vung-dat-madison-phan-1",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69ba4f6a124287e08262555c.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69ba4f6a124287e08262555c.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           },
           {
-            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -2533,7 +2839,7 @@
         "is_4k": false,
         "is_exclusive": false,
         "chieurap": false,
-        "sub_docquyen": true,
+        "sub_docquyen": false,
         "modified": "2026-03-26T16:37:37.000Z"
       },
       {
@@ -2543,23 +2849,20 @@
         "slug": "lan-ranh-do-2026",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e6720a0114095c84c783.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e6720a0114095c84c783.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "single",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a2318e0fc277084dfd77a",
             "name": "Thái Lan",
             "slug": "thai-lan"
           }
@@ -2574,354 +2877,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-26T16:20:51.000Z"
-      },
-      {
-        "id": "69c4e6a0400bf394bd951298",
-        "title": "Thanh Tra Hole",
-        "origin_name": "Detective Hole",
-        "slug": "thanh-tra-hole",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e6a0400bf394bd951298.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e6a0400bf394bd951298.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2370e0fc277084dfd91e",
-            "name": "Anh",
-            "slug": "anh"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (9/9)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T16:18:01.000Z"
-      },
-      {
-        "id": "69c4e7c1eea244e3e8b8bba4",
-        "title": "Một Điều Rất Tồi Tệ Sắp Xảy Ra",
-        "origin_name": "Something Very Bad Is Going to Happen",
-        "slug": "mot-dieu-rat-toi-te-sap-xay-ra",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e7c1eea244e3e8b8bba4.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e7c1eea244e3e8b8bba4.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (8/8)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T16:17:45.000Z"
-      },
-      {
-        "id": "69c4e924e263b2a94626ae68",
-        "title": "Nữ Công Tố Viên Sayuri Herrera",
-        "origin_name": "The Prosecutor",
-        "slug": "nu-cong-to-vien-sayuri-herrera",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e924e263b2a94626ae68.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e924e263b2a94626ae68.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620e0e64d9648f114cde7728",
-            "name": "Tài Liệu",
-            "slug": "tai-lieu"
-          }
-        ],
-        "country": [
-          {
-            "id": "6212611d1f1609c9d93466cc",
-            "name": "Mexico",
-            "slug": "mexico"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (3/3)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T16:17:30.000Z"
-      },
-      {
-        "id": "69bfc6ce400bf394bd942519",
-        "title": "Săn Tội Huyết Oán",
-        "origin_name": "Hunting For Crime · Red Deep Grudge",
-        "slug": "san-toi-huyet-oan",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bfc6ce400bf394bd942519.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 14",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T13:57:40.000Z"
-      },
-      {
-        "id": "69c4bee8f65d22d617b880f2",
-        "title": "Em là niềm vui đến muộn",
-        "origin_name": "You Are My Fateful Love",
-        "slug": "em-la-niem-vui-den-muon",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4bee8f65d22d617b880f2.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4bee8f65d22d617b880f2.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Chile",
-            "slug": "chile"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T12:57:20.000Z"
-      },
-      {
-        "id": "69c4bd68ccc6cea268860b58",
-        "title": "Redux Redux",
-        "origin_name": "Redux Redux",
-        "slug": "redux-redux",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4bd68ccc6cea268860b58.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4bd68ccc6cea268860b58.webp",
-        "year": "2026",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T12:14:41.000Z"
-      },
-      {
-        "id": "69bb9587f937c3b5a1186fc6",
-        "title": "BẤT KHẢ CHIẾN BẠI (Phần 4)",
-        "origin_name": "Invincible (Season 4)",
-        "slug": "bat-kha-chien-bai-phan-4",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bb9587f937c3b5a1186fc6.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bb9587f937c3b5a1186fc6.webp",
-        "year": "2026",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-djong"
-          },
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "name": "Canada",
-            "slug": "canada"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T12:08:10.000Z"
-      },
-      {
-        "id": "69a7ff72400bf394bd8e4007",
-        "title": "Cuộc Săn Đuổi",
-        "origin_name": "The Hunt",
-        "slug": "cuoc-san-duoi-2026",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69a7ff72400bf394bd8e4007.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69a7ff72400bf394bd8e4007.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Pháp",
-            "slug": "phap"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 5",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T12:07:53.000Z"
-      },
-      {
-        "id": "69c4b767f07c400a86d5798e",
-        "title": "Toà Án Gia Đình",
-        "origin_name": "Hold A Court Now",
-        "slug": "toa-an-gia-dinh",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b767f07c400a86d5798e.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b767f07c400a86d5798e.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T11:41:28.000Z"
       }
     ]
   },
@@ -2967,35 +2922,40 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
-      "69b9275e32adc86a1e815cde",
-      "69ba4f6a124287e08262555c",
-      "69474097ae6f0c1fdf32f4bd",
-      "69bfc6ce400bf394bd942519",
-      "69c4bee8f65d22d617b880f2",
-      "69bb9587f937c3b5a1186fc6",
-      "69a7ff72400bf394bd8e4007",
-      "625c61c8941a26e421dc5d16",
-      "694cb94a458948c67998aa33",
+      "690d5c6726683d7f739fd5d0",
+      "69bc1529ccc6cea268841d51",
+      "69843f824ea2111da8b72fb3",
+      "698466edae6f0c1fdf37f989",
+      "69a12fda4ea2111da8bf4850",
+      "698099011d0b515454a62a96",
+      "69abad07ccc6cea2688008c6",
       "69c4b767f07c400a86d5798e",
-      "69c4b708988d934ea9f78f06",
-      "69b4de1df07c400a86d1abe7",
-      "69b23bfcd88856be77204d9f"
+      "69bd3bb2f063d23bbbd4a0e3",
+      "69b9275e32adc86a1e815cde",
+      "692eadd4f8d2b25ec830f9ef",
+      "69ba4f6a124287e08262555c",
+      "69474097ae6f0c1fdf32f4bd"
     ],
     "movies": [
       {
-        "id": "69b9275e32adc86a1e815cde",
-        "title": "Xin Chào 1983",
-        "origin_name": "Dream of Golden Years",
-        "slug": "xin-chao-1983",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
-        "year": 2026,
+        "id": "690d5c6726683d7f739fd5d0",
+        "title": "Những Ông Bố Của Ma Ri",
+        "origin_name": "Marie and Her Three Daddies",
+        "slug": "nhung-ong-bo-cua-ma-ri",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/690d5c6726683d7f739fd5d0.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/690d5c6726683d7f739fd5d0.webp",
+        "year": 2025,
         "type": "series",
         "genre": [
           {
             "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
           },
           {
             "id": "620f3d2b91fa4af90ab697fe",
@@ -3005,7 +2965,330 @@
         ],
         "country": [
           {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 111",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-27T00:23:09.000Z"
+      },
+      {
+        "id": "69bc1529ccc6cea268841d51",
+        "title": "Công Thức Tình Yêu",
+        "origin_name": "Recipe For Love",
+        "slug": "cong-thuc-tinh-yeu",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 14",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T23:12:26.000Z"
+      },
+      {
+        "id": "69843f824ea2111da8b72fb3",
+        "title": "Món Quà Của Kluay",
+        "origin_name": "The Gift",
+        "slug": "mon-qua-cua-kluay",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69843f824ea2111da8b72fb3.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69843f824ea2111da8b72fb3.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 16",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T23:08:26.000Z"
+      },
+      {
+        "id": "698466edae6f0c1fdf37f989",
+        "title": "Money, My Love",
+        "origin_name": "Money, My Love",
+        "slug": "money-my-love",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/698466edae6f0c1fdf37f989.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/698466edae6f0c1fdf37f989.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 16",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T22:54:25.000Z"
+      },
+      {
+        "id": "69a12fda4ea2111da8bf4850",
+        "title": "Con Tôi Hẹn Hò (Phần 2)",
+        "origin_name": "When Our Kids Fall In Love",
+        "slug": "con-toi-hen-ho-phan-2",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69a12fda4ea2111da8bf4850.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69a12fda4ea2111da8bf4850.webp",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T22:15:16.000Z"
+      },
+      {
+        "id": "698099011d0b515454a62a96",
+        "title": "Câu Lạc Bộ Bạn Bí Mật",
+        "origin_name": "The Secret Friends Club",
+        "slug": "cau-lac-bo-ban-bi-mat",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/698099011d0b515454a62a96.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/698099011d0b515454a62a96.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 8",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T22:14:59.000Z"
+      },
+      {
+        "id": "69abad07ccc6cea2688008c6",
+        "title": "Pinanong",
+        "origin_name": "Pinanong",
+        "slug": "pinanong",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69abad07ccc6cea2688008c6.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69abad07ccc6cea2688008c6.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 15",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T21:35:57.000Z"
+      },
+      {
+        "id": "69c4b767f07c400a86d5798e",
+        "title": "Toà Án Gia Đình",
+        "origin_name": "Hold A Court Now",
+        "slug": "toa-an-gia-dinh",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b767f07c400a86d5798e.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b767f07c400a86d5798e.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
             "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 6",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:20:17.000Z"
+      },
+      {
+        "id": "69bd3bb2f063d23bbbd4a0e3",
+        "title": "Đông Qua Xuân Đến",
+        "origin_name": "Live up to Your Youth",
+        "slug": "dong-qua-xuan-den",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bd3bb2f063d23bbbd4a0e3.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bd3bb2f063d23bbbd4a0e3.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:19:53.000Z"
+      },
+      {
+        "id": "69b9275e32adc86a1e815cde",
+        "title": "Xin Chào 1983",
+        "origin_name": "Dream of Golden Years",
+        "slug": "xin-chao-1983",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+        "year": "2026",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -3022,34 +3305,62 @@
         "modified": "2026-03-26T17:50:26.000Z"
       },
       {
+        "id": "692eadd4f8d2b25ec830f9ef",
+        "title": "Trục Ngọc",
+        "origin_name": "Pursuit of Jade",
+        "slug": "truc-ngoc",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/692eadd4f8d2b25ec830f9ef.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692eadd4f8d2b25ec830f9ef.webp",
+        "year": "2025",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub + Thuyết Minh",
+        "episode_current": "Hoàn tất (40/40)",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T17:49:13.000Z"
+      },
+      {
         "id": "69ba4f6a124287e08262555c",
         "title": "Vùng Đất Madison (Phần 1)",
         "origin_name": "The Madison (Season 1)",
         "slug": "vung-dat-madison-phan-1",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69ba4f6a124287e08262555c.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69ba4f6a124287e08262555c.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           },
           {
-            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -3062,7 +3373,7 @@
         "is_4k": false,
         "is_exclusive": false,
         "chieurap": false,
-        "sub_docquyen": true,
+        "sub_docquyen": false,
         "modified": "2026-03-26T16:37:37.000Z"
       },
       {
@@ -3072,23 +3383,20 @@
         "slug": "fourever-you-phan-2",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69474097ae6f0c1fdf32f4bd.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69474097ae6f0c1fdf32f4bd.webp",
-        "year": 2025,
+        "year": "2025",
         "type": "series",
         "genre": [
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a2318e0fc277084dfd77a",
             "name": "Thái Lan",
             "slug": "thai-lan"
           }
@@ -3103,380 +3411,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-26T15:16:30.000Z"
-      },
-      {
-        "id": "69bfc6ce400bf394bd942519",
-        "title": "Săn Tội Huyết Oán",
-        "origin_name": "Hunting For Crime · Red Deep Grudge",
-        "slug": "san-toi-huyet-oan",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bfc6ce400bf394bd942519.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "62093063196e9f4ab6b448b8",
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 14",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T13:57:40.000Z"
-      },
-      {
-        "id": "69c4bee8f65d22d617b880f2",
-        "title": "Em là niềm vui đến muộn",
-        "origin_name": "You Are My Fateful Love",
-        "slug": "em-la-niem-vui-den-muon",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4bee8f65d22d617b880f2.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4bee8f65d22d617b880f2.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Chile",
-            "slug": "chile"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T12:57:20.000Z"
-      },
-      {
-        "id": "69bb9587f937c3b5a1186fc6",
-        "title": "BẤT KHẢ CHIẾN BẠI (Phần 4)",
-        "origin_name": "Invincible (Season 4)",
-        "slug": "bat-kha-chien-bai-phan-4",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bb9587f937c3b5a1186fc6.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bb9587f937c3b5a1186fc6.webp",
-        "year": "2026",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-djong"
-          },
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "name": "Canada",
-            "slug": "canada"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T12:08:10.000Z"
-      },
-      {
-        "id": "69a7ff72400bf394bd8e4007",
-        "title": "Cuộc Săn Đuổi",
-        "origin_name": "The Hunt",
-        "slug": "cuoc-san-duoi-2026",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69a7ff72400bf394bd8e4007.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69a7ff72400bf394bd8e4007.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Pháp",
-            "slug": "phap"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 5",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T12:07:53.000Z"
-      },
-      {
-        "id": "625c61c8941a26e421dc5d16",
-        "title": "Thế Giới Hoàn Mỹ",
-        "origin_name": "Perfect World",
-        "slug": "the-gioi-hoan-my",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/625c61c8941a26e421dc5d16.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/625c61c8941a26e421dc5d16.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-djong"
-          },
-          {
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          },
-          {
-            "name": "Võ Thuật",
-            "slug": "vo-thuat"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub + Thuyết Minh",
-        "episode_current": "Tập 260",
-        "quality": "4K",
-        "status": "ongoing",
-        "showtimes": "Mỗi ngày cập nhật 02 tập mới",
-        "is_4k": true,
-        "is_exclusive": true,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T11:54:51.000Z"
-      },
-      {
-        "id": "694cb94a458948c67998aa33",
-        "title": "Kiếm Lai (Phần 2)",
-        "origin_name": "Sword of Coming (Season 2)",
-        "slug": "kiem-lai-phan-2",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/694cb94a458948c67998aa33.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/694cb94a458948c67998aa33.webp",
-        "year": "2025",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-djong"
-          },
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 16",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T11:54:35.000Z"
-      },
-      {
-        "id": "69c4b767f07c400a86d5798e",
-        "title": "Toà Án Gia Đình",
-        "origin_name": "Hold A Court Now",
-        "slug": "toa-an-gia-dinh",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b767f07c400a86d5798e.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b767f07c400a86d5798e.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T11:41:28.000Z"
-      },
-      {
-        "id": "69c4b708988d934ea9f78f06",
-        "title": "Sa Đoạ",
-        "origin_name": "In Love with Loving You",
-        "slug": "sa-doa",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b708988d934ea9f78f06.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b708988d934ea9f78f06.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 6",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T11:40:34.000Z"
-      },
-      {
-        "id": "69b4de1df07c400a86d1abe7",
-        "title": "Minh Châu Kỳ Đàm",
-        "origin_name": "The Secret of the Lost Pearl",
-        "slug": "minh-chau-ky-dam",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b4de1df07c400a86d1abe7.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b4de1df07c400a86d1abe7.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-djong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 21",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T11:28:05.000Z"
-      },
-      {
-        "id": "69b23bfcd88856be77204d9f",
-        "title": "Vạn Phúc Kim An",
-        "origin_name": "Glory Back",
-        "slug": "van-phuc-kim-an",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b23bfcd88856be77204d9f.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b23bfcd88856be77204d9f.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 27",
-        "quality": "FHD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T11:27:50.000Z"
       }
     ]
   },
@@ -3506,20 +3440,340 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69c4ab3dda6ce23e8ea93f43",
+      "69c4ad0097c71dcd0d79b2b6",
+      "69c4ac761d0b515454b79fbe",
+      "69c4ac010a0114095c84b470",
+      "69c4aabe988d934ea9f78950",
+      "69c4ab944ea2111da8c854a0",
+      "69c4ad7597c71dcd0d79b2eb",
+      "69c4aa36f65d22d617b8778a",
+      "69c4a56854ca9185bbbd1c26",
       "69c49275b06c99c722006bbe",
       "69c4916e0a0114095c84add3",
-      "69c4911232adc86a1e83eabe",
-      "69c4907aae6f0c1fdf490fdf",
-      "69b27ecc400bf394bd90a1c9",
-      "69c352a7b06c99c7220029e6",
-      "69c37f37400bf394bd94c715",
-      "69c37e7ceea244e3e8b86ed4",
-      "69c366d64da3bf6eb34513aa",
-      "69c36f5c124287e0826456af",
-      "69c26789b06c99c72200086f",
-      "69c35028ccc6cea26885ba9a"
+      "69c4911232adc86a1e83eabe"
     ],
     "movies": [
+      {
+        "id": "69c4ab3dda6ce23e8ea93f43",
+        "title": "Sát Thủ Tình Dục",
+        "origin_name": "Art of Diversion",
+        "slug": "sat-thu-tinh-duc",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ab3dda6ce23e8ea93f43.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ab3dda6ce23e8ea93f43.webp",
+        "year": "2024",
+        "type": "single",
+        "genre": [
+          {
+            "name": "Hành Động",
+            "slug": "hanh-djong"
+          },
+          {
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          }
+        ],
+        "country": [
+          {
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T14:22:06.000Z"
+      },
+      {
+        "id": "69c4ad0097c71dcd0d79b2b6",
+        "title": "Thảm Họa Hoàn Mĩ",
+        "origin_name": "Beautiful Disaster",
+        "slug": "tham-hoa-hoan-mi",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ad0097c71dcd0d79b2b6.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ad0097c71dcd0d79b2b6.webp",
+        "year": "2023",
+        "type": "single",
+        "genre": [
+          {
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T14:21:48.000Z"
+      },
+      {
+        "id": "69c4ac761d0b515454b79fbe",
+        "title": "Nhóm Bạn Bất Hảo",
+        "origin_name": "Bad Influence",
+        "slug": "nhom-ban-bat-hao",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ac761d0b515454b79fbe.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ac761d0b515454b79fbe.webp",
+        "year": "2022",
+        "type": "single",
+        "genre": [
+          {
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "name": "Canada",
+            "slug": "canada"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T14:21:13.000Z"
+      },
+      {
+        "id": "69c4ac010a0114095c84b470",
+        "title": "Ngôi Nhà Cạm Bẫy",
+        "origin_name": "Welcome Home",
+        "slug": "ngoi-nha-cam-bay",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ac010a0114095c84b470.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ac010a0114095c84b470.webp",
+        "year": "2018",
+        "type": "single",
+        "genre": [
+          {
+            "name": "Kinh Dị",
+            "slug": "kinh-di"
+          }
+        ],
+        "country": [
+          {
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T14:20:26.000Z"
+      },
+      {
+        "id": "69c4aabe988d934ea9f78950",
+        "title": "Gặp Được Nhau Cũng Là Kho Báu",
+        "origin_name": "Adam",
+        "slug": "adam",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4aabe988d934ea9f78950.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4aabe988d934ea9f78950.webp",
+        "year": "2020",
+        "type": "single",
+        "genre": [
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T14:20:12.000Z"
+      },
+      {
+        "id": "69c4ab944ea2111da8c854a0",
+        "title": "Dối Trá và Trộm Cắp",
+        "origin_name": "Lying and Stealing",
+        "slug": "doi-tra-va-trom-cap",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ab944ea2111da8c854a0.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ab944ea2111da8c854a0.webp",
+        "year": "2019",
+        "type": "single",
+        "genre": [
+          {
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T14:19:54.000Z"
+      },
+      {
+        "id": "69c4ad7597c71dcd0d79b2eb",
+        "title": "Đặc Vụ Bí Mật",
+        "origin_name": "Ballistic",
+        "slug": "dac-vu-bi-mat",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ad7597c71dcd0d79b2eb.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ad7597c71dcd0d79b2eb.webp",
+        "year": "2025",
+        "type": "single",
+        "genre": [
+          {
+            "name": "Hành Động",
+            "slug": "hanh-djong"
+          }
+        ],
+        "country": [
+          {
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          },
+          {
+            "name": "Canada",
+            "slug": "canada"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T14:19:37.000Z"
+      },
+      {
+        "id": "69c4aa36f65d22d617b8778a",
+        "title": "Con Gái Mạo Danh",
+        "origin_name": "The Wrong Daughter",
+        "slug": "con-gai-mao-danh",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4aa36f65d22d617b8778a.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4aa36f65d22d617b8778a.webp",
+        "year": "2018",
+        "type": "single",
+        "genre": [
+          {
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          },
+          {
+            "name": "Canada",
+            "slug": "canada"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T14:19:23.000Z"
+      },
+      {
+        "id": "69c4a56854ca9185bbbd1c26",
+        "title": "Bậc Thầy Tình Dục (Phần 3)",
+        "origin_name": "Masters of Sex (Season 3)",
+        "slug": "bac-thay-tinh-duc-phan-3",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4a56854ca9185bbbd1c26.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4a56854ca9185bbbd1c26.webp",
+        "year": "2015",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (12/12)",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T14:19:05.000Z"
+      },
       {
         "id": "69c49275b06c99c722006bbe",
         "title": "Dracula: Rise of the Vampire",
@@ -3627,322 +3881,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-26T08:51:17.000Z"
-      },
-      {
-        "id": "69c4907aae6f0c1fdf490fdf",
-        "title": "The Dresden Sun",
-        "origin_name": "The Dresden Sun",
-        "slug": "the-dresden-sun",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4907aae6f0c1fdf490fdf.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4907aae6f0c1fdf490fdf.webp",
-        "year": "2026",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-djong"
-          },
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T08:48:45.000Z"
-      },
-      {
-        "id": "69b27ecc400bf394bd90a1c9",
-        "title": "Dòng Sông Trinh Nữ (Phần 7)",
-        "origin_name": "Virgin River (Season 7)",
-        "slug": "dong-song-trinh-nu-phan-7",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b27ecc400bf394bd90a1c9.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b27ecc400bf394bd90a1c9.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (10/10)",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-25T17:08:56.000Z"
-      },
-      {
-        "id": "69c352a7b06c99c7220029e6",
-        "title": "Những Người Phụ Nữ Không Hoàn Hảo",
-        "origin_name": "Imperfect Women",
-        "slug": "nhung-nguoi-phu-nu-khong-hoan-hao",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c352a7b06c99c7220029e6.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c352a7b06c99c7220029e6.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 3",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-25T13:26:45.000Z"
-      },
-      {
-        "id": "69c37f37400bf394bd94c715",
-        "title": "Chiêu Tuyết",
-        "origin_name": "The Vindication of Shadows",
-        "slug": "chieu-tuyet",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c37f37400bf394bd94c715.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c37f37400bf394bd94c715.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-25T13:23:18.000Z"
-      },
-      {
-        "id": "69c37e7ceea244e3e8b86ed4",
-        "title": "Công Tử, Ngươi Phục Chưa?",
-        "origin_name": "Taming the Playboy Lord",
-        "slug": "cong-tu-nguoi-phuc-chua",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c37e7ceea244e3e8b86ed4.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c37e7ceea244e3e8b86ed4.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-25T13:19:44.000Z"
-      },
-      {
-        "id": "69c366d64da3bf6eb34513aa",
-        "title": "Hắc Kim",
-        "origin_name": "The Dark Gold",
-        "slug": "hac-kim",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c366d64da3bf6eb34513aa.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c366d64da3bf6eb34513aa.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 16",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-25T13:12:58.000Z"
-      },
-      {
-        "id": "69c36f5c124287e0826456af",
-        "title": "Dòng Chảy Ký Ứca",
-        "origin_name": "The Chronology of Water",
-        "slug": "dong-chay-ky-uca",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c36f5c124287e0826456af.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c36f5c124287e0826456af.webp",
-        "year": "2025",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "name": "Pháp",
-            "slug": "phap"
-          },
-          {
-            "name": "Thụy Sĩ",
-            "slug": "thuy-si"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-25T12:15:08.000Z"
-      },
-      {
-        "id": "69c26789b06c99c72200086f",
-        "title": "Minh Tinh Đại Trinh Thám (Phần 11)",
-        "origin_name": "Who's the Murderer (Season 11)",
-        "slug": "minh-tinh-dai-trinh-tham-phan-11",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c26789b06c99c72200086f.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c26789b06c99c72200086f.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 1",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-25T11:27:58.000Z"
-      },
-      {
-        "id": "69c35028ccc6cea26885ba9a",
-        "title": "Trải nghiệm bạn gái",
-        "origin_name": "The Girlfriend Experience",
-        "slug": "trai-nghiem-ban-gai",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c35028ccc6cea26885ba9a.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c35028ccc6cea26885ba9a.webp",
-        "year": "2016",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-25T10:05:19.000Z"
       }
     ]
   },
@@ -4723,6 +4661,8 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69633cb1b06c99c722eca306",
+      "69592eec0a0114095c701ba0",
       "69bb9587f937c3b5a1186fc6",
       "625c61c8941a26e421dc5d16",
       "694cb94a458948c67998aa33",
@@ -4733,11 +4673,107 @@
       "698c28da32adc86a1e7393ff",
       "688db7e7e1abf8e219335e78",
       "699fce70f65d22d617aeecbd",
-      "695fb8c2b9fc4b542962acd8",
-      "695fb70532adc86a1e6fe6ec",
-      "68dfaf5c64345e80cbec3021"
+      "695fb8c2b9fc4b542962acd8"
     ],
     "movies": [
+      {
+        "id": "69633cb1b06c99c722eca306",
+        "title": "Chén Thánh Của Eris",
+        "origin_name": "The Holy Grail of Eris",
+        "slug": "chen-thanh-cua-eris",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69633cb1b06c99c722eca306.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69633cb1b06c99c722eca306.webp",
+        "year": 2026,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T23:08:39.000Z"
+      },
+      {
+        "id": "69592eec0a0114095c701ba0",
+        "title": "Án Phạt Dũng Giả",
+        "origin_name": "Sentenced to Be a Hero",
+        "slug": "an-phat-dung-gia",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69592eec0a0114095c701ba0.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69592eec0a0114095c701ba0.webp",
+        "year": 2026,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T21:36:15.000Z"
+      },
       {
         "id": "69bb9587f937c3b5a1186fc6",
         "title": "BẤT KHẢ CHIẾN BẠI (Phần 4)",
@@ -5209,90 +5245,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-24T23:17:27.000Z"
-      },
-      {
-        "id": "695fb70532adc86a1e6fe6ec",
-        "title": "Có Một Cô Gái Dễ Thương Trong Tổ Đội Anh Hùng, Nên Tôi Thử Tỏ Tình",
-        "origin_name": "There Was a Cute Girl in the Hero's Party, so I Tried Confessing to Her",
-        "slug": "co-mot-co-gai-de-thuong-trong-to-doi-anh-hung-nen-toi-thu-to-tinh",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/695fb70532adc86a1e6fe6ec.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/695fb70532adc86a1e6fe6ec.webp",
-        "year": "2026",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-djong"
-          },
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Nhật Bản",
-            "slug": "nhat-ban"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (12/12)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-24T22:53:02.000Z"
-      },
-      {
-        "id": "68dfaf5c64345e80cbec3021",
-        "title": "Đại Đường Thừa Phong Lục",
-        "origin_name": "Wind Driver in Tang Dynasty",
-        "slug": "dai-duong-thua-phong-luc",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/68dfaf5c64345e80cbec3021.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/68dfaf5c64345e80cbec3021.webp",
-        "year": "2025",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (26/26)",
-        "quality": "4K",
-        "status": "completed",
-        "showtimes": "Mỗi ngày cập nhật 02 tập mới",
-        "is_4k": true,
-        "is_exclusive": true,
-        "chieurap": true,
-        "sub_docquyen": false,
-        "modified": "2026-03-24T19:47:24.983Z"
       }
     ]
   },
@@ -5859,23 +5811,20 @@
         "slug": "xin-chao-1983",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -5898,18 +5847,16 @@
         "slug": "truc-ngoc",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/692eadd4f8d2b25ec830f9ef.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692eadd4f8d2b25ec830f9ef.webp",
-        "year": 2025,
+        "year": "2025",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -5917,7 +5864,7 @@
         "lang_key": "Vietsub + Thuyết Minh",
         "episode_current": "Hoàn tất (40/40)",
         "quality": "HD",
-        "status": "completed",
+        "status": "ongoing",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -6277,38 +6224,43 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "690d5c6726683d7f739fd5d0",
+      "69bc1529ccc6cea268841d51",
+      "69633cb1b06c99c722eca306",
+      "69843f824ea2111da8b72fb3",
+      "698466edae6f0c1fdf37f989",
+      "69a12fda4ea2111da8bf4850",
+      "698099011d0b515454a62a96",
+      "69592eec0a0114095c701ba0",
+      "69abad07ccc6cea2688008c6",
+      "69c4b767f07c400a86d5798e",
+      "69bd3bb2f063d23bbbd4a0e3",
       "69b9275e32adc86a1e815cde",
       "692eadd4f8d2b25ec830f9ef",
       "69ba4f6a124287e08262555c",
       "69c4e6720a0114095c84c783",
-      "69c4e6a0400bf394bd951298",
-      "69c4e7c1eea244e3e8b8bba4",
-      "69c4e924e263b2a94626ae68",
-      "69474097ae6f0c1fdf32f4bd",
-      "69c4ab3dda6ce23e8ea93f43",
-      "69c4ad0097c71dcd0d79b2b6",
-      "69c4ac761d0b515454b79fbe",
-      "69815ed532adc86a1e7283f3",
-      "69c4ac010a0114095c84b470",
-      "69c4aabe988d934ea9f78950",
-      "69c4ab944ea2111da8c854a0",
-      "69c4ad7597c71dcd0d79b2eb"
+      "69c4e6a0400bf394bd951298"
     ],
     "movies": [
       {
-        "id": "69b9275e32adc86a1e815cde",
-        "title": "Xin Chào 1983",
-        "origin_name": "Dream of Golden Years",
-        "slug": "xin-chao-1983",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
-        "year": 2026,
+        "id": "690d5c6726683d7f739fd5d0",
+        "title": "Những Ông Bố Của Ma Ri",
+        "origin_name": "Marie and Her Three Daddies",
+        "slug": "nhung-ong-bo-cua-ma-ri",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/690d5c6726683d7f739fd5d0.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/690d5c6726683d7f739fd5d0.webp",
+        "year": 2025,
         "type": "series",
         "genre": [
           {
             "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
           },
           {
             "id": "620f3d2b91fa4af90ab697fe",
@@ -6318,7 +6270,428 @@
         ],
         "country": [
           {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 111",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-27T00:23:09.000Z"
+      },
+      {
+        "id": "69bc1529ccc6cea268841d51",
+        "title": "Công Thức Tình Yêu",
+        "origin_name": "Recipe For Love",
+        "slug": "cong-thuc-tinh-yeu",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 14",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T23:12:26.000Z"
+      },
+      {
+        "id": "69633cb1b06c99c722eca306",
+        "title": "Chén Thánh Của Eris",
+        "origin_name": "The Holy Grail of Eris",
+        "slug": "chen-thanh-cua-eris",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69633cb1b06c99c722eca306.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69633cb1b06c99c722eca306.webp",
+        "year": 2026,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T23:08:39.000Z"
+      },
+      {
+        "id": "69843f824ea2111da8b72fb3",
+        "title": "Món Quà Của Kluay",
+        "origin_name": "The Gift",
+        "slug": "mon-qua-cua-kluay",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69843f824ea2111da8b72fb3.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69843f824ea2111da8b72fb3.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 16",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T23:08:26.000Z"
+      },
+      {
+        "id": "698466edae6f0c1fdf37f989",
+        "title": "Money, My Love",
+        "origin_name": "Money, My Love",
+        "slug": "money-my-love",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/698466edae6f0c1fdf37f989.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/698466edae6f0c1fdf37f989.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 16",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T22:54:25.000Z"
+      },
+      {
+        "id": "69a12fda4ea2111da8bf4850",
+        "title": "Con Tôi Hẹn Hò (Phần 2)",
+        "origin_name": "When Our Kids Fall In Love",
+        "slug": "con-toi-hen-ho-phan-2",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69a12fda4ea2111da8bf4850.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69a12fda4ea2111da8bf4850.webp",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T22:15:16.000Z"
+      },
+      {
+        "id": "698099011d0b515454a62a96",
+        "title": "Câu Lạc Bộ Bạn Bí Mật",
+        "origin_name": "The Secret Friends Club",
+        "slug": "cau-lac-bo-ban-bi-mat",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/698099011d0b515454a62a96.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/698099011d0b515454a62a96.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 8",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T22:14:59.000Z"
+      },
+      {
+        "id": "69592eec0a0114095c701ba0",
+        "title": "Án Phạt Dũng Giả",
+        "origin_name": "Sentenced to Be a Hero",
+        "slug": "an-phat-dung-gia",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69592eec0a0114095c701ba0.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69592eec0a0114095c701ba0.webp",
+        "year": 2026,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T21:36:15.000Z"
+      },
+      {
+        "id": "69abad07ccc6cea2688008c6",
+        "title": "Pinanong",
+        "origin_name": "Pinanong",
+        "slug": "pinanong",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69abad07ccc6cea2688008c6.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69abad07ccc6cea2688008c6.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 15",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T21:35:57.000Z"
+      },
+      {
+        "id": "69c4b767f07c400a86d5798e",
+        "title": "Toà Án Gia Đình",
+        "origin_name": "Hold A Court Now",
+        "slug": "toa-an-gia-dinh",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b767f07c400a86d5798e.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b767f07c400a86d5798e.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
             "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 6",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:20:17.000Z"
+      },
+      {
+        "id": "69bd3bb2f063d23bbbd4a0e3",
+        "title": "Đông Qua Xuân Đến",
+        "origin_name": "Live up to Your Youth",
+        "slug": "dong-qua-xuan-den",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bd3bb2f063d23bbbd4a0e3.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bd3bb2f063d23bbbd4a0e3.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:19:53.000Z"
+      },
+      {
+        "id": "69b9275e32adc86a1e815cde",
+        "title": "Xin Chào 1983",
+        "origin_name": "Dream of Golden Years",
+        "slug": "xin-chao-1983",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+        "year": "2026",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -6341,18 +6714,16 @@
         "slug": "truc-ngoc",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/692eadd4f8d2b25ec830f9ef.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692eadd4f8d2b25ec830f9ef.webp",
-        "year": 2025,
+        "year": "2025",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -6360,7 +6731,7 @@
         "lang_key": "Vietsub + Thuyết Minh",
         "episode_current": "Hoàn tất (40/40)",
         "quality": "HD",
-        "status": "completed",
+        "status": "ongoing",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -6375,28 +6746,24 @@
         "slug": "vung-dat-madison-phan-1",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69ba4f6a124287e08262555c.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69ba4f6a124287e08262555c.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           },
           {
-            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -6409,7 +6776,7 @@
         "is_4k": false,
         "is_exclusive": false,
         "chieurap": false,
-        "sub_docquyen": true,
+        "sub_docquyen": false,
         "modified": "2026-03-26T16:37:37.000Z"
       },
       {
@@ -6419,23 +6786,20 @@
         "slug": "lan-ranh-do-2026",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e6720a0114095c84c783.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e6720a0114095c84c783.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "single",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a2318e0fc277084dfd77a",
             "name": "Thái Lan",
             "slug": "thai-lan"
           }
@@ -6458,28 +6822,24 @@
         "slug": "thanh-tra-hole",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e6a0400bf394bd951298.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e6a0400bf394bd951298.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f84d291fa4af90ab6b3f4",
             "name": "Bí ẩn",
             "slug": "bi-an"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           },
           {
-            "id": "620a2370e0fc277084dfd91e",
             "name": "Anh",
             "slug": "anh"
           }
@@ -6494,435 +6854,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-26T16:18:01.000Z"
-      },
-      {
-        "id": "69c4e7c1eea244e3e8b8bba4",
-        "title": "Một Điều Rất Tồi Tệ Sắp Xảy Ra",
-        "origin_name": "Something Very Bad Is Going to Happen",
-        "slug": "mot-dieu-rat-toi-te-sap-xay-ra",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e7c1eea244e3e8b8bba4.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e7c1eea244e3e8b8bba4.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620f84d291fa4af90ab6b3f4",
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (8/8)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T16:17:45.000Z"
-      },
-      {
-        "id": "69c4e924e263b2a94626ae68",
-        "title": "Nữ Công Tố Viên Sayuri Herrera",
-        "origin_name": "The Prosecutor",
-        "slug": "nu-cong-to-vien-sayuri-herrera",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e924e263b2a94626ae68.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e924e263b2a94626ae68.webp",
-        "year": 2026,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620e0e64d9648f114cde7728",
-            "name": "Tài Liệu",
-            "slug": "tai-lieu"
-          }
-        ],
-        "country": [
-          {
-            "id": "6212611d1f1609c9d93466cc",
-            "name": "Mexico",
-            "slug": "mexico"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (3/3)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T16:17:30.000Z"
-      },
-      {
-        "id": "69474097ae6f0c1fdf32f4bd",
-        "title": "Fourever You (Phần 2)",
-        "origin_name": "Fourever You (Season 2)",
-        "slug": "fourever-you-phan-2",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69474097ae6f0c1fdf32f4bd.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69474097ae6f0c1fdf32f4bd.webp",
-        "year": 2025,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2318e0fc277084dfd77a",
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 12",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T15:16:30.000Z"
-      },
-      {
-        "id": "69c4ab3dda6ce23e8ea93f43",
-        "title": "Sát Thủ Tình Dục",
-        "origin_name": "Art of Diversion",
-        "slug": "sat-thu-tinh-duc",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ab3dda6ce23e8ea93f43.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ab3dda6ce23e8ea93f43.webp",
-        "year": 2024,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "id": "620a2238e0fc277084dfd291",
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:22:06.000Z"
-      },
-      {
-        "id": "69c4ad0097c71dcd0d79b2b6",
-        "title": "Thảm Họa Hoàn Mĩ",
-        "origin_name": "Beautiful Disaster",
-        "slug": "tham-hoa-hoan-mi",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ad0097c71dcd0d79b2b6.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ad0097c71dcd0d79b2b6.webp",
-        "year": 2023,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:21:48.000Z"
-      },
-      {
-        "id": "69c4ac761d0b515454b79fbe",
-        "title": "Nhóm Bạn Bất Hảo",
-        "origin_name": "Bad Influence",
-        "slug": "nhom-ban-bat-hao",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ac761d0b515454b79fbe.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ac761d0b515454b79fbe.webp",
-        "year": 2022,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2381e0fc277084dfd9c6",
-            "name": "Canada",
-            "slug": "canada"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:21:13.000Z"
-      },
-      {
-        "id": "69815ed532adc86a1e7283f3",
-        "title": "Ngục Tù Tình Thân",
-        "origin_name": "The Act",
-        "slug": "nguc-tu-tinh-than",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69815ed532adc86a1e7283f3.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69815ed532adc86a1e7283f3.webp",
-        "year": 2019,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "id": "620a2238e0fc277084dfd291",
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (8/8)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:20:50.000Z"
-      },
-      {
-        "id": "69c4ac010a0114095c84b470",
-        "title": "Ngôi Nhà Cạm Bẫy",
-        "origin_name": "Welcome Home",
-        "slug": "ngoi-nha-cam-bay",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ac010a0114095c84b470.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ac010a0114095c84b470.webp",
-        "year": 2018,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a22ace0fc277084dfd531",
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:20:26.000Z"
-      },
-      {
-        "id": "69c4aabe988d934ea9f78950",
-        "title": "Gặp Được Nhau Cũng Là Kho Báu",
-        "origin_name": "Adam",
-        "slug": "adam",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4aabe988d934ea9f78950.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4aabe988d934ea9f78950.webp",
-        "year": 2020,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:20:12.000Z"
-      },
-      {
-        "id": "69c4ab944ea2111da8c854a0",
-        "title": "Dối Trá và Trộm Cắp",
-        "origin_name": "Lying and Stealing",
-        "slug": "doi-tra-va-trom-cap",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ab944ea2111da8c854a0.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ab944ea2111da8c854a0.webp",
-        "year": 2019,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "id": "620a2249e0fc277084dfd2e5",
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "id": "620f3d2b91fa4af90ab697fe",
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:19:54.000Z"
-      },
-      {
-        "id": "69c4ad7597c71dcd0d79b2eb",
-        "title": "Đặc Vụ Bí Mật",
-        "origin_name": "Ballistic",
-        "slug": "dac-vu-bi-mat",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ad7597c71dcd0d79b2eb.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ad7597c71dcd0d79b2eb.webp",
-        "year": 2025,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "id": "620a2381e0fc277084dfd9c6",
-            "name": "Canada",
-            "slug": "canada"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:19:37.000Z"
       }
     ]
   },
@@ -6968,12 +6899,13 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69c4b767f07c400a86d5798e",
+      "69bd3bb2f063d23bbbd4a0e3",
       "69b9275e32adc86a1e815cde",
       "692eadd4f8d2b25ec830f9ef",
       "69bfc6ce400bf394bd942519",
       "625c61c8941a26e421dc5d16",
       "694cb94a458948c67998aa33",
-      "69c4b767f07c400a86d5798e",
       "69c4b708988d934ea9f78f06",
       "69b4de1df07c400a86d1abe7",
       "69b23bfcd88856be77204d9f",
@@ -6981,26 +6913,20 @@
       "69bb84f40a0114095c82b197",
       "69b78048f65d22d617b55d97",
       "69bb7ceaf937c3b5a1186a98",
-      "69bd3bb2f063d23bbbd4a0e3",
       "69c10e9cf07c400a86d4e264",
       "69ad1ed2e263b2a94620ec76"
     ],
     "movies": [
       {
-        "id": "69b9275e32adc86a1e815cde",
-        "title": "Xin Chào 1983",
-        "origin_name": "Dream of Golden Years",
-        "slug": "xin-chao-1983",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+        "id": "69c4b767f07c400a86d5798e",
+        "title": "Toà Án Gia Đình",
+        "origin_name": "Hold A Court Now",
+        "slug": "toa-an-gia-dinh",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b767f07c400a86d5798e.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b767f07c400a86d5798e.webp",
         "year": 2026,
         "type": "series",
         "genre": [
-          {
-            "id": "620a221de0fc277084dfd1c1",
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
           {
             "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
@@ -7010,6 +6936,76 @@
         "country": [
           {
             "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 6",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:20:17.000Z"
+      },
+      {
+        "id": "69bd3bb2f063d23bbbd4a0e3",
+        "title": "Đông Qua Xuân Đến",
+        "origin_name": "Live up to Your Youth",
+        "slug": "dong-qua-xuan-den",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bd3bb2f063d23bbbd4a0e3.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bd3bb2f063d23bbbd4a0e3.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 12",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-03-26T20:19:53.000Z"
+      },
+      {
+        "id": "69b9275e32adc86a1e815cde",
+        "title": "Xin Chào 1983",
+        "origin_name": "Dream of Golden Years",
+        "slug": "xin-chao-1983",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+        "year": "2026",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -7032,18 +7028,16 @@
         "slug": "truc-ngoc",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/692eadd4f8d2b25ec830f9ef.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692eadd4f8d2b25ec830f9ef.webp",
-        "year": 2025,
+        "year": "2025",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -7051,7 +7045,7 @@
         "lang_key": "Vietsub + Thuyết Minh",
         "episode_current": "Hoàn tất (40/40)",
         "quality": "HD",
-        "status": "completed",
+        "status": "ongoing",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -7066,18 +7060,16 @@
         "slug": "san-toi-huyet-oan",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bfc6ce400bf394bd942519.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620f84d291fa4af90ab6b3f4",
             "name": "Bí ẩn",
             "slug": "bi-an"
           }
         ],
         "country": [
           {
-            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -7180,38 +7172,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-26T11:54:35.000Z"
-      },
-      {
-        "id": "69c4b767f07c400a86d5798e",
-        "title": "Toà Án Gia Đình",
-        "origin_name": "Hold A Court Now",
-        "slug": "toa-an-gia-dinh",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4b767f07c400a86d5798e.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4b767f07c400a86d5798e.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T11:41:28.000Z"
       },
       {
         "id": "69c4b708988d934ea9f78f06",
@@ -7446,38 +7406,6 @@
         "modified": "2026-03-26T11:11:12.000Z"
       },
       {
-        "id": "69bd3bb2f063d23bbbd4a0e3",
-        "title": "Đông Qua Xuân Đến",
-        "origin_name": "Live up to Your Youth",
-        "slug": "dong-qua-xuan-den",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bd3bb2f063d23bbbd4a0e3.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bd3bb2f063d23bbbd4a0e3.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 10",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-25T19:47:05.000Z"
-      },
-      {
         "id": "69c10e9cf07c400a86d4e264",
         "title": "Chẳng Thể Kiểm Soát Con Tim",
         "origin_name": "Lose My Heart to You",
@@ -7585,7 +7513,10 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "690d5c6726683d7f739fd5d0",
       "69bc1529ccc6cea268841d51",
+      "69a12fda4ea2111da8bf4850",
+      "698099011d0b515454a62a96",
       "69a5ae72d88856be771d7da9",
       "69841589ae6f0c1fdf37ee28",
       "69b926dbe263b2a9462406e4",
@@ -7597,12 +7528,53 @@
       "6999abc4ccc6cea2687a17f6",
       "69a402dada6ce23e8ea149e2",
       "699c7307f063d23bbbcb694f",
-      "690d5c6726683d7f739fd5d0",
-      "69abb1c2f063d23bbbd03d3e",
-      "6943a6f5d6caf55037c2b7bb",
-      "69aba7d4ccc6cea2688005cb"
+      "69abb1c2f063d23bbbd03d3e"
     ],
     "movies": [
+      {
+        "id": "690d5c6726683d7f739fd5d0",
+        "title": "Những Ông Bố Của Ma Ri",
+        "origin_name": "Marie and Her Three Daddies",
+        "slug": "nhung-ong-bo-cua-ma-ri",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/690d5c6726683d7f739fd5d0.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/690d5c6726683d7f739fd5d0.webp",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 111",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-27T00:23:09.000Z"
+      },
       {
         "id": "69bc1529ccc6cea268841d51",
         "title": "Công Thức Tình Yêu",
@@ -7610,38 +7582,110 @@
         "slug": "cong-thuc-tinh-yeu",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bc1529ccc6cea268841d51.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bc1529ccc6cea268841d51.webp",
-        "year": "2026",
+        "year": 2026,
         "type": "series",
         "genre": [
           {
+            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           },
           {
+            "id": "620e4c0b6ba8271c5eef05a8",
             "name": "Gia Đình",
-            "slug": "gia-djinh"
+            "slug": "gia-dinh"
           },
           {
+            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
+            "id": "620a2300e0fc277084dfd6d2",
             "name": "Hàn Quốc",
             "slug": "han-quoc"
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Tập 13",
+        "episode_current": "Tập 14",
         "quality": "HD",
         "status": "ongoing",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
         "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T01:04:03.000Z"
+        "sub_docquyen": true,
+        "modified": "2026-03-26T23:12:26.000Z"
+      },
+      {
+        "id": "69a12fda4ea2111da8bf4850",
+        "title": "Con Tôi Hẹn Hò (Phần 2)",
+        "origin_name": "When Our Kids Fall In Love",
+        "slug": "con-toi-hen-ho-phan-2",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69a12fda4ea2111da8bf4850.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69a12fda4ea2111da8bf4850.webp",
+        "year": 2025,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 5",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T22:15:16.000Z"
+      },
+      {
+        "id": "698099011d0b515454a62a96",
+        "title": "Câu Lạc Bộ Bạn Bí Mật",
+        "origin_name": "The Secret Friends Club",
+        "slug": "cau-lac-bo-ban-bi-mat",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/698099011d0b515454a62a96.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/698099011d0b515454a62a96.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 8",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2026-03-26T22:14:59.000Z"
       },
       {
         "id": "69a5ae72d88856be771d7da9",
@@ -8028,46 +8072,6 @@
         "modified": "2026-03-23T22:08:35.000Z"
       },
       {
-        "id": "690d5c6726683d7f739fd5d0",
-        "title": "Những Ông Bố Của Ma Ri",
-        "origin_name": "Marie and Her Three Daddies",
-        "slug": "nhung-ong-bo-cua-ma-ri",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/690d5c6726683d7f739fd5d0.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/690d5c6726683d7f739fd5d0.webp",
-        "year": "2025",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Gia Đình",
-            "slug": "gia-djinh"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 108",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-23T01:09:24.000Z"
-      },
-      {
         "id": "69abb1c2f063d23bbbd03d3e",
         "title": "Luật Sư Bóng Ma",
         "origin_name": "Phantom Lawyer",
@@ -8110,74 +8114,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-03-21T22:54:15.000Z"
-      },
-      {
-        "id": "6943a6f5d6caf55037c2b7bb",
-        "title": "Mọi Lúc Mọi Nơi (Phần 4)",
-        "origin_name": "Whenever Possible (Season 4)",
-        "slug": "moi-luc-moi-noi-phan-4",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/6943a6f5d6caf55037c2b7bb.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/6943a6f5d6caf55037c2b7bb.webp",
-        "year": "2025",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 48",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-20T23:27:21.000Z"
-      },
-      {
-        "id": "69aba7d4ccc6cea2688005cb",
-        "title": "Ánh sáng của đôi ta",
-        "origin_name": "Still Shining",
-        "slug": "anh-sang-cua-doi-ta",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69aba7d4ccc6cea2688005cb.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69aba7d4ccc6cea2688005cb.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 6",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-20T23:04:11.000Z"
       }
     ]
   },
@@ -8248,28 +8184,24 @@
         "slug": "vung-dat-madison-phan-1",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69ba4f6a124287e08262555c.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69ba4f6a124287e08262555c.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           },
           {
-            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -8282,7 +8214,7 @@
         "is_4k": false,
         "is_exclusive": false,
         "chieurap": false,
-        "sub_docquyen": true,
+        "sub_docquyen": false,
         "modified": "2026-03-26T16:37:37.000Z"
       },
       {
@@ -8292,28 +8224,24 @@
         "slug": "thanh-tra-hole",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e6a0400bf394bd951298.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e6a0400bf394bd951298.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f84d291fa4af90ab6b3f4",
             "name": "Bí ẩn",
             "slug": "bi-an"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           },
           {
-            "id": "620a2370e0fc277084dfd91e",
             "name": "Anh",
             "slug": "anh"
           }
@@ -8336,23 +8264,20 @@
         "slug": "mot-dieu-rat-toi-te-sap-xay-ra",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4e7c1eea244e3e8b8bba4.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4e7c1eea244e3e8b8bba4.webp",
-        "year": 2026,
+        "year": "2026",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           },
           {
-            "id": "620f84d291fa4af90ab6b3f4",
             "name": "Bí ẩn",
             "slug": "bi-an"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -8375,23 +8300,20 @@
         "slug": "sat-thu-tinh-duc",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ab3dda6ce23e8ea93f43.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ab3dda6ce23e8ea93f43.webp",
-        "year": 2024,
+        "year": "2024",
         "type": "single",
         "genre": [
           {
-            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
-            "slug": "hanh-dong"
+            "slug": "hanh-djong"
           },
           {
-            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -8399,7 +8321,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -8414,23 +8336,20 @@
         "slug": "tham-hoa-hoan-mi",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ad0097c71dcd0d79b2b6.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ad0097c71dcd0d79b2b6.webp",
-        "year": 2023,
+        "year": "2023",
         "type": "single",
         "genre": [
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -8438,7 +8357,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -8453,28 +8372,24 @@
         "slug": "nguc-tu-tinh-than",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69815ed532adc86a1e7283f3.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69815ed532adc86a1e7283f3.webp",
-        "year": 2019,
+        "year": "2019",
         "type": "series",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           },
           {
-            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -8497,18 +8412,16 @@
         "slug": "ngoi-nha-cam-bay",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ac010a0114095c84b470.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ac010a0114095c84b470.webp",
-        "year": 2018,
+        "year": "2018",
         "type": "single",
         "genre": [
           {
-            "id": "620a22ace0fc277084dfd531",
             "name": "Kinh Dị",
             "slug": "kinh-di"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -8516,7 +8429,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -8531,18 +8444,16 @@
         "slug": "adam",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4aabe988d934ea9f78950.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4aabe988d934ea9f78950.webp",
-        "year": 2020,
+        "year": "2020",
         "type": "single",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -8550,7 +8461,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -8565,28 +8476,24 @@
         "slug": "doi-tra-va-trom-cap",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ab944ea2111da8c854a0.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ab944ea2111da8c854a0.webp",
-        "year": 2019,
+        "year": "2019",
         "type": "single",
         "genre": [
           {
-            "id": "620a221de0fc277084dfd1c1",
             "name": "Hài Hước",
             "slug": "hai-huoc"
           },
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -8594,7 +8501,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -8609,23 +8516,20 @@
         "slug": "dac-vu-bi-mat",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ad7597c71dcd0d79b2eb.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ad7597c71dcd0d79b2eb.webp",
-        "year": 2025,
+        "year": "2025",
         "type": "single",
         "genre": [
           {
-            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
-            "slug": "hanh-dong"
+            "slug": "hanh-djong"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           },
           {
-            "id": "620a2381e0fc277084dfd9c6",
             "name": "Canada",
             "slug": "canada"
           }
@@ -8633,7 +8537,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -8648,28 +8552,24 @@
         "slug": "con-gai-mao-danh",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4aa36f65d22d617b8778a.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4aa36f65d22d617b8778a.webp",
-        "year": 2018,
+        "year": "2018",
         "type": "single",
         "genre": [
           {
-            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           },
           {
-            "id": "620a2381e0fc277084dfd9c6",
             "name": "Canada",
             "slug": "canada"
           }
@@ -8677,7 +8577,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -8692,18 +8592,16 @@
         "slug": "bac-thay-tinh-duc-phan-3",
         "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4a56854ca9185bbbd1c26.webp",
         "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4a56854ca9185bbbd1c26.webp",
-        "year": 2015,
+        "year": "2015",
         "type": "series",
         "genre": [
           {
-            "id": "620f3d2b91fa4af90ab697fe",
             "name": "Chính kịch",
             "slug": "chinh-kich"
           }
         ],
         "country": [
           {
-            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -8711,7 +8609,7 @@
         "lang_key": "Vietsub",
         "episode_current": "Hoàn tất (12/12)",
         "quality": "HD",
-        "status": "completed",
+        "status": "trailer",
         "showtimes": "",
         "is_4k": false,
         "is_exclusive": false,
@@ -9243,19 +9141,18 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
-      "69c4ab3dda6ce23e8ea93f43",
-      "69c4ad7597c71dcd0d79b2eb"
+      "69592eec0a0114095c701ba0"
     ],
     "movies": [
       {
-        "id": "69c4ab3dda6ce23e8ea93f43",
-        "title": "Sát Thủ Tình Dục",
-        "origin_name": "Art of Diversion",
-        "slug": "sat-thu-tinh-duc",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ab3dda6ce23e8ea93f43.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ab3dda6ce23e8ea93f43.webp",
-        "year": 2024,
-        "type": "single",
+        "id": "69592eec0a0114095c701ba0",
+        "title": "Án Phạt Dũng Giả",
+        "origin_name": "Sentenced to Be a Hero",
+        "slug": "an-phat-dung-gia",
+        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69592eec0a0114095c701ba0.webp",
+        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69592eec0a0114095c701ba0.webp",
+        "year": 2026,
+        "type": "hoathinh",
         "genre": [
           {
             "id": "620a21b2e0fc277084dfd0c5",
@@ -9263,59 +9160,35 @@
             "slug": "hanh-dong"
           },
           {
-            "id": "620a2238e0fc277084dfd291",
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-03-26T14:22:06.000Z"
-      },
-      {
-        "id": "69c4ad7597c71dcd0d79b2eb",
-        "title": "Đặc Vụ Bí Mật",
-        "origin_name": "Ballistic",
-        "slug": "dac-vu-bi-mat",
-        "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c4ad7597c71dcd0d79b2eb.webp",
-        "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c4ad7597c71dcd0d79b2eb.webp",
-        "year": 2025,
-        "type": "single",
-        "genre": [
-          {
-            "id": "620a21b2e0fc277084dfd0c5",
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a231fe0fc277084dfd7ce",
-            "name": "Âu Mỹ",
-            "slug": "au-my"
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
           },
           {
-            "id": "620a2381e0fc277084dfd9c6",
-            "name": "Canada",
-            "slug": "canada"
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Full",
+        "episode_current": "Hoàn tất (12/12)",
         "quality": "HD",
         "status": "completed",
         "showtimes": "",
@@ -9323,7 +9196,7 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2026-03-26T14:19:37.000Z"
+        "modified": "2026-03-26T21:36:15.000Z"
       }
     ]
   }
