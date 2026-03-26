@@ -749,13 +749,17 @@
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
               try {
+                var qualityInitDone = false;
                 var initQuality = function () {
                   try {
+                    if (qualityInitDone) return;
                     if (playerConfig.hls_quality_enabled === false) return;
                     if (typeof vjs.hlsQualitySelector === 'function') {
                       vjs.hlsQualitySelector({ displayCurrentQuality: true });
+                      qualityInitDone = true;
                     } else if (typeof vjs.httpSourceSelector === 'function') {
                       vjs.httpSourceSelector({ default: 'auto' });
+                      qualityInitDone = true;
                     }
                   } catch (eQ) {}
                 };
