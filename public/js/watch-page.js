@@ -736,12 +736,6 @@
               controlBarOpt = { skipButtons: skipButtonsOpt };
             }
 
-            var isTouchDevice = false;
-            try {
-              if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) isTouchDevice = true;
-              if (!isTouchDevice && ('ontouchstart' in window)) isTouchDevice = true;
-              if (!isTouchDevice && navigator && navigator.maxTouchPoints > 0) isTouchDevice = true;
-            } catch (eTouch) {}
             var vjsOptions = {
               fluid: playerConfig.vjs_fluid !== false,
               responsive: playerConfig.vjs_responsive !== false,
@@ -751,7 +745,6 @@
               playbackRates: speedEnabled ? rates : [],
               html5: { vhs: { overrideNative: true } }
             };
-            if (isTouchDevice) vjsOptions.inactivityTimeout = 0;
             var vjs = window.videojs(video, vjsOptions);
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
