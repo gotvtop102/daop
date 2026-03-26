@@ -754,6 +754,14 @@
                   try {
                     if (qualityInitDone) return;
                     if (playerConfig.hls_quality_enabled === false) return;
+                    var isTouchDevice = false;
+                    try {
+                      if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) isTouchDevice = true;
+                      if (!isTouchDevice && ('ontouchstart' in window)) isTouchDevice = true;
+                      if (!isTouchDevice && navigator && navigator.maxTouchPoints > 0) isTouchDevice = true;
+                    } catch (eTouch) {}
+                    // A/B debug: tạm tắt quality plugin trên mobile để xác định nguồn gây auto-show controls.
+                    if (isTouchDevice) return;
                     if (typeof vjs.hlsQualitySelector === 'function') {
                       vjs.hlsQualitySelector({ displayCurrentQuality: true });
                       qualityInitDone = true;
