@@ -685,6 +685,8 @@
         loadScript('https://cdn.plyr.io/3.7.8/plyr.polyfilled.js').then(function () {
           try {
             var speedEnabled = playerConfig.playback_speed_enabled !== false;
+            var seekStep = parseInt(playerConfig.seek_step_seconds, 10);
+            if (!isFinite(seekStep) || seekStep <= 0) seekStep = 10;
             var defaultSpeed = Number(playerConfig.playback_speed_default);
             if (!isFinite(defaultSpeed) || defaultSpeed <= 0) defaultSpeed = 1;
             var rates = Array.isArray(playerConfig.playback_speed_options) ? playerConfig.playback_speed_options : [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -693,12 +695,13 @@
             if (rates.indexOf(defaultSpeed) < 0) rates.push(defaultSpeed);
             rates = Array.from(new Set(rates)).sort(function (a, b) { return a - b; });
 
-            var controls = playerConfig.plyr_hideControls ? [] : ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'settings', 'fullscreen'];
+            var controls = playerConfig.plyr_hideControls ? [] : ['play-large', 'play', 'rewind', 'fast-forward', 'progress', 'current-time', 'duration', 'mute', 'volume', 'settings', 'fullscreen'];
             var plyrOptions = {
               controls: controls,
               clickToPlay: playerConfig.plyr_clickToPlay !== false,
               disableContextMenu: playerConfig.plyr_disableContextMenu !== false,
               resetOnEnd: playerConfig.plyr_resetOnEnd || false,
+              seekTime: seekStep,
               tooltips: { controls: playerConfig.plyr_tooltips === 'controls', seek: playerConfig.plyr_tooltips === 'seek' },
               speed: { selected: speedEnabled ? defaultSpeed : 1, options: speedEnabled ? rates : [1] }
             };
