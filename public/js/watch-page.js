@@ -749,6 +749,26 @@
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
               try {
+                if (speedEnabled && Array.isArray(rates) && rates.length > 0) {
+                  try {
+                    var prBtn = null;
+                    if (vjs.controlBar && typeof vjs.controlBar.getChild === 'function') {
+                      prBtn = vjs.controlBar.getChild('PlaybackRateMenuButton');
+                    }
+                    if (!prBtn && vjs.controlBar && typeof vjs.controlBar.addChild === 'function') {
+                      prBtn = vjs.controlBar.addChild('PlaybackRateMenuButton', {});
+                    }
+                    if (prBtn) {
+                      try { if (typeof prBtn.playbackRates === 'function') prBtn.playbackRates(rates); } catch (ePR1) {}
+                      try { if (typeof prBtn.show === 'function') prBtn.show(); } catch (ePR2) {}
+                      try {
+                        var prEl = prBtn.el && prBtn.el();
+                        if (prEl) prEl.style.display = '';
+                      } catch (ePR3) {}
+                    }
+                  } catch (ePR0) {}
+                }
+
                 var isTouchDevice2 = false;
                 try {
                   if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) isTouchDevice2 = true;
