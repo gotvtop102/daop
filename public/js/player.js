@@ -95,6 +95,7 @@
               options += '<option value="' + lv.idx + '">' + label + '</option>';
             });
             var isFluidPlayer = String(auxPlayerType || '').toLowerCase() === 'fluidplayer';
+            var isVideoJs = String(auxPlayerType || '').toLowerCase() === 'videojs';
             var qualityIcon = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="color:#8b949e;flex:0 0 auto;" ' +
               '><path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zm0 10L2 7v10l10 5 10-5V7l-10 5z"/></svg>';
             if (isFluidPlayer) {
@@ -103,6 +104,12 @@
                 '  <button type="button" data-role="quality-toggle" aria-label="Chất lượng" title="Chất lượng" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;display:inline-flex;align-items:center;justify-content:center;">' + qualityIcon + '</button>' +
                 '  <select data-role="hls-quality" aria-label="Chất lượng" style="display:none;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + options + '</select>' +
                 '</div>';
+            } else if (isVideoJs) {
+              mountEl.innerHTML =
+                '<label style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">' +
+                '<span aria-hidden="true" style="display:inline-flex;align-items:center;color:#8b949e;flex:0 0 auto;">' + qualityIcon + '</span>' +
+                '<select data-role="hls-quality" aria-label="Chất lượng" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + options + '</select>' +
+                '</label>';
             } else {
               mountEl.innerHTML = '<label style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">' +
                 '<span style="font-size:0.85rem;color:#8b949e;">Chất lượng</span>' +
@@ -181,18 +188,40 @@
         return '<option value="' + val + '"' + selected + '>' + val + 'x</option>';
       }).filter(Boolean).join('');
 
-      bar.innerHTML =
-        '<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;">' +
-        '  <div style="display:flex;gap:8px;align-items:center;">' +
-        '    <span style="font-size:0.85rem;color:#8b949e;">Tua</span>' +
-        '    <button type="button" data-role="seek-back" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">-' + step + 's</button>' +
-        '    <button type="button" data-role="seek-fwd" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">+' + step + 's</button>' +
-        '  </div>' +
-        '  <label style="display:flex;gap:8px;align-items:center;">' +
-        '    <span style="font-size:0.85rem;color:#8b949e;">Tốc độ</span>' +
-        '    <select data-role="speed" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + speedOptions + '</select>' +
-        '  </label>' +
-        '</div>';
+      var isVideoJs = String(chosenPlayer || '').toLowerCase() === 'videojs';
+      var iconSeekBack = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="color:#c9d1d9;flex:0 0 auto;">' +
+        '<path fill="currentColor" d="M11 19l-8-7 8-7v14z"/></svg>';
+      var iconSeekFwd = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="color:#c9d1d9;flex:0 0 auto;">' +
+        '<path fill="currentColor" d="M13 5l8 7-8 7V5z"/></svg>';
+      var iconSpeed = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="color:#8b949e;flex:0 0 auto;">' +
+        '<path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 11h4v-2h-3V7h-2v6Z"/></svg>';
+
+      if (isVideoJs) {
+        bar.innerHTML =
+          '<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;">' +
+          '  <div style="display:flex;gap:8px;align-items:center;">' +
+          '    <button type="button" data-role="seek-back" aria-label="Tua -' + step + ' giây" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + iconSeekBack + '</button>' +
+          '    <button type="button" data-role="seek-fwd" aria-label="Tua +' + step + ' giây" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + iconSeekFwd + '</button>' +
+          '  </div>' +
+          '  <label style="display:flex;gap:8px;align-items:center;">' +
+          '    <span aria-hidden="true" style="display:inline-flex;align-items:center;">' + iconSpeed + '</span>' +
+          '    <select data-role="speed" aria-label="Tốc độ" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + speedOptions + '</select>' +
+          '  </label>' +
+          '</div>';
+      } else {
+        bar.innerHTML =
+          '<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;">' +
+          '  <div style="display:flex;gap:8px;align-items:center;">' +
+          '    <span style="font-size:0.85rem;color:#8b949e;">Tua</span>' +
+          '    <button type="button" data-role="seek-back" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">-' + step + 's</button>' +
+          '    <button type="button" data-role="seek-fwd" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">+' + step + 's</button>' +
+          '  </div>' +
+          '  <label style="display:flex;gap:8px;align-items:center;">' +
+          '    <span style="font-size:0.85rem;color:#8b949e;">Tốc độ</span>' +
+          '    <select data-role="speed" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + speedOptions + '</select>' +
+          '  </label>' +
+          '</div>';
+      }
 
       function getCurrentTime() {
         try {
