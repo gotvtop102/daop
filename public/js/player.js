@@ -653,6 +653,34 @@
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
               try {
+                var isTouchDevice2 = false;
+                try {
+                  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) isTouchDevice2 = true;
+                  if (!isTouchDevice2 && ('ontouchstart' in window)) isTouchDevice2 = true;
+                  if (!isTouchDevice2 && navigator && navigator.maxTouchPoints > 0) isTouchDevice2 = true;
+                } catch (eTouch2) {}
+                if (isTouchDevice2) {
+                  var lastDirectPlayerInteraction = 0;
+                  var markPlayerInteraction = function () { lastDirectPlayerInteraction = Date.now(); };
+                  try {
+                    var playerEl = vjs.el && vjs.el();
+                    if (playerEl) {
+                      playerEl.addEventListener('touchstart', markPlayerInteraction, { passive: true });
+                      playerEl.addEventListener('pointerdown', markPlayerInteraction, { passive: true });
+                      playerEl.addEventListener('mousedown', markPlayerInteraction, { passive: true });
+                    }
+                  } catch (ePI) {}
+                  vjs.on('useractive', function () {
+                    try {
+                      if (vjs.paused && vjs.paused()) return;
+                      if ((Date.now() - lastDirectPlayerInteraction) < 1200) return;
+                      setTimeout(function () {
+                        try { if (vjs.userActive) vjs.userActive(false); } catch (eUA) {}
+                      }, 250);
+                    } catch (eUA2) {}
+                  });
+                }
+
                 var qualityInitDone = false;
                 var initQuality = function () {
                   try {
