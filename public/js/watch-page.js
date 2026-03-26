@@ -781,6 +781,36 @@
                     lastDirectPlayerInteraction = Date.now();
                     syncMobileControls();
                   };
+                  var ensureMobileRateFallback = function () {
+                    try {
+                      if (!speedEnabled || !Array.isArray(rates) || !rates.length) return;
+                      var barEl = vjs.controlBar && vjs.controlBar.el && vjs.controlBar.el();
+                      if (!barEl) return;
+                      var btn = barEl.querySelector('.daop-vjs-rate-fallback');
+                      if (!btn) {
+                        btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'vjs-control vjs-button daop-vjs-rate-fallback';
+                        btn.setAttribute('aria-label', 'Tốc độ phát');
+                        barEl.appendChild(btn);
+                        btn.addEventListener('click', function (e) {
+                          try { e.preventDefault(); e.stopPropagation(); } catch (e0) {}
+                          var current = Number(vjs.playbackRate && vjs.playbackRate()) || 1;
+                          var idx = rates.indexOf(current);
+                          var next = rates[(idx + 1) % rates.length];
+                          try { if (vjs.playbackRate) vjs.playbackRate(next); } catch (e1) {}
+                        });
+                        vjs.on('ratechange', function () {
+                          try {
+                            var cur = Number(vjs.playbackRate && vjs.playbackRate()) || 1;
+                            btn.textContent = String(cur).replace(/\.0$/, '') + 'x';
+                          } catch (e2) {}
+                        });
+                      }
+                      var cur0 = Number(vjs.playbackRate && vjs.playbackRate()) || 1;
+                      btn.textContent = String(cur0).replace(/\.0$/, '') + 'x';
+                    } catch (eRF) {}
+                  };
                   var syncMobileControls = function () {
                     try {
                       var playerEl2 = vjs.el && vjs.el();
@@ -805,6 +835,7 @@
                   vjs.on('pause', syncMobileControls);
                   vjs.on('useractive', syncMobileControls);
                   vjs.on('userinactive', syncMobileControls);
+                  ensureMobileRateFallback();
                   var enforceInactiveTimer = setInterval(syncMobileControls, 700);
                   vjs.on('dispose', function () {
                     try { clearInterval(enforceInactiveTimer); } catch (eClr) {}

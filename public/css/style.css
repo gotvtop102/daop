@@ -3039,6 +3039,11 @@ body.theme-light .showtimes-item-st {
     visibility: visible !important;
     pointer-events: auto !important;
   }
+  .video-js .daop-vjs-rate-fallback {
+    min-width: 44px;
+    font-size: 12px;
+    font-weight: 600;
+  }
 }
 /* Trình phát native HTML5: thanh phụ trong ô video */
 .player-aux-native-wrap {
