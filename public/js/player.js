@@ -614,23 +614,29 @@
       case 'videojs':
         loadStylesheet('https://vjs.zencdn.net/8.10.0/video-js.css');
         loadScript('https://vjs.zencdn.net/8.10.0/video.min.js').then(function () {
+          return loadScript('https://cdn.jsdelivr.net/npm/videojs-hls-quality-selector@1.2.0/dist/videojs-hls-quality-selector.min.js').catch(function () {});
+        }).then(function () {
           try {
+            var rates = Array.isArray(config.playback_speed_options) ? config.playback_speed_options : [0.5, 0.75, 1, 1.25, 1.5, 2];
+            rates = rates
+              .map(function (n) { return Number(n); })
+              .filter(function (n) { return isFinite(n) && n > 0; });
+            if (!rates.length) rates = [0.5, 0.75, 1, 1.25, 1.5, 2];
+            rates = Array.from(new Set(rates)).sort(function (a, b) { return a - b; });
             var vjs = window.videojs(videoEl, {
               fluid: config.vjs_fluid !== false,
               responsive: config.vjs_responsive !== false,
               aspectRatio: config.vjs_aspectRatio || '16:9',
               bigPlayButton: config.vjs_bigPlayButton !== false,
-              controlBar: config.vjs_controlBar !== false
+              controlBar: config.vjs_controlBar !== false,
+              playbackRates: rates,
+              html5: { vhs: { overrideNative: true } }
             });
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
               try {
-                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
-                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'videojs', {});
-                }
-                initPlaybackControls(hostEl, videoEl, 'videojs', config, null);
-                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
-                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'videojs', {});
+                if (typeof vjs.hlsQualitySelector === 'function') {
+                  vjs.hlsQualitySelector({ displayCurrentQuality: true });
                 }
               } catch (eVjs) {}
             });
