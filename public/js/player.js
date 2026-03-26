@@ -620,13 +620,6 @@
           ]);
         }).then(function () {
           try {
-            var isTouchDevice = false;
-            try {
-              if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) isTouchDevice = true;
-              if (!isTouchDevice && ('ontouchstart' in window)) isTouchDevice = true;
-              if (!isTouchDevice && navigator && navigator.maxTouchPoints > 0) isTouchDevice = true;
-            } catch (eTouch) {}
-
             var speedEnabled = config.playback_speed_enabled !== false;
             var stepSeconds = parseInt(config.seek_step_seconds, 10);
             if (!isFinite(stepSeconds) || stepSeconds <= 0) stepSeconds = 10;
@@ -640,7 +633,7 @@
             rates = Array.from(new Set(rates)).sort(function (a, b) { return a - b; });
 
             var controlBarOpt = config.vjs_controlBar !== false ? config.vjs_controlBar : false;
-            var skipButtonsOpt = (speedEnabled && !isTouchDevice) ? { forward: stepSeconds, backward: stepSeconds } : false;
+            var skipButtonsOpt = speedEnabled ? { forward: stepSeconds, backward: stepSeconds } : false;
             if (controlBarOpt && typeof controlBarOpt === 'object') {
               controlBarOpt.skipButtons = skipButtonsOpt;
             } else if (controlBarOpt) {
@@ -663,7 +656,6 @@
                 var qualityInitDone = false;
                 var initQuality = function () {
                   try {
-                    if (isTouchDevice) return;
                     if (qualityInitDone) return;
                     if (config.hls_quality_enabled === false) return;
                     if (typeof vjs.hlsQualitySelector === 'function') {
