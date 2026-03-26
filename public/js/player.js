@@ -10,6 +10,12 @@
     return Number.isFinite(n) ? n : def;
   }
 
+  function normalizePreloadValue(v) {
+    var p = String(v || 'metadata').toLowerCase();
+    if (p === 'auto' || p === 'none' || p === 'metadata') return p;
+    return 'metadata';
+  }
+
   function isM3u8Url(url) {
     if (!url) return false;
     var u = String(url);
@@ -537,13 +543,14 @@
     var available = playerSettings.available_players && typeof playerSettings.available_players === 'object' ? playerSettings.available_players : {};
     var chosenPlayer = (playerSettings.default_player || 'plyr').toLowerCase();
     var chosenLabel = available[chosenPlayer] || chosenPlayer;
+    var preloadMode = normalizePreloadValue(playerConfig.preload);
     var safeLink = (link || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     var isEmbed = !isDirectVideoLink(link);
     var playerHtml = !link
       ? '<p>Chưa có link phát.</p>'
       : isEmbed
         ? '<iframe id="daop-embed" src="' + safeLink + '" allowfullscreen allow="autoplay; fullscreen"></iframe>'
-        : '<video id="daop-video" class="video-js" controls playsinline preload="metadata" src="' + safeLink + '"></video>';
+        : '<video id="daop-video" class="video-js" controls playsinline preload="' + preloadMode + '" src="' + safeLink + '"></video>';
     var playerLabelHtml = '<p class="player-label" style="margin:0 0 8px;font-size:0.85rem;color:#8b949e;">Đang dùng: ' + (chosenLabel || chosenPlayer) + '</p>';
     overlay.innerHTML =
       '<button type="button" class="close-player" aria-label="Đóng">Đóng</button>' +
@@ -572,6 +579,7 @@
 
   function initPlayerByType(playerType, videoEl, opts, config, hostEl) {
     config = config || {};
+    var preloadMode = normalizePreloadValue(config.preload);
     
     function reportTime() {
       if (window.DAOP && window.DAOP.userSync && opts.slug && opts.episode && videoEl.currentTime != null) {
@@ -580,6 +588,7 @@
     }
     
     videoEl.addEventListener('timeupdate', reportTime);
+    try { videoEl.preload = preloadMode; } catch (ePreloadAttr) {}
     
     switch (playerType) {
       case 'plyr':
@@ -699,6 +708,7 @@
               bigPlayButton: config.vjs_bigPlayButton !== false,
               controlBar: controlBarOpt,
               playbackRates: speedEnabled ? rates : [],
+              preload: preloadMode,
               html5: { vhs: { overrideNative: true } }
             };
             var vjs = window.videojs(videoEl, vjsOptions);
@@ -854,6 +864,7 @@
               autostart: config.autoplay || false,
               mute: config.muted || false,
               controls: config.controls !== false,
+              preload: preloadMode,
               playbackRateControls: speedEnabledJw ? ratesJw : false
             });
             jwp.on('time', function (e) {

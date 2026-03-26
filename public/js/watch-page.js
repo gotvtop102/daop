@@ -1,4 +1,10 @@
 (function () {
+  function normalizePreloadValue(v) {
+    var p = String(v || 'metadata').toLowerCase();
+    if (p === 'auto' || p === 'none' || p === 'metadata') return p;
+    return 'metadata';
+  }
+
   function applyDefaultHeaderVisibility() {
     try {
       var s = (window.DAOP && window.DAOP.siteSettings) || {};
@@ -622,6 +628,7 @@
     var playerSettings = window.DAOP && window.DAOP.playerSettings ? window.DAOP.playerSettings : {};
     var playerConfig = playerSettings.player_config || {};
     var chosenPlayer = (playerSettings.default_player || 'plyr').toLowerCase();
+    var preloadMode = normalizePreloadValue(playerConfig.preload);
 
     var safeLink = esc(ctx.link || '');
     var isEmbed = !isDirectVideoLink(ctx.link);
@@ -630,7 +637,7 @@
       ? '<div class="watch-player-empty">Chưa có link phát.</div>'
       : isEmbed
         ? '<iframe id="watch-embed" src="' + safeLink + '" allowfullscreen allow="autoplay; fullscreen"></iframe>'
-        : '<video id="watch-video" class="video-js" controls playsinline preload="metadata" src="' + safeLink + '"></video>';
+        : '<video id="watch-video" class="video-js" controls playsinline preload="' + preloadMode + '" src="' + safeLink + '"></video>';
 
     container.innerHTML =
       '<div class="watch-player-card">' +
@@ -677,6 +684,7 @@
     }
 
     video.addEventListener('timeupdate', reportTime);
+    try { video.preload = preloadMode; } catch (ePreloadAttr) {}
 
     // Initialize player based on chosen type
     switch (chosenPlayer) {
@@ -795,6 +803,7 @@
               bigPlayButton: playerConfig.vjs_bigPlayButton !== false,
               controlBar: controlBarOpt,
               playbackRates: speedEnabled ? rates : [],
+              preload: preloadMode,
               html5: { vhs: { overrideNative: true } }
             };
             var vjs = window.videojs(video, vjsOptions);
@@ -946,6 +955,7 @@
               autostart: playerConfig.autoplay || false,
               mute: playerConfig.muted || false,
               controls: playerConfig.controls !== false,
+              preload: preloadMode,
               playbackRateControls: speedEnabledJw ? ratesJw : false
             });
             jwp.on('time', function (e) {
