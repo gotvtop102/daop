@@ -679,6 +679,16 @@
                       }, 250);
                     } catch (eUA2) {}
                   });
+                  var enforceInactiveTimer = setInterval(function () {
+                    try {
+                      if (vjs.paused && vjs.paused()) return;
+                      if ((Date.now() - lastDirectPlayerInteraction) < 1200) return;
+                      if (vjs.userActive && vjs.userActive()) vjs.userActive(false);
+                    } catch (eUA3) {}
+                  }, 1200);
+                  vjs.on('dispose', function () {
+                    try { clearInterval(enforceInactiveTimer); } catch (eClr) {}
+                  });
                 }
 
                 var qualityInitDone = false;
