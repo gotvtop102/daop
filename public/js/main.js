@@ -326,50 +326,36 @@
         var fp = videoEl.closest && videoEl.closest('.fluid_video_wrapper');
         if (!fp) fp = videoEl.parentElement;
         if (!fp) return;
-        var fpbar = fp.querySelector('.fluid_controls_container') || fp.querySelector('.fluid_player_controls_container');
-        if (fpbar) {
-          fp.__daopFluidAuxRetryCount = 0;
-          if (quality) quality.style.display = 'inline-flex';
-          if (playback) playback.style.display = 'inline-flex';
-          var playBtn = fpbar.querySelector(
+        var playBtn = null;
+        var fullBtn = null;
+        try {
+          playBtn = fp.querySelector(
             '.fluid_button_play, .fluid_button_playpause, [class*="play" i], [aria-label*="Play" i], [title*="Play" i]'
           );
-          var fullBtn = fpbar.querySelector(
+          fullBtn = fp.querySelector(
             '.fluid_button_fullscreen, [class*="fullscreen" i], [aria-label*="Full" i], [title*="Full" i]'
           );
-          if (playback) {
-            playback.classList.add('daop-fluid-seek-mount');
-            if (playBtn && playBtn.parentNode === fpbar) {
-              var afterPlay = playBtn.nextSibling;
-              move(playback, fpbar, afterPlay);
-            } else {
-              move(playback, fpbar, fpbar.firstChild);
-            }
-          }
-          if (quality) {
-            quality.classList.add('daop-fluid-quality-mount');
-            if (fullBtn && fullBtn.parentNode === fpbar) {
-              move(quality, fpbar, fullBtn);
-            } else {
-              move(quality, fpbar, null);
-            }
-          }
-        } else {
-          // Chưa có control bar -> không được move, vì sẽ bị đẩy lên phía trên player.
-          // Tạm ẩn để chỉ hiện khi fpbar sẵn sàng.
-          if (quality) quality.style.display = 'none';
-          if (playback) playback.style.display = 'none';
-          var c = fp.__daopFluidAuxRetryCount || 0;
-          if (c < 6) {
-            fp.__daopFluidAuxRetryCount = c + 1;
-            setTimeout(function () {
-              try {
-                if (window.DAOP && window.DAOP.attachPlayerAuxControls) {
-                  window.DAOP.attachPlayerAuxControls(scopeEl, videoEl, playerType, extra);
-                }
-              } catch (eRetry) {}
-            }, 120);
-          }
+        } catch (eSel) {}
+
+        // Luôn giữ cho icon nhìn thấy; chỉ "move" khi tìm thấy nút tương ứng.
+        if (quality) {
+          quality.style.display = 'inline-flex';
+          quality.classList.add('daop-fluid-quality-mount');
+        }
+        if (playback) {
+          playback.style.display = 'inline-flex';
+          playback.classList.add('daop-fluid-seek-mount');
+        }
+
+        if (playback && playBtn && playBtn.parentNode) {
+          var seekParent = playBtn.parentNode;
+          var afterPlay2 = playBtn.nextSibling;
+          move(playback, seekParent, afterPlay2);
+        }
+
+        if (quality && fullBtn && fullBtn.parentNode) {
+          var qParent = fullBtn.parentNode;
+          move(quality, qParent, fullBtn);
         }
         return;
       }
