@@ -716,6 +716,7 @@
           ]);
         }).then(function () {
           try {
+            var speedEnabled = playerConfig.playback_speed_enabled !== false;
             var stepSeconds = parseInt(playerConfig.seek_step_seconds, 10);
             if (!isFinite(stepSeconds) || stepSeconds <= 0) stepSeconds = 10;
             if (stepSeconds !== 5 && stepSeconds !== 10 && stepSeconds !== 30) stepSeconds = 10;
@@ -728,10 +729,11 @@
             rates = Array.from(new Set(rates)).sort(function (a, b) { return a - b; });
 
             var controlBarOpt = playerConfig.vjs_controlBar !== false ? playerConfig.vjs_controlBar : false;
+            var skipButtonsOpt = speedEnabled ? { forward: stepSeconds, backward: stepSeconds } : false;
             if (controlBarOpt && typeof controlBarOpt === 'object') {
-              controlBarOpt.skipButtons = { forward: stepSeconds, backward: stepSeconds };
+              controlBarOpt.skipButtons = skipButtonsOpt;
             } else if (controlBarOpt) {
-              controlBarOpt = { skipButtons: { forward: stepSeconds, backward: stepSeconds } };
+              controlBarOpt = { skipButtons: skipButtonsOpt };
             }
 
             var vjs = window.videojs(video, {
@@ -740,7 +742,8 @@
               aspectRatio: playerConfig.vjs_aspectRatio || '16:9',
               bigPlayButton: playerConfig.vjs_bigPlayButton !== false,
               controlBar: controlBarOpt,
-              playbackRates: rates,
+              playbackRates: speedEnabled ? rates : [],
+              inactivityTimeout: 0,
               html5: { vhs: { overrideNative: true } }
             });
             vjs.ready(function () {
