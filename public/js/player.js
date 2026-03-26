@@ -42,6 +42,10 @@
       if (!videoEl || !isM3u8Url(link)) return;
       if (!playerConfig || playerConfig.hls_quality_enabled === false) return;
       if (String(auxPlayerType || '').toLowerCase() === 'fluidplayer') return;
+      if (String(auxPlayerType || '').toLowerCase() === 'videojs') {
+        if (mountEl) mountEl.style.display = 'none';
+        return;
+      }
 
       if (videoEl.__daop_hls && typeof videoEl.__daop_hls.destroy === 'function') {
         try { videoEl.__daop_hls.destroy(); } catch (e0) {}
@@ -179,6 +183,10 @@
       var bar = hostEl.querySelector('[data-role="playback"]');
       if (!bar) return;
       if (String(chosenPlayer || '').toLowerCase() === 'fluidplayer') {
+        bar.style.display = 'none';
+        return;
+      }
+      if (String(chosenPlayer || '').toLowerCase() === 'videojs') {
         bar.style.display = 'none';
         return;
       }

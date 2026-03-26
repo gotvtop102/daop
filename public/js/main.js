@@ -295,16 +295,10 @@
         return;
       }
       if (pt === 'videojs') {
-        var vj = videoEl.closest && videoEl.closest('.video-js');
-        if (!vj) return;
-        var vbar = vj.querySelector('.vjs-control-bar');
-        if (vbar) {
-          if (playback) move(playback, vbar, vbar.firstChild);
-          if (quality) move(quality, vbar, vbar.firstChild);
-        } else {
-          if (quality) move(quality, vj, vj.firstChild);
-          if (playback) move(playback, vj, vj.firstChild);
-        }
+        // Video.js đã có control gốc (seek/speed/quality tùy plugin).
+        // Không inject thêm khối quality/playback để tránh trùng/nhảy layout.
+        if (quality) quality.style.display = 'none';
+        if (playback) playback.style.display = 'none';
         return;
       }
       if (pt === 'jwplayer') {
