@@ -96,12 +96,18 @@
             var isFluidPlayer = String(auxPlayerType || '').toLowerCase() === 'fluidplayer';
             var qualityIcon = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="color:#8b949e;flex:0 0 auto;" ' +
               '><path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zm0 10L2 7v10l10 5 10-5V7l-10 5z"/></svg>';
-            mountEl.innerHTML = '<label style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">' +
-              (isFluidPlayer
-                ? '<span aria-hidden="true" style="display:inline-flex;align-items:center;">' + qualityIcon + '</span>'
-                : '<span style="font-size:0.85rem;color:#8b949e;">Chất lượng</span>') +
-              '<select data-role="hls-quality" aria-label="Chất lượng" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + options + '</select>' +
-              '</label>';
+            if (isFluidPlayer) {
+              mountEl.innerHTML =
+                '<div class="daop-fluid-quality" style="display:inline-flex;align-items:center;gap:6px;">' +
+                '  <button type="button" data-role="quality-toggle" aria-label="Chất lượng" title="Chất lượng" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;display:inline-flex;align-items:center;justify-content:center;">' + qualityIcon + '</button>' +
+                '  <select data-role="hls-quality" aria-label="Chất lượng" style="display:none;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + options + '</select>' +
+                '</div>';
+            } else {
+              mountEl.innerHTML = '<label style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">' +
+                '<span style="font-size:0.85rem;color:#8b949e;">Chất lượng</span>' +
+                '<select data-role="hls-quality" aria-label="Chất lượng" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + options + '</select>' +
+                '</label>';
+            }
 
             var sel = mountEl.querySelector('[data-role="hls-quality"]');
             if (sel) {
@@ -111,6 +117,14 @@
                 if (!isFinite(v)) v = -1;
                 try { hls.currentLevel = v; } catch (e3) {}
               };
+            }
+            if (isFluidPlayer) {
+              var toggle = mountEl.querySelector('[data-role="quality-toggle"]');
+              if (toggle && sel) {
+                toggle.onclick = function () {
+                  sel.style.display = sel.style.display === 'none' ? 'inline-block' : 'none';
+                };
+              }
             }
             var auxScope = (mountEl.closest && mountEl.closest('.player-overlay')) || (mountEl.closest && mountEl.closest('.watch-player-wrap')) || mountEl.parentElement;
             if (auxScope && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
@@ -170,15 +184,9 @@
 
       if (isFluidPlayer) {
         bar.innerHTML =
-          '<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;">' +
-          '  <div style="display:flex;gap:8px;align-items:center;">' +
+          '<div class="daop-fluid-seek-group" style="display:inline-flex;gap:6px;align-items:center;">' +
           '    <button type="button" data-role="seek-back" aria-label="Tua -' + step + ' giây" title="Tua -' + step + ' giây" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + iconSeekBack + '</button>' +
           '    <button type="button" data-role="seek-fwd" aria-label="Tua +' + step + ' giây" title="Tua +' + step + ' giây" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + iconSeekFwd + '</button>' +
-          '  </div>' +
-          '  <label style="display:flex;gap:8px;align-items:center;">' +
-          '    <span style="font-size:0.85rem;color:#8b949e;">Tốc độ</span>' +
-          '    <select data-role="speed" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + speedOptions + '</select>' +
-          '  </label>' +
           '</div>';
       } else {
         bar.innerHTML =
@@ -227,14 +235,14 @@
         try { videoEl.playbackRate = rate; } catch (e2) {}
       }
 
-      setSpeed(defaultSpeed);
+      if (!isFluidPlayer) setSpeed(defaultSpeed);
 
       var btnBack = bar.querySelector('[data-role="seek-back"]');
       var btnFwd = bar.querySelector('[data-role="seek-fwd"]');
       var selSpeed = bar.querySelector('[data-role="speed"]');
       if (btnBack) btnBack.onclick = function () { seekTo(getCurrentTime() - step); };
       if (btnFwd) btnFwd.onclick = function () { seekTo(getCurrentTime() + step); };
-      if (selSpeed) selSpeed.onchange = function () { setSpeed(selSpeed.value); };
+      if (!isFluidPlayer && selSpeed) selSpeed.onchange = function () { setSpeed(selSpeed.value); };
     } catch (e) {}
   }
 

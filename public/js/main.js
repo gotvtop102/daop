@@ -328,8 +328,25 @@
         if (!fp) return;
         var fpbar = fp.querySelector('.fluid_controls_container') || fp.querySelector('.fluid_player_controls_container');
         if (fpbar) {
-          if (playback) move(playback, fpbar, fpbar.firstChild);
-          if (quality) move(quality, fpbar, fpbar.firstChild);
+          var playBtn = fpbar.querySelector('.fluid_button_play, .fluid_button_playpause, [class*="play"]');
+          var fullBtn = fpbar.querySelector('.fluid_button_fullscreen, [class*="fullscreen"]');
+          if (playback) {
+            playback.classList.add('daop-fluid-seek-mount');
+            if (playBtn && playBtn.parentNode === fpbar) {
+              var afterPlay = playBtn.nextSibling;
+              move(playback, fpbar, afterPlay);
+            } else {
+              move(playback, fpbar, fpbar.firstChild);
+            }
+          }
+          if (quality) {
+            quality.classList.add('daop-fluid-quality-mount');
+            if (fullBtn && fullBtn.parentNode === fpbar) {
+              move(quality, fpbar, fullBtn);
+            } else {
+              move(quality, fpbar, null);
+            }
+          }
         } else {
           if (quality) move(quality, fp, fp.firstChild);
           if (playback) move(playback, fp, fp.firstChild);
