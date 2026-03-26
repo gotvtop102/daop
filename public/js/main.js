@@ -323,40 +323,10 @@
         return;
       }
       if (pt === 'fluidplayer') {
-        var fp = videoEl.closest && videoEl.closest('.fluid_video_wrapper');
-        if (!fp) fp = videoEl.parentElement;
-        if (!fp) return;
-        var playBtn = null;
-        var fullBtn = null;
-        try {
-          playBtn = fp.querySelector(
-            '.fluid_button_play, .fluid_button_playpause, [class*="play" i], [aria-label*="Play" i], [title*="Play" i]'
-          );
-          fullBtn = fp.querySelector(
-            '.fluid_button_fullscreen, [class*="fullscreen" i], [aria-label*="Full" i], [title*="Full" i]'
-          );
-        } catch (eSel) {}
-
-        // Luôn giữ cho icon nhìn thấy; chỉ "move" khi tìm thấy nút tương ứng.
-        if (quality) {
-          quality.style.display = 'inline-flex';
-          quality.classList.add('daop-fluid-quality-mount');
-        }
-        if (playback) {
-          playback.style.display = 'inline-flex';
-          playback.classList.add('daop-fluid-seek-mount');
-        }
-
-        if (playback && playBtn && playBtn.parentNode) {
-          var seekParent = playBtn.parentNode;
-          var afterPlay2 = playBtn.nextSibling;
-          move(playback, seekParent, afterPlay2);
-        }
-
-        if (quality && fullBtn && fullBtn.parentNode) {
-          var qParent = fullBtn.parentNode;
-          move(quality, qParent, fullBtn);
-        }
+        // FluidPlayer đã có control gốc (play/seek/quality/fullscreen).
+        // Không inject thêm khối quality/playback do hệ thống của FluidPlayer tự xử lý.
+        if (quality) quality.style.display = 'none';
+        if (playback) playback.style.display = 'none';
         return;
       }
       var wr = scopeEl.querySelector && scopeEl.querySelector('.watch-player-wrap');

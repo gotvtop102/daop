@@ -3002,16 +3002,6 @@ body.theme-light .showtimes-item-st {
   box-sizing: border-box;
   flex-shrink: 0;
 }
-.fluid_video_wrapper .daop-fluid-seek-mount,
-.fluid_video_wrapper .daop-fluid-quality-mount {
-  display: inline-flex;
-  align-items: center;
-}
-.fluid_video_wrapper .daop-fluid-seek-group {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-}
 .plyr [data-role="quality"],
 .plyr [data-role="playback"] {
   padding: 6px 10px 2px;

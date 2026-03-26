@@ -542,34 +542,38 @@ export default function PlayerSettings() {
                     </Radio.Group>
                   </Form.Item>
 
-                  <Title level={5} style={{ marginTop: 8 }}>Tốc độ & Tua</Title>
-                  <Form.Item name="playback_speed_enabled" valuePropName="checked" label="Hiển thị điều khiển tốc độ / tua">
-                    <Switch />
-                  </Form.Item>
-                  <Form.Item name="seek_step_seconds" label="Bước tua (giây)">
-                    <InputNumber min={1} step={1} style={{ width: '100%' }} />
-                  </Form.Item>
-                  <Form.Item name="playback_speed_default" label="Tốc độ mặc định">
-                    <InputNumber min={0.25} step={0.25} style={{ width: '100%' }} />
-                  </Form.Item>
-                  <Form.Item
-                    name="playback_speed_options"
-                    label="Danh sách tốc độ (ngăn cách bằng dấu phẩy)"
-                    getValueProps={(v: any) => ({ value: Array.isArray(v) ? v.join(', ') : (v == null ? '' : String(v)) })}
-                    getValueFromEvent={(e: any) => {
-                      const raw = String(e?.target?.value || '').trim();
-                      if (!raw) return [];
-                      const list = raw
-                        .split(',')
-                        .map((x) => Number(String(x || '').trim()))
-                        .filter((n) => Number.isFinite(n) && n > 0);
-                      const uniq = Array.from(new Set(list));
-                      uniq.sort((a, b) => a - b);
-                      return uniq;
-                    }}
-                  >
-                    <Input placeholder="0.5, 0.75, 1, 1.25, 1.5, 2" />
-                  </Form.Item>
+                  {String(selectedPlayer).toLowerCase() !== 'fluidplayer' && (
+                    <>
+                      <Title level={5} style={{ marginTop: 8 }}>Tốc độ & Tua</Title>
+                      <Form.Item name="playback_speed_enabled" valuePropName="checked" label="Hiển thị điều khiển tốc độ / tua">
+                        <Switch />
+                      </Form.Item>
+                      <Form.Item name="seek_step_seconds" label="Bước tua (giây)">
+                        <InputNumber min={1} step={1} style={{ width: '100%' }} />
+                      </Form.Item>
+                      <Form.Item name="playback_speed_default" label="Tốc độ mặc định">
+                        <InputNumber min={0.25} step={0.25} style={{ width: '100%' }} />
+                      </Form.Item>
+                      <Form.Item
+                        name="playback_speed_options"
+                        label="Danh sách tốc độ (ngăn cách bằng dấu phẩy)"
+                        getValueProps={(v: any) => ({ value: Array.isArray(v) ? v.join(', ') : (v == null ? '' : String(v)) })}
+                        getValueFromEvent={(e: any) => {
+                          const raw = String(e?.target?.value || '').trim();
+                          if (!raw) return [];
+                          const list = raw
+                            .split(',')
+                            .map((x) => Number(String(x || '').trim()))
+                            .filter((n) => Number.isFinite(n) && n > 0);
+                          const uniq = Array.from(new Set(list));
+                          uniq.sort((a, b) => a - b);
+                          return uniq;
+                        }}
+                      >
+                        <Input placeholder="0.5, 0.75, 1, 1.25, 1.5, 2" />
+                      </Form.Item>
+                    </>
+                  )}
                 </Space>
               </Form>
             </Panel>
