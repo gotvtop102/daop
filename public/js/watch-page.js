@@ -931,6 +931,13 @@
         }
         loadScript('https://cdn.jwplayer.com/libraries/' + playerConfig.jwplayer_license_key + '.js').then(function () {
           try {
+            var speedEnabledJw = playerConfig.playback_speed_enabled !== false;
+            var ratesJw = Array.isArray(playerConfig.playback_speed_options) ? playerConfig.playback_speed_options : [0.5, 0.75, 1, 1.25, 1.5, 2];
+            ratesJw = ratesJw
+              .map(function (n) { return Number(n); })
+              .filter(function (n) { return isFinite(n) && n > 0; });
+            if (!ratesJw.length) ratesJw = [0.5, 0.75, 1, 1.25, 1.5, 2];
+            ratesJw = Array.from(new Set(ratesJw)).sort(function (a, b) { return a - b; });
             var jwp = window.jwplayer(video);
             jwp.setup({
               file: video.src,
@@ -938,22 +945,18 @@
               height: '100%',
               autostart: playerConfig.autoplay || false,
               mute: playerConfig.muted || false,
-              controls: playerConfig.controls !== false
+              controls: playerConfig.controls !== false,
+              playbackRateControls: speedEnabledJw ? ratesJw : false
             });
             jwp.on('time', function (e) {
               reportTime();
             });
-            jwp.on('ready', function () {
-              try {
-                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
-                  window.DAOP.attachPlayerAuxControls(container, video, 'jwplayer', { jwInstance: jwp });
-                }
-                initPlaybackControls(container, video, chosenPlayer, playerConfig, jwp);
-                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
-                  window.DAOP.attachPlayerAuxControls(container, video, 'jwplayer', { jwInstance: jwp });
-                }
-              } catch (eJw) {}
-            });
+            try {
+              var mountQualityJw = container && container.querySelector ? container.querySelector('[data-role="quality"]') : null;
+              var mountPlaybackJw = container && container.querySelector ? container.querySelector('[data-role="playback"]') : null;
+              if (mountQualityJw) mountQualityJw.style.display = 'none';
+              if (mountPlaybackJw) mountPlaybackJw.style.display = 'none';
+            } catch (eJwMount) {}
           } catch (e) {}
         }).catch(function () {});
         break;

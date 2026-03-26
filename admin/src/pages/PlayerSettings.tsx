@@ -156,6 +156,9 @@ const defaultPlayerConfig: PlayerConfig = {
   fluid_logo: '',
   fluid_logoPosition: 'top right',
 
+  // JWPlayer
+  jwplayer_license_key: '',
+
   // Ads
   preroll_enabled: true,
   preroll_vast: '',
@@ -258,7 +261,12 @@ export default function PlayerSettings() {
     setSaving(true);
     try {
       const values = form.getFieldsValue();
-      const configValues = configForm.getFieldsValue();
+      const rawConfigValues = configForm.getFieldsValue(true);
+      // Preserve fields that may be temporarily unmounted (e.g. JW license when switching player tabs)
+      const configValues = {
+        ...playerConfig,
+        ...rawConfigValues,
+      };
 
       // Parse link type labels
       let linkTypeLabelsData: Record<string, string> = {};
@@ -284,6 +292,8 @@ export default function PlayerSettings() {
         );
         if (error) throw error;
       }
+
+      setPlayerConfig((prev) => ({ ...prev, ...configValues }));
 
       message.success('Đã lưu cài đặt player. Chạy Build website để áp dụng.');
     } catch (e: any) {

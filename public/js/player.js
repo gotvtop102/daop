@@ -839,6 +839,13 @@
         }
         loadScript('https://cdn.jwplayer.com/libraries/' + config.jwplayer_license_key + '.js').then(function () {
           try {
+            var speedEnabledJw = config.playback_speed_enabled !== false;
+            var ratesJw = Array.isArray(config.playback_speed_options) ? config.playback_speed_options : [0.5, 0.75, 1, 1.25, 1.5, 2];
+            ratesJw = ratesJw
+              .map(function (n) { return Number(n); })
+              .filter(function (n) { return isFinite(n) && n > 0; });
+            if (!ratesJw.length) ratesJw = [0.5, 0.75, 1, 1.25, 1.5, 2];
+            ratesJw = Array.from(new Set(ratesJw)).sort(function (a, b) { return a - b; });
             var jwp = window.jwplayer(videoEl);
             jwp.setup({
               file: videoEl.src,
@@ -846,22 +853,18 @@
               height: '100%',
               autostart: config.autoplay || false,
               mute: config.muted || false,
-              controls: config.controls !== false
+              controls: config.controls !== false,
+              playbackRateControls: speedEnabledJw ? ratesJw : false
             });
             jwp.on('time', function (e) {
               reportTime();
             });
-            jwp.on('ready', function () {
-              try {
-                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
-                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'jwplayer', { jwInstance: jwp });
-                }
-                initPlaybackControls(hostEl, videoEl, 'jwplayer', config, jwp);
-                if (hostEl && window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
-                  window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'jwplayer', { jwInstance: jwp });
-                }
-              } catch (eJw) {}
-            });
+            try {
+              var mountQualityJw = hostEl && hostEl.querySelector ? hostEl.querySelector('[data-role="quality"]') : null;
+              var mountPlaybackJw = hostEl && hostEl.querySelector ? hostEl.querySelector('[data-role="playback"]') : null;
+              if (mountQualityJw) mountQualityJw.style.display = 'none';
+              if (mountPlaybackJw) mountPlaybackJw.style.display = 'none';
+            } catch (eJwMount) {}
           } catch (e) {}
         }).catch(function () {
           attachProgressAndInitPlayer(opts, videoEl, 'native');

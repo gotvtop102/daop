@@ -302,18 +302,10 @@
         return;
       }
       if (pt === 'jwplayer') {
-        var jw = extra.jwInstance;
-        var container = jw && typeof jw.getContainer === 'function' ? jw.getContainer() : null;
-        if (!container) container = scopeEl.querySelector('.jwplayer');
-        if (!container) return;
-        var jbar = container.querySelector('.jw-controlbar') || container.querySelector('.jw-control-bar') || container.querySelector('[class*="controlbar"]');
-        if (jbar) {
-          if (playback) move(playback, jbar, jbar.firstChild);
-          if (quality) move(quality, jbar, jbar.firstChild);
-        } else {
-          if (quality) move(quality, container, container.firstChild);
-          if (playback) move(playback, container, container.firstChild);
-        }
+        // JWPlayer đã có control gốc (seek/speed/quality theo cấu hình setup).
+        // Không inject thêm khối quality/playback để tránh trùng giao diện.
+        if (quality) quality.style.display = 'none';
+        if (playback) playback.style.display = 'none';
         return;
       }
       if (pt === 'fluidplayer') {
