@@ -667,7 +667,7 @@
                   window.DAOP.attachPlayerAuxControls(hostEl, videoEl, 'fluidplayer', {});
                 }
               } catch (eFp) {}
-            }, 0);
+            }, 120);
           } catch (e) {}
         }).catch(function () {
           attachProgressAndInitPlayer(opts, videoEl, 'native');

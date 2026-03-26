@@ -759,7 +759,7 @@
                   window.DAOP.attachPlayerAuxControls(container, video, 'fluidplayer', {});
                 }
               } catch (eFp) {}
-            }, 0);
+            }, 120);
           } catch (e) {}
         }).catch(function () {});
         break;

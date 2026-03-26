@@ -328,8 +328,15 @@
         if (!fp) return;
         var fpbar = fp.querySelector('.fluid_controls_container') || fp.querySelector('.fluid_player_controls_container');
         if (fpbar) {
-          var playBtn = fpbar.querySelector('.fluid_button_play, .fluid_button_playpause, [class*="play"]');
-          var fullBtn = fpbar.querySelector('.fluid_button_fullscreen, [class*="fullscreen"]');
+          fp.__daopFluidAuxRetryCount = 0;
+          if (quality) quality.style.display = 'inline-flex';
+          if (playback) playback.style.display = 'inline-flex';
+          var playBtn = fpbar.querySelector(
+            '.fluid_button_play, .fluid_button_playpause, [class*="play" i], [aria-label*="Play" i], [title*="Play" i]'
+          );
+          var fullBtn = fpbar.querySelector(
+            '.fluid_button_fullscreen, [class*="fullscreen" i], [aria-label*="Full" i], [title*="Full" i]'
+          );
           if (playback) {
             playback.classList.add('daop-fluid-seek-mount');
             if (playBtn && playBtn.parentNode === fpbar) {
@@ -348,8 +355,21 @@
             }
           }
         } else {
-          if (quality) move(quality, fp, fp.firstChild);
-          if (playback) move(playback, fp, fp.firstChild);
+          // Chưa có control bar -> không được move, vì sẽ bị đẩy lên phía trên player.
+          // Tạm ẩn để chỉ hiện khi fpbar sẵn sàng.
+          if (quality) quality.style.display = 'none';
+          if (playback) playback.style.display = 'none';
+          var c = fp.__daopFluidAuxRetryCount || 0;
+          if (c < 6) {
+            fp.__daopFluidAuxRetryCount = c + 1;
+            setTimeout(function () {
+              try {
+                if (window.DAOP && window.DAOP.attachPlayerAuxControls) {
+                  window.DAOP.attachPlayerAuxControls(scopeEl, videoEl, playerType, extra);
+                }
+              } catch (eRetry) {}
+            }, 120);
+          }
         }
         return;
       }
