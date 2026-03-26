@@ -597,28 +597,44 @@
     var preferTypes = ['m3u8', 'embed', 'backup', 'vip1', 'vip2', 'vip3', 'vip4', 'vip5'];
     var pick = null;
 
-    srvKeys.some(function (srvSlug) {
-      var eps = serverData[srvSlug] || [];
-      if (!eps.length) return false;
-
-      var epObj = null;
-      if (wantEp) {
-        epObj = eps.find(function (e) { return e && (e.code === wantEp || e.name === wantEp); }) || null;
-      }
-      if (!epObj) epObj = eps[0];
-      if (!epObj) return false;
-
-      var linkType = null;
-      for (var i = 0; i < preferTypes.length; i++) {
-        if (epObj.links && epObj.links[preferTypes[i]]) {
-          linkType = preferTypes[i];
-          break;
+    if (wantEp) {
+      srvKeys.some(function (srvSlug) {
+        var eps = serverData[srvSlug] || [];
+        if (!eps.length) return false;
+        var epObj = eps.find(function (e) { return e && (e.code === wantEp || e.name === wantEp); }) || null;
+        if (!epObj) return false;
+        var linkTypeMatch = null;
+        for (var i = 0; i < preferTypes.length; i++) {
+          if (epObj.links && epObj.links[preferTypes[i]]) {
+            linkTypeMatch = preferTypes[i];
+            break;
+          }
         }
-      }
-      if (!linkType) linkType = 'm3u8';
-      pick = { server: srvSlug, episode: epObj.code, linkType: linkType, link: (epObj.links && epObj.links[linkType]) || '' };
-      return true;
-    });
+        if (!linkTypeMatch) linkTypeMatch = 'm3u8';
+        pick = { server: srvSlug, episode: epObj.code, linkType: linkTypeMatch, link: (epObj.links && epObj.links[linkTypeMatch]) || '' };
+        return true;
+      });
+    }
+
+    if (!pick) {
+      srvKeys.some(function (srvSlug) {
+        var eps = serverData[srvSlug] || [];
+        if (!eps.length) return false;
+        var epObj = eps[0];
+        if (!epObj) return false;
+
+        var linkType = null;
+        for (var i = 0; i < preferTypes.length; i++) {
+          if (epObj.links && epObj.links[preferTypes[i]]) {
+            linkType = preferTypes[i];
+            break;
+          }
+        }
+        if (!linkType) linkType = 'm3u8';
+        pick = { server: srvSlug, episode: epObj.code, linkType: linkType, link: (epObj.links && epObj.links[linkType]) || '' };
+        return true;
+      });
+    }
 
     return pick;
   }
@@ -1281,6 +1297,10 @@
 
       row.style.display = '';
       var groups = Math.max(1, Math.ceil(list.length / GROUP_SIZE));
+      if (state.episode) {
+        var selectedIdx = list.findIndex(function (e) { return e && e.code === state.episode; });
+        if (selectedIdx >= 0) state.groupIdx = Math.floor(selectedIdx / GROUP_SIZE);
+      }
       if (state.groupIdx >= groups) state.groupIdx = 0;
       var options = '';
       for (var i = 0; i < groups; i++) {
@@ -1306,6 +1326,10 @@
       var GROUP_SIZE = 50;
       var isSingle = (movie && (movie.type === 'single' || movie.type === 'movie')) || false;
       var needGrouping = !isSingle && list.length > GROUP_SIZE;
+      if (needGrouping && state.episode) {
+        var currentIdx = list.findIndex(function (e) { return e && e.code === state.episode; });
+        if (currentIdx >= 0) state.groupIdx = Math.floor(currentIdx / GROUP_SIZE);
+      }
       var startIdx = needGrouping ? state.groupIdx * GROUP_SIZE : 0;
       var endIdx = needGrouping ? Math.min(startIdx + GROUP_SIZE, list.length) : list.length;
       var slice = list.slice(startIdx, endIdx);
