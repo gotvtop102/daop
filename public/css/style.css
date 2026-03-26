@@ -3027,6 +3027,16 @@ body.theme-light .showtimes-item-st {
 .video-js.vjs-user-active .vjs-control-bar [data-role="playback"] {
   opacity: 1;
 }
+@media (hover: none) and (pointer: coarse) {
+  .video-js.vjs-user-inactive .vjs-control-bar {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  .video-js.vjs-user-inactive .vjs-control-bar {
+    transition: none !important;
+  }
+}
 /* Trình phát native HTML5: thanh phụ trong ô video */
 .player-aux-native-wrap {
   position: relative;

@@ -736,16 +736,23 @@
               controlBarOpt = { skipButtons: skipButtonsOpt };
             }
 
-            var vjs = window.videojs(video, {
+            var isTouchDevice = false;
+            try {
+              if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) isTouchDevice = true;
+              if (!isTouchDevice && ('ontouchstart' in window)) isTouchDevice = true;
+              if (!isTouchDevice && navigator && navigator.maxTouchPoints > 0) isTouchDevice = true;
+            } catch (eTouch) {}
+            var vjsOptions = {
               fluid: playerConfig.vjs_fluid !== false,
               responsive: playerConfig.vjs_responsive !== false,
               aspectRatio: playerConfig.vjs_aspectRatio || '16:9',
               bigPlayButton: playerConfig.vjs_bigPlayButton !== false,
               controlBar: controlBarOpt,
               playbackRates: speedEnabled ? rates : [],
-              inactivityTimeout: 0,
               html5: { vhs: { overrideNative: true } }
-            });
+            };
+            if (isTouchDevice) vjsOptions.inactivityTimeout = 0;
+            var vjs = window.videojs(video, vjsOptions);
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
               try {

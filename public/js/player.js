@@ -640,16 +640,23 @@
               controlBarOpt = { skipButtons: skipButtonsOpt };
             }
 
-            var vjs = window.videojs(videoEl, {
+            var isTouchDevice = false;
+            try {
+              if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) isTouchDevice = true;
+              if (!isTouchDevice && ('ontouchstart' in window)) isTouchDevice = true;
+              if (!isTouchDevice && navigator && navigator.maxTouchPoints > 0) isTouchDevice = true;
+            } catch (eTouch) {}
+            var vjsOptions = {
               fluid: config.vjs_fluid !== false,
               responsive: config.vjs_responsive !== false,
               aspectRatio: config.vjs_aspectRatio || '16:9',
               bigPlayButton: config.vjs_bigPlayButton !== false,
               controlBar: controlBarOpt,
               playbackRates: speedEnabled ? rates : [],
-              inactivityTimeout: 0,
               html5: { vhs: { overrideNative: true } }
-            });
+            };
+            if (isTouchDevice) vjsOptions.inactivityTimeout = 0;
+            var vjs = window.videojs(videoEl, vjsOptions);
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
               try {
