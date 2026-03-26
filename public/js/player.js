@@ -107,8 +107,8 @@
             } else if (isVideoJs) {
               mountEl.innerHTML =
                 '<label style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">' +
-                '<span aria-hidden="true" style="display:inline-flex;align-items:center;color:#8b949e;flex:0 0 auto;">' + qualityIcon + '</span>' +
-                '<select data-role="hls-quality" aria-label="Chất lượng" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + options + '</select>' +
+                '<button type="button" data-role="quality-toggle" aria-label="Chất lượng" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;display:inline-flex;align-items:center;justify-content:center;">' + qualityIcon + '</button>' +
+                '<select data-role="hls-quality" aria-label="Chất lượng" style="display:none;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + options + '</select>' +
                 '</label>';
             } else {
               mountEl.innerHTML = '<label style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">' +
@@ -130,6 +130,13 @@
               var toggle = mountEl.querySelector('[data-role="quality-toggle"]');
               if (toggle && sel) {
                 toggle.onclick = function () {
+                  sel.style.display = sel.style.display === 'none' ? 'inline-block' : 'none';
+                };
+              }
+            } else if (isVideoJs) {
+              var toggle2 = mountEl.querySelector('[data-role="quality-toggle"]');
+              if (toggle2 && sel) {
+                toggle2.onclick = function () {
                   sel.style.display = sel.style.display === 'none' ? 'inline-block' : 'none';
                 };
               }
@@ -203,10 +210,10 @@
           '    <button type="button" data-role="seek-back" aria-label="Tua -' + step + ' giây" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + iconSeekBack + '</button>' +
           '    <button type="button" data-role="seek-fwd" aria-label="Tua +' + step + ' giây" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + iconSeekFwd + '</button>' +
           '  </div>' +
-          '  <label style="display:flex;gap:8px;align-items:center;">' +
-          '    <span aria-hidden="true" style="display:inline-flex;align-items:center;">' + iconSpeed + '</span>' +
-          '    <select data-role="speed" aria-label="Tốc độ" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + speedOptions + '</select>' +
-          '  </label>' +
+          '  <div style="display:flex;gap:8px;align-items:center;">' +
+          '    <button type="button" data-role="speed-toggle" aria-label="Tốc độ" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;display:inline-flex;align-items:center;justify-content:center;">' + iconSpeed + '</button>' +
+          '    <select data-role="speed" aria-label="Tốc độ" style="display:none;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#0d1117;color:#c9d1d9;">' + speedOptions + '</select>' +
+          '  </div>' +
           '</div>';
       } else {
         bar.innerHTML =
@@ -263,6 +270,12 @@
       if (btnBack) btnBack.onclick = function () { seekTo(getCurrentTime() - step); };
       if (btnFwd) btnFwd.onclick = function () { seekTo(getCurrentTime() + step); };
       if (selSpeed) selSpeed.onchange = function () { setSpeed(selSpeed.value); };
+      var btnSpeedToggle = bar.querySelector('[data-role="speed-toggle"]');
+      if (btnSpeedToggle && selSpeed) {
+        btnSpeedToggle.onclick = function () {
+          selSpeed.style.display = selSpeed.style.display === 'none' ? 'inline-block' : 'none';
+        };
+      }
     } catch (e) {}
   }
 
