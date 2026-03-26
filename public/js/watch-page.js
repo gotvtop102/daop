@@ -757,31 +757,35 @@
                 } catch (eTouch2) {}
                 if (isTouchDevice2) {
                   var lastDirectPlayerInteraction = 0;
-                  var markPlayerInteraction = function () { lastDirectPlayerInteraction = Date.now(); };
+                  var markPlayerInteraction = function () {
+                    lastDirectPlayerInteraction = Date.now();
+                    syncMobileControls();
+                  };
+                  var syncMobileControls = function () {
+                    try {
+                      var playerEl2 = vjs.el && vjs.el();
+                      if (!playerEl2) return;
+                      var isPaused = !!(vjs.paused && vjs.paused());
+                      var recentInteraction = (Date.now() - lastDirectPlayerInteraction) < 1400;
+                      if (isPaused || recentInteraction) playerEl2.classList.add('daop-show-controls');
+                      else playerEl2.classList.remove('daop-show-controls');
+                    } catch (eSync) {}
+                  };
                   try {
                     var playerEl = vjs.el && vjs.el();
                     if (playerEl) {
+                      playerEl.classList.add('daop-mobile-control-lock');
+                      playerEl.classList.remove('daop-show-controls');
                       playerEl.addEventListener('touchstart', markPlayerInteraction, { passive: true });
                       playerEl.addEventListener('pointerdown', markPlayerInteraction, { passive: true });
                       playerEl.addEventListener('mousedown', markPlayerInteraction, { passive: true });
                     }
                   } catch (ePI) {}
-                  vjs.on('useractive', function () {
-                    try {
-                      if (vjs.paused && vjs.paused()) return;
-                      if ((Date.now() - lastDirectPlayerInteraction) < 1200) return;
-                      setTimeout(function () {
-                        try { if (vjs.userActive) vjs.userActive(false); } catch (eUA) {}
-                      }, 250);
-                    } catch (eUA2) {}
-                  });
-                  var enforceInactiveTimer = setInterval(function () {
-                    try {
-                      if (vjs.paused && vjs.paused()) return;
-                      if ((Date.now() - lastDirectPlayerInteraction) < 1200) return;
-                      if (vjs.userActive && vjs.userActive()) vjs.userActive(false);
-                    } catch (eUA3) {}
-                  }, 1200);
+                  vjs.on('play', syncMobileControls);
+                  vjs.on('pause', syncMobileControls);
+                  vjs.on('useractive', syncMobileControls);
+                  vjs.on('userinactive', syncMobileControls);
+                  var enforceInactiveTimer = setInterval(syncMobileControls, 700);
                   vjs.on('dispose', function () {
                     try { clearInterval(enforceInactiveTimer); } catch (eClr) {}
                   });
