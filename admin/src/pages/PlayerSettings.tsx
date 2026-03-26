@@ -29,7 +29,7 @@ import { supabase } from '../lib/supabase';
 const { Text, Title } = Typography;
 const { Panel } = Collapse;
 
-type PlayerType = 'plyr' | 'videojs' | 'jwplayer' | 'vidstack' | 'clappr' | 'mediaelement' | 'fluidplayer';
+type PlayerType = 'plyr' | 'videojs' | 'jwplayer' | 'fluidplayer';
 
 type PlayerConfig = {
   // Common settings
@@ -59,26 +59,6 @@ type PlayerConfig = {
   vjs_aspectRatio?: string;
   vjs_bigPlayButton?: boolean;
   vjs_controlBar?: boolean;
-
-  // Vidstack specific
-  vidstack_theme?: 'default' | 'minimal' | 'custom';
-  vidstack_load?: 'eager' | 'lazy' | 'idle';
-  vidstack_icons?: 'default' | 'material' | 'custom';
-  vidstack_thumbnails?: boolean;
-  vidstack_chapters?: boolean;
-
-  // Clappr specific
-  clappr_watermark?: string;
-  clappr_watermarkPosition?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
-  clappr_autoPlay?: boolean;
-  clappr_mute?: boolean;
-  clappr_hideMediaControl?: boolean;
-
-  // MediaElement specific
-  me_alwaysShowControls?: boolean;
-  me_hideVideoControlsOnLoad?: boolean;
-  me_startVolume?: number;
-  me_stretching?: 'auto' | 'fill' | 'responsive' | 'none';
 
   // Fluidplayer specific
   fluid_layoutControls?: boolean;
@@ -112,9 +92,6 @@ const AVAILABLE_PLAYERS: { value: PlayerType; label: string; description: string
   { value: 'plyr', label: 'Plyr', description: 'Player nhẹ, đẹp, dễ tùy chỉnh' },
   { value: 'videojs', label: 'Video.js', description: 'Player mạnh mẽ, hỗ trợ nhiều format' },
   { value: 'jwplayer', label: 'JWPlayer', description: 'Player chuyên nghiệp (cần license)' },
-  { value: 'vidstack', label: 'Vidstack', description: 'Player hiện đại, hỗ trợ Web Components' },
-  { value: 'clappr', label: 'Clappr', description: 'Player mở rộng, dễ tích hợp plugin' },
-  { value: 'mediaelement', label: 'MediaElement', description: 'Player đa năng, hỗ trợ nhiều nguồn' },
   { value: 'fluidplayer', label: 'FluidPlayer', description: 'Player HTML5 mạnh mẽ, hỗ trợ VAST/VPAID' },
 ];
 
@@ -168,26 +145,6 @@ const defaultPlayerConfig: PlayerConfig = {
   vjs_aspectRatio: '16:9',
   vjs_bigPlayButton: true,
   vjs_controlBar: true,
-
-  // Vidstack
-  vidstack_theme: 'default',
-  vidstack_load: 'idle',
-  vidstack_icons: 'default',
-  vidstack_thumbnails: false,
-  vidstack_chapters: false,
-
-  // Clappr
-  clappr_watermark: '',
-  clappr_watermarkPosition: 'top-right',
-  clappr_autoPlay: false,
-  clappr_mute: false,
-  clappr_hideMediaControl: false,
-
-  // MediaElement
-  me_alwaysShowControls: true,
-  me_hideVideoControlsOnLoad: false,
-  me_startVolume: 0.8,
-  me_stretching: 'responsive',
 
   // Fluidplayer
   fluid_layoutControls: true,
@@ -257,8 +214,10 @@ export default function PlayerSettings() {
       settings[row.key] = row.value;
     }
 
-    const defaultPlayer = settings.default_player ?? 'videojs';
-    setSelectedPlayer(defaultPlayer as PlayerType);
+    const defaultPlayerRaw = settings.default_player ?? 'videojs';
+    const defaultPlayer = String(defaultPlayerRaw).toLowerCase();
+    const allowed = new Set(AVAILABLE_PLAYERS.map((p) => p.value));
+    setSelectedPlayer((allowed.has(defaultPlayer as PlayerType) ? defaultPlayer : 'videojs') as PlayerType);
 
     const config = parseJsonSafe<PlayerConfig>(settings.player_config, defaultPlayerConfig);
     setPlayerConfig({ ...defaultPlayerConfig, ...config });
@@ -455,96 +414,6 @@ export default function PlayerSettings() {
               </Form.Item>
               <Form.Item name="vjs_controlBar" valuePropName="checked" label="Hiển thị control bar">
                 <Switch />
-              </Form.Item>
-            </Space>
-          </>
-        );
-
-      case 'vidstack':
-        return (
-          <>
-            <Title level={5}>Cài đặt Vidstack</Title>
-            <Space direction="vertical" style={{ width: '100%' }} size="middle">
-              <Form.Item name="vidstack_theme" label="Theme">
-                <Radio.Group optionType="button" buttonStyle="solid">
-                  <Radio.Button value="default">Mặc định</Radio.Button>
-                  <Radio.Button value="minimal">Tối giản</Radio.Button>
-                  <Radio.Button value="custom">Tùy chỉnh</Radio.Button>
-                </Radio.Group>
-              </Form.Item>
-              <Form.Item name="vidstack_load" label="Chế độ tải">
-                <Radio.Group optionType="button" buttonStyle="solid">
-                  <Radio.Button value="eager">Eager</Radio.Button>
-                  <Radio.Button value="lazy">Lazy</Radio.Button>
-                  <Radio.Button value="idle">Idle</Radio.Button>
-                </Radio.Group>
-              </Form.Item>
-              <Form.Item name="vidstack_icons" label="Icon set">
-                <Radio.Group optionType="button" buttonStyle="solid">
-                  <Radio.Button value="default">Mặc định</Radio.Button>
-                  <Radio.Button value="material">Material</Radio.Button>
-                </Radio.Group>
-              </Form.Item>
-              <Form.Item name="vidstack_thumbnails" valuePropName="checked" label="Bật thumbnails (preview)">
-                <Switch />
-              </Form.Item>
-              <Form.Item name="vidstack_chapters" valuePropName="checked" label="Bật chapters">
-                <Switch />
-              </Form.Item>
-            </Space>
-          </>
-        );
-
-      case 'clappr':
-        return (
-          <>
-            <Title level={5}>Cài đặt Clappr</Title>
-            <Space direction="vertical" style={{ width: '100%' }} size="middle">
-              <Form.Item name="clappr_watermark" label="URL Watermark">
-                <Input placeholder="https://..." />
-              </Form.Item>
-              <Form.Item name="clappr_watermarkPosition" label="Vị trí Watermark">
-                <Radio.Group optionType="button" buttonStyle="solid">
-                  <Radio.Button value="top-right">Top Right</Radio.Button>
-                  <Radio.Button value="top-left">Top Left</Radio.Button>
-                  <Radio.Button value="bottom-right">Bottom Right</Radio.Button>
-                  <Radio.Button value="bottom-left">Bottom Left</Radio.Button>
-                </Radio.Group>
-              </Form.Item>
-              <Form.Item name="clappr_autoPlay" valuePropName="checked" label="Tự động phát">
-                <Switch />
-              </Form.Item>
-              <Form.Item name="clappr_mute" valuePropName="checked" label="Tắt tiếng mặc định">
-                <Switch />
-              </Form.Item>
-              <Form.Item name="clappr_hideMediaControl" valuePropName="checked" label="Ẩn media control">
-                <Switch />
-              </Form.Item>
-            </Space>
-          </>
-        );
-
-      case 'mediaelement':
-        return (
-          <>
-            <Title level={5}>Cài đặt MediaElement</Title>
-            <Space direction="vertical" style={{ width: '100%' }} size="middle">
-              <Form.Item name="me_alwaysShowControls" valuePropName="checked" label="Luôn hiển thị controls">
-                <Switch />
-              </Form.Item>
-              <Form.Item name="me_hideVideoControlsOnLoad" valuePropName="checked" label="Ẩn controls khi tải">
-                <Switch />
-              </Form.Item>
-              <Form.Item name="me_startVolume" label="Âm lượng mặc định">
-                <Slider min={0} max={1} step={0.1} marks={{ 0: '0%', 0.5: '50%', 1: '100%' }} />
-              </Form.Item>
-              <Form.Item name="me_stretching" label="Chế độ stretching">
-                <Radio.Group optionType="button" buttonStyle="solid">
-                  <Radio.Button value="auto">Auto</Radio.Button>
-                  <Radio.Button value="fill">Fill</Radio.Button>
-                  <Radio.Button value="responsive">Responsive</Radio.Button>
-                  <Radio.Button value="none">None</Radio.Button>
-                </Radio.Group>
               </Form.Item>
             </Space>
           </>

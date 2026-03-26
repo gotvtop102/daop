@@ -2992,16 +2992,10 @@ body.theme-light .showtimes-item-st {
 .plyr [data-role="playback"],
 .video-js .vjs-control-bar [data-role="quality"],
 .video-js .vjs-control-bar [data-role="playback"],
-.mejs__controls [data-role="quality"],
-.mejs__controls [data-role="playback"],
 .jwplayer [data-role="quality"],
 .jwplayer [data-role="playback"],
 .fluid_video_wrapper [data-role="quality"],
-.fluid_video_wrapper [data-role="playback"],
-media-player [data-role="quality"],
-media-player [data-role="playback"],
-.clappr-container [data-role="quality"],
-.clappr-container [data-role="playback"] {
+.fluid_video_wrapper [data-role="playback"] {
   margin: 0 !important;
   padding: 4px 8px;
   max-width: 100%;

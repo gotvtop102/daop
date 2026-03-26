@@ -266,8 +266,8 @@
   };
 
   /**
-   * Gắn khối chất lượng HLS + tua/tốc độ vào vùng điều khiển của từng player (không để hàng riêng phía trên video).
-   * extra: { jwInstance, mediaPlayerEl, clapprContainer }
+   * Gắn khối chất lượng HLS + tua/tốc độ vào vùng điều khiển của từng player.
+   * (Hỗ trợ các player còn lại: plyr, videojs, jwplayer, fluidplayer.)
    */
   window.DAOP.attachPlayerAuxControls = function (scopeEl, videoEl, playerType, extra) {
     extra = extra || {};
@@ -319,34 +319,6 @@
         } else {
           if (quality) move(quality, container, container.firstChild);
           if (playback) move(playback, container, container.firstChild);
-        }
-        return;
-      }
-      if (pt === 'vidstack') {
-        var root = extra.mediaPlayerEl || scopeEl.querySelector('media-player');
-        if (!root) return;
-        var before = root.firstChild;
-        if (quality) move(quality, root, before);
-        if (playback) move(playback, root, before);
-        return;
-      }
-      if (pt === 'clappr') {
-        var croot = extra.clapprContainer || scopeEl.querySelector('.clappr-container') || scopeEl.querySelector('[data-player]');
-        if (!croot) return;
-        if (quality) move(quality, croot, null);
-        if (playback) move(playback, croot, null);
-        return;
-      }
-      if (pt === 'mediaelement') {
-        var meroot = videoEl.closest && videoEl.closest('.mejs__container');
-        if (!meroot) return;
-        var mebar = meroot.querySelector('.mejs__controls');
-        if (mebar) {
-          if (playback) move(playback, mebar, mebar.firstChild);
-          if (quality) move(quality, mebar, mebar.firstChild);
-        } else {
-          if (quality) move(quality, meroot, meroot.firstChild);
-          if (playback) move(playback, meroot, meroot.firstChild);
         }
         return;
       }
