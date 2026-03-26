@@ -649,7 +649,7 @@
     if (!video || isEmbed) return;
 
     var qualityMount = container.querySelector('[data-role="quality"]');
-    if (chosenPlayer !== 'jwplayer') {
+    if (chosenPlayer !== 'jwplayer' && chosenPlayer !== 'plyr') {
       initHlsQuality(video, ctx.link, playerConfig, qualityMount, chosenPlayer);
     }
 
@@ -684,25 +684,74 @@
         loadStylesheet('https://cdn.plyr.io/3.7.8/plyr.css');
         loadScript('https://cdn.plyr.io/3.7.8/plyr.polyfilled.js').then(function () {
           try {
-            var plyrInstance = new window.Plyr(video, {
-              controls: playerConfig.plyr_hideControls ? [] : ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'fullscreen'],
+            var speedEnabled = playerConfig.playback_speed_enabled !== false;
+            var defaultSpeed = Number(playerConfig.playback_speed_default);
+            if (!isFinite(defaultSpeed) || defaultSpeed <= 0) defaultSpeed = 1;
+            var rates = Array.isArray(playerConfig.playback_speed_options) ? playerConfig.playback_speed_options : [0.5, 0.75, 1, 1.25, 1.5, 2];
+            rates = rates.map(function (n) { return Number(n); }).filter(function (n) { return isFinite(n) && n > 0; });
+            if (!rates.length) rates = [0.5, 0.75, 1, 1.25, 1.5, 2];
+            if (rates.indexOf(defaultSpeed) < 0) rates.push(defaultSpeed);
+            rates = Array.from(new Set(rates)).sort(function (a, b) { return a - b; });
+
+            var controls = playerConfig.plyr_hideControls ? [] : ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'settings', 'fullscreen'];
+            var plyrOptions = {
+              controls: controls,
               clickToPlay: playerConfig.plyr_clickToPlay !== false,
               disableContextMenu: playerConfig.plyr_disableContextMenu !== false,
               resetOnEnd: playerConfig.plyr_resetOnEnd || false,
-              tooltips: { controls: playerConfig.plyr_tooltips === 'controls', seek: playerConfig.plyr_tooltips === 'seek' }
-            });
-            plyrInstance.on('timeupdate', reportTime);
-            plyrInstance.on('ready', function () {
-              try {
-                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
-                  window.DAOP.attachPlayerAuxControls(container, video, 'plyr', {});
-                }
-                initPlaybackControls(container, video, chosenPlayer, playerConfig, null);
-                if (window.DAOP && typeof window.DAOP.attachPlayerAuxControls === 'function') {
-                  window.DAOP.attachPlayerAuxControls(container, video, 'plyr', {});
-                }
-              } catch (eReady) {}
-            });
+              tooltips: { controls: playerConfig.plyr_tooltips === 'controls', seek: playerConfig.plyr_tooltips === 'seek' },
+              speed: { selected: speedEnabled ? defaultSpeed : 1, options: speedEnabled ? rates : [1] }
+            };
+
+            var mountQuality = container && container.querySelector ? container.querySelector('[data-role="quality"]') : null;
+            var mountPlayback = container && container.querySelector ? container.querySelector('[data-role="playback"]') : null;
+            if (mountQuality) mountQuality.style.display = 'none';
+            if (mountPlayback) mountPlayback.style.display = 'none';
+
+            var startPlyr = function () {
+              var plyrInstance = new window.Plyr(video, plyrOptions);
+              plyrInstance.on('timeupdate', reportTime);
+            };
+
+            if (isM3u8Url(video.src) && playerConfig.hls_quality_enabled !== false) {
+              var hlsCdn = String(playerConfig.hls_js_cdn || 'https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js');
+              loadScript(hlsCdn).then(function () {
+                try {
+                  var HlsCtor = window.Hls;
+                  if (!HlsCtor || !HlsCtor.isSupported || !HlsCtor.isSupported()) return startPlyr();
+                  var hls = new HlsCtor({
+                    startLevel: (playerConfig.hls_start_level != null ? playerConfig.hls_start_level : -1),
+                    capLevelToPlayerSize: playerConfig.hls_cap_level_to_player_size !== false
+                  });
+                  video.__daop_hls = hls;
+                  hls.loadSource(String(video.src));
+                  hls.attachMedia(video);
+                  hls.on(HlsCtor.Events.MANIFEST_PARSED, function () {
+                    try {
+                      var heights = Array.from(new Set((hls.levels || []).map(function (lv) { return Number(lv && lv.height) || 0; }).filter(function (n) { return n > 0; }))).sort(function (a, b) { return b - a; });
+                      if (heights.length) {
+                        plyrOptions.quality = {
+                          default: heights[0],
+                          options: heights,
+                          forced: true,
+                          onChange: function (newQuality) {
+                            var q = Number(newQuality) || 0;
+                            var idx = -1;
+                            for (var i = 0; i < (hls.levels || []).length; i++) {
+                              if ((hls.levels[i] && hls.levels[i].height) === q) { idx = i; break; }
+                            }
+                            try { hls.currentLevel = idx; } catch (eSetQ) {}
+                          }
+                        };
+                      }
+                    } catch (eQ0) {}
+                    startPlyr();
+                  });
+                } catch (eHls) { startPlyr(); }
+              }).catch(function () { startPlyr(); });
+            } else {
+              startPlyr();
+            }
           } catch (e) {}
         }).catch(function () {});
         break;
