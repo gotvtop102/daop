@@ -614,30 +614,55 @@
       case 'videojs':
         loadStylesheet('https://vjs.zencdn.net/8.10.0/video-js.css');
         loadScript('https://vjs.zencdn.net/8.10.0/video.min.js').then(function () {
-          return loadScript('https://cdn.jsdelivr.net/npm/videojs-hls-quality-selector@1.2.0/dist/videojs-hls-quality-selector.min.js').catch(function () {});
+          return Promise.all([
+            loadScript('https://cdn.jsdelivr.net/npm/videojs-hls-quality-selector@1.2.0/dist/videojs-hls-quality-selector.min.js').catch(function () {}),
+            loadScript('https://cdn.jsdelivr.net/npm/videojs-http-source-selector@1.1.6/dist/videojs-http-source-selector.min.js').catch(function () {})
+          ]);
         }).then(function () {
           try {
+            var stepSeconds = parseInt(config.seek_step_seconds, 10);
+            if (!isFinite(stepSeconds) || stepSeconds <= 0) stepSeconds = 10;
+            if (stepSeconds !== 5 && stepSeconds !== 10 && stepSeconds !== 30) stepSeconds = 10;
+
             var rates = Array.isArray(config.playback_speed_options) ? config.playback_speed_options : [0.5, 0.75, 1, 1.25, 1.5, 2];
             rates = rates
               .map(function (n) { return Number(n); })
               .filter(function (n) { return isFinite(n) && n > 0; });
             if (!rates.length) rates = [0.5, 0.75, 1, 1.25, 1.5, 2];
             rates = Array.from(new Set(rates)).sort(function (a, b) { return a - b; });
+
+            var controlBarOpt = config.vjs_controlBar !== false ? config.vjs_controlBar : false;
+            if (controlBarOpt && typeof controlBarOpt === 'object') {
+              controlBarOpt.skipButtons = { forward: stepSeconds, backward: stepSeconds };
+            } else if (controlBarOpt) {
+              controlBarOpt = { skipButtons: { forward: stepSeconds, backward: stepSeconds } };
+            }
+
             var vjs = window.videojs(videoEl, {
               fluid: config.vjs_fluid !== false,
               responsive: config.vjs_responsive !== false,
               aspectRatio: config.vjs_aspectRatio || '16:9',
               bigPlayButton: config.vjs_bigPlayButton !== false,
-              controlBar: config.vjs_controlBar !== false,
+              controlBar: controlBarOpt,
               playbackRates: rates,
               html5: { vhs: { overrideNative: true } }
             });
             vjs.ready(function () {
               this.on('timeupdate', reportTime);
               try {
-                if (typeof vjs.hlsQualitySelector === 'function') {
-                  vjs.hlsQualitySelector({ displayCurrentQuality: true });
-                }
+                var initQuality = function () {
+                  try {
+                    if (config.hls_quality_enabled === false) return;
+                    if (typeof vjs.hlsQualitySelector === 'function') {
+                      vjs.hlsQualitySelector({ displayCurrentQuality: true });
+                    } else if (typeof vjs.httpSourceSelector === 'function') {
+                      vjs.httpSourceSelector({ default: 'auto' });
+                    }
+                  } catch (eQ) {}
+                };
+                this.one('loadedmetadata', function () { initQuality(); });
+                // Fallback in case loadedmetadata never fires for some streams
+                setTimeout(initQuality, 2500);
               } catch (eVjs) {}
             });
           } catch (e) {}
