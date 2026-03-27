@@ -1297,10 +1297,6 @@
 
       row.style.display = '';
       var groups = Math.max(1, Math.ceil(list.length / GROUP_SIZE));
-      if (state.episode) {
-        var selectedIdx = list.findIndex(function (e) { return e && e.code === state.episode; });
-        if (selectedIdx >= 0) state.groupIdx = Math.floor(selectedIdx / GROUP_SIZE);
-      }
       if (state.groupIdx >= groups) state.groupIdx = 0;
       var options = '';
       for (var i = 0; i < groups; i++) {
@@ -1326,10 +1322,6 @@
       var GROUP_SIZE = 50;
       var isSingle = (movie && (movie.type === 'single' || movie.type === 'movie')) || false;
       var needGrouping = !isSingle && list.length > GROUP_SIZE;
-      if (needGrouping && state.episode) {
-        var currentIdx = list.findIndex(function (e) { return e && e.code === state.episode; });
-        if (currentIdx >= 0) state.groupIdx = Math.floor(currentIdx / GROUP_SIZE);
-      }
       var startIdx = needGrouping ? state.groupIdx * GROUP_SIZE : 0;
       var endIdx = needGrouping ? Math.min(startIdx + GROUP_SIZE, list.length) : list.length;
       var slice = list.slice(startIdx, endIdx);
