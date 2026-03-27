@@ -307,7 +307,6 @@ async function patchAndroidLauncherIcon(resDir, downloadUrl) {
   const xhdpi = 96;
   const xxhdpi = 144;
   const xxxhdpi = 192;
-  const anydpiV26 = 108;
 
   const addIfExists = (p, size) => {
     if (fileExists(p)) fileCandidates.push({ path: p, size });
@@ -326,8 +325,12 @@ async function patchAndroidLauncherIcon(resDir, downloadUrl) {
   addIfExists(path.join(resDir, "mipmap-xxhdpi", "ic_launcher_round.png"), xxhdpi);
   addIfExists(path.join(resDir, "mipmap-xxxhdpi", "ic_launcher_round.png"), xxxhdpi);
 
-  addIfExists(path.join(resDir, "mipmap-anydpi-v26", "ic_launcher_foreground.png"), anydpiV26);
-  addIfExists(path.join(resDir, "mipmap-anydpi-v26", "ic_launcher_background.png"), anydpiV26);
+  // Adaptive icon foreground is usually in mipmap-* (anydpi-v26 contains XML only)
+  addIfExists(path.join(resDir, "mipmap-mdpi", "ic_launcher_foreground.png"), mdpi);
+  addIfExists(path.join(resDir, "mipmap-hdpi", "ic_launcher_foreground.png"), hdpi);
+  addIfExists(path.join(resDir, "mipmap-xhdpi", "ic_launcher_foreground.png"), xhdpi);
+  addIfExists(path.join(resDir, "mipmap-xxhdpi", "ic_launcher_foreground.png"), xxhdpi);
+  addIfExists(path.join(resDir, "mipmap-xxxhdpi", "ic_launcher_foreground.png"), xxxhdpi);
 
   if (fileCandidates.length === 0) {
     console.log("[WARN] Không tìm thấy file icon launcher (ic_launcher*.png) để thay thế.");
@@ -364,6 +367,33 @@ function getAndroidResDir() {
   return path.join(appDir, "android", "app", "src", "main", "res");
 }
 
+function escapeXmlText(s) {
+  return String(s ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+function writeAndroidFlavorStrings({ flavor, appId, appName }) {
+  const androidAppDir = path.join(appDir, "android", "app");
+  const valuesDir = path.join(androidAppDir, "src", flavor, "res", "values");
+  ensureDir(valuesDir);
+  const stringsPath = path.join(valuesDir, "strings.xml");
+  const name = escapeXmlText(appName);
+  const id = escapeXmlText(appId);
+  const xml =
+    `<?xml version="1.0" encoding="utf-8"?>\n` +
+    `<resources>\n` +
+    `    <string name="app_name">${name}</string>\n` +
+    `    <string name="title_activity_main">${name}</string>\n` +
+    `    <string name="package_name">${id}</string>\n` +
+    `    <string name="custom_url_scheme">${id}</string>\n` +
+    `</resources>\n`;
+  fs.writeFileSync(stringsPath, xml, "utf8");
+}
+
 function getApkRoot(buildDir, release) {
   return path.join(buildDir, "outputs", "apk", release ? "release" : "debug");
 }
@@ -372,7 +402,11 @@ const args = parseArgs(process.argv.slice(2));
 let url = args.url;
 const iconUrl = args.iconUrl || args["icon-url"] || args.icon;
 const buildRelease = !!args.release;
-const appNameArg = args.appName || args["app-name"];
+const appNameArg = args.appName || args["app-name"] || process.env.CAPACITOR_APP_NAME;
+const releaseStoreFile = args.storeFile || args["store-file"] || process.env.RELEASE_STORE_FILE;
+const releaseStorePassword = args.storePassword || args["store-password"] || process.env.RELEASE_STORE_PASSWORD;
+const releaseKeyAlias = args.keyAlias || args["key-alias"] || process.env.RELEASE_KEY_ALIAS;
+const releaseKeyPassword = args.keyPassword || args["key-password"] || process.env.RELEASE_KEY_PASSWORD;
 
 if (!url) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -398,13 +432,15 @@ const variants = [
     name: "phone",
     appId: "com.daop.phim",
     appName: "DAOP Phim",
-    gradleTask: ":app:assemblePhoneDebug",
+    gradleTaskDebug: ":app:assemblePhoneDebug",
+    gradleTaskRelease: ":app:assemblePhoneRelease",
   },
   {
     name: "tv",
     appId: "com.daop.phim.tv",
     appName: "DAOP Phim TV",
-    gradleTask: ":app:assembleTvDebug",
+    gradleTaskDebug: ":app:assembleTvDebug",
+    gradleTaskRelease: ":app:assembleTvRelease",
   },
 ];
 
@@ -416,25 +452,43 @@ for (const v of variants) {
   env.CAPACITOR_APP_NAME = appNameArg || v.appName;
   ensureGradleCompatibleJava(env);
   ensureAndroidSdkConfigured(env);
+  if (buildRelease) {
+    if (!releaseStoreFile || !releaseStorePassword || !releaseKeyAlias || !releaseKeyPassword) {
+      throw new Error(
+        "Build release cần RELEASE_STORE_FILE, RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_KEY_PASSWORD. " +
+          "Bạn có thể truyền qua --storeFile --storePassword --keyAlias --keyPassword."
+      );
+    }
+    // Pass signing values to Gradle project properties (no secrets written to disk).
+    env.ORG_GRADLE_PROJECT_RELEASE_STORE_FILE = releaseStoreFile;
+    env.ORG_GRADLE_PROJECT_RELEASE_STORE_PASSWORD = releaseStorePassword;
+    env.ORG_GRADLE_PROJECT_RELEASE_KEY_ALIAS = releaseKeyAlias;
+    env.ORG_GRADLE_PROJECT_RELEASE_KEY_PASSWORD = releaseKeyPassword;
+  }
 
   // Sync config into Android project (so appId/appName/server.url reflect).
   // Use platform-specific sync for speed.
   runCap(["sync", "android"], appDir, env);
+
+  // Ensure Android label/scheme match the variant (Capacitor does not always rewrite strings.xml)
+  // Write AFTER sync so it doesn't get overwritten.
+  writeAndroidFlavorStrings({
+    flavor: v.name,
+    appId: env.CAPACITOR_APP_ID,
+    appName: env.CAPACITOR_APP_NAME,
+  });
 
   // Patch launcher icon (optional)
   await patchAndroidLauncherIcon(getAndroidResDir(), iconUrl);
 
   // Build APK
   // - Default: debug APK (installable, no signing needed)
-  // - Optional: release via Capacitor (requires signing)
+  // - Optional: release APK (requires signing values)
   try {
-    if (buildRelease) {
-      runCap(["build", "android", "--release"], appDir, env);
-    } else {
-      const androidDir = path.join(appDir, "android");
-      const gradlew = isWindows() ? path.join(androidDir, "gradlew.bat") : path.join(androidDir, "gradlew");
-      run(`${quoteArg(gradlew)} ${v.gradleTask}`, androidDir, env);
-    }
+    const androidDir = path.join(appDir, "android");
+    const gradlew = isWindows() ? path.join(androidDir, "gradlew.bat") : path.join(androidDir, "gradlew");
+    const task = buildRelease ? v.gradleTaskRelease : v.gradleTaskDebug;
+    run(`${quoteArg(gradlew)} ${task}`, androidDir, env);
   } catch (e) {
     console.log("[WARN] Build thất bại.");
     console.log(String(e?.message || e));
