@@ -574,6 +574,13 @@
       return (matched && matched.slug) || b || snSlug || 'default';
     }
 
+    var preferredServer = '';
+    try {
+      var ps = window.DAOP && window.DAOP.playerSettings ? window.DAOP.playerSettings : {};
+      var rawPref = String((ps && ps.default_watch_server) || '').trim();
+      if (rawPref) preferredServer = matchServerSlug(makeSlug(rawPref) || rawPref, rawPref);
+    } catch (ePref0) {}
+
     // Normalize server slug input (URL/history) into internal srvSlug used in episodes UI.
     if (wantServer) {
       try {
@@ -650,7 +657,12 @@
     }
 
     if (!pick) {
-      srvKeys.some(function (srvSlug) {
+      var srvOrder = srvKeys.slice();
+      if (preferredServer) {
+        var pIdx = srvOrder.indexOf(preferredServer);
+        if (pIdx > 0) srvOrder.unshift(srvOrder.splice(pIdx, 1)[0]);
+      }
+      srvOrder.some(function (srvSlug) {
         var eps = serverData[srvSlug] || [];
         if (!eps.length) return false;
         var epObj = eps[0];
@@ -1147,6 +1159,16 @@
       return (matched && matched.name) || serverName || srvSlug;
     }
 
+    function moveServerFirst(list, targetSlug) {
+      if (!Array.isArray(list) || !list.length || !targetSlug) return list;
+      var idx = list.findIndex(function (s) { return s && s.slug === targetSlug; });
+      if (idx <= 0) return list;
+      var item = list[idx];
+      list.splice(idx, 1);
+      list.unshift(item);
+      return list;
+    }
+
     var byServer = {};
     movie.episodes.forEach(function (ep) {
       var serverName = ep.server_name || ep.name || ep.slug || '';
@@ -1178,6 +1200,15 @@
 
     var serversData = Object.keys(byServer).map(function (k) { return byServer[k]; });
     if (!serversData.length) return;
+
+    try {
+      var ps = window.DAOP && window.DAOP.playerSettings ? window.DAOP.playerSettings : {};
+      var rawPref = String((ps && ps.default_watch_server) || '').trim();
+      if (rawPref) {
+        var prefSlug = matchServerSlug(makeSlug(rawPref) || rawPref, rawPref);
+        moveServerFirst(serversData, prefSlug);
+      }
+    } catch (ePref1) {}
 
     var state = {
       server: (initial && initial.server) || serversData[0].slug,

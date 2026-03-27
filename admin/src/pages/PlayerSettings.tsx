@@ -239,6 +239,7 @@ export default function PlayerSettings() {
 
     form.setFieldsValue({
       default_player: defaultPlayer,
+      default_watch_server: settings.default_watch_server ?? '',
       link_type_labels_json: JSON.stringify(labels, null, 2),
     });
 
@@ -281,6 +282,7 @@ export default function PlayerSettings() {
       // Save all settings
       const rows = [
         { key: 'default_player', value: values.default_player },
+        { key: 'default_watch_server', value: String(values.default_watch_server || '').trim() },
         { key: 'player_config', value: configValues },
         { key: 'link_type_labels', value: linkTypeLabelsData },
       ];
@@ -514,6 +516,14 @@ export default function PlayerSettings() {
                   }))}
                   style={{ width: '100%' }}
                 />
+              </Form.Item>
+
+              <Form.Item
+                name="default_watch_server"
+                label="Server mặc định khi vào trang xem (slug)"
+                tooltip="Ví dụ: vietsub-1, vietsub-2. Để trống = dùng thứ tự server hiện có của phim."
+              >
+                <Input placeholder="vd: vietsub-1" allowClear />
               </Form.Item>
 
               <Form.Item
