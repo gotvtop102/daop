@@ -1757,6 +1757,15 @@
     var btnCloseComments = root.querySelector('#watch-btn-close-comments');
     if (btnCloseComments) btnCloseComments.addEventListener('click', hideCommentsPanel);
 
+    var btnCollapseComments = root.querySelector('#watch-btn-collapse-comments');
+    if (btnCollapseComments) {
+      btnCollapseComments.addEventListener('click', function () {
+        var commentsCard = root.querySelector('.watch-comments-card');
+        if (!commentsCard) return;
+        commentsCard.classList.toggle('watch-comments-card--collapsed');
+      });
+    }
+
     var btnCollapseEpisodes = root.querySelector('#watch-btn-collapse-episodes');
     if (btnCollapseEpisodes) {
       btnCollapseEpisodes.addEventListener('click', function () {
@@ -1893,7 +1902,10 @@
             '    <section id="watch-comments" class="watch-side-card watch-comments-card">' +
             '      <div class="watch-side-head">' +
             '        <div class="watch-side-title">' + iconSvg('chat') + '<span class="watch-side-title-text">Bình luận</span></div>' +
-            '        <button type="button" class="watch-side-back" id="watch-btn-close-comments" aria-label="Đóng">' + iconSvg('close') + '<span class="watch-close-text">Đóng</span></button>' +
+            '        <div class="watch-side-head-actions">' +
+            '          <button type="button" class="watch-episodes-collapse" id="watch-btn-collapse-comments" aria-label="Thu gọn bình luận">' + iconSvg('chevDown') + '</button>' +
+            '          <button type="button" class="watch-side-back" id="watch-btn-close-comments" aria-label="Đóng">' + iconSvg('close') + '<span class="watch-close-text">Đóng</span></button>' +
+            '        </div>' +
             '      </div>' +
             '      <div id="watch-comments-container" data-post-slug="' + slugSafe + '"></div>' +
             '    </section>' +

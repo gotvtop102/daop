@@ -73,6 +73,8 @@
   margin-top: 8px;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
 }
 
 .cmt-form-actions button,
@@ -179,6 +181,28 @@
   background: rgba(255, 255, 255, 0.01);
 }
 
+.cmt-form-status {
+  font-size: 0.74rem;
+  color: var(--muted, #8b949e);
+  min-width: 56px;
+  text-align: left;
+}
+
+.cmt-form-status--error {
+  color: #ff7b72;
+}
+
+.cmt-replies-more {
+  margin-top: 6px;
+  border: 1px solid var(--border, #30363d);
+  background: #0d1117;
+  color: var(--text, #e6edf3);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
 .cmt-msg {
   margin: 10px 0 0;
   color: var(--muted, #8b949e);
@@ -220,6 +244,16 @@ body.theme-light .cmt-msg {
 
 body.theme-light .cmt-action-btn,
 body.theme-light .cmt-emoji-btn {
+  background: #fff;
+  color: var(--light-text, #1f2328);
+  border-color: var(--light-border, #d8cfc2);
+}
+
+body.theme-light .cmt-form-status {
+  color: var(--light-muted, #5c6773);
+}
+
+body.theme-light .cmt-replies-more {
   background: #fff;
   color: var(--light-text, #1f2328);
   border-color: var(--light-border, #d8cfc2);

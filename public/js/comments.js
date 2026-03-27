@@ -165,6 +165,14 @@
       msgEl.className = 'cmt-msg' + (isError ? ' cmt-msg--error' : '');
     }
 
+    function setFormStatus(form, msg, isError) {
+      if (!form) return;
+      var el = form.querySelector('[data-role="form-status"]');
+      if (!el) return;
+      el.textContent = msg || '';
+      el.className = 'cmt-form-status' + (isError ? ' cmt-form-status--error' : '');
+    }
+
     function fillAvatarFallback(items) {
       return Promise.all((items || []).map(function (it) {
         if (it.author_avatar || !it.author_email) return it;
@@ -212,7 +220,7 @@
           '</div>' +
           '<input type="text" name="website" class="cmt-honeypot" tabindex="-1" autocomplete="off">' +
           '<textarea name="content" rows="4" maxlength="4000" placeholder="Viết bình luận...">' + esc(draft) + '</textarea>' +
-          '<div class="cmt-form-actions"><button type="submit">Gửi bình luận</button></div>' +
+          '<div class="cmt-form-actions"><button type="submit">Gửi bình luận</button><span class="cmt-form-status" data-role="form-status"></span></div>' +
         '</form>';
       var form = formWrap.querySelector('.cmt-form');
       var ta = formWrap.querySelector('textarea[name="content"]');
@@ -309,7 +317,7 @@
         '<form class="cmt-form cmt-form--reply">' +
           '<textarea name="content" rows="3" maxlength="4000" placeholder="Viết trả lời..."></textarea>' +
           '<input type="text" name="website" class="cmt-honeypot" tabindex="-1" autocomplete="off">' +
-          '<div class="cmt-form-actions"><button type="submit">Gửi trả lời</button></div>' +
+          '<div class="cmt-form-actions"><button type="submit">Gửi trả lời</button><span class="cmt-form-status" data-role="form-status"></span></div>' +
         '</form>';
       var form = holder.querySelector('form');
       if (form) {
@@ -325,9 +333,61 @@
       }
     }
 
-    function fetchReplies(commentId) {
-      return api('/api/comment?postSlug=' + encodeURIComponent(postSlug) + '&parentId=' + commentId + '&page=1&limit=100')
-        .then(function (res) { return fillAvatarFallback(res.items || []); });
+    function ensureReplyState(commentId) {
+      if (!state.openReplies[commentId]) {
+        state.openReplies[commentId] = { page: 0, hasMore: false };
+      }
+      return state.openReplies[commentId];
+    }
+
+    function renderRepliesMoreButton(holder, commentId, show) {
+      if (!holder) return;
+      var more = holder.querySelector('.cmt-replies-more');
+      if (show) {
+        if (!more) {
+          holder.insertAdjacentHTML('beforeend', '<button type="button" class="cmt-replies-more" data-action="more-replies" data-id="' + commentId + '">Xem thêm</button>');
+          more = holder.querySelector('.cmt-replies-more');
+          if (more) {
+            more.addEventListener('click', function () {
+              loadMoreReplies(commentId);
+            });
+          }
+        }
+      } else if (more) {
+        more.remove();
+      }
+    }
+
+    function loadRepliesPage(commentId, page, reset) {
+      var holder = listEl.querySelector('[data-role="replies"][data-id="' + commentId + '"]');
+      if (!holder) return Promise.resolve([]);
+      if (reset) holder.innerHTML = '<p class="cmt-msg">Đang tải trả lời...</p>';
+      return api('/api/comment?postSlug=' + encodeURIComponent(postSlug) + '&parentId=' + commentId + '&page=' + page + '&limit=2')
+        .then(function (res) {
+          return fillAvatarFallback(res.items || []).then(function (items) {
+            var rs = ensureReplyState(commentId);
+            rs.page = page;
+            rs.hasMore = !!res.hasMore;
+            if (reset) {
+              holder.innerHTML = items.length ? items.map(renderComment).join('') : '<p class="cmt-msg">Chưa có trả lời.</p>';
+            } else if (items.length) {
+              var moreBtn = holder.querySelector('.cmt-replies-more');
+              if (moreBtn) moreBtn.remove();
+              holder.insertAdjacentHTML('beforeend', items.map(renderComment).join(''));
+            }
+            renderRepliesMoreButton(holder, commentId, rs.hasMore);
+            bindCommentActions();
+            return items;
+          });
+        });
+    }
+
+    function loadMoreReplies(commentId) {
+      var rs = ensureReplyState(commentId);
+      if (!rs.hasMore) return;
+      loadRepliesPage(commentId, (rs.page || 1) + 1, false).catch(function (err) {
+        setMsg(err.message || 'Không thể tải thêm trả lời', true);
+      });
     }
 
     function toggleReplies(commentId, btn, forceOpen) {
@@ -344,15 +404,11 @@
         return;
       }
       holder.style.display = '';
-      holder.innerHTML = '<p class="cmt-msg">Đang tải trả lời...</p>';
-      fetchReplies(commentId).then(function (items) {
-        if (!items.length) {
-          holder.innerHTML = '<p class="cmt-msg">Chưa có trả lời.</p>';
-        } else {
-          holder.innerHTML = items.map(renderComment).join('');
-          bindCommentActions();
+      loadRepliesPage(commentId, 1, true).then(function (items) {
+        if (btn) {
+          var rs = ensureReplyState(commentId);
+          btn.innerHTML = '🗂️ <span data-role="reply-count">' + String(items.length + (rs.hasMore ? '+' : '')) + '</span>';
         }
-        if (btn) btn.innerHTML = '🗂️ <span data-role="reply-count">' + String(items.length) + '</span>';
       }).catch(function (err) {
         holder.innerHTML = '<p class="cmt-msg cmt-msg--error">' + esc(err.message || 'Không thể tải trả lời') + '</p>';
       });
@@ -382,14 +438,15 @@
       var hp = form.querySelector('input[name="website"]');
       var content = ta ? String(ta.value || '').trim() : '';
       if (content.length < 2) {
-        setMsg('Bình luận quá ngắn.', true);
+        setFormStatus(form, 'Quá ngắn', true);
         return Promise.resolve();
       }
       var token = state.session && state.session.access_token;
       if (!token) {
-        setMsg('Bạn cần đăng nhập lại để bình luận.', true);
+        setFormStatus(form, 'Cần đăng nhập', true);
         return Promise.resolve();
       }
+      setFormStatus(form, 'Đang gửi...');
       setMsg('Đang gửi bình luận...');
       return api('/api/comment', {
         method: 'POST',
@@ -408,15 +465,18 @@
         .then(function (items) {
           if ((parentId || 0) > 0) {
             setMsg('Đã gửi trả lời.');
+            setFormStatus(form, 'Đã gửi');
             return;
           }
           appendComments(items, false);
           if (ta) ta.value = '';
           try { localStorage.removeItem(draftKey); } catch (e) {}
           setMsg('Đã gửi bình luận.');
+          setFormStatus(form, 'Đã gửi');
         })
         .catch(function (err) {
           setMsg(err.message || 'Gửi bình luận thất bại', true);
+          setFormStatus(form, 'Lỗi gửi', true);
         })
         .finally(function () {
           if (ta) ta.value = '';
