@@ -537,6 +537,7 @@
 
     var servers = window.DAOP && window.DAOP.serverSources ? window.DAOP.serverSources : (serverSources || []);
     var preferredLinkType = '';
+    var preferredLinkTypePriority = [];
 
     function makeSlug(text) {
       if (!text) return '';
@@ -581,6 +582,13 @@
       var rawPref = String((ps && ps.default_watch_server) || '').trim();
       if (rawPref) preferredServer = matchServerSlug(makeSlug(rawPref) || rawPref, rawPref);
       preferredLinkType = String((ps && ps.default_watch_link_type) || '').trim().toLowerCase();
+      var rawPriority = ps && ps.default_watch_link_type_priority;
+      if (Array.isArray(rawPriority)) {
+        preferredLinkTypePriority = rawPriority.map(function (x) { return String(x || '').trim().toLowerCase(); }).filter(Boolean);
+      } else if (typeof rawPriority === 'string' && rawPriority.trim()) {
+        preferredLinkTypePriority = rawPriority.split(',').map(function (x) { return String(x || '').trim().toLowerCase(); }).filter(Boolean);
+      }
+      if (!preferredLinkTypePriority.length && preferredLinkType) preferredLinkTypePriority = [preferredLinkType];
     } catch (ePref0) {}
 
     // Normalize server slug input (URL/history) into internal srvSlug used in episodes UI.
@@ -628,7 +636,12 @@
     function pickLinkTypeFromEp(epObj) {
       if (!epObj) return 'm3u8';
       if (wantLinkType && epObj.links && epObj.links[wantLinkType]) return wantLinkType;
-      if (!wantLinkType && preferredLinkType && epObj.links && epObj.links[preferredLinkType]) return preferredLinkType;
+      if (!wantLinkType && preferredLinkTypePriority && preferredLinkTypePriority.length) {
+        for (var p = 0; p < preferredLinkTypePriority.length; p++) {
+          var t = preferredLinkTypePriority[p];
+          if (t && epObj.links && epObj.links[t]) return t;
+        }
+      }
       for (var i = 0; i < preferTypes.length; i++) {
         if (epObj.links && epObj.links[preferTypes[i]]) return preferTypes[i];
       }

@@ -94,6 +94,7 @@ const AVAILABLE_PLAYERS: { value: PlayerType; label: string; description: string
   { value: 'jwplayer', label: 'JWPlayer', description: 'Player chuyên nghiệp (cần license)' },
   { value: 'fluidplayer', label: 'FluidPlayer', description: 'Player HTML5 mạnh mẽ, hỗ trợ VAST/VPAID' },
 ];
+const LINK_TYPE_KEYS = ['m3u8', 'vip1', 'vip2', 'vip3', 'vip4', 'vip5', 'embed', 'backup'] as const;
 
 type PrerollRow = {
   id: string;
@@ -240,7 +241,13 @@ export default function PlayerSettings() {
     form.setFieldsValue({
       default_player: defaultPlayer,
       default_watch_server: settings.default_watch_server ?? '',
-      default_watch_link_type: settings.default_watch_link_type ?? '',
+      default_watch_link_type_priority: (() => {
+        const rawPriority = settings.default_watch_link_type_priority;
+        if (Array.isArray(rawPriority)) return rawPriority.join(', ');
+        if (typeof rawPriority === 'string' && rawPriority.trim()) return rawPriority;
+        const oldSingle = String(settings.default_watch_link_type || '').trim();
+        return oldSingle || '';
+      })(),
       link_type_labels_json: JSON.stringify(labels, null, 2),
     });
 
@@ -281,10 +288,20 @@ export default function PlayerSettings() {
       }
 
       // Save all settings
+      const priorityRaw = String(values.default_watch_link_type_priority || '').trim();
+      const priorityList = priorityRaw
+        ? priorityRaw
+            .split(',')
+            .map((x: string) => String(x || '').trim().toLowerCase())
+            .filter((x: string) => LINK_TYPE_KEYS.includes(x as any))
+            .filter((x: string, i: number, arr: string[]) => arr.indexOf(x) === i)
+        : [];
+
       const rows = [
         { key: 'default_player', value: values.default_player },
         { key: 'default_watch_server', value: String(values.default_watch_server || '').trim() },
-        { key: 'default_watch_link_type', value: String(values.default_watch_link_type || '').trim() },
+        { key: 'default_watch_link_type_priority', value: priorityList },
+        { key: 'default_watch_link_type', value: priorityList[0] || '' }, // backward compatibility
         { key: 'player_config', value: configValues },
         { key: 'link_type_labels', value: linkTypeLabelsData },
       ];
@@ -529,23 +546,13 @@ export default function PlayerSettings() {
               </Form.Item>
 
               <Form.Item
-                name="default_watch_link_type"
-                label="Nguồn máy chủ mặc định"
-                tooltip="Áp dụng khi chưa có lịch sử xem hoặc tham số URL. Ví dụ: m3u8 (VIP S1), vip1 (VIP K1)..."
+                name="default_watch_link_type_priority"
+                label="Thứ tự ưu tiên nguồn máy chủ"
+                tooltip="Nhập theo thứ tự ưu tiên, ngăn cách bằng dấu phẩy. Ví dụ: m3u8,vip1,vip2,embed,backup"
               >
-                <Select
+                <Input
+                  placeholder={`m3u8 (${linkTypeLabels.m3u8 || 'M3U8'}), vip1 (${linkTypeLabels.vip1 || 'VIP 1'}), vip2, vip3, vip4, vip5, embed, backup`}
                   allowClear
-                  placeholder="Chọn nguồn mặc định"
-                  options={[
-                    { value: 'm3u8', label: `m3u8 (${linkTypeLabels.m3u8 || 'M3U8'})` },
-                    { value: 'vip1', label: `vip1 (${linkTypeLabels.vip1 || 'VIP 1'})` },
-                    { value: 'vip2', label: `vip2 (${linkTypeLabels.vip2 || 'VIP 2'})` },
-                    { value: 'vip3', label: `vip3 (${linkTypeLabels.vip3 || 'VIP 3'})` },
-                    { value: 'vip4', label: `vip4 (${linkTypeLabels.vip4 || 'VIP 4'})` },
-                    { value: 'vip5', label: `vip5 (${linkTypeLabels.vip5 || 'VIP 5'})` },
-                    { value: 'embed', label: `embed (${linkTypeLabels.embed || 'Embed'})` },
-                    { value: 'backup', label: `backup (${linkTypeLabels.backup || 'Backup'})` },
-                  ]}
                 />
               </Form.Item>
 
