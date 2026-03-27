@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Năm phát hành | GoTV</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div id="loading-screen" class="loading-screen" aria-hidden="false"><div class="loading-screen-inner"><div class="loading-screen-logo">GoTV</div><p class="loading-screen-text">Loading...</p></div></div>
+  <script>
+    window.DAOP = window.DAOP || {};
+    (function(){
+      var path = window.location.pathname;
+      var m = path.match(/\/(?:quoc-gia|the-loai|nam-phat-hanh)(?:\/|$)/);
+      if (m) { var idx = path.indexOf(m[0]); var before = path.slice(0, idx); window.DAOP.basePath = before || ''; }
+    })();
+  </script>
+  <header class="site-header">
+    <a href="../" class="site-logo">GoTV</a>
+    <nav class="site-nav"><div class="site-nav-main"><a href="../phim-bo.html">Phim bộ</a><a href="../phim-le.html">Phim lẻ</a><a href="../the-loai/">Thể loại</a><a href="../quoc-gia/">Quốc gia</a><a href="../chu-de/">Danh sách</a><a href="../dien-vien/">Diễn viên</a><a href="../hoat-hinh.html">Hoạt hình</a><a href="../shows.html">TV Shows</a><a href="../gioi-thieu.html">Giới thiệu</a><a href="../donate.html">Donate</a><a href="../huong-dan-app.html">Tải app</a><a href="../lien-he.html">Liên hệ</a></div><div class="site-nav-actions"><a href="../tim-kiem.html">Tìm kiếm</a><a href="../login.html">Đăng nhập</a></div></nav>
+  </header>
+  <main class="container">
+    <h1 id="page-title">Năm phát hành</h1>
+    <div id="filter-bar" class="filter-bar"></div>
+    <div id="movies-grid" class="movies-grid"></div>
+    <div id="pagination" class="pagination"></div>
+  </main>
+  <footer class="site-footer">
+'    <div class="footer-vietnam-wrap"><div class="footer-vietnam-banner"><span class="footer-flag" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" preserveAspectRatio="xMidYMid meet"><rect width="30" height="20" fill="#DA251D"/><path fill="#FFFF00" d="M15 4l2.47 7.6H25l-6.23 4.5 2.36 7.3L15 16.2l-6.13 4.2 2.36-7.3L5 11.6h7.53z"/></svg></span> Trường Sa &amp; Hoàng Sa là của Việt Nam!</div></div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <a href="/" class="footer-logo">GoTV<span class="footer-logo-text">GoTV - Trang tổng hợp phim, video, chương trình, tư liệu giải trí đỉnh cao</span></a>
+        <span class="footer-divider" aria-hidden="true"></span>
+        <div class="footer-links-col">
+          <a href="/hoi-dap.html">Hỏi - đáp</a>
+          <a href="/chinh-sach-bao-mat.html">Chính sách bảo mật</a>
+          <a href="/dieu-khoan-su-dung.html">Điều khoản sử dụng</a>
+        </div>
+      </div>
+    </div>
+    <p class="footer-copyright">Copyright 2018 <a href="https://gotv.top" target="_blank" rel="noopener">GoTV</a>. All rights reserved.</p>
+  </footer>
+<script src="../data/filters.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/category-page.js"></script>
+  <script>
+    (function(){
+      var path = window.location.pathname;
+      var m = path.match(/\/nam-phat-hanh\/([^/]+)(\.html)?$/);
+      if (!m) m = path.match(/.+\/nam-phat-hanh\/([^/]+)(\.html)?$/);
+      var year = m ? decodeURIComponent(m[1]) : null;
+      if (!year) {
+        var fd = window.filtersData || {};
+        var years = Object.keys(fd.yearMap || {}).sort(function(a,b){ return Number(b) - Number(a); });
+        document.getElementById('page-title').textContent = 'Năm phát hành';
+        var base = (window.DAOP && window.DAOP.basePath) || '';
+        document.getElementById('movies-grid').innerHTML = years.length
+          ? '<div class="genre-grid">' + years.map(function(y){
+              var label = String(y || '').replace(/</g, '&lt;');
+              return '<a class="genre-card" href="' + base + '/nam-phat-hanh/' + encodeURIComponent(String(y)) + '.html"><span class="genre-icon">📅</span><span class="genre-name">' + label + '</span></a>';
+            }).join('') + '</div>'
+          : '<p>Chưa có dữ liệu.</p>';
+        document.getElementById('filter-bar').innerHTML = '';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+      document.getElementById('page-title').textContent = 'Năm: ' + year;
+      new CategoryPage({
+        baseFilter: function(){ return new Set((window.filtersData && window.filtersData.yearMap && window.filtersData.yearMap[year]) || []); },
+        title: 'Năm: ' + year,
+        gridId: 'movies-grid',
+        filterContainerId: 'filter-bar',
+        paginationId: 'pagination'
+      }).init();
+    })();
+  </script>
+</body>
+</html>
