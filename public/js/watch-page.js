@@ -708,13 +708,7 @@
         var epObj = eps[0];
         if (!epObj) return false;
 
-        var linkType = null;
-        for (var i = 0; i < preferTypes.length; i++) {
-          if (epObj.links && epObj.links[preferTypes[i]]) {
-            linkType = preferTypes[i];
-            break;
-          }
-        }
+        var linkType = pickLinkTypeFromEp(epObj);
         if (!linkType) linkType = 'm3u8';
         pick = { server: srvSlug, episode: epObj.code, linkType: linkType, link: (epObj.links && epObj.links[linkType]) || '' };
         return true;
