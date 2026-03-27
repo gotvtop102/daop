@@ -1398,6 +1398,26 @@
     function updatePlayer() {
       var info = getServerInfo(state.server);
       var link = pickLink(info);
+
+      // Save current selection immediately (even for embed where no timeupdate fires).
+      try {
+        var us0 = window.DAOP && window.DAOP.userSync;
+        if (us0 && typeof us0.updateWatchProgress === 'function' && movie && movie.slug && state.episode) {
+          var prevTs = 0;
+          try {
+            if (typeof us0.getWatchHistory === 'function') {
+              var h0 = us0.getWatchHistory().find(function (x) { return x && x.slug === movie.slug; }) || null;
+              if (h0 && h0.timestamp != null) prevTs = Number(h0.timestamp) || 0;
+            }
+          } catch (ePrev) {}
+          us0.updateWatchProgress(movie.slug, state.episode, prevTs, {
+            server: state.server,
+            linkType: state.linkType,
+            groupIdx: state.groupIdx
+          });
+        }
+      } catch (eSaveSel) {}
+
       renderPlayer(root.querySelector('[data-role="player"]'), {
         link: link,
         slug: movie.slug,
