@@ -139,7 +139,7 @@
       <p>Nhấn vào nút bên dưới để tải file APK về điện thoại:</p>
       <div class="download-buttons">
         <a href="#" id="apk-link" class="download-btn">
-          📥 Tải APK (Android)
+          📥 Tải APK (Điện thoại Android)
         </a>
       </div>
 
@@ -167,6 +167,14 @@
     <!-- Android TV -->
     <div class="app-guide-section">
       <h2><span class="platform-icon">📺</span>2. Cài đặt trên Android TV</h2>
+      
+      <h3>Tải file APK Android TV</h3>
+      <p>Nhấn nút bên dưới để tải đúng bản APK dành riêng cho Android TV/TV Box:</p>
+      <div class="download-buttons">
+        <a href="#" id="apk-tv-link" class="download-btn download-btn--tv">
+          📺 Tải APK (Android TV)
+        </a>
+      </div>
       
       <h3>Cách 1: Cài qua USB (Khuyên dùng)</h3>
       <ol>
@@ -293,6 +301,10 @@
       if (app && app.apk_link) {
         var apkBtn = document.getElementById('apk-link');
         if (apkBtn) apkBtn.href = app.apk_link;
+      }
+      if (app && app.apk_tv_link) {
+        var apkTvBtn = document.getElementById('apk-tv-link');
+        if (apkTvBtn) apkTvBtn.href = app.apk_tv_link;
       }
       if (app && app.testflight_link) {
         var iosBtn = document.getElementById('testflight-link');

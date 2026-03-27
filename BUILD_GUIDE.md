@@ -138,10 +138,14 @@ Bạn sẽ thấy 2 file dạng:
 - `daop-phone-<timestamp>.apk`
 - `daop-tv-<timestamp>.apk`
 
+> Gợi ý: nên upload 2 file này lên host của bạn và tạo **2 link tải riêng**:
+> - Link **app điện thoại**: trỏ vào file `daop-phone-*.apk`
+> - Link **app Android TV**: trỏ vào file `daop-tv-*.apk`
+
 ### 2.7 Cài APK lên thiết bị
 
 - **Android phone**: cắm cáp hoặc chép file → mở APK để cài (bật “Install unknown apps” nếu cần)
-- **Android TV/TV Box**: chép APK qua USB/Network → cài APK  
+- **Android TV/TV Box**: dùng đúng file **TV** (hoặc link tải TV riêng) rồi chép APK qua USB/Network → cài APK  
   (bản TV đã được thêm `LEANBACK_LAUNCHER` để hiện launcher trên TV)
 
 ---

@@ -12,7 +12,7 @@ Các file trong thư mục này là **mẫu định dạng** cho output của `s
 | `server-sources.json` | Nguồn server phát: name, slug, base_url, is_active |
 | `player-settings.json` | Cài đặt player: available_players, default_player, warning_* |
 | `preroll.json` | Pre-roll ads: video_url, duration, skip_after, weight |
-| `static-pages.json` | Trang tĩnh: about, app_guide, apk_link, testflight_link |
+| `static-pages.json` | Trang tĩnh: about, app_guide, apk_link, apk_tv_link, testflight_link |
 | `donate.json` | Cài đặt donate: target_amount, paypal_link, bank_info |
 
 ## Cách dùng

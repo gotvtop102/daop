@@ -55,6 +55,7 @@ export default function StaticPages() {
         about_content: find('about')?.content ?? '',
         app_guide_content: find('app_guide')?.content ?? '',
         apk_link: (find('app_guide') as any)?.apk_link ?? '',
+        apk_tv_link: (find('app_guide') as any)?.apk_tv_link ?? '',
         testflight_link: (find('app_guide') as any)?.testflight_link ?? '',
         contact_content: find('contact')?.content ?? '',
         faq_content: find('faq')?.content ?? '',
@@ -69,7 +70,14 @@ export default function StaticPages() {
     try {
       const rows = [
         { page_key: 'about', content: values.about_content, updated_at: new Date().toISOString() },
-        { page_key: 'app_guide', content: values.app_guide_content, apk_link: values.apk_link ?? null, testflight_link: values.testflight_link ?? null, updated_at: new Date().toISOString() },
+        {
+          page_key: 'app_guide',
+          content: values.app_guide_content,
+          apk_link: values.apk_link ?? null,
+          apk_tv_link: values.apk_tv_link ?? null,
+          testflight_link: values.testflight_link ?? null,
+          updated_at: new Date().toISOString(),
+        },
         { page_key: 'contact', content: values.contact_content, updated_at: new Date().toISOString() },
         { page_key: 'faq', content: values.faq_content, updated_at: new Date().toISOString() },
         { page_key: 'privacy', content: values.privacy_content, updated_at: new Date().toISOString() },
@@ -104,8 +112,9 @@ export default function StaticPages() {
                 children: (
                   <>
                     <Form.Item name="app_guide_content" label="Nội dung"><RichTextEditor /></Form.Item>
-                    <Form.Item name="apk_link" label="Link APK"><Input placeholder="https://..." /></Form.Item>
-                    <Form.Item name="testflight_link" label="Link TestFlight"><Input placeholder="https://..." /></Form.Item>
+                    <Form.Item name="apk_link" label="Link APK điện thoại (Android)"><Input placeholder="https://..." /></Form.Item>
+                    <Form.Item name="apk_tv_link" label="Link APK Android TV (riêng)"><Input placeholder="https://..." /></Form.Item>
+                    <Form.Item name="testflight_link" label="Link TestFlight (iOS)"><Input placeholder="https://..." /></Form.Item>
                   </>
                 ),
               },
