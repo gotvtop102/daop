@@ -9,7 +9,14 @@
   var agreeEl = document.getElementById('agree-terms');
   var displayNameWrap = document.getElementById('signup-display-name-wrap');
   var displayNameEl = document.getElementById('signup-display-name');
+  var titleEl = document.querySelector('.auth-center h1');
   var _signupMode = false;
+
+  function setAuthMode(signupMode) {
+    _signupMode = !!signupMode;
+    if (displayNameWrap) displayNameWrap.style.display = _signupMode ? '' : 'none';
+    if (titleEl) titleEl.textContent = _signupMode ? 'Đăng ký' : 'Đăng nhập';
+  }
 
   function getSafeRedirectUrl() {
     try {
@@ -143,6 +150,12 @@
 
     if (btnLogin) {
       btnLogin.addEventListener('click', function () {
+        // When user is currently in signup mode, clicking "Đăng nhập" should go back UI state.
+        if (_signupMode) {
+          setAuthMode(false);
+          setStatus('Chuyển sang đăng nhập.', false);
+          return;
+        }
         if (!ensureAgreed()) return;
         var c = getCreds();
         if (!c.email || !c.password) {
@@ -171,8 +184,7 @@
     if (btnSignup) {
       btnSignup.addEventListener('click', function () {
         if (!_signupMode) {
-          _signupMode = true;
-          if (displayNameWrap) displayNameWrap.style.display = '';
+          setAuthMode(true);
           if (displayNameEl) displayNameEl.focus();
           setStatus('Nhập Tên hiển thị, Email và Mật khẩu để đăng ký.');
           return;
@@ -235,6 +247,8 @@
 
   function init() {
     bindActions();
+    // Ensure title matches initial mode (login).
+    setAuthMode(false);
     ensureClient().then(function (client) {
       if (!client) return;
       refreshUi(client);
