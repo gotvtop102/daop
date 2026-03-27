@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Card, Form, Input, Button, Tabs, message } from 'antd';
+import { Card, Form, Input, Button, Tabs, message, Alert } from 'antd';
 import { supabase } from '../lib/supabase';
 
 type RichTextEditorProps = {
@@ -95,7 +95,7 @@ export default function StaticPages() {
     <>
       <h1>Nội dung tĩnh</h1>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        Sau khi lưu, cần chạy Build website để xuất nội dung ra site.
+        Sau khi lưu, cần chạy Build website (GitHub Actions) để xuất nội dung ra site.
       </p>
       <Card loading={loading}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
@@ -111,6 +111,25 @@ export default function StaticPages() {
                 label: 'Hướng dẫn app',
                 children: (
                   <>
+                    <Alert
+                      type="info"
+                      showIcon
+                      style={{ marginBottom: 12 }}
+                      message="Cập nhật trang hướng dẫn cài app"
+                      description={
+                        <div>
+                          <div>
+                            - Nhập nội dung hướng dẫn + dán link tải APK điện thoại / APK Android TV / TestFlight iOS.
+                          </div>
+                          <div>
+                            - Sau khi bấm <b>Lưu</b>, vào trang <b>GitHub Actions</b> và chạy <b>Build website</b> để nội dung lên site.
+                          </div>
+                          <div>
+                            - APK được build từ bộ công cụ riêng (Build App GoTV) và upload lên host của bạn để lấy link.
+                          </div>
+                        </div>
+                      }
+                    />
                     <Form.Item name="app_guide_content" label="Nội dung"><RichTextEditor /></Form.Item>
                     <Form.Item name="apk_link" label="Link APK điện thoại (Android)"><Input placeholder="https://..." /></Form.Item>
                     <Form.Item name="apk_tv_link" label="Link APK Android TV (riêng)"><Input placeholder="https://..." /></Form.Item>
