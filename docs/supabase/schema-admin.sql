@@ -150,7 +150,6 @@ insert into public.site_settings (key, value) values
   ('site_name', 'DAOP Phim'),
   ('google_analytics_id', ''),
   ('simple_analytics_script', ''),
-  ('twikoo_env_id', ''),
   ('supabase_user_url', ''),
   ('supabase_user_anon_key', ''),
   ('player_warning_enabled', 'true'),

@@ -1,5 +1,5 @@
 /**
- * Trang chi tiết phim: load batch, render poster, meta, episodes, similar, Twikoo
+ * Trang chi tiết phim: load batch, render poster, meta, episodes, similar, comment nội bộ
  */
 (function () {
   function applyDefaultHeaderVisibility() {
@@ -565,7 +565,7 @@
       '      <div class="md-right">' +
       '        <section id="movie-comments" class="md-section">' +
       '          <h3 class="md-section-title">' + iconSvg('chat') + '<span class="md-section-title-text">Bình luận</span></h3>' +
-      '          <div id="twikoo-comments"></div>' +
+      '          <div id="comments-container" data-post-slug="' + esc(movie.slug || '') + '"></div>' +
       '        </section>' +
       '      </div>' +
       '      <section id="movie-recommend" class="md-section md-recommend">' +
@@ -604,13 +604,11 @@
       if (window.DAOP && typeof window.DAOP.refreshQuickFavorites === 'function') window.DAOP.refreshQuickFavorites();
     } catch (e2) {}
 
-    if (window.twikoo) {
-      twikoo.init({
-        envId: window.DAOP?.twikooEnvId || '',
-        el: '#twikoo-comments',
-        path: window.location.pathname,
-      });
-    }
+    try {
+      if (window.DAOP && typeof window.DAOP.mountComments === 'function') {
+        window.DAOP.mountComments('#comments-container', { postSlug: movie.slug || '' });
+      }
+    } catch (e3) {}
 
     if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
       window.DAOP.renderAdsInDocument(el || document);

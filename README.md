@@ -159,7 +159,7 @@ Mở trình duyệt: **http://localhost:5174** (hoặc cổng Vite in ra trong t
 - **`public/`** – Website chính (deploy Cloudflare Pages).
 - **`admin/`** – Admin panel React (deploy Vercel).
 - **`app/`** – Cấu hình Capacitor (Android/iOS/Android TV).
-- **`docs/`** – Hướng dẫn chi tiết: Supabase, R2, Vercel, Cloudflare Pages, GitHub Actions, Twikoo, Capacitor, Google Sheets.
+- **`docs/`** – Hướng dẫn chi tiết: Supabase, R2, Vercel, Cloudflare Pages, GitHub Actions, Comments, Capacitor, Google Sheets.
 
 ### Section trang chủ (mặc định)
 
@@ -191,4 +191,4 @@ Tóm tắt:
 3. **Cloudflare Pages:** dùng **Direct Upload + GitHub Actions deploy**.
 4. **Vercel:** Import repo, root = repo root, build = `cd admin && npm run build`, output = `admin/dist`; thêm env Supabase Admin + GITHUB_TOKEN, GITHUB_REPO cho API trigger build.
 5. **Build dữ liệu:** Chạy `npm run build` (local hoặc qua Actions), push `public/data`, deploy lại site.
-6. **Admin:** Đăng nhập, cấu hình Cài đặt chung (Supabase User URL/Key, Twikoo, tracking…), bấm Build website rồi deploy lại site nếu cần.
+6. **Admin:** Đăng nhập, cấu hình Cài đặt chung (Supabase User URL/Key, tracking…), bấm Build website rồi deploy lại site nếu cần.

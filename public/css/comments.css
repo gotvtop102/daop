@@ -1,0 +1,143 @@
+.cmt-box {
+  border: 1px solid var(--border, #30363d);
+  border-radius: 12px;
+  background: var(--card, #161b22);
+  padding: 14px;
+}
+
+.cmt-title {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+
+.cmt-current-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cmt-current-user p {
+  margin: 2px 0 0;
+  color: var(--muted, #8b949e);
+  font-size: 0.86rem;
+}
+
+.cmt-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cmt-avatar--fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #2f81f7;
+  color: #fff;
+  font-weight: 700;
+}
+
+.cmt-form textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 90px;
+  border-radius: 10px;
+  border: 1px solid var(--border, #30363d);
+  background: #0d1117;
+  color: var(--text, #e6edf3);
+  padding: 10px;
+  font: inherit;
+}
+
+.cmt-honeypot {
+  position: absolute;
+  left: -10000px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cmt-form-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cmt-form-actions button,
+.cmt-login-btn,
+.cmt-load-more {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--accent, #58a6ff);
+  color: #fff;
+}
+
+.cmt-list {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.cmt-item {
+  display: flex;
+  gap: 10px;
+  border: 1px solid var(--border, #30363d);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cmt-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cmt-meta {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.cmt-meta span {
+  color: var(--muted, #8b949e);
+  font-size: 0.82rem;
+}
+
+.cmt-content {
+  margin-top: 6px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.cmt-content code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.86em;
+}
+
+.cmt-load-more {
+  margin: 12px auto 0;
+  display: block;
+}
+
+.cmt-msg {
+  margin: 10px 0 0;
+  color: var(--muted, #8b949e);
+  font-size: 0.9rem;
+}
+
+.cmt-msg--error {
+  color: #ff7b72;
+}
+
+@media (max-width: 600px) {
+  .cmt-box {
+    padding: 10px;
+  }
+}
+

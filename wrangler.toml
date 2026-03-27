@@ -1,0 +1,21 @@
+name = "daop-movie"
+compatibility_date = "2026-03-27"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ophimcomment"
+database_id = "da00788d-f9ee-49bf-86ad-e8324cf85ed4"
+
+[[kv_namespaces]]
+binding = "COMMENT_CACHE"
+id = "1319cdb360d3415b8556629f81fedc4e"
+
+[[kv_namespaces]]
+binding = "COMMENT_RATE_LIMIT"
+id = "2cf2aedc25d643b88e3b427daf4a5622"
+
+[vars]
+# Khai báo trên Cloudflare Pages > Settings > Environment variables
+SUPABASE_JWT_SECRET = "8Jq9a1K/WeKNKnhAqtQiMVG0npk9lMmhq4Eg+fTpd01VEKbMAMmJGMPnbCgMsPFczKeEs2krZyO/lyECOATuwA=="
+

@@ -6,7 +6,7 @@
 - **vercel/** – Deploy Admin lên Vercel.
 - **github-actions/** – Workflow build và deploy.
 - **capacitor/** – Đóng gói app Android / iOS / Android TV.
-- **twikoo/** – Cài đặt bình luận Twikoo.
+- **comments/** – Cài đặt hệ thống bình luận nội bộ (Cloudflare Pages + D1 + KV).
 - **r2/** – Cấu hình Cloudflare R2.
 - **google-sheets/** – Cấu hình Google Sheets cho phim custom.
 

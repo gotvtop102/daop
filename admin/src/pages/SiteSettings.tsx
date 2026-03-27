@@ -50,7 +50,6 @@ const SITE_SETTINGS_KEYS = [
   'home_prebuild_enable_longtieng',
   'google_analytics_id',
   'simple_analytics_script',
-  'twikoo_env_id',
   'supabase_user_url',
   'supabase_user_anon_key',
   'player_visible',
@@ -114,7 +113,6 @@ export default function SiteSettings() {
         home_prebuild_enable_longtieng: data.home_prebuild_enable_longtieng !== 'false',
         google_analytics_id: data.google_analytics_id ?? '',
         simple_analytics_script: data.simple_analytics_script ?? '',
-        twikoo_env_id: data.twikoo_env_id ?? '',
         supabase_user_url: data.supabase_user_url ?? '',
         supabase_user_anon_key: data.supabase_user_anon_key ?? '',
         player_visible: data.player_visible !== 'false',
@@ -372,9 +370,6 @@ export default function SiteSettings() {
                     </Form.Item>
                     <Form.Item name="simple_analytics_script" label="SimpleAnalytics (mã nhúng)">
                       <Input.TextArea rows={3} placeholder="<script>...</script>" />
-                    </Form.Item>
-                    <Form.Item name="twikoo_env_id" label="Twikoo Env ID (URL hoặc id)">
-                      <Input placeholder="https://xxx.vercel.app" />
                     </Form.Item>
                     <Form.Item name="supabase_user_url" label="Supabase User URL (website dùng)">
                       <Input placeholder="https://xxx.supabase.co" />

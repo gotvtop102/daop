@@ -18,9 +18,9 @@ Tài liệu đối chiếu từng yêu cầu trong **DA.txt** với hiện trạ
 | Website chỉ gọi Supabase User (cá nhân) | ✅ | user-sync.js, config supabase_user_url/anon_key |
 | Google Analytics, SimpleAnalytics từ Admin | ✅ | main.js inject từ site-settings.json |
 | Đồng bộ user localStorage + Supabase (delta sync) | ✅ | user-sync.js, pendingActions, fetchChanges |
-| Bình luận Twikoo (Vercel riêng) | ✅ | Trang phim + twikoo.init, docs/twikoo |
+| Bình luận nội bộ (Cloudflare Pages + D1 + KV) | ✅ | Trang phim + comments.js, docs/comments |
 | GitHub Actions: hàng ngày + on-demand, incremental | ✅ | 3 workflows; --incremental flag (logic đơn giản) |
-| Docs đầy đủ | ✅ | docs/: supabase, vercel, cloudflare-pages, r2, google-sheets, twikoo, github-actions, capacitor, templates |
+| Docs đầy đủ | ✅ | docs/: supabase, vercel, cloudflare-pages, r2, google-sheets, comments, github-actions, capacitor, templates |
 | File mẫu: Excel, JSON, .env.example | ✅ | docs/templates, config-json-examples, .env.example |
 
 ---
@@ -59,7 +59,7 @@ Tài liệu đối chiếu từng yêu cầu trong **DA.txt** với hiện trạ
 | Lịch chiếu khi status theater + showtimes | ✅ |
 | Danh sách tập, nguồn server, click mở player | ✅ |
 | Nút Yêu thích, Nút Tiếp tục xem | ✅ (đã bổ sung) |
-| Phim tương tự, Twikoo | ✅ |
+| Phim tương tự, hệ thống comment nội bộ | ✅ |
 | Tìm kiếm FlexSearch (title + origin_name) | ✅ |
 | Trang giới thiệu, hướng dẫn app, donate từ config | ✅ |
 | Footer: Donate, "Trường Sa, Hoàng Sa...", TMDB attribution | ✅ (đã bổ sung TMDB) |
@@ -84,7 +84,7 @@ Tài liệu đối chiếu từng yêu cầu trong **DA.txt** với hiện trạ
 | Homepage Sections (list, sort_order) | ✅ | Kéo thả sắp xếp + form thêm/sửa: chưa |
 | Slider, Theme Settings | ⚠️ | Chưa |
 | Server sources (list, bật/tắt) | ✅ | CRUD add/edit/delete: chưa |
-| Cài đặt chung: site name, tracking, Twikoo, Supabase User URL/Key, Player & cảnh báo | ✅ (đã thêm player_warning_*, supabase_user_*) |
+| Cài đặt chung: site name, tracking, Supabase User URL/Key, Player & cảnh báo | ✅ (đã thêm player_warning_*, supabase_user_*) |
 | Donate: target, current, PayPal, bank, crypto | ✅ | Form có target, currency, current, paypal; bank/crypto có trong schema |
 | Static pages (giới thiệu, hướng dẫn app), APK/TestFlight | ✅ | WYSIWYG chưa (chỉ textarea) |
 | Audit Logs | ✅ |
@@ -99,7 +99,7 @@ Tài liệu đối chiếu từng yêu cầu trong **DA.txt** với hiện trạ
 | Schema User: profiles, favorites, watch_history, user_changes, RLS | ✅ docs/supabase/schema-user.sql |
 | Schema Admin: ad_banners, ad_preroll, homepage_sections, server_sources, site_settings, static_pages, donate_settings, player_settings, audit_logs, RLS | ✅ docs/supabase/schema-admin.sql |
 | docs/supabase, vercel, cloudflare-pages, github-actions, capacitor, google-sheets, templates | ✅ |
-| docs/r2, docs/twikoo | ✅ (đã bổ sung) |
+| docs/r2, docs/comments | ✅ (đã bổ sung) |
 | custom_movies_template.xlsx | ⚠️ | Hướng dẫn tạo trong docs/templates; không tạo file nhị phân |
 | config-json-examples | ✅ |
 | .env.example | ✅ |
@@ -113,8 +113,8 @@ Tài liệu đối chiếu từng yêu cầu trong **DA.txt** với hiện trạ
 - **Footer:** TMDB attribution + link Donate trên trang phim và trang chủ.
 - **Frontend:** Đọc `supabase_user_url`, `supabase_user_anon_key` từ site-settings; user-sync dùng hai biến này.
 - **_redirects:** Thêm `/dien-vien` → `/dien-vien/` 302.
-- **Admin Cài đặt chung:** Thêm Twikoo env id, Supabase User URL/Key, bật cảnh báo player, nội dung cảnh báo.
-- **Docs:** Thêm `docs/r2/README.md`, `docs/twikoo/README.md`.
+- **Admin Cài đặt chung:** Supabase User URL/Key, bật cảnh báo player, nội dung cảnh báo.
+- **Docs:** Thêm `docs/r2/README.md`, `docs/comments/README.md`.
 
 ---
 

@@ -1807,15 +1807,11 @@
       }
     }
 
-    if (window.twikoo) {
-      try {
-        twikoo.init({
-          envId: (window.DAOP && window.DAOP.twikooEnvId) || '',
-          el: '#twikoo-watch-comments',
-          path: window.location.pathname,
-        });
-      } catch (e5) {}
-    }
+    try {
+      if (window.DAOP && typeof window.DAOP.mountComments === 'function') {
+        window.DAOP.mountComments('#watch-comments-container', { postSlug: movie.slug || '' });
+      }
+    } catch (e5) {}
   }
 
   function init() {
@@ -1899,7 +1895,7 @@
             '        <div class="watch-side-title">' + iconSvg('chat') + '<span class="watch-side-title-text">Bình luận</span></div>' +
             '        <button type="button" class="watch-side-back" id="watch-btn-close-comments" aria-label="Đóng">' + iconSvg('close') + '<span class="watch-close-text">Đóng</span></button>' +
             '      </div>' +
-            '      <div id="twikoo-watch-comments"></div>' +
+            '      <div id="watch-comments-container" data-post-slug="' + slugSafe + '"></div>' +
             '    </section>' +
             '  </aside>' +
             '</div>' +
