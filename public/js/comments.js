@@ -1,5 +1,5 @@
 (function () {
-  var DEFAULT_LIMIT = 20;
+  var DEFAULT_LIMIT = 5;
   var RETRY_MS = [500, 1000, 2000];
   var mounted = new WeakSet();
 
@@ -102,6 +102,11 @@
     var name = esc(item.author_name || 'Người dùng');
     var content = markdownToHtml(item.content || '');
     var time = formatTime(item.created_at || '');
+    var commentId = Number(item.id || 0);
+    var parentId = Number(item.parent_id || 0);
+    var likeCount = Number(item.like_count || 0);
+    var dislikeCount = Number(item.dislike_count || 0);
+    var replyCount = Number(item.reply_count || 0);
     return (
       '<article class="cmt-item">' +
         '<div class="cmt-avatar-wrap">' +
@@ -112,6 +117,14 @@
         '<div class="cmt-body">' +
           '<div class="cmt-meta"><strong>' + name + '</strong><span>' + esc(time) + '</span></div>' +
           '<div class="cmt-content">' + content + '</div>' +
+          '<div class="cmt-actions">' +
+            '<button type="button" class="cmt-action-btn" data-action="like" data-id="' + commentId + '">👍 <span data-role="like-count">' + likeCount + '</span></button>' +
+            '<button type="button" class="cmt-action-btn" data-action="dislike" data-id="' + commentId + '">👎 <span data-role="dislike-count">' + dislikeCount + '</span></button>' +
+            (parentId === 0 ? '<button type="button" class="cmt-action-btn" data-action="reply" data-id="' + commentId + '">↩️ Trả lời</button>' : '') +
+            (parentId === 0 ? '<button type="button" class="cmt-action-btn" data-action="toggle-replies" data-id="' + commentId + '">💬 Xem trả lời (' + replyCount + ')</button>' : '') +
+          '</div>' +
+          (parentId === 0 ? '<div class="cmt-reply-form" data-role="reply-form" data-id="' + commentId + '" style="display:none"></div>' : '') +
+          (parentId === 0 ? '<div class="cmt-replies" data-role="replies" data-id="' + commentId + '" style="display:none"></div>' : '') +
         '</div>' +
       '</article>'
     );
@@ -129,6 +142,7 @@
       hasMore: false,
       loading: false,
       session: null,
+      openReplies: {},
     };
     var draftKey = 'comments:draft:' + postSlug;
 
@@ -188,6 +202,15 @@
               : ('<div class="cmt-avatar cmt-avatar--fallback">' + esc(String(name).charAt(0).toUpperCase()) + '</div>')) +
             '<div><strong>' + esc(name) + '</strong><p>Bạn đang đăng nhập</p></div>' +
           '</div>' +
+          '<div class="cmt-emoji-row">' +
+            '<button type="button" class="cmt-emoji-btn" data-emoji="😀">😀</button>' +
+            '<button type="button" class="cmt-emoji-btn" data-emoji="😂">😂</button>' +
+            '<button type="button" class="cmt-emoji-btn" data-emoji="😍">😍</button>' +
+            '<button type="button" class="cmt-emoji-btn" data-emoji="😢">😢</button>' +
+            '<button type="button" class="cmt-emoji-btn" data-emoji="🔥">🔥</button>' +
+            '<button type="button" class="cmt-emoji-btn" data-emoji="❤️">❤️</button>' +
+            '<button type="button" class="cmt-emoji-btn" data-emoji="👍">👍</button>' +
+          '</div>' +
           '<input type="text" name="website" class="cmt-honeypot" tabindex="-1" autocomplete="off">' +
           '<textarea name="content" rows="4" maxlength="4000" placeholder="Viết bình luận...">' + esc(draft) + '</textarea>' +
           '<div class="cmt-form-actions"><button type="submit">Gửi bình luận</button></div>' +
@@ -199,10 +222,19 @@
           try { localStorage.setItem(draftKey, ta.value || ''); } catch (e) {}
         });
       }
+      formWrap.querySelectorAll('.cmt-emoji-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var icon = btn.getAttribute('data-emoji') || '';
+          if (!ta || !icon) return;
+          ta.value = (ta.value || '') + icon;
+          ta.dispatchEvent(new Event('input'));
+          ta.focus();
+        });
+      });
       if (form) {
         form.onsubmit = function (e) {
           e.preventDefault();
-          submitComment(form);
+          submitComment(form, 0);
         };
       }
     }
@@ -212,6 +244,114 @@
       if (reset) listEl.innerHTML = '';
       (items || []).forEach(function (item) {
         listEl.insertAdjacentHTML('beforeend', renderComment(item));
+      });
+      bindCommentActions();
+    }
+
+    function bindCommentActions() {
+      if (!listEl) return;
+      listEl.querySelectorAll('.cmt-action-btn').forEach(function (btn) {
+        if (btn.getAttribute('data-bound') === '1') return;
+        btn.setAttribute('data-bound', '1');
+        btn.addEventListener('click', function () {
+          var action = btn.getAttribute('data-action') || '';
+          var id = Number(btn.getAttribute('data-id') || '0');
+          if (!id) return;
+          if (action === 'reply') return toggleReplyForm(id);
+          if (action === 'toggle-replies') return toggleReplies(id, btn);
+          if (action === 'like') return reactComment(id, 1, btn);
+          if (action === 'dislike') return reactComment(id, -1, btn);
+        });
+      });
+    }
+
+    function ensureLoggedIn() {
+      var token = state.session && state.session.access_token;
+      if (token) return token;
+      setMsg('Bạn cần đăng nhập để thực hiện thao tác này.', true);
+      return '';
+    }
+
+    function reactComment(commentId, value, btn) {
+      var token = ensureLoggedIn();
+      if (!token) return;
+      api('/api/comment/reaction', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: 'Bearer ' + token,
+        },
+        body: JSON.stringify({ commentId: commentId, value: value }),
+      }).then(function (res) {
+        var article = btn.closest('.cmt-item');
+        if (!article) return;
+        var likeEl = article.querySelector('[data-role="like-count"]');
+        var dislikeEl = article.querySelector('[data-role="dislike-count"]');
+        if (likeEl) likeEl.textContent = String(res.likeCount || 0);
+        if (dislikeEl) dislikeEl.textContent = String(res.dislikeCount || 0);
+      }).catch(function (err) {
+        setMsg(err.message || 'Không thể cập nhật cảm xúc', true);
+      });
+    }
+
+    function toggleReplyForm(commentId) {
+      var holder = listEl.querySelector('[data-role="reply-form"][data-id="' + commentId + '"]');
+      if (!holder) return;
+      var showing = holder.style.display !== 'none';
+      if (showing) {
+        holder.style.display = 'none';
+        holder.innerHTML = '';
+        return;
+      }
+      var token = ensureLoggedIn();
+      if (!token) return;
+      holder.style.display = '';
+      holder.innerHTML =
+        '<form class="cmt-form cmt-form--reply">' +
+          '<textarea name="content" rows="3" maxlength="4000" placeholder="Viết trả lời..."></textarea>' +
+          '<input type="text" name="website" class="cmt-honeypot" tabindex="-1" autocomplete="off">' +
+          '<div class="cmt-form-actions"><button type="submit">Gửi trả lời</button></div>' +
+        '</form>';
+      var form = holder.querySelector('form');
+      if (form) {
+        form.onsubmit = function (e) {
+          e.preventDefault();
+          submitComment(form, commentId).then(function () {
+            holder.style.display = 'none';
+            holder.innerHTML = '';
+            var toggleBtn = listEl.querySelector('.cmt-action-btn[data-action="toggle-replies"][data-id="' + commentId + '"]');
+            if (toggleBtn) toggleReplies(commentId, toggleBtn, true);
+          });
+        };
+      }
+    }
+
+    function fetchReplies(commentId) {
+      return api('/api/comment?postSlug=' + encodeURIComponent(postSlug) + '&parentId=' + commentId + '&page=1&limit=100')
+        .then(function (res) { return fillAvatarFallback(res.items || []); });
+    }
+
+    function toggleReplies(commentId, btn, forceOpen) {
+      var holder = listEl.querySelector('[data-role="replies"][data-id="' + commentId + '"]');
+      if (!holder) return;
+      var open = forceOpen ? false : holder.style.display !== 'none';
+      if (open) {
+        holder.style.display = 'none';
+        if (btn) btn.textContent = '💬 Xem trả lời';
+        return;
+      }
+      holder.style.display = '';
+      holder.innerHTML = '<p class="cmt-msg">Đang tải trả lời...</p>';
+      fetchReplies(commentId).then(function (items) {
+        if (!items.length) {
+          holder.innerHTML = '<p class="cmt-msg">Chưa có trả lời.</p>';
+        } else {
+          holder.innerHTML = items.map(renderComment).join('');
+          bindCommentActions();
+        }
+        if (btn) btn.textContent = 'Ẩn trả lời';
+      }).catch(function (err) {
+        holder.innerHTML = '<p class="cmt-msg cmt-msg--error">' + esc(err.message || 'Không thể tải trả lời') + '</p>';
       });
     }
 
@@ -234,21 +374,21 @@
         .finally(function () { state.loading = false; });
     }
 
-    function submitComment(form) {
+    function submitComment(form, parentId) {
       var ta = form.querySelector('textarea[name="content"]');
       var hp = form.querySelector('input[name="website"]');
       var content = ta ? String(ta.value || '').trim() : '';
       if (content.length < 2) {
         setMsg('Bình luận quá ngắn.', true);
-        return;
+        return Promise.resolve();
       }
       var token = state.session && state.session.access_token;
       if (!token) {
         setMsg('Bạn cần đăng nhập lại để bình luận.', true);
-        return;
+        return Promise.resolve();
       }
       setMsg('Đang gửi bình luận...');
-      api('/api/comment', {
+      return api('/api/comment', {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
@@ -257,11 +397,16 @@
         body: JSON.stringify({
           postSlug: postSlug,
           content: content,
+          parentId: parentId || 0,
           hp: hp ? hp.value : '',
         }),
       })
         .then(function (res) { return fillAvatarFallback([res.item || {}]); })
         .then(function (items) {
+          if ((parentId || 0) > 0) {
+            setMsg('Đã gửi trả lời.');
+            return;
+          }
           appendComments(items, false);
           if (ta) ta.value = '';
           try { localStorage.removeItem(draftKey); } catch (e) {}
@@ -269,6 +414,9 @@
         })
         .catch(function (err) {
           setMsg(err.message || 'Gửi bình luận thất bại', true);
+        })
+        .finally(function () {
+          if (ta) ta.value = '';
         });
     }
 
