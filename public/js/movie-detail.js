@@ -76,6 +76,24 @@
       .replace(/"/g, '&quot;');
   }
 
+  function buildMetaLinks(items, base, prefix) {
+    if (!Array.isArray(items) || !items.length) return '';
+    var out = [];
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i] || {};
+      var name = esc(item.name || '');
+      if (!name) continue;
+      var slug = String(item.slug || item.id || '').trim();
+      if (!slug) {
+        out.push(name);
+        continue;
+      }
+      var href = base + prefix + encodeURIComponent(slug) + '.html';
+      out.push('<a href="' + esc(href) + '">' + name + '</a>');
+    }
+    return out.join(', ');
+  }
+
   function iconSvg(name) {
     if (name === 'play') {
       return '<svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>';
@@ -463,8 +481,8 @@
     var posterBg = poster || '';
     var title = (movie.title || '').replace(/</g, '&lt;');
     var origin = (movie.origin_name || '').replace(/</g, '&lt;');
-    var genreStr = (movie.genre || []).map(function (g) { return g.name; }).join(', ');
-    var countryStr = (movie.country || []).map(function (c) { return c.name; }).join(', ');
+    var genreStr = buildMetaLinks(movie.genre || [], base, '/the-loai/');
+    var countryStr = buildMetaLinks(movie.country || [], base, '/quoc-gia/');
     var desc = (movie.description || movie.content || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
     var actorNames = (movie.cast || []).slice(0, 10);
     var namesMap = (window.actorsData && window.actorsData.names) || (window.actorsIndex && window.actorsIndex.names) || {};
@@ -495,12 +513,16 @@
       }
     } catch (e) {}
 
+    var yearNum = parseInt(movie.year, 10);
+    var yearVal = isFinite(yearNum) ? String(yearNum) : String(movie.year || '').trim();
+    var yearHref = yearVal ? (base + '/nam-phat-hanh/' + encodeURIComponent(yearVal) + '.html') : '';
+
     var infoHtml = '' +
-      (genreStr ? '<div class="md-info-line"><span class="md-info-key">Thể loại</span><span class="md-info-val">' + esc(genreStr) + '</span></div>' : '') +
-      (countryStr ? '<div class="md-info-line"><span class="md-info-key">Quốc gia</span><span class="md-info-val">' + esc(countryStr) + '</span></div>' : '') +
+      (genreStr ? '<div class="md-info-line"><span class="md-info-key">Thể loại</span><span class="md-info-val">' + genreStr + '</span></div>' : '') +
+      (countryStr ? '<div class="md-info-line"><span class="md-info-key">Quốc gia</span><span class="md-info-val">' + countryStr + '</span></div>' : '') +
       (directorStr ? '<div class="md-info-line"><span class="md-info-key">Đạo diễn</span><span class="md-info-val">' + esc(directorStr) + '</span></div>' : '') +
       (castStr ? '<div class="md-info-line"><span class="md-info-key">Diễn viên</span><span class="md-info-val">' + castStr + '</span></div>' : '') +
-      (movie.year ? '<div class="md-info-line"><span class="md-info-key">Năm</span><span class="md-info-val">' + esc(movie.year) + '</span></div>' : '') +
+      (yearVal ? '<div class="md-info-line"><span class="md-info-key">Năm</span><span class="md-info-val"><a href="' + esc(yearHref) + '">' + esc(yearVal) + '</a></span></div>' : '') +
       (movie.quality ? '<div class="md-info-line"><span class="md-info-key">Chất lượng</span><span class="md-info-val">' + esc(movie.quality) + '</span></div>' : '') +
       (movie.episode_current ? '<div class="md-info-line"><span class="md-info-key">Tập</span><span class="md-info-val">' + esc(movie.episode_current) + '</span></div>' : '') +
       '';
