@@ -527,6 +527,7 @@
         var hist = us.getWatchHistory().find(function (x) { return x && x.slug === movie.slug; });
         if (hist && hist.episode) wantEp = String(hist.episode);
         if (!wantServer && hist && hist.server) wantServer = String(hist.server || '');
+        if (!wantLinkType && hist && hist.linkType) wantLinkType = String(hist.linkType || '');
         if (wantGroupIdx == null && hist && hist.groupIdx != null && hist.groupIdx !== '') {
           var gi = parseInt(String(hist.groupIdx), 10);
           if (isFinite(gi) && gi >= 0) wantGroupIdx = gi;
