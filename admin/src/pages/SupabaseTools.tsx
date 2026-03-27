@@ -305,6 +305,7 @@ create table if not exists public.static_pages (
   page_key text primary key,
   content text,
   apk_link text,
+  apk_tv_link text,
   testflight_link text,
   updated_at timestamptz default now()
 );
@@ -563,13 +564,14 @@ $$;`;
 -- Tùy chọn: chạy sau khi tạo bảng static_pages
 
 -- Ví dụ insert/update một số page_key cơ bản
-insert into public.static_pages (page_key, content, apk_link, testflight_link)
+insert into public.static_pages (page_key, content, apk_link, apk_tv_link, testflight_link)
 values
-  ('gioi-thieu', '<h1>Giới thiệu</h1>', '', ''),
-  ('lien-he', '<h1>Liên hệ</h1>', '', '')
+  ('gioi-thieu', '<h1>Giới thiệu</h1>', '', '', ''),
+  ('lien-he', '<h1>Liên hệ</h1>', '', '', '')
 on conflict (page_key) do update set
   content = excluded.content,
   apk_link = excluded.apk_link,
+  apk_tv_link = excluded.apk_tv_link,
   testflight_link = excluded.testflight_link,
   updated_at = now();`;
 

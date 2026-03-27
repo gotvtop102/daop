@@ -3043,6 +3043,22 @@ async function exportConfigFromSupabase() {
       console.warn('Không thể đọc/parse static-pages.json hiện tại, sử dụng dữ liệu từ Supabase:', e.message);
     }
   }
+
+  // Sanitize + dedupe: tránh xuất JSON lỗi hoặc item thiếu page_key
+  // - loại bỏ item không hợp lệ
+  // - nếu trùng page_key, ưu tiên item xuất hiện sau (Supabase đã được push trước, file cũ chỉ bổ sung key thiếu)
+  try {
+    const byKey = new Map();
+    for (const p of (Array.isArray(mergedStaticPages) ? mergedStaticPages : [])) {
+      if (!p || typeof p !== 'object') continue;
+      const k = String(p.page_key || '').trim();
+      if (!k) continue;
+      byKey.set(k, p);
+    }
+    mergedStaticPages = Array.from(byKey.values()).sort((a, b) => String(a.page_key).localeCompare(String(b.page_key)));
+  } catch (e) {
+    console.warn('Sanitize static-pages failed (continue):', e && e.message ? e.message : e);
+  }
   
   fs.writeFileSync(path.join(configDir, 'static-pages.json'), JSON.stringify(mergedStaticPages, null, 2));
   fs.writeFileSync(path.join(configDir, 'donate.json'), JSON.stringify(donate.data || {}, null, 2));

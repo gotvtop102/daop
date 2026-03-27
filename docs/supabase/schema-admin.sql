@@ -74,6 +74,7 @@ create table if not exists public.static_pages (
   page_key text primary key,
   content text,
   apk_link text,
+  apk_tv_link text,
   testflight_link text,
   updated_at timestamptz default now()
 );
