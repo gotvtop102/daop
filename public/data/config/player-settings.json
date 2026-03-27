@@ -67,5 +67,15 @@
     "midroll_min_watch_seconds": 120
   },
   "default_watch_server": "",
+  "default_watch_link_type_priority": [
+    "embed",
+    "m3u8",
+    "vip1",
+    "vip2",
+    "vip3",
+    "vip4",
+    "vip5",
+    "backup"
+  ],
   "default_watch_link_type": "embed"
 }
