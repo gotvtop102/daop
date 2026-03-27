@@ -78,7 +78,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '3.91.0'
+          wranglerVersion: '4.77.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
       - name: Build TMDB ONLY
@@ -127,7 +127,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '3.91.0'
+          wranglerVersion: '4.77.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
       - name: Export to Google Sheets (after deploy)

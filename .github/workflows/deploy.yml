@@ -28,7 +28,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '3.91.0'
+          wranglerVersion: '4.77.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
   # 1-phase Update data daily: deploy nằm ở workflow này (không build trong job deploy), export sau khi Pages xong
