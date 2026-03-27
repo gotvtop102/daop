@@ -240,6 +240,7 @@ export default function PlayerSettings() {
     form.setFieldsValue({
       default_player: defaultPlayer,
       default_watch_server: settings.default_watch_server ?? '',
+      default_watch_link_type: settings.default_watch_link_type ?? '',
       link_type_labels_json: JSON.stringify(labels, null, 2),
     });
 
@@ -283,6 +284,7 @@ export default function PlayerSettings() {
       const rows = [
         { key: 'default_player', value: values.default_player },
         { key: 'default_watch_server', value: String(values.default_watch_server || '').trim() },
+        { key: 'default_watch_link_type', value: String(values.default_watch_link_type || '').trim() },
         { key: 'player_config', value: configValues },
         { key: 'link_type_labels', value: linkTypeLabelsData },
       ];
@@ -524,6 +526,27 @@ export default function PlayerSettings() {
                 tooltip="Ví dụ: vietsub-1, vietsub-2. Để trống = dùng thứ tự server hiện có của phim."
               >
                 <Input placeholder="vd: vietsub-1" allowClear />
+              </Form.Item>
+
+              <Form.Item
+                name="default_watch_link_type"
+                label="Nguồn máy chủ mặc định"
+                tooltip="Áp dụng khi chưa có lịch sử xem hoặc tham số URL. Ví dụ: m3u8 (VIP S1), vip1 (VIP K1)..."
+              >
+                <Select
+                  allowClear
+                  placeholder="Chọn nguồn mặc định"
+                  options={[
+                    { value: 'm3u8', label: `m3u8 (${linkTypeLabels.m3u8 || 'M3U8'})` },
+                    { value: 'vip1', label: `vip1 (${linkTypeLabels.vip1 || 'VIP 1'})` },
+                    { value: 'vip2', label: `vip2 (${linkTypeLabels.vip2 || 'VIP 2'})` },
+                    { value: 'vip3', label: `vip3 (${linkTypeLabels.vip3 || 'VIP 3'})` },
+                    { value: 'vip4', label: `vip4 (${linkTypeLabels.vip4 || 'VIP 4'})` },
+                    { value: 'vip5', label: `vip5 (${linkTypeLabels.vip5 || 'VIP 5'})` },
+                    { value: 'embed', label: `embed (${linkTypeLabels.embed || 'Embed'})` },
+                    { value: 'backup', label: `backup (${linkTypeLabels.backup || 'Backup'})` },
+                  ]}
+                />
               </Form.Item>
 
               <Form.Item

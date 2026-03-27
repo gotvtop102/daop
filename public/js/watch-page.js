@@ -536,6 +536,7 @@
     }
 
     var servers = window.DAOP && window.DAOP.serverSources ? window.DAOP.serverSources : (serverSources || []);
+    var preferredLinkType = '';
 
     function makeSlug(text) {
       if (!text) return '';
@@ -579,6 +580,7 @@
       var ps = window.DAOP && window.DAOP.playerSettings ? window.DAOP.playerSettings : {};
       var rawPref = String((ps && ps.default_watch_server) || '').trim();
       if (rawPref) preferredServer = matchServerSlug(makeSlug(rawPref) || rawPref, rawPref);
+      preferredLinkType = String((ps && ps.default_watch_link_type) || '').trim().toLowerCase();
     } catch (ePref0) {}
 
     // Normalize server slug input (URL/history) into internal srvSlug used in episodes UI.
@@ -626,6 +628,7 @@
     function pickLinkTypeFromEp(epObj) {
       if (!epObj) return 'm3u8';
       if (wantLinkType && epObj.links && epObj.links[wantLinkType]) return wantLinkType;
+      if (!wantLinkType && preferredLinkType && epObj.links && epObj.links[preferredLinkType]) return preferredLinkType;
       for (var i = 0; i < preferTypes.length; i++) {
         if (epObj.links && epObj.links[preferTypes[i]]) return preferTypes[i];
       }
