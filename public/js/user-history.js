@@ -251,8 +251,7 @@
             var href = base + '/xem-phim/' + encodeURIComponent(slug) + '.html';
             if (ep) href += '?ep=' + encodeURIComponent(ep);
             if (hist && hist.server) href += (ep ? '&' : '?') + 'sv=' + encodeURIComponent(String(hist.server));
-            if (hist && hist.linkType) href += (ep || (hist && hist.server) ? '&' : '?') + 'lt=' + encodeURIComponent(String(hist.linkType));
-            if (hist && hist.groupIdx != null && hist.groupIdx !== '') href += (ep || (hist && (hist.server || hist.linkType)) ? '&' : '?') + 'g=' + encodeURIComponent(String(hist.groupIdx));
+            if (hist && hist.groupIdx != null && hist.groupIdx !== '') href += (ep || (hist && hist.server) ? '&' : '?') + 'g=' + encodeURIComponent(String(hist.groupIdx));
             window.location.href = href;
           });
         });
