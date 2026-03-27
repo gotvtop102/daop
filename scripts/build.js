@@ -2462,6 +2462,25 @@ function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta 
   console.log('   Actors (từ actors.js): index +', shardCount, 'shards', movieById ? '+ movies' : '');
 }
 
+function hydrateMoviesWithTmdbPayload(movies, tmdbById) {
+  if (!Array.isArray(movies) || movies.length === 0) return [];
+  if (!tmdbById || typeof tmdbById.get !== 'function') return movies;
+  return movies.map((m) => {
+    const idStr = m && m.id != null ? String(m.id) : '';
+    const t = idStr ? tmdbById.get(idStr) : null;
+    if (!t) return m;
+    return {
+      ...m,
+      tmdb: t.tmdb || m.tmdb,
+      imdb: t.imdb || m.imdb,
+      cast: (Array.isArray(t.cast) && t.cast.length) ? t.cast : (m.cast || []),
+      director: (Array.isArray(t.director) && t.director.length) ? t.director : (m.director || []),
+      cast_meta: (Array.isArray(t.cast_meta) && t.cast_meta.length) ? t.cast_meta : (m.cast_meta || []),
+      keywords: (Array.isArray(t.keywords) && t.keywords.length) ? t.keywords : (m.keywords || []),
+    };
+  });
+}
+
 /** 8. Tạo batch files (chỉ ghi lại batch có phim thay đổi dựa trên last_modified) */
 function writeBatches(movies, prevLastModified, tmdbById, prevTmdbById) {
   const writeCore = !(process.env.TMDB_ONLY === '1' || process.env.TMDB_ONLY === 'true');
@@ -3322,7 +3341,8 @@ async function main() {
       const { genreNames, countryNames } = await fetchOPhimGenresAndCountries();
       const filters = writeFilters(allMovies, genreNames, countryNames);
       writeCategoryPages(filters);
-      writeActors(allMovies);
+      const prevTmdbById = await loadPreviousBuiltTmdbById();
+      writeActors(hydrateMoviesWithTmdbPayload(allMovies, prevTmdbById));
     } else {
       // Fallback: chỉ tạo lại trang từ filters.js hiện có (hành vi cũ)
       const filtersPath = path.join(PUBLIC_DATA, 'filters.js');
@@ -3513,21 +3533,7 @@ async function main() {
     // Rebuild actors từ TMDB payload: CORE phase (SKIP_TMDB) thường không có cast/cast_meta,
     // và core batches còn strip các field này. Nếu không rebuild ở đây, /dien-vien sẽ rỗng.
     try {
-      const mergedMovies = allMovies.map((m) => {
-        const idStr = m && m.id != null ? String(m.id) : '';
-        const t = idStr ? tmdbById.get(idStr) : null;
-        if (!t) return m;
-        return {
-          ...m,
-          tmdb: t.tmdb || m.tmdb,
-          imdb: t.imdb || m.imdb,
-          cast: (Array.isArray(t.cast) && t.cast.length) ? t.cast : (m.cast || []),
-          director: (Array.isArray(t.director) && t.director.length) ? t.director : (m.director || []),
-          cast_meta: (Array.isArray(t.cast_meta) && t.cast_meta.length) ? t.cast_meta : (m.cast_meta || []),
-          keywords: (Array.isArray(t.keywords) && t.keywords.length) ? t.keywords : (m.keywords || []),
-        };
-      });
-      writeActors(mergedMovies);
+      writeActors(hydrateMoviesWithTmdbPayload(allMovies, tmdbById));
     } catch (e) {
       console.warn('TMDB_ONLY: rebuild actors failed (continue):', e && e.message ? e.message : e);
     }
@@ -3648,7 +3654,7 @@ async function main() {
   writeIndexAndSearchShards(allMovies, batchPtrById);
   const filters = writeFilters(allMovies, genreNames, countryNames);
   writeCategoryPages(filters);
-  writeActors(allMovies);
+  writeActors(hydrateMoviesWithTmdbPayload(allMovies, tmdbById));
 
   try {
     fs.writeFileSync(path.join(PUBLIC_DATA, 'last_modified.json'), JSON.stringify(newLastModified, null, 2));
