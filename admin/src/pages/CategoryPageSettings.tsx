@@ -92,7 +92,7 @@ export default function CategoryPageSettings() {
           .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
         if (error) throw error;
       }
-      message.success('Đã lưu. Chạy Build website để áp dụng lên các trang Phim bộ, Phim lẻ, Thể loại, Quốc gia, Danh sách, Tìm kiếm.');
+      message.success('Đã lưu. Chạy Build website để áp dụng lên các trang Phim bộ, Phim lẻ, Thể loại, Quốc gia, Chủ đề, Tìm kiếm.');
     } catch (e: any) {
       message.error(e?.message || 'Lưu thất bại');
     }
@@ -102,7 +102,7 @@ export default function CategoryPageSettings() {
     <>
       <h1>Cài đặt trang danh mục</h1>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        Áp dụng cho các trang: Phim bộ, Phim lẻ, Thể loại, Quốc gia, Danh sách, Tìm kiếm. Sau khi lưu cần chạy Build website.
+        Áp dụng cho các trang: Phim bộ, Phim lẻ, Thể loại, Quốc gia, Chủ đề, Tìm kiếm. Sau khi lưu cần chạy Build website.
       </p>
       <Card loading={loading}>
         <Form form={form} layout="vertical" onFinish={onFinish}>

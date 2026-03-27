@@ -5,7 +5,10 @@
   "scripts": {
     "copy": "npx cap copy",
     "open:android": "npx cap open android",
-    "open:ios": "npx cap open ios"
+    "open:ios": "npx cap open ios",
+    "open:android:from-url": "node create-app-from-url.mjs --platform android",
+    "open:ios:from-url": "node create-app-from-url.mjs --platform ios",
+    "open:both:from-url": "node create-app-from-url.mjs --platform both"
   },
   "devDependencies": {
     "@capacitor/cli": "^5.6.0",

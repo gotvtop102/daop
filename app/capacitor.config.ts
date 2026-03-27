@@ -1,12 +1,22 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
+const serverUrl = process.env.CAPACITOR_SERVER_URL?.trim();
+const appId = process.env.CAPACITOR_APP_ID?.trim() || 'com.daop.phim';
+const appName = process.env.CAPACITOR_APP_NAME?.trim() || 'DAOP Phim';
+
 const config: CapacitorConfig = {
-  appId: 'com.daop.phim',
-  appName: 'DAOP Phim',
+  appId,
+  appName,
   webDir: '../public',
-  server: {
-    androidScheme: 'https',
-  },
+  server: serverUrl
+    ? {
+        url: serverUrl,
+        cleartext: false,
+        androidScheme: 'https',
+      }
+    : {
+        androidScheme: 'https',
+      },
 };
 
 export default config;

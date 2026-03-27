@@ -50,7 +50,7 @@ const LANG_OPTIONS: Record<string, string> = {
   khac: 'Khác',
 };
 
-/** Mục trang Danh sách: id -> { label, href, icon } */
+/** Mục trang Chủ đề: id -> { label, href, icon } */
 const LIST_OPTIONS: Record<string, { label: string; href: string; icon: string }> = {
   'lich-chieu': { label: 'Lịch chiếu', href: '/chu-de/lich-chieu.html', icon: '📅' },
   'phim-4k': { label: 'Phim 4K', href: '/chu-de/phim-4k.html', icon: '📺' },

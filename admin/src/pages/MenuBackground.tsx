@@ -8,7 +8,7 @@ const MENU_ITEMS = [
   { key: 'menu_bg_2', label: '2. Phim lẻ' },
   { key: 'menu_bg_3', label: '3. Thể loại' },
   { key: 'menu_bg_4', label: '4. Quốc gia' },
-  { key: 'menu_bg_5', label: '5. Danh sách' },
+  { key: 'menu_bg_5', label: '5. Chủ đề' },
   { key: 'menu_bg_6', label: '6. Diễn viên' },
   { key: 'menu_bg_7', label: '7. Hoạt hình' },
   { key: 'menu_bg_8', label: '8. TV Shows' },

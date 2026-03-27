@@ -1,4 +1,7 @@
-﻿XÂY DỰNG HỆ THỐNG WEBSITE PHIM TĨNH, ỨNG DỤNG ĐA NỀN TẢNG VÀ ADMIN PANEL CHUYÊN NGHIỆP
+﻿cd "C:\Users\ADMIN\Desktop\DAOP\daop-movie\app"
+node .\build-android-phone-tv.mjs --url "https://daop.pages.dev" --appName "GoTV" --iconUrl "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771769477571-2nqdpe9u.png"
+
+XÂY DỰNG HỆ THỐNG WEBSITE PHIM TĨNH, ỨNG DỤNG ĐA NỀN TẢNG VÀ ADMIN PANEL CHUYÊN NGHIỆP
 
 1. Tổng quan dự án
 
