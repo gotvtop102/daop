@@ -71,6 +71,7 @@ function bytesToB64url(input: Uint8Array): string {
 }
 
 export interface JwtPayload {
+  iss?: string;
   sub?: string;
   email?: string;
   exp?: number;
@@ -79,29 +80,119 @@ export interface JwtPayload {
   app_metadata?: Record<string, any>;
 }
 
+type JwkKey = {
+  kid?: string;
+  kty?: string;
+  alg?: string;
+  use?: string;
+  n?: string;
+  e?: string;
+};
+
+type JwtHeader = {
+  alg?: string;
+  kid?: string;
+  typ?: string;
+};
+
+const jwksCache: Map<string, { exp: number; keys: JwkKey[] }> = new Map();
+
+async function verifyHs256(tokenParts: string[], secret: string): Promise<boolean> {
+  const [h, p, s] = tokenParts;
+  if (!secret) return false;
+  const data = `${h}.${p}`;
+  const key = await crypto.subtle.importKey(
+    'raw',
+    toBytes(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, toBytes(data));
+  const expected = bytesToB64url(new Uint8Array(sig));
+  return expected === s;
+}
+
+async function getJwks(issuer: string): Promise<JwkKey[]> {
+  const now = Date.now();
+  const cached = jwksCache.get(issuer);
+  if (cached && cached.exp > now) return cached.keys;
+
+  const url = issuer.replace(/\/$/, '') + '/.well-known/jwks.json';
+  const res = await fetch(url, { method: 'GET' });
+  if (!res.ok) return [];
+  const data = (await res.json().catch(() => null)) as { keys?: JwkKey[] } | null;
+  const keys = Array.isArray(data?.keys) ? data!.keys! : [];
+  jwksCache.set(issuer, { exp: now + 10 * 60 * 1000, keys });
+  return keys;
+}
+
+async function verifyRs256(tokenParts: string[], header: JwtHeader, payload: JwtPayload): Promise<boolean> {
+  const [h, p, s] = tokenParts;
+  const iss = String(payload.iss || '').trim();
+  if (!iss) return false;
+
+  const keys = await getJwks(iss);
+  if (!keys.length) return false;
+
+  const key = keys.find((k) => {
+    if (String(k.kty || '') !== 'RSA') return false;
+    if (header.kid && k.kid && header.kid !== k.kid) return false;
+    return true;
+  });
+  if (!key || !key.n || !key.e) return false;
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'jwk',
+    {
+      kty: 'RSA',
+      n: key.n,
+      e: key.e,
+      alg: 'RS256',
+      ext: true,
+      key_ops: ['verify'],
+    },
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: 'SHA-256',
+    },
+    false,
+    ['verify']
+  );
+
+  const verified = await crypto.subtle.verify(
+    { name: 'RSASSA-PKCS1-v1_5' },
+    cryptoKey,
+    b64urlToBytes(s),
+    toBytes(`${h}.${p}`)
+  );
+  return !!verified;
+}
+
 export async function verifySupabaseJwt(token: string, secret: string): Promise<JwtPayload | null> {
   try {
     const parts = String(token || '').split('.');
     if (parts.length !== 3) return null;
-    const [h, p, s] = parts;
-    const header = JSON.parse(new TextDecoder().decode(b64urlToBytes(h)));
-    if (!header || header.alg !== 'HS256') return null;
-
-    const data = `${h}.${p}`;
-    const key = await crypto.subtle.importKey(
-      'raw',
-      toBytes(secret),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['sign']
-    );
-    const sig = await crypto.subtle.sign('HMAC', key, toBytes(data));
-    const expected = bytesToB64url(new Uint8Array(sig));
-    if (expected !== s) return null;
-
+    const [h, p] = parts;
+    const header = JSON.parse(new TextDecoder().decode(b64urlToBytes(h))) as JwtHeader;
+    if (!header || !header.alg) return null;
     const payload = JSON.parse(new TextDecoder().decode(b64urlToBytes(p))) as JwtPayload;
+
     const nowSec = Math.floor(Date.now() / 1000);
     if (payload.exp && nowSec >= payload.exp) return null;
+
+    if (header.alg === 'HS256') {
+      const ok = await verifyHs256(parts, secret);
+      if (!ok) return null;
+      return payload;
+    }
+
+    if (header.alg === 'RS256') {
+      const ok = await verifyRs256(parts, header, payload);
+      if (!ok) return null;
+      return payload;
+    }
+
     return payload;
   } catch {
     return null;
@@ -120,8 +211,7 @@ export function pickAuthor(payload: JwtPayload): {
   const role = String(appMeta.role || appMeta.user_role || '').toLowerCase();
   const userId = String(payload.sub || '').trim();
   const email = String(payload.email || userMeta.email || '').trim();
-  const authorName =
-    String(userMeta.full_name || userMeta.name || userMeta.preferred_username || email.split('@')[0] || 'Người dùng').trim();
+  const authorName = String(userMeta.full_name || userMeta.name || userMeta.preferred_username || 'Người dùng').trim();
   const authorAvatar = String(userMeta.avatar_url || userMeta.picture || '').trim();
   const isAdmin = role === 'admin';
   return {

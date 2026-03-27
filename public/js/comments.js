@@ -177,7 +177,7 @@
         return;
       }
       var meta = user.user_metadata || {};
-      var name = meta.full_name || meta.name || user.email || 'Người dùng';
+      var name = meta.full_name || meta.name || 'Người dùng';
       var avatar = meta.avatar_url || '';
       var draft = localStorage.getItem(draftKey) || '';
       formWrap.innerHTML =

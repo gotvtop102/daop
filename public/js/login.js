@@ -11,6 +11,22 @@
   var displayNameEl = document.getElementById('signup-display-name');
   var _signupMode = false;
 
+  function getSafeRedirectUrl() {
+    try {
+      var url = new URL(window.location.href);
+      var raw = (url.searchParams.get('redirect') || '').trim();
+      if (!raw) return '/nguoi-dung.html';
+      var decoded = decodeURIComponent(raw);
+      var target = new URL(decoded, window.location.origin);
+      if (target.origin !== window.location.origin) return '/nguoi-dung.html';
+      var p = target.pathname || '/';
+      if (!p.startsWith('/')) return '/nguoi-dung.html';
+      return p + (target.search || '') + (target.hash || '');
+    } catch (e) {
+      return '/nguoi-dung.html';
+    }
+  }
+
   function setStatus(msg, isError) {
     if (!statusEl) return;
     statusEl.textContent = msg || '';
@@ -145,7 +161,7 @@
             setStatus('Đăng nhập thành công.');
             if (window.DAOP && window.DAOP.userSync) window.DAOP.userSync.sync();
             setTimeout(function () {
-              window.location.href = '/nguoi-dung.html';
+              window.location.href = getSafeRedirectUrl();
             }, 300);
           });
         });
