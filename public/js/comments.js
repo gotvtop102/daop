@@ -418,7 +418,9 @@
       if (state.loading && !force) return Promise.resolve();
       state.loading = true;
       setMsg('Đang tải bình luận...');
-      return api('/api/comment?postSlug=' + encodeURIComponent(postSlug) + '&page=' + page + '&limit=' + DEFAULT_LIMIT)
+      var url = '/api/comment?postSlug=' + encodeURIComponent(postSlug) + '&page=' + page + '&limit=' + DEFAULT_LIMIT;
+      if (force) url += '&noCache=1';
+      return api(url, force ? { cache: 'no-store' } : undefined)
         .then(function (res) { return fillAvatarFallback(res.items || []).then(function (items) { return { res: res, items: items }; }); })
         .then(function (ctx) {
           appendComments(ctx.items, !!reset);

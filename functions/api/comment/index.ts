@@ -32,6 +32,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, request }) => {
   const url = new URL(request.url);
   const postSlug = normalizeSlug(url.searchParams.get('postSlug'));
   if (!postSlug) return badRequest('Thiếu postSlug');
+  const noCache = url.searchParams.get('noCache') === '1';
 
   const parentId = Number.parseInt(String(url.searchParams.get('parentId') || '0'), 10) || 0;
   const page = parsePage(url.searchParams.get('page'), 1, 1000);
@@ -41,11 +42,13 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, request }) => {
     ? `comments:${postSlug}:parent:${parentId}:page:${page}:limit:${limit}`
     : cachePageKey(postSlug, page, limit);
 
-  const cached = await env.COMMENT_CACHE.get(key);
-  if (cached) {
-    return new Response(cached, {
-      headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=120' },
-    });
+  if (!noCache) {
+    const cached = await env.COMMENT_CACHE.get(key);
+    if (cached) {
+      return new Response(cached, {
+        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=120' },
+      });
+    }
   }
 
   const sql = parentId > 0
@@ -76,9 +79,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, request }) => {
   const hasMore = list.length === limit;
   const payload = { postSlug, parentId, page, limit, hasMore, items: list };
   const body = JSON.stringify(payload);
-  await env.COMMENT_CACHE.put(key, body, { expirationTtl: 300 });
+  if (!noCache) {
+    await env.COMMENT_CACHE.put(key, body, { expirationTtl: 300 });
+  }
   return new Response(body, {
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=120' },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': noCache ? 'no-store' : 'public, max-age=120',
+    },
   });
 };
 
