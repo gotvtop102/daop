@@ -64,13 +64,25 @@
       if (!navMain) return;
       var links = Array.prototype.slice.call(navMain.querySelectorAll('a[href]'));
       var target = null;
+      function normalizeTopicHref(href) {
+        var s = String(href || '').trim().toLowerCase();
+        if (!s) return '';
+        // Remove query/hash
+        s = s.split('#')[0].split('?')[0];
+        // Normalize leading relative prefixes
+        while (s.indexOf('../') === 0) s = s.slice(3);
+        if (s.indexOf('./') === 0) s = s.slice(2);
+        if (s[0] !== '/') s = '/' + s;
+        // Ensure trailing slash for folder-like URL
+        if (s === '/chu-de') s = '/chu-de/';
+        return s;
+      }
       for (var i = 0; i < links.length; i++) {
         var a = links[i];
         var href = (a.getAttribute('href') || '').trim();
-        if (
-          href === '/chu-de/' ||
-          href === (BASE + '/chu-de/')
-        ) {
+        var normalized = normalizeTopicHref(href);
+        var baseHref = normalizeTopicHref((BASE + '/chu-de/').replace(/\/\//g, '/'));
+        if (normalized === '/chu-de/' || normalized === baseHref) {
           target = a;
           break;
         }
