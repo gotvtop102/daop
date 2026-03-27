@@ -100,11 +100,20 @@
       setLocal(data);
       this.sync();
     },
-    updateWatchProgress: function (slug, episode, timestamp) {
+    updateWatchProgress: function (slug, episode, timestamp, meta) {
       var data = getLocal();
       var list = data.watchHistory || [];
       var idx = list.findIndex(function (x) { return x.slug === slug; });
-      var entry = { slug: slug, episode: episode, timestamp: timestamp, lastWatched: new Date().toISOString() };
+      meta = meta && typeof meta === 'object' ? meta : {};
+      var entry = {
+        slug: slug,
+        episode: episode,
+        timestamp: timestamp,
+        lastWatched: new Date().toISOString(),
+        server: meta.server || '',
+        linkType: meta.linkType || '',
+        groupIdx: (meta.groupIdx != null ? meta.groupIdx : null),
+      };
       if (idx >= 0) list[idx] = entry;
       else list.push(entry);
       data.watchHistory = list;
@@ -200,7 +209,7 @@
                 }
                 var curT = Date.parse(cur.lastWatched || '') || 0;
                 var newT = Date.parse(h.lastWatched || '') || 0;
-                if (newT >= curT) histMap[h.slug] = h;
+                if (newT >= curT) histMap[h.slug] = Object.assign({}, cur, h);
               });
               data.watchHistory = Object.keys(histMap).map(function (k) { return histMap[k]; });
 

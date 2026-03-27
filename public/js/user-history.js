@@ -241,8 +241,18 @@
             var ep = btn.getAttribute('data-episode');
             var base = (window.DAOP && window.DAOP.basePath) || '';
             if (!slug) return;
+            var us = window.DAOP && window.DAOP.userSync;
+            var hist = null;
+            try {
+              if (us && typeof us.getWatchHistory === 'function') {
+                hist = us.getWatchHistory().find(function (x) { return x && x.slug === slug; }) || null;
+              }
+            } catch (eHist) {}
             var href = base + '/xem-phim/' + encodeURIComponent(slug) + '.html';
             if (ep) href += '?ep=' + encodeURIComponent(ep);
+            if (hist && hist.server) href += (ep ? '&' : '?') + 'sv=' + encodeURIComponent(String(hist.server));
+            if (hist && hist.linkType) href += (ep || (hist && hist.server) ? '&' : '?') + 'lt=' + encodeURIComponent(String(hist.linkType));
+            if (hist && hist.groupIdx != null && hist.groupIdx !== '') href += (ep || (hist && (hist.server || hist.linkType)) ? '&' : '?') + 'g=' + encodeURIComponent(String(hist.groupIdx));
             window.location.href = href;
           });
         });

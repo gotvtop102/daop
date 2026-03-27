@@ -515,12 +515,23 @@
   function pickInitialEpisode(movie, serverSources) {
     var params = new URLSearchParams(window.location.search || '');
     var wantEp = params.get('ep') || '';
+    var wantServer = params.get('sv') || params.get('server') || '';
+    var wantLinkType = params.get('lt') || params.get('type') || '';
+    var wantGroupRaw = params.get('g') || '';
+    var wantGroupIdx = parseInt(String(wantGroupRaw || ''), 10);
+    if (!isFinite(wantGroupIdx) || wantGroupIdx < 0) wantGroupIdx = null;
 
     var us = window.DAOP && window.DAOP.userSync;
     if (!wantEp && us && typeof us.getWatchHistory === 'function' && movie && movie.slug) {
       try {
         var hist = us.getWatchHistory().find(function (x) { return x && x.slug === movie.slug; });
         if (hist && hist.episode) wantEp = String(hist.episode);
+        if (!wantServer && hist && hist.server) wantServer = String(hist.server || '');
+        if (!wantLinkType && hist && hist.linkType) wantLinkType = String(hist.linkType || '');
+        if (wantGroupIdx == null && hist && hist.groupIdx != null && hist.groupIdx !== '') {
+          var gi = parseInt(String(hist.groupIdx), 10);
+          if (isFinite(gi) && gi >= 0) wantGroupIdx = gi;
+        }
       } catch (e) {}
     }
 
@@ -597,20 +608,34 @@
     var preferTypes = ['m3u8', 'embed', 'backup', 'vip1', 'vip2', 'vip3', 'vip4', 'vip5'];
     var pick = null;
 
+    function pickLinkTypeFromEp(epObj) {
+      if (!epObj) return 'm3u8';
+      if (wantLinkType && epObj.links && epObj.links[wantLinkType]) return wantLinkType;
+      for (var i = 0; i < preferTypes.length; i++) {
+        if (epObj.links && epObj.links[preferTypes[i]]) return preferTypes[i];
+      }
+      return 'm3u8';
+    }
+
     if (wantEp) {
+      if (wantServer && serverData[wantServer] && serverData[wantServer].length) {
+        var epsPref = serverData[wantServer] || [];
+        var epPref = epsPref.find(function (e) { return e && (e.code === wantEp || e.name === wantEp); }) || null;
+        if (epPref) {
+          var ltPref = pickLinkTypeFromEp(epPref);
+          pick = { server: wantServer, episode: epPref.code, linkType: ltPref, link: (epPref.links && epPref.links[ltPref]) || '' };
+        }
+      }
+      if (pick) {
+        if (wantGroupIdx != null) pick.groupIdx = wantGroupIdx;
+        return pick;
+      }
       srvKeys.some(function (srvSlug) {
         var eps = serverData[srvSlug] || [];
         if (!eps.length) return false;
         var epObj = eps.find(function (e) { return e && (e.code === wantEp || e.name === wantEp); }) || null;
         if (!epObj) return false;
-        var linkTypeMatch = null;
-        for (var i = 0; i < preferTypes.length; i++) {
-          if (epObj.links && epObj.links[preferTypes[i]]) {
-            linkTypeMatch = preferTypes[i];
-            break;
-          }
-        }
-        if (!linkTypeMatch) linkTypeMatch = 'm3u8';
+        var linkTypeMatch = pickLinkTypeFromEp(epObj);
         pick = { server: srvSlug, episode: epObj.code, linkType: linkTypeMatch, link: (epObj.links && epObj.links[linkTypeMatch]) || '' };
         return true;
       });
@@ -636,6 +661,7 @@
       });
     }
 
+    if (pick && wantGroupIdx != null) pick.groupIdx = wantGroupIdx;
     return pick;
   }
 
@@ -695,7 +721,11 @@
 
     function reportTime() {
       if (window.DAOP && window.DAOP.userSync && ctx.slug && ctx.episode && video.currentTime != null) {
-        window.DAOP.userSync.updateWatchProgress(ctx.slug, ctx.episode, Math.floor(video.currentTime));
+        window.DAOP.userSync.updateWatchProgress(ctx.slug, ctx.episode, Math.floor(video.currentTime), {
+          server: ctx.server || '',
+          linkType: ctx.linkType || '',
+          groupIdx: (ctx.groupIdx != null ? ctx.groupIdx : null)
+        });
       }
     }
 
@@ -1145,7 +1175,7 @@
       server: (initial && initial.server) || serversData[0].slug,
       linkType: (initial && initial.linkType) || 'm3u8',
       episode: (initial && initial.episode) || '',
-      groupIdx: 0
+      groupIdx: (initial && initial.groupIdx != null ? (parseInt(String(initial.groupIdx), 10) || 0) : 0)
     };
 
     var nextTimer = null;
@@ -1349,7 +1379,10 @@
       renderPlayer(root.querySelector('[data-role="player"]'), {
         link: link,
         slug: movie.slug,
-        episode: state.episode
+        episode: state.episode,
+        server: state.server,
+        linkType: state.linkType,
+        groupIdx: state.groupIdx
       });
 
       var host = root.querySelector('[data-role="player"]');
@@ -1377,6 +1410,22 @@
       renderEpisodes();
       updatePlayer();
     }
+
+    // Ensure initial groupIdx matches the initial episode (one-time, but do not override user's later selection)
+    (function syncInitialGroupOnce() {
+      try {
+        var info0 = getServerInfo(state.server);
+        var list0 = filterEpisodesByType(info0, state.linkType);
+        if (!list0.length) list0 = info0.episodes || [];
+        var GROUP_SIZE = 50;
+        var isSingle = (movie && (movie.type === 'single' || movie.type === 'movie')) || false;
+        var needGrouping = !isSingle && list0.length > GROUP_SIZE;
+        if (!needGrouping) return;
+        if (!state.episode) return;
+        var idx0 = list0.findIndex(function (e) { return e && e.code === state.episode; });
+        if (idx0 >= 0) state.groupIdx = Math.floor(idx0 / GROUP_SIZE);
+      } catch (e) {}
+    })();
 
     renderAll();
   }

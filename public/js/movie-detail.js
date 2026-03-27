@@ -487,6 +487,9 @@
         var hist0 = us0.getWatchHistory().find(function (x) { return x && x.slug === movie.slug; });
         if (hist0 && hist0.episode) {
           watchHref = base + '/xem-phim/' + encodeURIComponent(movie.slug || '') + '.html?ep=' + encodeURIComponent(String(hist0.episode));
+          if (hist0.server) watchHref += '&sv=' + encodeURIComponent(String(hist0.server));
+          if (hist0.linkType) watchHref += '&lt=' + encodeURIComponent(String(hist0.linkType));
+          if (hist0.groupIdx != null && hist0.groupIdx !== '') watchHref += '&g=' + encodeURIComponent(String(hist0.groupIdx));
           watchLabel = 'Tiếp tục xem';
         }
       }
