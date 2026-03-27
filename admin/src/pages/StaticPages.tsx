@@ -148,6 +148,55 @@ const DEFAULT_APP_GUIDE_HTML = `
 </div>
 `.trim();
 
+const DEFAULT_CONTACT_HTML = `
+<h2>Liên Hệ GoTV - Hỗ Trợ Khi Xem Phim Online</h2>
+<h3>Liên hệ</h3>
+<p>Chào mừng bạn đến với trang <strong>Liên Hệ</strong> của GoTV! Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn để mang lại trải nghiệm tốt nhất khi sử dụng dịch vụ.</p>
+<h3>1. Thông Tin Liên Hệ Chính</h3>
+<p>Email hỗ trợ khách hàng: <strong>support@gotv.top</strong></p>
+<ul>
+<li><strong>Vấn đề tài khoản:</strong> Quên mật khẩu, không thể truy cập, và các vấn đề liên quan đến tài khoản.</li>
+<li><strong>Hỗ trợ kỹ thuật:</strong> Sự cố khi xem phim, chất lượng video hoặc các lỗi khác khi sử dụng trang web.</li>
+<li><strong>Đóng góp ý kiến:</strong> Chúng tôi trân trọng mọi ý kiến đóng góp từ bạn để nâng cao chất lượng dịch vụ.</li>
+</ul>
+<p>Email liên hệ về Chính Sách Riêng Tư: <strong>privacy@gotv.top</strong></p>
+<p>Mọi thắc mắc liên quan đến bảo mật thông tin và chính sách riêng tư của GoTV.</p>
+<h3>2. Liên Hệ Qua Mạng Xã Hội</h3>
+<p>Ngoài email, bạn cũng có thể liên hệ và cập nhật thông tin mới nhất từ GoTV qua các kênh mạng xã hội của chúng tôi.</p>
+<h3>3. Câu Hỏi Thường Gặp (F.A.Q)</h3>
+<p>Trước khi gửi yêu cầu hỗ trợ, bạn có thể tham khảo trang <a href="/hoi-dap.html">Câu Hỏi Thường Gặp (F.A.Q)</a> để tìm câu trả lời nhanh cho các vấn đề phổ biến.</p>
+<p>Chúng tôi rất vui khi được hỗ trợ bạn và mong muốn mang đến trải nghiệm xem phim trực tuyến tốt nhất! <strong>GoTV - Cùng bạn khám phá thế giới giải trí đa dạng, an toàn và miễn phí!</strong></p>
+`.trim();
+
+const DEFAULT_FAQ_HTML = `
+<h2>Hỏi Đáp - GoTV</h2>
+<h3>Một số câu hỏi được người dùng quan tâm nhất tại GoTV</h3>
+<h4>1. GoTV là gì và có những đặc điểm nổi bật nào?</h4>
+<p>GoTV là một trang web xem phim online miễn phí tại Việt Nam, cung cấp kho phim chất lượng HD và 4K, có tốc độ tải mượt mà. Trang web có giao diện thân thiện và thường xuyên cập nhật các bộ phim mới nhất từ nhiều quốc gia.</p>
+<h4>2. GoTV có miễn phí hoàn toàn không?</h4>
+<p>GoTV hoàn toàn miễn phí. Người dùng không cần trả phí hay đăng ký tài khoản để xem phim.</p>
+<h4>3. GoTV có bao gồm các bộ phim chiếu rạp không?</h4>
+<p>GoTV cung cấp nhiều bộ phim chiếu rạp đình đám từ Việt Nam và quốc tế, được cập nhật nhanh chóng.</p>
+<h4>4. Tốc độ tải phim trên GoTV như thế nào?</h4>
+<p>GoTV có tốc độ tải nhanh, ổn định nhờ hệ thống máy chủ hiện đại.</p>
+<h4>5. Chất lượng phim trên GoTV có tốt không?</h4>
+<p>GoTV cung cấp chất lượng phim từ HD đến 4K.</p>
+<h4>6. GoTV có thể xem trên các thiết bị nào?</h4>
+<p>GoTV có thể truy cập trên máy tính, điện thoại di động và máy tính bảng.</p>
+<h4>7. GoTV có hỗ trợ thuyết minh và phụ đề không?</h4>
+<p>Có, GoTV hỗ trợ nhiều tùy chọn thuyết minh và phụ đề đa ngôn ngữ.</p>
+<h4>8. GoTV có phim lẻ và phim bộ không?</h4>
+<p>Đúng vậy, GoTV cung cấp cả phim lẻ và phim bộ.</p>
+<h4>9. GoTV có hỗ trợ phim hoạt hình không?</h4>
+<p>Có, GoTV có kho phim hoạt hình phong phú.</p>
+<h4>10. Có thể tìm kiếm phim dễ dàng trên GoTV không?</h4>
+<p>Giao diện GoTV được thiết kế thân thiện, giúp tìm kiếm phim theo tên, thể loại, quốc gia.</p>
+<h4>11. Có cần đăng ký tài khoản để xem phim trên GoTV không?</h4>
+<p>Người dùng không cần đăng ký tài khoản mà vẫn có thể xem phim thoải mái.</p>
+<h4>12. GoTV có bảo vệ quyền riêng tư cho người dùng không?</h4>
+<p>GoTV đảm bảo quyền riêng tư của người dùng, không sử dụng dữ liệu cho mục đích quảng cáo.</p>
+`.trim();
+
 export default function StaticPages() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
@@ -207,8 +256,40 @@ export default function StaticPages() {
           <Tabs
             items={[
               { key: 'about', label: 'Giới thiệu', children: <Form.Item name="about_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item> },
-              { key: 'contact', label: 'Liên hệ', children: <Form.Item name="contact_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item> },
-              { key: 'faq', label: 'Hỏi-đáp', children: <Form.Item name="faq_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item> },
+              {
+                key: 'contact',
+                label: 'Liên hệ',
+                children: (
+                  <>
+                    <Form.Item name="contact_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item>
+                    <Space style={{ marginBottom: 12 }} wrap>
+                      <Button onClick={() => form.setFieldValue('contact_content', DEFAULT_CONTACT_HTML)}>
+                        Chèn mẫu Liên hệ
+                      </Button>
+                      <Button onClick={() => form.setFieldValue('contact_content', '')}>
+                        Xóa nội dung
+                      </Button>
+                    </Space>
+                  </>
+                ),
+              },
+              {
+                key: 'faq',
+                label: 'Hỏi-đáp',
+                children: (
+                  <>
+                    <Form.Item name="faq_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item>
+                    <Space style={{ marginBottom: 12 }} wrap>
+                      <Button onClick={() => form.setFieldValue('faq_content', DEFAULT_FAQ_HTML)}>
+                        Chèn mẫu Hỏi-đáp
+                      </Button>
+                      <Button onClick={() => form.setFieldValue('faq_content', '')}>
+                        Xóa nội dung
+                      </Button>
+                    </Space>
+                  </>
+                ),
+              },
               { key: 'privacy', label: 'Chính sách bảo mật', children: <Form.Item name="privacy_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item> },
               { key: 'terms', label: 'Điều khoản sử dụng', children: <Form.Item name="terms_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item> },
               {
