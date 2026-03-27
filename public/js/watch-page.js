@@ -574,6 +574,14 @@
       return (matched && matched.slug) || b || snSlug || 'default';
     }
 
+    // Normalize server slug input (URL/history) into internal srvSlug used in episodes UI.
+    if (wantServer) {
+      try {
+        var base0 = makeSlug(wantServer) || String(wantServer);
+        wantServer = matchServerSlug(base0, String(wantServer));
+      } catch (eNormSv) {}
+    }
+
     var serverData = {};
     (movie.episodes || []).forEach(function (ep) {
       var serverName = ep.server_name || ep.name || ep.slug || '';
@@ -1177,6 +1185,20 @@
       episode: (initial && initial.episode) || '',
       groupIdx: (initial && initial.groupIdx != null ? (parseInt(String(initial.groupIdx), 10) || 0) : 0)
     };
+
+    // If initial server slug doesn't exist (slug mapping mismatch), try to recover by locating the episode across servers.
+    try {
+      var hasServer = serversData.some(function (s) { return s && s.slug === state.server; });
+      if (!hasServer && state.episode) {
+        var foundSrv = serversData.find(function (s) {
+          return (s.episodes || []).some(function (e) { return e && e.code === state.episode; });
+        }) || null;
+        if (foundSrv && foundSrv.slug) state.server = foundSrv.slug;
+      }
+      if (!serversData.some(function (s) { return s && s.slug === state.server; })) state.server = serversData[0].slug;
+    } catch (eInitSv) {
+      state.server = serversData[0].slug;
+    }
 
     var nextTimer = null;
     var nextRemain = 0;
