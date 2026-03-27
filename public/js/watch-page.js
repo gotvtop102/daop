@@ -599,6 +599,7 @@
     }
 
     var serverData = {};
+    var serverAliasMap = {};
     (movie.episodes || []).forEach(function (ep) {
       var serverName = ep.server_name || ep.name || ep.slug || '';
       var baseSlug = makeSlug(serverName) || ep.slug || '';
@@ -606,6 +607,13 @@
       var list = Array.isArray(ep.server_data) ? ep.server_data : [];
       if (!list.length) return;
       if (!serverData[srvSlug]) serverData[srvSlug] = [];
+      if (!serverAliasMap[srvSlug]) serverAliasMap[srvSlug] = {};
+      try {
+        serverAliasMap[srvSlug][String(srvSlug).toLowerCase()] = true;
+        if (baseSlug) serverAliasMap[srvSlug][String(baseSlug).toLowerCase()] = true;
+        if (serverName) serverAliasMap[srvSlug][String(makeSlug(serverName)).toLowerCase()] = true;
+        if (ep && ep.slug) serverAliasMap[srvSlug][String(makeSlug(ep.slug)).toLowerCase()] = true;
+      } catch (eAlias) {}
       list.forEach(function (srv, idx) {
         var code = (srv && (srv.slug || srv.name)) ? (srv.slug || srv.name) : String(idx + 1);
         var name = (srv && (srv.name || srv.slug)) ? (srv.name || srv.slug) : ('Tập ' + code);
@@ -628,6 +636,22 @@
 
     var srvKeys = Object.keys(serverData);
     if (!srvKeys.length) return null;
+
+    // Resolve wantServer to actual srvSlug key with tolerant matching.
+    if (wantServer && !serverData[wantServer]) {
+      var wantNorm = String(makeSlug(wantServer) || wantServer).toLowerCase();
+      var resolved = srvKeys.find(function (k) {
+        var keyNorm = String(k || '').toLowerCase();
+        var aliases = serverAliasMap[k] || {};
+        return !!(
+          keyNorm === wantNorm ||
+          aliases[wantNorm] ||
+          keyNorm.indexOf(wantNorm) === 0 ||
+          wantNorm.indexOf(keyNorm) === 0
+        );
+      }) || '';
+      if (resolved) wantServer = resolved;
+    }
 
     var preferTypes = ['m3u8', 'embed', 'backup', 'vip1', 'vip2', 'vip3', 'vip4', 'vip5'];
     var pick = null;
