@@ -120,8 +120,8 @@
           '<div class="cmt-actions">' +
             '<button type="button" class="cmt-action-btn" data-action="like" data-id="' + commentId + '">👍 <span data-role="like-count">' + likeCount + '</span></button>' +
             '<button type="button" class="cmt-action-btn" data-action="dislike" data-id="' + commentId + '">👎 <span data-role="dislike-count">' + dislikeCount + '</span></button>' +
-            (parentId === 0 ? '<button type="button" class="cmt-action-btn" data-action="reply" data-id="' + commentId + '">↩️ Trả lời</button>' : '') +
-            (parentId === 0 ? '<button type="button" class="cmt-action-btn" data-action="toggle-replies" data-id="' + commentId + '">💬 Xem trả lời (' + replyCount + ')</button>' : '') +
+            (parentId === 0 ? '<button type="button" class="cmt-action-btn" data-action="reply" data-id="' + commentId + '" title="Trả lời">↩️</button>' : '') +
+            (parentId === 0 ? '<button type="button" class="cmt-action-btn" data-action="toggle-replies" data-id="' + commentId + '" title="Xem trả lời">💬 <span data-role="reply-count">' + replyCount + '</span></button>' : '') +
           '</div>' +
           (parentId === 0 ? '<div class="cmt-reply-form" data-role="reply-form" data-id="' + commentId + '" style="display:none"></div>' : '') +
           (parentId === 0 ? '<div class="cmt-replies" data-role="replies" data-id="' + commentId + '" style="display:none"></div>' : '') +
@@ -148,7 +148,6 @@
 
     root.innerHTML =
       '<section class="cmt-box">' +
-        '<h3 class="cmt-title">Bình luận</h3>' +
         '<div class="cmt-form-wrap" data-role="form"></div>' +
         '<div class="cmt-list" data-role="list"></div>' +
         '<button type="button" class="cmt-load-more" data-role="more" style="display:none">Tải thêm</button>' +
@@ -337,7 +336,11 @@
       var open = forceOpen ? false : holder.style.display !== 'none';
       if (open) {
         holder.style.display = 'none';
-        if (btn) btn.textContent = '💬 Xem trả lời';
+        if (btn) {
+          var rc0 = btn.querySelector('[data-role="reply-count"]');
+          var keep0 = rc0 ? rc0.textContent : '0';
+          btn.innerHTML = '💬 <span data-role="reply-count">' + String(keep0 || '0') + '</span>';
+        }
         return;
       }
       holder.style.display = '';
@@ -349,7 +352,7 @@
           holder.innerHTML = items.map(renderComment).join('');
           bindCommentActions();
         }
-        if (btn) btn.textContent = 'Ẩn trả lời';
+        if (btn) btn.innerHTML = '🗂️ <span data-role="reply-count">' + String(items.length) + '</span>';
       }).catch(function (err) {
         holder.innerHTML = '<p class="cmt-msg cmt-msg--error">' + esc(err.message || 'Không thể tải trả lời') + '</p>';
       });
