@@ -197,6 +197,64 @@ const DEFAULT_FAQ_HTML = `
 <p>GoTV đảm bảo quyền riêng tư của người dùng, không sử dụng dữ liệu cho mục đích quảng cáo.</p>
 `.trim();
 
+const DEFAULT_ABOUT_HTML = `
+<h2>Giới Thiệu GoTV</h2>
+<h3>GoTV - Nền Tảng Xem Phim Trực Tuyến Miễn Phí</h3>
+<p>GoTV là nền tảng xem phim trực tuyến miễn phí, cung cấp không gian giải trí cho hàng triệu người dùng với tiêu chí chất lượng, tiện lợi và phong phú.</p>
+<h3>Giao Diện Thân Thiện, Dễ Sử Dụng</h3>
+<p>GoTV thiết kế giao diện tối giản, thân thiện để bạn dễ dàng khám phá và tìm kiếm những bộ phim yêu thích.</p>
+<h3>Kho Phim Phong Phú</h3>
+<p>GoTV mang đến hàng ngàn bộ phim thuộc nhiều thể loại: Phim Bộ, Phim Lẻ, Phim Việt Nam, từ nhiều quốc gia.</p>
+<h3>Chất Lượng Video Đỉnh Cao - Từ HD đến 4K</h3>
+<p>GoTV cung cấp phim với nhiều độ phân giải từ HD đến 4K.</p>
+<h3>Tính Năng Nổi Bật</h3>
+<ul><li>Xem Phim Miễn Phí Hoàn Toàn</li><li>Cập Nhật Phim Nhanh Chóng</li><li>Xem Phim Mọi Lúc, Mọi Nơi</li></ul>
+<h3>Cam Kết</h3>
+<p>Chúng tôi cam kết bảo vệ quyền lợi người dùng, bảo mật thông tin cá nhân tuyệt đối.</p>
+<h3>Liên Hệ</h3>
+<p>Liên hệ qua <a href="/lien-he.html">trang Liên Hệ</a> hoặc email support@gotv.top</p>
+`.trim();
+
+const DEFAULT_PRIVACY_HTML = `
+<h2>Bảo Mật - Chính Sách Riêng Tư của GoTV</h2>
+<p>Tại GoTV, chúng tôi cam kết bảo vệ quyền riêng tư và thông tin cá nhân của bạn khi truy cập và sử dụng trang web.</p>
+<h3>Thông Tin Chúng Tôi Thu Thập</h3>
+<p>Khi bạn đăng ký tài khoản, nhận bản tin, hoặc liên hệ với chúng tôi, chúng tôi có thể thu thập: tên, địa chỉ email, số điện thoại và các thông tin khác mà bạn cung cấp.</p>
+<h3>Mục Đích Sử Dụng Thông Tin</h3>
+<ul><li>Cung cấp và duy trì dịch vụ</li><li>Giao tiếp với người dùng</li><li>Phân tích và cải thiện</li><li>Bảo mật và tuân thủ pháp luật</li></ul>
+<h3>Chia Sẻ Thông Tin</h3>
+<p>GoTV cam kết không bán hoặc chia sẻ thông tin cá nhân với bên thứ ba, ngoại trừ khi có sự đồng ý của bạn hoặc theo yêu cầu pháp luật.</p>
+<h3>Bảo Mật Thông Tin Cá Nhân</h3>
+<p>Chúng tôi áp dụng các biện pháp kỹ thuật và tổ chức để bảo vệ thông tin của bạn.</p>
+<h3>Quyền Riêng Tư của Người Dùng</h3>
+<p>Bạn có quyền truy cập, chỉnh sửa và xóa thông tin cá nhân. Liên hệ: <strong>privacy@gotv.top</strong></p>
+<h3>Cookies</h3>
+<p>GoTV sử dụng cookies để cải thiện trải nghiệm người dùng. Bạn có thể điều chỉnh cài đặt cookies qua trình duyệt.</p>
+<h3>Liên Hệ</h3>
+<p>Mọi câu hỏi về Chính Sách Riêng Tư: <strong>privacy@gotv.top</strong></p>
+`.trim();
+
+const DEFAULT_TERMS_HTML = `
+<h2>Điều Khoản Sử Dụng - GoTV</h2>
+<p>Chào mừng bạn đến với GoTV, nền tảng xem phim trực tuyến miễn phí. Bằng việc truy cập và sử dụng dịch vụ, bạn đồng ý tuân thủ các điều khoản này.</p>
+<h3>1. Chấp Nhận Điều Khoản</h3>
+<p>Bạn đã đọc, hiểu và đồng ý với các điều khoản sử dụng. Nếu không đồng ý, vui lòng không tiếp tục sử dụng GoTV.</p>
+<h3>2. Đăng Ký Tài Khoản</h3>
+<p>Khi đăng ký, bạn cam kết: cung cấp thông tin chính xác; bảo mật thông tin đăng nhập; không sử dụng tài khoản cho hành vi vi phạm pháp luật.</p>
+<h3>3. Hành Vi Bị Cấm</h3>
+<p>Không đăng tải nội dung vi phạm bản quyền; không thực hiện hành vi gây hại hệ thống; không sử dụng thương mại mà không có sự đồng ý.</p>
+<h3>4. Bảo Mật Thông Tin</h3>
+<p>Vui lòng tham khảo <a href="/chinh-sach-bao-mat.html">Chính Sách Riêng Tư</a> để hiểu cách chúng tôi thu thập và bảo mật thông tin.</p>
+<h3>5. Quyền Thay Đổi Dịch Vụ</h3>
+<p>GoTV có quyền thay đổi, cập nhật hoặc ngừng cung cấp nội dung/dịch vụ; xóa hoặc tạm ngừng tài khoản nếu vi phạm.</p>
+<h3>6. Miễn Trừ Trách Nhiệm</h3>
+<p>GoTV không chịu trách nhiệm về gián đoạn truy cập, sự cố kỹ thuật, nội dung do bên thứ ba cung cấp.</p>
+<h3>7. Thay Đổi Điều Khoản</h3>
+<p>Chúng tôi có thể cập nhật điều khoản theo thời gian. Việc tiếp tục sử dụng đồng nghĩa chấp nhận điều khoản mới.</p>
+<h3>8. Liên Hệ</h3>
+<p>Mọi câu hỏi: <strong>support@gotv.top</strong></p>
+`.trim();
+
 export default function StaticPages() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
@@ -255,7 +313,23 @@ export default function StaticPages() {
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Tabs
             items={[
-              { key: 'about', label: 'Giới thiệu', children: <Form.Item name="about_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item> },
+              {
+                key: 'about',
+                label: 'Giới thiệu',
+                children: (
+                  <>
+                    <Form.Item name="about_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item>
+                    <Space style={{ marginBottom: 12 }} wrap>
+                      <Button onClick={() => form.setFieldValue('about_content', DEFAULT_ABOUT_HTML)}>
+                        Chèn mẫu Giới thiệu
+                      </Button>
+                      <Button onClick={() => form.setFieldValue('about_content', '')}>
+                        Xóa nội dung
+                      </Button>
+                    </Space>
+                  </>
+                ),
+              },
               {
                 key: 'contact',
                 label: 'Liên hệ',
@@ -290,8 +364,40 @@ export default function StaticPages() {
                   </>
                 ),
               },
-              { key: 'privacy', label: 'Chính sách bảo mật', children: <Form.Item name="privacy_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item> },
-              { key: 'terms', label: 'Điều khoản sử dụng', children: <Form.Item name="terms_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item> },
+              {
+                key: 'privacy',
+                label: 'Chính sách bảo mật',
+                children: (
+                  <>
+                    <Form.Item name="privacy_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item>
+                    <Space style={{ marginBottom: 12 }} wrap>
+                      <Button onClick={() => form.setFieldValue('privacy_content', DEFAULT_PRIVACY_HTML)}>
+                        Chèn mẫu Chính sách
+                      </Button>
+                      <Button onClick={() => form.setFieldValue('privacy_content', '')}>
+                        Xóa nội dung
+                      </Button>
+                    </Space>
+                  </>
+                ),
+              },
+              {
+                key: 'terms',
+                label: 'Điều khoản sử dụng',
+                children: (
+                  <>
+                    <Form.Item name="terms_content" label="Nội dung (HTML)"><RichTextEditor /></Form.Item>
+                    <Space style={{ marginBottom: 12 }} wrap>
+                      <Button onClick={() => form.setFieldValue('terms_content', DEFAULT_TERMS_HTML)}>
+                        Chèn mẫu Điều khoản
+                      </Button>
+                      <Button onClick={() => form.setFieldValue('terms_content', '')}>
+                        Xóa nội dung
+                      </Button>
+                    </Space>
+                  </>
+                ),
+              },
               {
                 key: 'app_guide',
                 label: 'Hướng dẫn app',

@@ -159,17 +159,23 @@ export function injectNavIntoHtml(opts) {
   walkHtmlFiles(publicDir, (full) => {
     let content = fs.readFileSync(full, 'utf8');
     const orig = content;
-    if (content.includes('huong-dan-app')) return;
-    const prefix = content.includes('href="../') ? 'href="../' : 'href="/';
-    const taiApp = '<a ' + prefix + 'huong-dan-app.html">Tải app</a>';
-    const lienHe = '<a ' + prefix + 'lien-he.html">Liên hệ</a>';
-    const added = taiApp + lienHe;
-    if (content.includes('donate')) {
-      content = content.replace(/(<a [^>]*donate[^"']*"[^>]*>Donate<\/a>)/i, '$1' + added);
-    } else if (content.includes('gioi-thieu')) {
-      content = content.replace(/(<a [^>]*gioi-thieu[^"']*"[^>]*>Giới thiệu<\/a>)/i, '$1' + added);
+    // Chuẩn hóa nhãn menu /chu-de/ từ "Danh sách" -> "Chủ đề"
+    content = content
+      .replace(/(<a[^>]*href="\/chu-de\/"[^>]*>)\s*Danh sách\s*(<\/a>)/gi, '$1Chủ đề$2')
+      .replace(/(<a[^>]*href="\.\.\/chu-de\/"[^>]*>)\s*Danh sách\s*(<\/a>)/gi, '$1Chủ đề$2');
+
+    if (!content.includes('huong-dan-app')) {
+      const prefix = content.includes('href="../') ? 'href="../' : 'href="/';
+      const taiApp = '<a ' + prefix + 'huong-dan-app.html">Tải app</a>';
+      const lienHe = '<a ' + prefix + 'lien-he.html">Liên hệ</a>';
+      const added = taiApp + lienHe;
+      if (content.includes('donate')) {
+        content = content.replace(/(<a [^>]*donate[^"']*"[^>]*>Donate<\/a>)/i, '$1' + added);
+      } else if (content.includes('gioi-thieu')) {
+        content = content.replace(/(<a [^>]*gioi-thieu[^"']*"[^>]*>Giới thiệu<\/a>)/i, '$1' + added);
+      }
     }
-    if (content !== orig && content.includes('huong-dan-app')) {
+    if (content !== orig) {
       fs.writeFileSync(full, content, 'utf8');
       count++;
     }
