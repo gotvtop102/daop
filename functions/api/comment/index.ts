@@ -155,6 +155,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ env, request }) => {
   if (parentId > 0) {
     for (let p = 1; p <= 5; p += 1) {
       await env.COMMENT_CACHE.delete(`comments:${postSlug}:parent:${parentId}:page:${p}:limit:5`);
+      // replies UI uses limit=2, so clear that cache variant too.
+      await env.COMMENT_CACHE.delete(`comments:${postSlug}:parent:${parentId}:page:${p}:limit:2`);
     }
   }
 

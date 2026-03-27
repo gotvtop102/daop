@@ -170,7 +170,6 @@
 
     if (btnSignup) {
       btnSignup.addEventListener('click', function () {
-        if (!ensureAgreed()) return;
         if (!_signupMode) {
           _signupMode = true;
           if (displayNameWrap) displayNameWrap.style.display = '';
@@ -178,6 +177,7 @@
           setStatus('Nhập Tên hiển thị, Email và Mật khẩu để đăng ký.');
           return;
         }
+        if (!ensureAgreed()) return;
         var c = getCreds();
         if (!c.email || !c.password) {
           setStatus('Nhập email và mật khẩu.', true);
@@ -224,7 +224,11 @@
     if (form) {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        if (btnLogin) btnLogin.click();
+        if (_signupMode) {
+          if (btnSignup) btnSignup.click();
+        } else {
+          if (btnLogin) btnLogin.click();
+        }
       });
     }
   }

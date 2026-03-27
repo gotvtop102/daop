@@ -1762,7 +1762,12 @@
       btnCollapseComments.addEventListener('click', function () {
         var commentsCard = root.querySelector('.watch-comments-card');
         if (!commentsCard) return;
+        var expanding = commentsCard.classList.contains('watch-comments-card--collapsed');
         commentsCard.classList.toggle('watch-comments-card--collapsed');
+        if (expanding) {
+          var ctn = root.querySelector('#watch-comments-container');
+          if (window.DAOP && typeof window.DAOP._commentsStartLoad === 'function' && ctn) window.DAOP._commentsStartLoad(ctn);
+        }
       });
     }
 
@@ -1919,6 +1924,15 @@
             '  <div class="movies-grid" id="watch-recommend-grid"></div>' +
             '</section>' +
             '<div class="ad-slot" data-ad-position="watch_bottom"></div>';
+
+          // Default: rút gọn khung bình luận, chỉ mở khi người dùng bấm.
+          try {
+            var commentsCard0 = rootEl && rootEl.querySelector ? rootEl.querySelector('#watch-comments') : null;
+            // #watch-comments nằm trong .watch-comments-card theo markup.
+            if (commentsCard0 && commentsCard0.classList && !commentsCard0.classList.contains('watch-comments-card--collapsed')) {
+              commentsCard0.classList.add('watch-comments-card--collapsed');
+            }
+          } catch (e0) {}
 
           var initial = pickInitialEpisode(movie, window.DAOP && window.DAOP.serverSources);
           initEpisodesUI(movie, rootEl, initial);

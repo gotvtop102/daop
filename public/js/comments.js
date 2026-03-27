@@ -414,8 +414,8 @@
       });
     }
 
-    function fetchComments(page, reset) {
-      if (state.loading) return Promise.resolve();
+    function fetchComments(page, reset, force) {
+      if (state.loading && !force) return Promise.resolve();
       state.loading = true;
       setMsg('Đang tải bình luận...');
       return api('/api/comment?postSlug=' + encodeURIComponent(postSlug) + '&page=' + page + '&limit=' + DEFAULT_LIMIT)
@@ -461,18 +461,19 @@
           hp: hp ? hp.value : '',
         }),
       })
-        .then(function (res) { return fillAvatarFallback([res.item || {}]); })
-        .then(function (items) {
+        .then(function () {
           if ((parentId || 0) > 0) {
             setMsg('Đã gửi trả lời.');
             setFormStatus(form, 'Đã gửi');
-            return;
+            return Promise.resolve();
           }
-          appendComments(items, false);
-          if (ta) ta.value = '';
-          try { localStorage.removeItem(draftKey); } catch (e) {}
+
+          // Reload to ensure the new comment appears immediately (and respects sorting).
           setMsg('Đã gửi bình luận.');
           setFormStatus(form, 'Đã gửi');
+          if (ta) ta.value = '';
+          try { localStorage.removeItem(draftKey); } catch (e) {}
+          return fetchComments(1, true, true);
         })
         .catch(function (err) {
           setMsg(err.message || 'Gửi bình luận thất bại', true);
@@ -520,17 +521,43 @@
     }
 
     initSessionAndForm().then(function () {
-      try {
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (!entry.isIntersecting) return;
-            io.disconnect();
-            bootData();
-          });
-        }, { rootMargin: '120px 0px' });
-        io.observe(root);
-      } catch (e) {
+      function isVisible(el) {
+        if (!el) return false;
+        var r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      }
+
+      var booted = false;
+      function startIfNeeded() {
+        if (booted) return;
+        if (!isVisible(root)) return;
+        booted = true;
         bootData();
+      }
+
+      // Expose a per-widget start hook so page-level toggle buttons can force load.
+      try {
+        root.__daopCmtWidget = { start: startIfNeeded };
+        if (window.DAOP && typeof window.DAOP._commentsStartLoad !== 'function') {
+          window.DAOP._commentsStartLoad = function (rootEl) {
+            if (!rootEl || !rootEl.__daopCmtWidget || typeof rootEl.__daopCmtWidget.start !== 'function') return;
+            rootEl.__daopCmtWidget.start();
+          };
+        }
+      } catch (e) {}
+
+      startIfNeeded();
+
+      // When the comments container is hidden (collapsed) then expanded later, we need to start loading then.
+      var observeTarget = root.closest && (root.closest('.watch-comments-card') || root.closest('#movie-comments') || root.closest('.md-section') || root.parentElement) || root.parentElement || root;
+      try {
+        var mo = new MutationObserver(function () {
+          startIfNeeded();
+        });
+        mo.observe(observeTarget, { attributes: true, attributeFilter: ['class', 'style'], childList: false, subtree: false });
+      } catch (e2) {
+        // Fallback: attempt once more.
+        setTimeout(startIfNeeded, 0);
       }
     });
   }

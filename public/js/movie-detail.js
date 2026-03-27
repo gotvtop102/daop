@@ -338,6 +338,7 @@
     var btnInfo = document.getElementById('btn-toggle-info');
     var infoEl = document.getElementById('movie-info');
     var btnComments = document.getElementById('btn-scroll-comments');
+    var btnCollapseComments = document.getElementById('btn-collapse-comments');
     var btnRecommend = document.getElementById('btn-scroll-recommend');
     var btnShare = document.getElementById('btn-share');
 
@@ -350,7 +351,27 @@
       });
     }
     if (btnComments) {
-      btnComments.addEventListener('click', function () { scrollToId('movie-comments'); });
+      btnComments.addEventListener('click', function () {
+        var sec = document.getElementById('movie-comments');
+        if (sec && sec.classList.contains('movie-comments--collapsed')) {
+          sec.classList.remove('movie-comments--collapsed');
+          var ctn = document.getElementById('comments-container');
+          if (window.DAOP && typeof window.DAOP._commentsStartLoad === 'function' && ctn) window.DAOP._commentsStartLoad(ctn);
+        }
+        scrollToId('movie-comments');
+      });
+    }
+    if (btnCollapseComments) {
+      btnCollapseComments.addEventListener('click', function () {
+        var sec = document.getElementById('movie-comments');
+        if (!sec) return;
+        var expanding = sec.classList.contains('movie-comments--collapsed');
+        sec.classList.toggle('movie-comments--collapsed');
+        if (expanding) {
+          var ctn = document.getElementById('comments-container');
+          if (window.DAOP && typeof window.DAOP._commentsStartLoad === 'function' && ctn) window.DAOP._commentsStartLoad(ctn);
+        }
+      });
     }
     if (btnRecommend) {
       btnRecommend.addEventListener('click', function () { scrollToId('movie-recommend'); });
@@ -563,8 +584,11 @@
       '        </section>' +
       '      </div>' +
       '      <div class="md-right">' +
-      '        <section id="movie-comments" class="md-section">' +
-      '          <h3 class="md-section-title">' + iconSvg('chat') + '<span class="md-section-title-text">Bình luận</span></h3>' +
+      '        <section id="movie-comments" class="md-section movie-comments--collapsed">' +
+      '          <div class="md-section-head">' +
+      '            <h3 class="md-section-title" style="margin: 0;">' + iconSvg('chat') + '<span class="md-section-title-text">Bình luận</span></h3>' +
+      '            <button type="button" id="btn-collapse-comments" class="md-comments-collapse" aria-label="Thu gọn/Mở rộng bình luận">' + iconSvg('chevDown') + '</button>' +
+      '          </div>' +
       '          <div id="comments-container" data-post-slug="' + esc(movie.slug || '') + '"></div>' +
       '        </section>' +
       '      </div>' +

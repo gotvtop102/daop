@@ -269,3 +269,34 @@ body.theme-light .cmt-replies {
   }
 }
 
+/* Collapse/expand wrapper hooks (watch + detail). */
+.watch-comments-card--collapsed #watch-comments-container,
+#movie-comments.movie-comments--collapsed #comments-container {
+  display: none !important;
+}
+
+/* Rotate caret when expanded. */
+.watch-comments-card:not(.watch-comments-card--collapsed) #watch-btn-collapse-comments .md-ico-chev,
+#movie-comments:not(.movie-comments--collapsed) #btn-collapse-comments .md-ico-chev {
+  transform: rotate(180deg);
+}
+
+.md-comments-collapse {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border, #30363d);
+  color: var(--text, #e6edf3);
+  cursor: pointer;
+  padding: 0;
+}
+.md-comments-collapse:hover {
+  border-color: var(--accent, #58a6ff);
+  color: var(--accent, #58a6ff);
+}
+
+
