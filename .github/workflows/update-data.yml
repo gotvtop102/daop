@@ -120,6 +120,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          npm run check-public
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           # HTML (chu-de/, index.html, …) có ?v= sau injectFiltersJsCacheBustIntoHtml — phải commit cùng filters.js
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
@@ -127,15 +128,14 @@ jobs:
           if ! git diff --staged --quiet; then
             # Commit trước để tránh lỗi "cannot pull with rebase: Your index contains uncommitted changes"
             git commit -m "chore: update data"
-            # Stash để pull an toàn, sau đó unstash
             STASH_BEFORE=$(git stash list | wc -l)
             git stash push -m "temp" || true
-            git pull --rebase origin main
+            bash scripts/git-pull-rebase-prefer-public.sh origin main
             STASH_AFTER=$(git stash list | wc -l)
             if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
-              git stash pop
+              bash scripts/git-stash-pop-prefer-public.sh
             fi
-            # Commit lại nếu có conflicts resolved
+            npm run check-public
             git push
           fi
 
@@ -171,6 +171,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          npm run check-public
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
@@ -179,11 +180,12 @@ jobs:
             STASH_BEFORE=$(git stash list | wc -l)
             git stash push -m "temp" || true
             for i in 1 2 3; do
-              git pull --rebase origin main || true
+              bash scripts/git-pull-rebase-prefer-public.sh origin main
               STASH_AFTER=$(git stash list | wc -l)
               if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
-                git stash pop || true
+                bash scripts/git-stash-pop-prefer-public.sh
               fi
+              npm run check-public
               if git push; then
                 break
               fi
@@ -255,6 +257,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          npm run check-public
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
@@ -263,11 +266,12 @@ jobs:
             STASH_BEFORE=$(git stash list | wc -l)
             git stash push -m "temp" || true
             for i in 1 2 3; do
-              git pull --rebase origin main || true
+              bash scripts/git-pull-rebase-prefer-public.sh origin main
               STASH_AFTER=$(git stash list | wc -l)
               if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
-                git stash pop || true
+                bash scripts/git-stash-pop-prefer-public.sh
               fi
+              npm run check-public
               if git push; then
                 break
               fi
