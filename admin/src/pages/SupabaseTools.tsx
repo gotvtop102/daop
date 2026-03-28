@@ -115,6 +115,12 @@ export default function SupabaseTools() {
     return raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`;
   };
 
+  /** Gửi cả X- header và Bearer — một số môi trường có thể chặn một trong hai. */
+  const commentD1AuthHeaders = (secret: string) => ({
+    'X-Comments-Admin-Secret': secret,
+    Authorization: `Bearer ${secret}`,
+  });
+
   const exportCommentsD1 = async () => {
     const base = commentPagesBaseUrl();
     const secret = commentAdminSecret.trim();
@@ -129,7 +135,7 @@ export default function SupabaseTools() {
     setCommentExporting(true);
     try {
       const res = await fetch(`${base}/api/comment/admin-export`, {
-        headers: { 'X-Comments-Admin-Secret': secret },
+        headers: commentD1AuthHeaders(secret),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data?.ok) throw new Error(data?.error || `HTTP ${res.status}`);
@@ -172,7 +178,7 @@ export default function SupabaseTools() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Comments-Admin-Secret': secret,
+          ...commentD1AuthHeaders(secret),
         },
         body: JSON.stringify({
           mode: commentImportMode,

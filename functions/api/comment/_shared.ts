@@ -30,9 +30,14 @@ export function corsOptions(): Response {
 
 export type CommentsAdminVerify =
   | { ok: true }
-  | { ok: false; reason: 'missing_env' | 'bad_header' };
+  | { ok: false; reason: 'missing_env' | 'missing_credentials' | 'wrong_credentials' };
 
 const MIN_SECRET_LEN = 8;
+
+function extractBearerToken(authorization: string): string {
+  const m = /^Bearer\s+(.+)$/i.exec(String(authorization || '').trim());
+  return m ? m[1].trim() : '';
+}
 
 /** Export/import bulk — không dùng JWT User; chỉ secret khớp COMMENTS_ADMIN_SECRET. */
 export function verifyCommentsAdminSecret(env: Env, request: Request): CommentsAdminVerify {
@@ -45,11 +50,14 @@ export function verifyCommentsAdminSecret(env: Env, request: Request): CommentsA
     return { ok: false, reason: 'missing_env' };
   }
   const xh = request.headers.get('x-comments-admin-secret')?.trim() || '';
-  if (xh && xh === secret) return { ok: true };
   const auth = request.headers.get('authorization') || request.headers.get('Authorization') || '';
-  const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+  const bearer = extractBearerToken(auth);
+  if (!xh && !bearer) {
+    return { ok: false, reason: 'missing_credentials' };
+  }
+  if (xh && xh === secret) return { ok: true };
   if (bearer && bearer === secret) return { ok: true };
-  return { ok: false, reason: 'bad_header' };
+  return { ok: false, reason: 'wrong_credentials' };
 }
 
 export function commentsAdminErrorMessage(
@@ -66,11 +74,22 @@ export function commentsAdminErrorMessage(
       },
     };
   }
+  if (v.reason === 'missing_credentials') {
+    return {
+      status: 401,
+      body: {
+        ok: false,
+        error:
+          'Không nhận được X-Comments-Admin-Secret hoặc Authorization Bearer. Kiểm tra CORS/proxy, hoặc gọi bằng curl với cả hai header.',
+      },
+    };
+  }
   return {
     status: 401,
     body: {
       ok: false,
-      error: 'Header X-Comments-Admin-Secret hoặc Bearer không khớp với COMMENTS_ADMIN_SECRET trên Cloudflare.',
+      error:
+        'Secret trong request không khớp COMMENTS_ADMIN_SECRET trên Cloudflare (đúng project, Production/Preview, và dán lại giá trị Secret — không thừa khoảng trắng/xuống dòng).',
     },
   };
 }
