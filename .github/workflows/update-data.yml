@@ -112,6 +112,8 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
+          # HTML (chu-de/, index.html, …) có ?v= sau injectFiltersJsCacheBustIntoHtml — phải commit cùng filters.js
+          find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if ! git diff --staged --quiet; then
             # Commit trước để tránh lỗi "cannot pull with rebase: Your index contains uncommitted changes"
@@ -161,6 +163,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
+          find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if ! git diff --staged --quiet; then
             git commit -m "chore: update data (core)"
@@ -242,6 +245,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
+          find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if ! git diff --staged --quiet; then
             git commit -m "chore: update data (tmdb only)"

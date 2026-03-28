@@ -187,6 +187,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
+          find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if git diff --staged --quiet; then
             echo "No changes — không có gì để push."

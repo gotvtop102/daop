@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Button, List, message, Spin, Typography, InputNumber, Input, Form, Space, Modal, Radio, Switch, Tag, Tabs, Select } from 'antd';
 import type { RadioChangeEvent } from 'antd';
-import { PlayCircleOutlined, InfoCircleOutlined, SaveOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, InfoCircleOutlined, SaveOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
 
@@ -106,6 +106,13 @@ export default function GitHubActions() {
   const [deleteForm] = Form.useForm();
   const [downloadForm] = Form.useForm();
   const [uploadUrlsForm] = Form.useForm();
+
+  const [sbMovieCount, setSbMovieCount] = useState<number | null>(null);
+  const [sbEpisodeCount, setSbEpisodeCount] = useState<number | null>(null);
+  const [sbCountsLoading, setSbCountsLoading] = useState(false);
+  const [sbDeleteIdsText, setSbDeleteIdsText] = useState('');
+  const [sbDeleting, setSbDeleting] = useState(false);
+  const [sbDeletingAll, setSbDeletingAll] = useState(false);
 
   const parseR2PrefixPresets = (raw: string) => {
     const s = String(raw || '').trim();
@@ -618,6 +625,114 @@ export default function GitHubActions() {
     }
   };
 
+  const fetchSbTableCounts = async () => {
+    setSbCountsLoading(true);
+    try {
+      const res = await fetch(`${getApiBaseUrl()}/api/movies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'countRows', tables: ['movies', 'movie_episodes'] }),
+      });
+      const data = await res.json().catch(async () => ({ error: await res.text() }));
+      if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+      const results = data?.results || [];
+      let movies = 0;
+      let eps = 0;
+      for (const r of results) {
+        const t = String(r.table || '');
+        const n = Number(r.nonEmptyDataRows ?? 0);
+        if (t === 'movies') movies = n;
+        if (t === 'movie_episodes' || t === 'episodes') eps = n;
+      }
+      setSbMovieCount(movies);
+      setSbEpisodeCount(eps);
+      message.success(`Supabase: ${movies} phim • ${eps} dòng tập`);
+    } catch (e: any) {
+      message.error(e?.message || 'Không đếm được bảng Supabase (kiểm tra API / secrets).');
+    } finally {
+      setSbCountsLoading(false);
+    }
+  };
+
+  const handleDeleteSbByIds = async () => {
+    const ids = parseSlugList(sbDeleteIdsText);
+    if (!ids.length) {
+      message.warning('Nhập ít nhất một id phim (mỗi dòng hoặc cách nhau bởi dấu phẩy).');
+      return;
+    }
+    Modal.confirm({
+      title: `Xóa ${ids.length} phim khỏi Supabase?`,
+      content: 'Các tập (movie_episodes) sẽ xóa theo CASCADE. Không hoàn tác.',
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        setSbDeleting(true);
+        try {
+          const res = await fetch(`${getApiBaseUrl()}/api/movies`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'deleteIds', ids }),
+          });
+          const data = await res.json().catch(async () => ({ error: await res.text() }));
+          if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+          message.success(data?.message || `Đã xóa ${data?.deleted ?? ids.length} phim.`);
+          setSbDeleteIdsText('');
+          await fetchSbTableCounts();
+        } catch (e: any) {
+          message.error(e?.message || 'Xóa thất bại.');
+        } finally {
+          setSbDeleting(false);
+        }
+      },
+    });
+  };
+
+  const handleDeleteAllSbMovies = () => {
+    const PHRASE = 'XOA HET PHIM SUPABASE';
+    let typed = '';
+    Modal.confirm({
+      title: 'Xóa TOÀN BỘ phim và tập trong Supabase',
+      okText: 'Xóa hết',
+      okType: 'danger',
+      width: 520,
+      content: (
+        <div>
+          <p style={{ marginBottom: 8 }}>
+            Xóa mọi dòng trong bảng <code>movies</code> (tập <code>movie_episodes</code> CASCADE). Tương tự xóa sạch sheet — không hoàn tác.
+          </p>
+          <p style={{ marginBottom: 8 }}>
+            Nhập chính xác: <b>{PHRASE}</b>
+          </p>
+          <Input placeholder={PHRASE} onChange={(e) => { typed = e.target.value || ''; }} />
+        </div>
+      ),
+      onOk: async () => {
+        if ((typed || '').trim() !== PHRASE) {
+          message.error('Cụm xác nhận không đúng.');
+          return Promise.reject();
+        }
+        setSbDeletingAll(true);
+        try {
+          const res = await fetch(`${getApiBaseUrl()}/api/movies`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'deleteAll', confirmPhrase: PHRASE }),
+          });
+          const data = await res.json().catch(async () => ({ error: await res.text() }));
+          if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+          message.success(data?.message || 'Đã xóa toàn bộ.');
+          setSbMovieCount(0);
+          setSbEpisodeCount(0);
+        } catch (e: any) {
+          message.error(e?.message || 'Thao tác thất bại.');
+        } finally {
+          setSbDeletingAll(false);
+        }
+      },
+    });
+  };
+
   const handleFetchTotalPages = async () => {
     setFetchingTotalPages(true);
     try {
@@ -721,6 +836,76 @@ export default function GitHubActions() {
                     </List.Item>
                   )}
                 />
+              </Card>
+            ),
+          },
+          {
+            key: 'supabase-movies',
+            label: (
+              <span>
+                <DatabaseOutlined /> Supabase phim
+              </span>
+            ),
+            children: (
+              <Card
+                title="Bảng Supabase: phim & tập"
+                extra={
+                  <Button type="primary" onClick={fetchSbTableCounts} loading={sbCountsLoading}>
+                    Làm mới số hàng
+                  </Button>
+                }
+              >
+                <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                  Đếm số dòng <code>movies</code> và <code>movie_episodes</code> (qua API Vercel + service role). Xóa phim sẽ CASCADE xóa tập.
+                </Text>
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  <div>
+                    <Text strong>Số hàng hiện tại:</Text>
+                    <div style={{ marginTop: 8 }}>
+                      <Tag color="blue">movies</Tag>{' '}
+                      <Text>{sbMovieCount != null ? sbMovieCount : '—'}</Text>
+                      {' · '}
+                      <Tag color="purple">movie_episodes</Tag>{' '}
+                      <Text>{sbEpisodeCount != null ? sbEpisodeCount : '—'}</Text>
+                    </div>
+                  </div>
+
+                  <Card size="small" title="Xóa theo id phim" type="inner">
+                    <Text type="secondary" style={{ display: 'block', marginBottom: 8 }}>
+                      Mỗi dòng một <code>id</code> (giống chọn dòng sheet), hoặc cách nhau bằng dấu phẩy / khoảng trắng.
+                    </Text>
+                    <Input.TextArea
+                      rows={5}
+                      value={sbDeleteIdsText}
+                      onChange={(e) => setSbDeleteIdsText(e.target.value || '')}
+                      placeholder="ext_xxx&#10;62a4b2c3..."
+                    />
+                    <Button
+                      danger
+                      style={{ marginTop: 12 }}
+                      onClick={handleDeleteSbByIds}
+                      loading={sbDeleting}
+                      disabled={sbDeleting || sbDeletingAll}
+                    >
+                      Xóa các id đã nhập
+                    </Button>
+                  </Card>
+
+                  <Card size="small" title="Vùng nguy hiểm — xóa toàn bộ" type="inner">
+                    <Text type="danger" style={{ display: 'block', marginBottom: 12 }}>
+                      Xóa hết phim trong Supabase (giống xóa sạch bảng sheet). Chỉ dùng khi chắc chắn.
+                    </Text>
+                    <Button
+                      danger
+                      type="primary"
+                      onClick={handleDeleteAllSbMovies}
+                      loading={sbDeletingAll}
+                      disabled={sbDeleting || sbDeletingAll}
+                    >
+                      Xóa toàn bộ phim &amp; tập
+                    </Button>
+                  </Card>
+                </Space>
               </Card>
             ),
           },

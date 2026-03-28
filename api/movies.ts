@@ -2,7 +2,9 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import {
   authInfoSb,
   countRowsSb,
+  deleteAllMoviesSb,
   deleteMovieSb,
+  deleteMoviesByIdsSb,
   exportFullMovieTablesSb,
   getEpisodesSb,
   getMovieBySlugSb,
@@ -76,8 +78,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       case 'deleteRows': {
         return res.status(400).json({
-          error: 'deleteRows không còn hỗ trợ. Xóa bản ghi trong Supabase (bảng movies / movie_episodes).',
+          error: 'deleteRows không còn hỗ trợ. Dùng action deleteIds hoặc deleteAll (tab Supabase phim trên GitHub Actions).',
         });
+      }
+
+      case 'deleteIds': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        const rawIds = (req.body as any)?.ids;
+        const ids = Array.isArray(rawIds) ? rawIds : [];
+        const out = await deleteMoviesByIdsSb(ids);
+        return res.status(200).json({ ok: true, ...out });
+      }
+
+      case 'deleteAll': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        const phrase = String((req.body as any)?.confirmPhrase || '').trim();
+        if (phrase !== 'XOA HET PHIM SUPABASE') {
+          return res.status(400).json({ error: 'Cụm xác nhận không đúng (XOA HET PHIM SUPABASE).' });
+        }
+        await deleteAllMoviesSb();
+        return res.status(200).json({ ok: true, message: 'Đã xóa toàn bộ phim; tập (movie_episodes) đã CASCADE.' });
       }
 
       case 'list': {

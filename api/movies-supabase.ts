@@ -288,7 +288,7 @@ export async function countRowsSb(tableNames: string[]) {
       if (!res.ok) throw await errFromRes(res);
       const c = parseContentRangeTotal(res) ?? 0;
       results.push({ table: 'movies', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
-    } else if (n === 'episodes') {
+    } else if (n === 'episodes' || n === 'movie_episodes') {
       const res = await restFetch(`/movie_episodes?select=id`, {
         method: 'HEAD',
         key,
@@ -296,10 +296,41 @@ export async function countRowsSb(tableNames: string[]) {
       });
       if (!res.ok) throw await errFromRes(res);
       const c = parseContentRangeTotal(res) ?? 0;
-      results.push({ table: 'episodes', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
+      results.push({ table: 'movie_episodes', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
     }
   }
   return { ok: true, results };
+}
+
+/** Xóa toàn bộ phim; movie_episodes CASCADE theo FK. */
+export async function deleteAllMoviesSb() {
+  const { key } = getEnv();
+  const res = await restFetch(`/movies?id=not.is.null`, {
+    method: 'DELETE',
+    key,
+    headers: authHeaders(key),
+  });
+  if (!res.ok) throw await errFromRes(res);
+  return { success: true };
+}
+
+/** Xóa từng phim theo id (chunk); CASCADE xóa tập. */
+export async function deleteMoviesByIdsSb(ids: unknown[]) {
+  const { key } = getEnv();
+  const clean = [...new Set((ids || []).map((x) => String(x ?? '').trim()).filter(Boolean))];
+  if (!clean.length) return { deleted: 0, message: 'Không có id hợp lệ' };
+  const chunkSize = 80;
+  for (let i = 0; i < clean.length; i += chunkSize) {
+    const chunk = clean.slice(i, i + chunkSize);
+    const inParam = buildSlugInParam(chunk);
+    const res = await restFetch(`/movies?id=${encodeURIComponent(inParam)}`, {
+      method: 'DELETE',
+      key,
+      headers: authHeaders(key),
+    });
+    if (!res.ok) throw await errFromRes(res);
+  }
+  return { deleted: clean.length, message: `Đã xóa ${clean.length} phim (tập liên quan đã CASCADE).` };
 }
 
 export async function getEpisodesSb(movieId: string, debug?: boolean) {
