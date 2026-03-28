@@ -56,24 +56,33 @@
   }
 
   function loadScriptOnce(url) {
-    return new Promise(function (resolve) {
-      if (!url) return resolve(false);
-      try {
-        window.DAOP = window.DAOP || {};
-        window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
-        if (window.DAOP._loadedScripts[url]) return resolve(true);
-        var s = document.createElement('script');
-        s.src = url;
-        s.onload = function () {
-          window.DAOP._loadedScripts[url] = true;
-          resolve(true);
-        };
-        s.onerror = function () { resolve(false); };
-        document.head.appendChild(s);
-      } catch (e) {
-        resolve(false);
-      }
-    });
+    return Promise.resolve()
+      .then(function () {
+        return window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function'
+          ? window.DAOP.ensureDataCacheBust()
+          : Promise.resolve(window.DAOP && window.DAOP._dataCacheBust ? window.DAOP._dataCacheBust : '');
+      })
+      .then(function (q) {
+        var url2 = url + (q || '');
+        return new Promise(function (resolve) {
+          if (!url) return resolve(false);
+          try {
+            window.DAOP = window.DAOP || {};
+            window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+            if (window.DAOP._loadedScripts[url2]) return resolve(true);
+            var s = document.createElement('script');
+            s.src = url2;
+            s.onload = function () {
+              window.DAOP._loadedScripts[url2] = true;
+              resolve(true);
+            };
+            s.onerror = function () { resolve(false); };
+            document.head.appendChild(s);
+          } catch (e) {
+            resolve(false);
+          }
+        });
+      });
   }
 
   function pickQueryTokens(q) {
@@ -107,9 +116,14 @@
     var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
     window.DAOP = window.DAOP || {};
     if (!window.DAOP._searchPrefixMetaPromise) {
-      window.DAOP._searchPrefixMetaPromise = fetch(baseUrl + '/data/search/prefix/meta.json')
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .catch(function () { return null; });
+      window.DAOP._searchPrefixMetaPromise = (window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function'
+        ? window.DAOP.ensureDataCacheBust()
+        : Promise.resolve('')
+      ).then(function (q) {
+        return fetch(baseUrl + '/data/search/prefix/meta.json' + (q || ''), { cache: 'no-store' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; });
+      });
     }
     return window.DAOP._searchPrefixMetaPromise.then(function (meta) {
       var parts = 1;

@@ -2316,6 +2316,38 @@ function injectLoadingScreenIntoHtml() {
   });
 }
 
+/**
+ * Gắn ?v=<builtAt> vào mọi thẻ script /data/filters.js trong HTML.
+ * Trang chủ đã dùng build_version để bust cache JSON; các trang danh mục trước đây load filters.js
+ * với max-age dài nên CDN/trình duyệt giữ window.filtersData cũ sau khi cập nhật dữ liệu.
+ */
+function injectFiltersJsCacheBustIntoHtml(publicDir, builtAt) {
+  const enc = encodeURIComponent(String(builtAt || '').trim());
+  if (!enc) return;
+  const suffix = '?v=' + enc;
+  function walk(dir) {
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const ent of entries) {
+      const p = path.join(dir, ent.name);
+      if (ent.isDirectory()) walk(p);
+      else if (ent.name.endsWith('.html')) {
+        let html = fs.readFileSync(p, 'utf8');
+        const next = html.replace(
+          /(src\s*=\s*["'])([^"']*\/data\/filters\.js)(\?[^"']*)?(["'])/gi,
+          (_, a, urlPath, _oldQ, endQ) => a + urlPath + suffix + endQ
+        );
+        if (next !== html) fs.writeFileSync(p, next, 'utf8');
+      }
+    }
+  }
+  walk(publicDir);
+}
+
 /** 6b. Tạo HTML cho từng thể loại, quốc gia, năm (để /the-loai/hanh-dong.html, /quoc-gia/trung-quoc.html... tồn tại) */
 function writeCategoryPages(filters) {
   const publicDir = path.join(ROOT, 'public');
@@ -3411,6 +3443,7 @@ async function main() {
 
     const buildVersion = { builtAt: new Date().toISOString() };
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
+    injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
     console.log('Incremental build xong.');
     return;
   }
@@ -3554,6 +3587,7 @@ async function main() {
 
     const buildVersion = { builtAt: new Date().toISOString() };
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
+    injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
     console.log('TMDB_ONLY build done.');
     return;
   }
@@ -3679,6 +3713,7 @@ async function main() {
 
   const buildVersion = { builtAt: new Date().toISOString() };
   fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
+  injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
 
   console.log('7. Writing sitemap.xml & robots.txt...');
   writeSitemap(allMovies);

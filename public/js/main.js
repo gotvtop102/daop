@@ -5,6 +5,26 @@
   window.DAOP = window.DAOP || {};
   const BASE = window.DAOP.basePath || '';
 
+  /** Đồng bộ với public/data/build_version.json — đính ?v= vào URL /data/* để tránh cache CDN sau deploy. */
+  window.DAOP.ensureDataCacheBust = function () {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._dataCacheBustPromise) return window.DAOP._dataCacheBustPromise;
+    window.DAOP._dataCacheBustPromise = fetch(BASE + '/data/build_version.json', { cache: 'no-store' })
+      .then(function (r) {
+        return r.ok ? r.json() : {};
+      })
+      .then(function (ver) {
+        var q = ver && ver.builtAt ? '?v=' + encodeURIComponent(ver.builtAt) : '';
+        window.DAOP._dataCacheBust = q;
+        return q;
+      })
+      .catch(function () {
+        window.DAOP._dataCacheBust = '';
+        return '';
+      });
+    return window.DAOP._dataCacheBustPromise;
+  };
+
   function initThemeToggle() {
     if (!document.body) return;
     var btn = document.getElementById('theme-toggle');
@@ -503,43 +523,62 @@
   }
 
   function loadScriptOnce(url) {
-    return new Promise(function (resolve) {
-      if (!url) return resolve(false);
-      try {
-        window.DAOP = window.DAOP || {};
-        window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
-        if (window.DAOP._loadedScripts[url]) return resolve(true);
-        var s = document.createElement('script');
-        s.src = url;
-        s.onload = function () {
-          window.DAOP._loadedScripts[url] = true;
-          resolve(true);
-        };
-        s.onerror = function () { resolve(false); };
-        document.head.appendChild(s);
-      } catch (e) {
-        resolve(false);
-      }
-    });
+    return Promise.resolve()
+      .then(function () {
+        return typeof window.DAOP.ensureDataCacheBust === 'function'
+          ? window.DAOP.ensureDataCacheBust()
+          : Promise.resolve(window.DAOP && window.DAOP._dataCacheBust ? window.DAOP._dataCacheBust : '');
+      })
+      .then(function (q) {
+        var url2 = url + (q || '');
+        return new Promise(function (resolve) {
+          if (!url) return resolve(false);
+          try {
+            window.DAOP = window.DAOP || {};
+            window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+            if (window.DAOP._loadedScripts[url2]) return resolve(true);
+            var s = document.createElement('script');
+            s.src = url2;
+            s.onload = function () {
+              window.DAOP._loadedScripts[url2] = true;
+              resolve(true);
+            };
+            s.onerror = function () { resolve(false); };
+            document.head.appendChild(s);
+          } catch (e) {
+            resolve(false);
+          }
+        });
+      });
   }
 
   function loadIndexMetaOnce() {
     window.DAOP = window.DAOP || {};
     if (window.DAOP._indexMetaPromise) return window.DAOP._indexMetaPromise;
-    var url = BASE + '/data/index/meta.json';
-    window.DAOP._indexMetaPromise = fetch(url)
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .catch(function () { return null; });
+    window.DAOP._indexMetaPromise = (typeof window.DAOP.ensureDataCacheBust === 'function'
+      ? window.DAOP.ensureDataCacheBust()
+      : Promise.resolve('')
+    ).then(function (q) {
+      var url = BASE + '/data/index/meta.json' + (q || '');
+      return fetch(url, { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; });
+    });
     return window.DAOP._indexMetaPromise;
   }
 
   function loadSlugIndexMetaOnce() {
     window.DAOP = window.DAOP || {};
     if (window.DAOP._slugIndexMetaPromise) return window.DAOP._slugIndexMetaPromise;
-    var url = BASE + '/data/index/slug/meta.json';
-    window.DAOP._slugIndexMetaPromise = fetch(url)
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .catch(function () { return null; });
+    window.DAOP._slugIndexMetaPromise = (typeof window.DAOP.ensureDataCacheBust === 'function'
+      ? window.DAOP.ensureDataCacheBust()
+      : Promise.resolve('')
+    ).then(function (q) {
+      var url = BASE + '/data/index/slug/meta.json' + (q || '');
+      return fetch(url, { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; });
+    });
     return window.DAOP._slugIndexMetaPromise;
   }
 

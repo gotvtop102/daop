@@ -27,7 +27,7 @@
   Cache-Control: public, max-age=3600, must-revalidate
 
 /data/filters.js
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=3600, must-revalidate
 
 /data/config/*.json
   Cache-Control: public, max-age=600

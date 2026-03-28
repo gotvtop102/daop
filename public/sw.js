@@ -1,6 +1,6 @@
-// PWA Service Worker - cache static assets
-var CACHE = 'daop-v1';
-var urls = ['/', '/css/style.css', '/js/main.js', '/data/filters.js', '/manifest.json'];
+// PWA Service Worker - cache static assets (không precache /data/filters.js — dữ liệu đổi mỗi build)
+var CACHE = 'daop-v2';
+var urls = ['/', '/css/style.css', '/js/main.js', '/manifest.json'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(urls); }).then(function () { return self.skipWaiting(); }));
 });
