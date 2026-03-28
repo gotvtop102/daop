@@ -49,6 +49,32 @@ const DEFAULT_SELECTED_TABLES: TableKey[] = TABLES.filter(
   (t) => t.key !== 'movies' && t.key !== 'movie_episodes'
 ).map((t) => t.key);
 
+/** PostgREST giới hạn mặc định ~1000 dòng/request — phải lặp range để export đủ. */
+const EXPORT_PAGE_SIZE = 1000;
+
+const TABLES_PAGINATE_ON_EXPORT: Set<TableKey> = new Set(['movies', 'movie_episodes']);
+
+async function selectAllRowsForExport(table: TableKey): Promise<any[]> {
+  if (!TABLES_PAGINATE_ON_EXPORT.has(table)) {
+    const r = await supabase.from(table).select('*');
+    if (r.error) throw r.error;
+    return (r.data ?? []) as any[];
+  }
+
+  const rows: any[] = [];
+  let from = 0;
+  for (;;) {
+    const to = from + EXPORT_PAGE_SIZE - 1;
+    const r = await supabase.from(table).select('*').order('id', { ascending: true }).range(from, to);
+    if (r.error) throw r.error;
+    const chunk = (r.data ?? []) as any[];
+    rows.push(...chunk);
+    if (chunk.length < EXPORT_PAGE_SIZE) break;
+    from += EXPORT_PAGE_SIZE;
+  }
+  return rows;
+}
+
 function downloadJson(filename: string, data: any) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -848,9 +874,7 @@ on conflict (key) do nothing;`;
       const payload: ExportPayload = {};
 
       const reqs = selectedTables.map(async (t: TableKey) => {
-        const r = await supabase.from(t).select('*');
-        if ((r as any).error) throw (r as any).error;
-        payload[t] = ((r as any).data ?? []) as any[];
+        payload[t] = await selectAllRowsForExport(t);
       });
 
       await Promise.all(reqs);
