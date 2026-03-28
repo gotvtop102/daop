@@ -1,4 +1,5 @@
 import {
+  commentsAdminErrorMessage,
   corsOptions,
   jsonCors,
   verifyCommentsAdminSecret,
@@ -8,8 +9,10 @@ import {
 export const onRequestOptions: PagesFunction<Env> = async () => corsOptions();
 
 export const onRequestGet: PagesFunction<Env> = async ({ env, request }) => {
-  if (!verifyCommentsAdminSecret(env, request)) {
-    return jsonCors({ ok: false, error: 'Thiếu hoặc sai COMMENTS_ADMIN_SECRET' }, 401);
+  const v = verifyCommentsAdminSecret(env, request);
+  if (!v.ok) {
+    const { status, body } = commentsAdminErrorMessage(v);
+    return jsonCors(body, status);
   }
 
   try {

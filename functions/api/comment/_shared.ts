@@ -28,15 +28,51 @@ export function corsOptions(): Response {
   return new Response(null, { status: 204, headers: CORS_ADMIN });
 }
 
+export type CommentsAdminVerify =
+  | { ok: true }
+  | { ok: false; reason: 'missing_env' | 'bad_header' };
+
+const MIN_SECRET_LEN = 8;
+
 /** Export/import bulk — không dùng JWT User; chỉ secret khớp COMMENTS_ADMIN_SECRET. */
-export function verifyCommentsAdminSecret(env: Env, request: Request): boolean {
-  const secret = String(env.COMMENTS_ADMIN_SECRET || '').trim();
-  if (!secret || secret.length < 16) return false;
+export function verifyCommentsAdminSecret(env: Env, request: Request): CommentsAdminVerify {
+  const raw = env.COMMENTS_ADMIN_SECRET;
+  const secret = String(raw ?? '').trim();
+  if (!secret) {
+    return { ok: false, reason: 'missing_env' };
+  }
+  if (secret.length < MIN_SECRET_LEN) {
+    return { ok: false, reason: 'missing_env' };
+  }
   const xh = request.headers.get('x-comments-admin-secret')?.trim() || '';
-  if (xh && xh === secret) return true;
+  if (xh && xh === secret) return { ok: true };
   const auth = request.headers.get('authorization') || request.headers.get('Authorization') || '';
   const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
-  return !!bearer && bearer === secret;
+  if (bearer && bearer === secret) return { ok: true };
+  return { ok: false, reason: 'bad_header' };
+}
+
+export function commentsAdminErrorMessage(
+  v: Extract<CommentsAdminVerify, { ok: false }>
+): { status: number; body: Record<string, unknown> } {
+  if (v.reason === 'missing_env') {
+    return {
+      status: 503,
+      body: {
+        ok: false,
+        error:
+          'COMMENTS_ADMIN_SECRET chưa có trên worker (env rỗng) hoặc quá ngắn (<8 ký tự). Thêm Secret trên Cloudflare Pages (Production và Preview nếu cần), rồi redeploy.',
+        hint: 'wrangler pages secret put COMMENTS_ADMIN_SECRET --project-name=<tên>',
+      },
+    };
+  }
+  return {
+    status: 401,
+    body: {
+      ok: false,
+      error: 'Header X-Comments-Admin-Secret hoặc Bearer không khớp với COMMENTS_ADMIN_SECRET trên Cloudflare.',
+    },
+  };
 }
 
 export function json(data: unknown, status = 200): Response {

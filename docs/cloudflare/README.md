@@ -35,7 +35,7 @@ Có thể tách hai token (chỉ Pages / chỉ R2) nếu muốn thu hẹp quyề
 | Biến | Bắt buộc khi | Ý nghĩa |
 |------|----------------|---------|
 | `SUPABASE_JWT_SECRET` | Bật **comment nội bộ** | **JWT Secret** của project Supabase **User** (Settings → API → *JWT Secret*). Pages Functions verify Bearer token người xem. Không để lộ lên frontend ngoài cơ chế server. |
-| `COMMENTS_ADMIN_SECRET` | Export/import comment từ **Admin** (tab Comment D1) | Chuỗi ngẫu nhiên đủ dài (≥16 ký tự, nên 32+). Header `X-Comments-Admin-Secret` khi gọi `/api/comment/admin-export` và `admin-import`. Xem [comments/README.md](../comments/README.md). |
+| `COMMENTS_ADMIN_SECRET` | Export/import comment từ **Admin** (tab Comment D1) | Chỉ thêm dạng **Secret (mã hóa)** trên Pages hoặc `wrangler pages secret put` — **không** dùng `[vars]` trong `wrangler.toml` cho giá trị này. Chi tiết: [comments/README.md](../comments/README.md) mục 6. |
 
 Các secret khác (TMDB, Supabase Admin…) **không** cần trên Pages — chúng chạy trên GitHub Actions hoặc Vercel.
 

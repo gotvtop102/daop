@@ -1,4 +1,5 @@
 import {
+  commentsAdminErrorMessage,
   corsOptions,
   jsonCors,
   normalizeSlug,
@@ -38,8 +39,10 @@ function invalidateSlugCache(env: Env, slug: string) {
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ env, request }) => {
-  if (!verifyCommentsAdminSecret(env, request)) {
-    return jsonCors({ ok: false, error: 'Thiếu hoặc sai COMMENTS_ADMIN_SECRET' }, 401);
+  const v = verifyCommentsAdminSecret(env, request);
+  if (!v.ok) {
+    const { status, body } = commentsAdminErrorMessage(v);
+    return jsonCors(body, status);
   }
 
   const ct = request.headers.get('content-type') || '';

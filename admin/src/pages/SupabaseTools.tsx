@@ -122,8 +122,8 @@ export default function SupabaseTools() {
       message.warning('Nhập URL website tĩnh (Cloudflare Pages), ví dụ https://ten.pages.dev');
       return;
     }
-    if (secret.length < 16) {
-      message.warning('Nhập COMMENTS_ADMIN_SECRET (đặt trên Pages, tối thiểu ~16 ký tự)');
+    if (secret.length < 8) {
+      message.warning('Nhập COMMENTS_ADMIN_SECRET (trùng Secret trên Pages, tối thiểu 8 ký tự; khuyến nghị 16+)');
       return;
     }
     setCommentExporting(true);
@@ -162,8 +162,8 @@ export default function SupabaseTools() {
       message.warning('Nhập URL website');
       return;
     }
-    if (secret.length < 16) {
-      message.warning('Nhập COMMENTS_ADMIN_SECRET');
+    if (secret.length < 8) {
+      message.warning('Nhập COMMENTS_ADMIN_SECRET (tối thiểu 8 ký tự; khuyến nghị 16+)');
       return;
     }
     setCommentImporting(true);
@@ -1030,9 +1030,15 @@ where email = 'admin@example.com';`;
                   message="Bình luận lưu trên Cloudflare D1 (Pages Functions), không nằm trong Supabase."
                   description={
                     <span>
-                      Trên Cloudflare Pages → Settings → Environment variables: thêm{' '}
-                      <Typography.Text code>COMMENTS_ADMIN_SECRET</Typography.Text> (chuỗi ngẫu nhiên đủ dài, ví dụ 32+
-                      ký tự). Sau khi deploy, dùng tab này để export/import JSON. API:{' '}
+                      Nếu project dùng <Typography.Text code>wrangler.toml</Typography.Text>, biến plaintext thường
+                      không thêm được trên Dashboard — chỉ thêm{' '}
+                      <Typography.Text code>COMMENTS_ADMIN_SECRET</Typography.Text> dạng{' '}
+                      <strong>Secret (mã hóa)</strong>: Pages → Settings → Variables and Secrets →{' '}
+                      <strong>Add</strong> → bật <strong>Encrypt</strong> / chọn loại Secret; hoặc CLI:{' '}
+                      <Typography.Text code>
+                        npx wrangler pages secret put COMMENTS_ADMIN_SECRET --project-name=TÊN_PROJECT
+                      </Typography.Text>
+                      . Giá trị: chuỗi ngẫu nhiên ≥32 ký tự. Sau đó deploy lại. API:{' '}
                       <Typography.Text code>/api/comment/admin-export</Typography.Text>,{' '}
                       <Typography.Text code>/api/comment/admin-import</Typography.Text>.
                     </span>

@@ -47,7 +47,7 @@ wrangler d1 execute daop-comments --file=./migrations/002_comment_reactions.sql
 Trong Cloudflare Pages > Settings > Environment Variables:
 
 - `SUPABASE_JWT_SECRET` = JWT secret của project Supabase Auth đang dùng trên website.
-- `COMMENTS_ADMIN_SECRET` (tùy chọn) = chỉ khi dùng export/import bulk; xem mục **6**.
+- `COMMENTS_ADMIN_SECRET` (tùy chọn) = chỉ khi dùng export/import bulk; thêm dạng **Secret** (không plaintext trong `wrangler.toml`); xem mục **6**.
 
 Lưu ý: API POST/DELETE sẽ verify chữ ký token bằng `SUPABASE_JWT_SECRET`.
 
@@ -63,8 +63,19 @@ Component tại `public/js/comments.js`:
 
 ## 6) Export / import D1 (backup & migration)
 
-1. **Cloudflare Pages → Environment variables:** thêm `COMMENTS_ADMIN_SECRET` — chuỗi ngẫu nhiên **≥ 16 ký tự** (khuyến nghị 32+). Không đưa vào Git.
-2. **Deploy** lại site để Functions nhận biến.
+1. **`COMMENTS_ADMIN_SECRET`** — chuỗi ngẫu nhiên **≥ 8 ký tự** (khuyến nghị 16–32+). **Không** đặt trong `wrangler.toml` `[vars]` (plaintext trong Git).
+
+   Khi Cloudflare báo *“Environment variables are managed through wrangler.toml; only Secrets can be managed via the Dashboard”*:
+   - **Cách A — Dashboard:** **Workers & Pages** → project Pages → **Settings** → **Variables and Secrets** → **Add** → nhập tên `COMMENTS_ADMIN_SECRET` → bật **Encrypt** / chọn **Secret** (biến mã hóa), dán giá trị.
+   - **Cách B — CLI** (khuyên dùng nếu UI không cho thêm plaintext):
+
+   ```bash
+   npx wrangler pages secret put COMMENTS_ADMIN_SECRET --project-name=TÊN_PROJECT_PAGES
+   ```
+
+   (`TÊN_PROJECT_PAGES` = tên project trong Cloudflare, ví dụ `daop` — trùng `CLOUDFLARE_PAGES_PROJECT_NAME` nếu có.)
+
+2. **Deploy** lại site (hoặc đợi vài phút) để Functions nhận secret.
 3. **Cách 1 — Admin UI:** **Supabase Tools** → tab **Comment (D1)** — nhập URL website (vd. `https://ten.pages.dev`), dán secret, **Export** (tải JSON) hoặc dán JSON và **Import** (`merge` hoặc `replace`).
 4. **Cách 2 — HTTP thủ công:**
    - `GET /api/comment/admin-export` — header `X-Comments-Admin-Secret` hoặc `Authorization: Bearer …`.

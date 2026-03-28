@@ -18,5 +18,6 @@ id = "2cf2aedc25d643b88e3b427daf4a5622"
 [vars]
 # Khai báo trên Cloudflare Pages > Settings > Environment variables (không commit secret thật vào Git)
 SUPABASE_JWT_SECRET = "8Jq9a1K/WeKNKnhAqtQiMVG0npk9lMmhq4Eg+fTpd01VEKbMAMmJGMPnbCgMsPFczKeEs2krZyO/lyECOATuwA=="
-# COMMENTS_ADMIN_SECRET — export/import D1 từ Admin; tạo chuỗi ngẫu nhiên 32+ ký tự, chỉ đặt trên Dashboard
+# COMMENTS_ADMIN_SECRET — KHÔNG đặt trong [vars] (plaintext). Chỉ thêm qua Secrets (mã hóa) trên Dashboard
+# hoặc: npx wrangler pages secret put COMMENTS_ADMIN_SECRET --project-name=<tên-project-Pages>
 
