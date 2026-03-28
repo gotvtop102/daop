@@ -1,5 +1,7 @@
 # GitHub Actions
 
+**Mục lục tổng:** [../README.md](../README.md).
+
 **Tổng quan mọi thứ cần tạo trên GitHub (repo, quyền Actions, Secrets, PAT):** [../github/README.md](../github/README.md).
 
 ## Workflows

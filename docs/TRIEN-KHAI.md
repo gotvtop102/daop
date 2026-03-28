@@ -2,6 +2,8 @@
 
 Tài liệu này mô tả từng bước đưa dự án lên môi trường thật: website trên Cloudflare Pages, Admin trên Vercel, dữ liệu từ Supabase và (tùy chọn) R2, Google Sheets, hệ thống comment nội bộ.
 
+**Mục lục tài liệu (một cửa):** [README.md](./README.md).
+
 **Đã có code, muốn làm ngắn gọn:** dùng [BAT-DAU-NHANH.md](./BAT-DAU-NHANH.md) (5 bước: tài khoản & key → GitHub → Supabase → Vercel → Cloudflare). Trang này là bản đầy đủ cùng thứ tự cũ, tiện tra cứu chi tiết và gỡ lỗi.
 
 **Nội dung (theo thứ tự):** bảng chuẩn bị → **Bước 1** Supabase → **Bước 2** GitHub → **Bước 3** Secrets → **Bước 4** Cloudflare Pages → **Bước 5** Vercel → **Bước 6** build dữ liệu → **Bước 7** Admin → **Bước 8** domain → **Bước 9** tùy chọn → tóm tắt cuối trang.

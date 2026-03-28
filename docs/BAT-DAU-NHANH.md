@@ -1,5 +1,7 @@
 # Cài đặt DAOP cho người mới (đã có mã nguồn)
 
+**Mục lục toàn bộ tài liệu:** [docs/README.md](./README.md).
+
 Làm **lần lượt Bước 1 → 5**. Chi tiết sâu: [TRIEN-KHAI.md](./TRIEN-KHAI.md). Chạy web/Admin trên máy: [README gốc](../README.md).
 
 ---

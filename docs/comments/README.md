@@ -1,8 +1,8 @@
 # Hệ thống Comment nội bộ (Cloudflare Pages + D1 + KV)
 
-**Tổng quan Cloudflare (gồm D1/KV và biến Pages):** [../cloudflare/README.md](../cloudflare/README.md).
+**Mục lục tổng:** [../README.md](../README.md). **Tổng quan Cloudflare (gồm D1/KV và biến Pages):** [../cloudflare/README.md](../cloudflare/README.md).
 
-Tài liệu này thay thế Twikoo. Hệ thống comment mới dùng:
+Hệ thống comment dùng:
 - Cloudflare Pages Functions
 - D1 (bảng `comments`)
 - KV cache + rate limit
@@ -112,4 +112,14 @@ Nếu cần nhúng nơi khác:
   window.DAOP.mountComments('#comments-container', { postSlug: 'my-post' });
 </script>
 ```
+
+## 9) Gỡ lỗi export/import và `COMMENTS_ADMIN_SECRET`
+
+API trả **503**: worker **chưa có** secret hoặc chuỗi **&lt; 8 ký tự** sau khi chuẩn hóa — thêm **Secret** đúng **Production** hoặc **Preview** (trùng URL site trong Admin), rồi **deploy lại** Pages.
+
+API trả **401 — không nhận được header**: trình duyệt/proxy không gửi `X-Comments-Admin-Secret` / `Authorization: Bearer` — thử `curl` từ máy hoặc kiểm tra CORS.
+
+API trả **401 — secret không khớp**: giá trị trong Admin **khác** Secret đã lưu trên Cloudflare (nhầm project, nhầm Preview vs Production, hoặc copy thừa ký tự ẩn). **Đặt lại** secret bằng CLI: `npx wrangler pages secret put COMMENTS_ADMIN_SECRET --project-name=<tên-project-Pages>`, sau đó dán **cùng một chuỗi** vào Admin (tab Comment D1).
+
+**Không** đặt `COMMENTS_ADMIN_SECRET` plaintext trong `wrangler.toml` `[vars]` (dễ lộ Git). `SUPABASE_JWT_SECRET` trên Pages phải là JWT Secret của **cùng** project Supabase Auth mà site đang dùng.
 

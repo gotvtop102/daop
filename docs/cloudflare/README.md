@@ -1,6 +1,10 @@
 # Cloudflare — tất cả thứ cần tạo & chú thích
 
+**Mục lục tổng:** [../README.md](../README.md).
+
 Một tài khoản [Cloudflare](https://dash.cloudflare.com) có thể gồm nhiều dịch vụ DAOP dùng tới. Làm theo thứ tự: **bắt buộc cho site** → **R2** (nếu host ảnh) → **Comment** (nếu bật D1/KV). Chi tiết deploy: [../TRIEN-KHAI.md](../TRIEN-KHAI.md) (Bước 4), checklist GitHub: [../env/github.env.example](../env/github.env.example).
+
+**Mục lục trang này (cuộn theo số mục):** §1 Tài khoản · §2 Pages · §3 R2 · §4 Comment · §5 Bảng tổng hợp · §6 Liên kết nhanh
 
 ---
 
@@ -63,7 +67,7 @@ Không bắt buộc: không cấu hình R2 thì build vẫn chạy, ảnh giữ 
 
 ## 4. Comment nội bộ — D1 + KV + Pages Functions
 
-Chỉ cần khi dùng hệ thống comment trong `functions/api/comment/` (thay Twikoo).
+Chỉ cần khi dùng hệ thống comment trong `functions/api/comment/`.
 
 | Thành phần | Việc cần làm | Chú thích |
 |------------|--------------|-----------|

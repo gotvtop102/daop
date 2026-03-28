@@ -1,5 +1,7 @@
 # Capacitor — App Android / iOS / Android TV
 
+**Mục lục tổng:** [../README.md](../README.md).
+
 Website tĩnh nằm trong `public/`. Capacitor bọc WebView quanh bản build đó. **Nên triển khai website + Admin ổn định trước**, rồi mới đóng gói app.
 
 ---

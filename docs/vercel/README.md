@@ -1,5 +1,7 @@
 # Vercel — tất cả thứ cần tạo & chú thích
 
+**Mục lục tổng:** [../README.md](../README.md).
+
 Một **project Vercel** cho DAOP gồm hai phần cùng repo:
 
 - **Frontend:** Admin React/Vite (build ra `admin/dist`, SPA).

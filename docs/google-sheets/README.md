@@ -1,5 +1,7 @@
 # Google Sheets – Phim custom (đồng bộ với build)
 
+**Mục lục tổng:** [../README.md](../README.md).
+
 Build đọc phim từ Google Sheets khi cấu hình `GOOGLE_SHEETS_ID` và `GOOGLE_SERVICE_ACCOUNT_KEY`. **Tên spreadsheet** (vd. "ophim data") tùy bạn đặt; **bắt buộc** là tên **hai sheet (tab)** phải đúng: **movies** và **episodes**.
 
 ---

@@ -2,7 +2,7 @@
 
 Hệ thống gồm: **Website phim tĩnh** (Cloudflare Pages), **Admin Panel** (Vercel), **Ứng dụng đa nền tảng** (Capacitor).
 
-**Người mới có mã nguồn — cài đặt 5 bước:** [docs/BAT-DAU-NHANH.md](docs/BAT-DAU-NHANH.md) (tài khoản & key → GitHub → Supabase → Vercel → Cloudflare). Toàn bộ tài liệu: [docs/README.md](docs/README.md). Chi tiết và gỡ lỗi: [docs/TRIEN-KHAI.md](docs/TRIEN-KHAI.md).
+**Người mới có mã nguồn — cài đặt 5 bước:** [docs/BAT-DAU-NHANH.md](docs/BAT-DAU-NHANH.md) (tài khoản & key → GitHub → Supabase → Vercel → Cloudflare). **Mục lục tài liệu (một cửa):** [docs/README.md](docs/README.md). Chi tiết và gỡ lỗi: [docs/TRIEN-KHAI.md](docs/TRIEN-KHAI.md).
 
 ---
 

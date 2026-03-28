@@ -1,5 +1,7 @@
 # Template Excel import phim tùy chỉnh
 
+**Mục lục tổng:** [README.md](./README.md).
+
 Build đọc phim tùy chỉnh từ **Google Sheets** (nếu cấu hình) hoặc file **custom_movies.xlsx** tại thư mục gốc. File mẫu có thể tạo bằng:
 
 ```bash

@@ -1,5 +1,7 @@
 # Cloudflare Pages — Deploy website (Direct Upload)
 
+**Mục lục tổng:** [../README.md](../README.md).
+
 **Hướng dẫn gom toàn bộ Cloudflare (Pages, R2, token, comment):** [../cloudflare/README.md](../cloudflare/README.md).
 
 Tóm tắt:

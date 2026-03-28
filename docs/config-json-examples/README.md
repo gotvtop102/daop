@@ -1,5 +1,7 @@
 # Ví dụ cấu hình JSON (public/data/config/)
 
+**Mục lục tổng:** [../README.md](../README.md).
+
 Các file trong thư mục này là **mẫu định dạng** cho output của `scripts/build.js` (xuất ra `public/data/config/`). Build đọc dữ liệu từ Supabase Admin và ghi các file tương ứng; khi không kết nối Supabase sẽ dùng default tương tự các file `*.example.json` ở đây.
 
 ## Danh sách file config

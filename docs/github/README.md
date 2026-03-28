@@ -1,5 +1,7 @@
 # GitHub — tất cả thứ cần tạo & chú thích
 
+**Mục lục tổng:** [../README.md](../README.md).
+
 GitHub đóng vai trò **lưu mã nguồn**, chạy **GitHub Actions** (build dữ liệu, deploy Cloudflare), và nhận **lệnh từ Vercel** (Admin bấm *Build website*). Không cần **Connect Git** trên Cloudflare Pages — deploy `public/` do Actions + API Cloudflare.
 
 Checklist **Secrets / Variables** dạng copy: [../env/github.env.example](../env/github.env.example). Chi tiết triển khai: [../TRIEN-KHAI.md](../TRIEN-KHAI.md) (Bước 2–4). Hướng dẫn nhanh: [../BAT-DAU-NHANH.md](../BAT-DAU-NHANH.md) (Bước 2).

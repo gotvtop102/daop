@@ -1,5 +1,7 @@
 # Supabase — tất cả thứ cần tạo & chú thích
 
+**Mục lục tổng:** [../README.md](../README.md).
+
 DAOP dùng **hai project Supabase tách biệt** (không gộp một project):
 
 | Project | Đối tượng dùng | Key nào xuất hiện ở đâu |
