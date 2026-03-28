@@ -2166,7 +2166,18 @@ function splitArrayBySize(arr, maxBytes, keySelector) {
 }
 
 function writeIndexAndSearchShards(movies, batchPtrById) {
-  const BATCH = 120;
+  let indexBatchSize = Math.max(10, parseInt(process.env.BASE_BATCH_SIZE || String(BATCH_SIZE || 120), 10) || 120);
+  const batchWindowsPath = path.join(PUBLIC_DATA, 'batches', 'batch-windows.json');
+  if (fs.existsSync(batchWindowsPath)) {
+    try {
+      const wj = JSON.parse(fs.readFileSync(batchWindowsPath, 'utf8'));
+      if (wj && typeof wj.baseBatchSize === 'number' && wj.baseBatchSize > 0) {
+        indexBatchSize = wj.baseBatchSize;
+      }
+    } catch {
+      /* keep indexBatchSize */
+    }
+  }
   const maxBytes = Math.max(50_000, parseInt(process.env.SHARD_MAX_BYTES || '300000', 10) || 300000);
   /** Giảm số shard search trùng: bỏ token 1 ký tự; giới hạn số từ gán vào prefix (0 = không giới hạn). */
   const SEARCH_PREFIX_MIN_TOKEN_LEN = Math.max(1, parseInt(process.env.SEARCH_PREFIX_MIN_TOKEN_LEN || '2', 10) || 2);
@@ -2196,11 +2207,13 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
     const idShard = getShardKey2(idStr);
     if (!idIndexByShard.has(idShard)) idIndexByShard.set(idShard, {});
     const ptr = batchPtrById ? batchPtrById.get(idStr) : null;
+    const bFile = ptr && ptr.b ? String(ptr.b) : '';
+    const tFile = ptr && ptr.t ? String(ptr.t) : '';
     idIndexByShard.get(idShard)[idStr] = {
       i,
       id: idStr,
-      b: ptr && ptr.b ? ptr.b : '',
-      t: ptr && ptr.t ? ptr.t : '',
+      b: bFile,
+      t: tFile,
       title: m.title,
       origin_name: m.origin_name || '',
       slug: slugStr,
@@ -2259,7 +2272,7 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
     });
   }
 
-  const meta = { total: sorted.length, batchSize: BATCH };
+  const meta = { total: sorted.length, batchSize: indexBatchSize, baseBatchSize: indexBatchSize };
   fs.writeFileSync(path.join(outIndexDir, 'meta.json'), JSON.stringify(meta), 'utf8');
 
   const slugMeta = { maxBytes, parts: {} };

@@ -33,10 +33,11 @@ File này ghi lại phân tích kiến trúc hiện tại, rủi ro khi scale, v
 - `BASE_BATCH_SIZE` / `BATCH_MAX_BYTES` → hàng trăm–nghìn file `batch_*.js` / `tmdb_batch_*.js`. Lazy load ổn nhưng **deploy/clone Git** nặng nếu commit hết.
 - TMDB_ONLY yêu cầu `batch-windows` khớp tổng phim — pipeline 2 pha phải nhất quán.
 
-### 4. Client fallback `batchSize` 120 (`public/js/main.js`)
+### 4. Client fallback `batchSize` — đã đồng bộ với build (một phần)
 
-- Khi không có `row.b`/`row.t`, fallback theo batch cố định có thể **lệch** nếu cửa sổ batch không đều 120.
-- **Hướng:** luôn có pointer batch trong idIndex; tránh phụ thuộc fallback.
+- `public/data/index/meta.json` ghi `batchSize` / `baseBatchSize` từ `batch-windows.json` (không cứng 120).
+- `loadIndexMetaOnce` gán `window.DAOP.batchSize` trước khi fallback; `loadIdIndexShardsForKey` tải `index/meta` + id shard cùng lúc.
+- Build: `idIndex` luôn ghi `b`/`t` từ `batchPtrById` khi có map; fallback vẫn chỉ khi thiếu pointer (data cũ / lỗi).
 
 ### 5. Ingest: OPhim + TMDB + RAM build
 
@@ -61,8 +62,9 @@ File này ghi lại phân tích kiến trúc hiện tại, rủi ro khi scale, v
 |----|---------|----------|------------|
 | P0-1 | P0 | Tách/chia nhỏ `idIndex` hoặc tăng bucket; cập nhật client load đúng part | ☑ 2026-03-28 — `writeIndexAndSearchShards` + `index/id/meta.json` + `main.js` (`loadIdIndexMetaOnce`, tải `key.js` hoặc `key.N.js`). Tương thích cũ: không có `meta.json` thì chỉ tải `key.js`. |
 | P0-2 | P0 | Chiến lược dữ liệu: incremental, không kỳ vọng một lần build full 100k từ một list API ngắn | ☐ Chưa |
-| P1-1 | P1 | Giảm chi phí search (payload / thiết kế) hoặc search ngoài static | ☐ Chưa |
+| P1-1 | P1 | Giảm chi phí search (payload / thiết kế) hoặc search ngoài static | ☑ Một phần — payload + env; FTS/Meilisearch sau |
 | P1-2 | P1 | CI: tách pha, artifact, chiến lược không commit toàn bộ `public/data` | ☐ Chưa |
+| P1-3 | P1 | Client: `batchSize` từ `index/meta.json`, fallback khớp `baseBatchSize` build; `loadIdIndexShardsForKey` | ☑ 2026-03-28 |
 | P2-1 | P2 | Tune `BASE_BATCH_SIZE`, `BATCH_MAX_BYTES`, `SHARD_MAX_BYTES` theo đo thực tế | ☐ Chưa |
 | P2-2 | P2 | Đo thời gian từng bước build (OPhim / TMDB / ghi index) | ☐ Chưa |
 
@@ -99,3 +101,4 @@ _(Thêm dòng dưới đây mỗi khi họp / quyết định quan trọng.)_
 - 2026-03-28: Khởi tạo file từ phân tích quy mô ~100k (idIndex, search, batch, CI, ingest).
 - 2026-03-28: P0-1 — idIndex split + `index/id/meta.json` + cập nhật `public/js/main.js`; `validateBuildOutputs` + `loadIdIndexShardMapFromDisk` trong `scripts/build.js`.
 - 2026-03-28: P1-1 (partial) — search prefix: bỏ `type` khỏi item, `SEARCH_PREFIX_MIN_TOKEN_LEN` / `SEARCH_PREFIX_MAX_TOKENS`, `searchOpts` trong `search/prefix/meta.json`.
+- 2026-03-28: P1-3 — `index/meta.json` lấy `batchSize` từ `batch-windows.json`; `main.js`: `applyRootIndexMeta`, `loadIdIndexShardsForKey`.
