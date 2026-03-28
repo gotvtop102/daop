@@ -417,7 +417,7 @@ export default function StaticPages() {
                             - Sau khi bấm <b>Lưu</b>, vào trang <b>GitHub Actions</b> và chạy <b>Build website</b> để nội dung lên site.
                           </div>
                           <div>
-                            - APK được build từ bộ công cụ riêng (Build App GoTV) và upload lên host của bạn để lấy link.
+                            - APK: build từ dự án Capacitor Android (Android Studio), rồi upload lên host để lấy link — xem <code>docs/capacitor/README.md</code>.
                           </div>
                         </div>
                       }
