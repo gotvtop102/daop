@@ -28,7 +28,6 @@ const OPHIM_DELAY_MS = 200;
 
 const OPHIM_BASE = process.env.OPHIM_BASE_URL || 'https://ophim1.com/v1/api';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
-const TMDB_KEY = process.env.TMDB_API_KEY;
 
 /** Fallback: 23 thể loại + 45 quốc gia (OPhim) khi API lỗi/timeout */
 const OPHIM_GENRES_FALLBACK = {
@@ -338,6 +337,43 @@ function loadBatchWindowsOrThrow() {
   return { windows: wins, total };
 }
 
+function loadIdIndexShardMapFromDisk(idDir, shardKey) {
+  const metaPath = path.join(idDir, 'meta.json');
+  let meta = null;
+  if (fs.existsSync(metaPath)) {
+    try {
+      meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+    } catch {
+      meta = null;
+    }
+  }
+  const partCount = meta && meta.parts && meta.parts[shardKey] != null
+    ? parseInt(meta.parts[shardKey], 10)
+    : 1;
+  const parts = Number.isFinite(partCount) && partCount > 0 ? partCount : 1;
+
+  if (parts <= 1) {
+    const f = path.join(idDir, `${shardKey}.js`);
+    if (!fs.existsSync(f)) throw new Error('Missing id shard: ' + f);
+    const raw = fs.readFileSync(f, 'utf8');
+    const jsonStr = raw
+      .replace(/^window\.DAOP\s*=\s*window\.DAOP\s*\|\|\s*\{\};\s*window\.DAOP\.idIndex\s*=\s*window\.DAOP\.idIndex\s*\|\|\s*\{\};\s*window\.DAOP\.idIndex\[[^\]]+\]\s*=\s*/i, '')
+      .replace(/;\s*$/, '');
+    return JSON.parse(jsonStr);
+  }
+
+  const merged = {};
+  for (let p = 0; p < parts; p++) {
+    const f = path.join(idDir, `${shardKey}.${p}.js`);
+    if (!fs.existsSync(f)) throw new Error('Missing id shard part: ' + f);
+    const raw = fs.readFileSync(f, 'utf8');
+    const m = raw.match(/Object\.assign\([^,]+,\s*(\{[\s\S]*\})\)\s*;?\s*$/);
+    if (!m) throw new Error('Bad id shard part format: ' + f);
+    Object.assign(merged, JSON.parse(m[1]));
+  }
+  return merged;
+}
+
 function validateIdIndexPointersSample(allMovies, sampleCount = 200, opts) {
   opts = opts || {};
   const validateTmdb = opts.validateTmdb !== false;
@@ -361,13 +397,7 @@ function validateIdIndexPointersSample(allMovies, sampleCount = 200, opts) {
     if (!idStr) continue;
     const shard = getShardKey2(idStr);
     if (shards.has(shard)) continue;
-    const f = path.join(idDir, `${shard}.js`);
-    if (!fs.existsSync(f)) throw new Error('Missing id shard: ' + f);
-    const raw = fs.readFileSync(f, 'utf8');
-    const jsonStr = raw
-      .replace(/^window\.DAOP\s*=\s*window\.DAOP\s*\|\|\s*\{\};\s*window\.DAOP\.idIndex\s*=\s*window\.DAOP\.idIndex\s*\|\|\s*\{\};\s*window\.DAOP\.idIndex\[[^\]]+\]\s*=\s*/i, '')
-      .replace(/;\s*$/, '');
-    shards.set(shard, JSON.parse(jsonStr));
+    shards.set(shard, loadIdIndexShardMapFromDisk(idDir, shard));
   }
 
   for (const m of picks) {
@@ -411,6 +441,11 @@ function validateBuildOutputs(allMovies) {
   validateShardMetaFiles(
     path.join(PUBLIC_DATA, 'index', 'slug', 'meta.json'),
     path.join(PUBLIC_DATA, 'index', 'slug'),
+    (k, p) => (p == null ? `${k}.js` : `${k}.${p}.js`)
+  );
+  validateShardMetaFiles(
+    path.join(PUBLIC_DATA, 'index', 'id', 'meta.json'),
+    path.join(PUBLIC_DATA, 'index', 'id'),
     (k, p) => (p == null ? `${k}.js` : `${k}.${p}.js`)
   );
   validateShardMetaFiles(
@@ -1038,11 +1073,11 @@ async function fetchCustomMoviesFromSupabase() {
     const { data: epRows, error: e2 } = await supabase.from('movie_episodes').select('*').order('sort_order');
     if (e2) throw e2;
     return buildMoviesFromSupabase(movieRows || [], epRows || []);
-  } catch (e) {
+    } catch (e) {
     console.warn('Supabase custom movies fetch failed, fallback Excel (nếu có):', e.message || e);
     return null;
+    }
   }
-}
 
 /** 2. Đọc Supabase Admin (ưu tiên) hoặc Excel fallback */
 async function fetchCustomMovies() {
@@ -1281,6 +1316,89 @@ async function applySupabaseUpdateStatuses(custom) {
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500';
 const TMDB_LANG = 'vi-VN';
 
+/**
+ * Nhiều key (theo thứ tự ưu tiên):
+ * - TMDB_API_KEYS — phân cách phẩy / xuống dòng
+ * - TMDB_API_KEY — một key, hoặc nhiều key phân cách bằng dấu phẩy (tiện cho GitHub Secrets một dòng)
+ */
+function parseTmdbApiKeys() {
+  const raw = process.env.TMDB_API_KEYS;
+  const keys = [];
+  if (raw != null && String(raw).trim() !== '') {
+    for (const part of String(raw).split(/[,;\n\r]+/)) {
+      const k = part.trim();
+      if (k) keys.push(k);
+    }
+  }
+  if (keys.length === 0) {
+    const single = process.env.TMDB_API_KEY;
+    if (single != null && String(single).trim() !== '') {
+      const s = String(single).trim();
+      if (s.includes(',')) {
+        for (const part of s.split(',')) {
+          const k = part.trim();
+          if (k) keys.push(k);
+        }
+      } else {
+        keys.push(s);
+      }
+    }
+  }
+  return keys;
+}
+
+const TMDB_KEYS = parseTmdbApiKeys();
+
+function parseRetryAfterMs(res) {
+  const ra = res.headers.get('retry-after');
+  if (!ra) return 0;
+  const sec = parseInt(ra, 10);
+  if (Number.isFinite(sec)) return Math.min(sec * 1000, 120_000);
+  const t = Date.parse(ra);
+  if (Number.isFinite(t)) return Math.max(0, Math.min(t - Date.now(), 120_000));
+  return 0;
+}
+
+/**
+ * Gọi TMDB, khi 429 thử key tiếp theo trong TMDB_KEYS.
+ * urlBuilder: (apiKey) => full URL
+ */
+async function fetchJsonWithTmdbKeys(urlBuilder) {
+  const keys = TMDB_KEYS;
+  if (!keys.length) throw new Error('No TMDB API keys');
+
+  for (let ki = 0; ki < keys.length; ki++) {
+    const url = urlBuilder(keys[ki]);
+    const res = await fetch(url);
+    if (res.ok) return res.json();
+
+    if (res.status === 429) {
+      const waitMs = parseRetryAfterMs(res);
+      if (ki < keys.length - 1) {
+        console.warn(`TMDB 429 rate limit, chuyển sang key ${ki + 2}/${keys.length}`);
+        if (waitMs) await sleep(Math.min(waitMs, 8000));
+        continue;
+      }
+      console.warn('TMDB 429: đã hết key dự phòng, chờ Retry-After và thử lại...');
+      if (waitMs) await sleep(waitMs);
+      const res2 = await fetch(url);
+      if (res2.ok) return res2.json();
+      if (res2.status === 429) {
+        throw new Error(`HTTP 429: ${url}`);
+      }
+      if (!res2.ok) throw new Error(`HTTP ${res2.status}: ${url}`);
+      return res2.json();
+    }
+
+    if ((res.status === 401 || res.status === 403) && ki < keys.length - 1) {
+      console.warn(`TMDB HTTP ${res.status}, thử key tiếp theo (${ki + 2}/${keys.length})`);
+      continue;
+    }
+    throw new Error(`HTTP ${res.status}: ${url}`);
+  }
+  throw new Error('TMDB fetch failed');
+}
+
 const TMDB_CACHE_DIR = path.join(PUBLIC_DATA, 'cache', 'tmdb');
 const TMDB_CACHE_ENABLED = (process.env.TMDB_CACHE !== '0' && process.env.TMDB_CACHE !== 'false');
 const TMDB_CACHE_TTL_DAYS = Number(process.env.TMDB_CACHE_TTL_DAYS || 7);
@@ -1330,11 +1448,12 @@ function loadTmdbShardFile(p) {
   return j;
 }
 
-async function tmdbFetchJsonCached(url, cacheKey) {
-  if (!TMDB_CACHE_ENABLED) return fetchJson(url);
+async function tmdbFetchJsonCached(urlBuilder, cacheKey) {
+  const fetchMiss = () => fetchJsonWithTmdbKeys(urlBuilder);
+  if (!TMDB_CACHE_ENABLED) return fetchMiss();
 
   const key = String(cacheKey || '').trim();
-  if (!key) return fetchJson(url);
+  if (!key) return fetchMiss();
 
   const idx = tmdbCacheShardIndex(key);
   const p = tmdbCacheShardPath(idx);
@@ -1370,7 +1489,7 @@ async function tmdbFetchJsonCached(url, cacheKey) {
   }
 
   // Miss -> fetch
-  const data = await fetchJson(url);
+  const data = await fetchMiss();
 
   // Write back (serialized)
   await withShardLock(idx, async () => {
@@ -1403,14 +1522,14 @@ async function getTmdbPersonNameVi(personId) {
   const id = String(personId || '').trim();
   if (!id) return null;
   if (_tmdbPersonNameViCache.has(id)) return _tmdbPersonNameViCache.get(id);
-  if (!TMDB_KEY) {
+  if (!TMDB_KEYS.length) {
     _tmdbPersonNameViCache.set(id, null);
     return null;
   }
   await sleep(40);
   try {
     const res = await tmdbFetchJsonCached(
-      `${TMDB_BASE}/person/${id}/translations?api_key=${TMDB_KEY}`,
+      (k) => `${TMDB_BASE}/person/${id}/translations?api_key=${encodeURIComponent(k)}`,
       `person_${id}_translations`
     ).catch(() => null);
     const arr = (res && res.translations) ? res.translations : [];
@@ -1427,9 +1546,12 @@ async function getTmdbPersonNameVi(personId) {
 
 /** 3. Làm giàu TMDB (credits, keywords, poster khi thiếu) */
 async function enrichTmdb(movies) {
-  if (!TMDB_KEY) {
-    console.warn('TMDB_API_KEY is missing -> skip TMDB enrich (cast/director/keywords will be empty).');
+  if (!TMDB_KEYS.length) {
+    console.warn('TMDB_API_KEY / TMDB_API_KEYS is missing -> skip TMDB enrich (cast/director/keywords will be empty).');
     return;
+  }
+  if (TMDB_KEYS.length > 1) {
+    console.log('   TMDB:', TMDB_KEYS.length, 'API key(s) — khi 429 sẽ chuyển key tiếp theo.');
   }
   const list = Array.isArray(movies) ? movies : [];
   let nextIndex = 0;
@@ -1448,9 +1570,9 @@ async function enrichTmdb(movies) {
       try {
         const baseKey = `${type}_${tid}`;
         const [detailRes, creditsRes, keywordsRes] = await Promise.all([
-          tmdbFetchJsonCached(`${TMDB_BASE}/${type}/${tid}?api_key=${TMDB_KEY}&language=${TMDB_LANG}`, `${baseKey}_detail_${TMDB_LANG}`).catch(() => null),
-          tmdbFetchJsonCached(`${TMDB_BASE}/${type}/${tid}/credits?api_key=${TMDB_KEY}`, `${baseKey}_credits`),
-          tmdbFetchJsonCached(`${TMDB_BASE}/${type}/${tid}/keywords?api_key=${TMDB_KEY}`, `${baseKey}_keywords`).catch(() => ({ keywords: [] })),
+          tmdbFetchJsonCached((k) => `${TMDB_BASE}/${type}/${tid}?api_key=${encodeURIComponent(k)}&language=${TMDB_LANG}`, `${baseKey}_detail_${TMDB_LANG}`).catch(() => null),
+          tmdbFetchJsonCached((k) => `${TMDB_BASE}/${type}/${tid}/credits?api_key=${encodeURIComponent(k)}`, `${baseKey}_credits`),
+          tmdbFetchJsonCached((k) => `${TMDB_BASE}/${type}/${tid}/keywords?api_key=${encodeURIComponent(k)}`, `${baseKey}_keywords`).catch(() => ({ keywords: [] })),
         ]);
 
         const castList = (creditsRes && Array.isArray(creditsRes.cast)) ? creditsRes.cast.slice(0, 15) : [];
@@ -2150,10 +2272,27 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
     }
   }
   fs.writeFileSync(path.join(outSlugDir, 'meta.json'), JSON.stringify(slugMeta), 'utf8');
+
+  const idMeta = { maxBytes, parts: {} };
   for (const [k, map] of idIndexByShard.entries()) {
-    const content = `window.DAOP = window.DAOP || {};window.DAOP.idIndex = window.DAOP.idIndex || {};window.DAOP.idIndex[${JSON.stringify(k)}] = ${JSON.stringify(map)};`;
-    fs.writeFileSync(path.join(outIdDir, `${k}.js`), content, 'utf8');
+    const spl = splitObjectBySize(map, maxBytes, (idKey) => idKey);
+    idMeta.parts[k] = spl.parts;
+    if (spl.parts <= 1) {
+      const content = `window.DAOP = window.DAOP || {};window.DAOP.idIndex = window.DAOP.idIndex || {};window.DAOP.idIndex[${JSON.stringify(k)}] = ${JSON.stringify(map)};`;
+      fs.writeFileSync(path.join(outIdDir, `${k}.js`), content, 'utf8');
+      continue;
+    }
+    for (let p = 0; p < spl.buckets.length; p++) {
+      const partObj = spl.buckets[p];
+      if (!partObj || !Object.keys(partObj).length) continue;
+      const content =
+        `window.DAOP = window.DAOP || {};window.DAOP.idIndex = window.DAOP.idIndex || {};` +
+        `window.DAOP.idIndex[${JSON.stringify(k)}] = window.DAOP.idIndex[${JSON.stringify(k)}] || {};` +
+        `Object.assign(window.DAOP.idIndex[${JSON.stringify(k)}], ${JSON.stringify(partObj)});`;
+      fs.writeFileSync(path.join(outIdDir, `${k}.${p}.js`), content, 'utf8');
+    }
   }
+  fs.writeFileSync(path.join(outIdDir, 'meta.json'), JSON.stringify(idMeta), 'utf8');
 
   const searchMeta = { maxBytes, parts: {} };
   for (const [k, arr] of searchByShard.entries()) {

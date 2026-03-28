@@ -582,6 +582,22 @@
     return window.DAOP._slugIndexMetaPromise;
   }
 
+  /** meta.json + một hoặc nhiều file id/{key}.js | id/{key}.{p}.js — giống slugIndex */
+  function loadIdIndexMetaOnce() {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._idIndexMetaPromise) return window.DAOP._idIndexMetaPromise;
+    window.DAOP._idIndexMetaPromise = (typeof window.DAOP.ensureDataCacheBust === 'function'
+      ? window.DAOP.ensureDataCacheBust()
+      : Promise.resolve('')
+    ).then(function (q) {
+      var url = BASE + '/data/index/id/meta.json' + (q || '');
+      return fetch(url, { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; });
+    });
+    return window.DAOP._idIndexMetaPromise;
+  }
+
   window.DAOP.getMovieBySlugAsync = function (slug) {
     return Promise.resolve().then(function () {
       var s = String(slug || '').trim();
@@ -634,26 +650,43 @@
       if (id == null) return null;
       var idStr = String(id);
       var key = getShardKey2(idStr);
-      var url = BASE + '/data/index/id/' + key + '.js';
-      return loadScriptOnce(url).then(function () {
+      return loadIdIndexMetaOnce().then(function (meta) {
+        var parts = 1;
         try {
-          var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
-          var row = idxMap ? idxMap[idStr] : null;
-          if (row && row.b) {
-            return BASE + '/data/batches/' + String(row.b);
+          if (meta && meta.parts && meta.parts[key] != null) {
+            parts = parseInt(meta.parts[key], 10) || 1;
           }
-          var i = row && typeof row.i === 'number' ? row.i : -1;
-          if (i < 0) return null;
-          var BATCH = (window.DAOP && window.DAOP.batchSize) || 120;
-          var start = Math.floor(i / BATCH) * BATCH;
-          return loadIndexMetaOnce().then(function (meta) {
-            var total = meta && typeof meta.total === 'number' ? meta.total : -1;
-            var end = total > 0 ? Math.min(start + BATCH, total) : (start + BATCH);
-            return BASE + '/data/batches/batch_' + start + '_' + end + '.js';
-          });
-        } catch (e) {
-          return null;
+          if (!isFinite(parts) || parts < 1) parts = 1;
+        } catch (e0) { parts = 1; }
+
+        var baseUrl = BASE + '/data/index/id/' + key;
+        var loads;
+        if (parts <= 1) {
+          loads = [loadScriptOnce(baseUrl + '.js')];
+        } else {
+          loads = [];
+          for (var p = 0; p < parts; p++) loads.push(loadScriptOnce(baseUrl + '.' + p + '.js'));
         }
+        return Promise.all(loads).then(function () {
+          try {
+            var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
+            var row = idxMap ? idxMap[idStr] : null;
+            if (row && row.b) {
+              return BASE + '/data/batches/' + String(row.b);
+            }
+            var i = row && typeof row.i === 'number' ? row.i : -1;
+            if (i < 0) return null;
+            var BATCH = (window.DAOP && window.DAOP.batchSize) || 120;
+            var start = Math.floor(i / BATCH) * BATCH;
+            return loadIndexMetaOnce().then(function (meta2) {
+              var total = meta2 && typeof meta2.total === 'number' ? meta2.total : -1;
+              var end = total > 0 ? Math.min(start + BATCH, total) : (start + BATCH);
+              return BASE + '/data/batches/batch_' + start + '_' + end + '.js';
+            });
+          } catch (e) {
+            return null;
+          }
+        });
       });
     });
   };
@@ -663,15 +696,32 @@
       if (id == null) return null;
       var idStr = String(id);
       var key = getShardKey2(idStr);
-      var url = BASE + '/data/index/id/' + key + '.js';
-      return loadScriptOnce(url).then(function () {
+      return loadIdIndexMetaOnce().then(function (meta) {
+        var parts = 1;
         try {
-          var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
-          var row = idxMap ? idxMap[idStr] : null;
-          return row || null;
-        } catch (e) {
-          return null;
+          if (meta && meta.parts && meta.parts[key] != null) {
+            parts = parseInt(meta.parts[key], 10) || 1;
+          }
+          if (!isFinite(parts) || parts < 1) parts = 1;
+        } catch (e0) { parts = 1; }
+
+        var baseUrl = BASE + '/data/index/id/' + key;
+        var loads;
+        if (parts <= 1) {
+          loads = [loadScriptOnce(baseUrl + '.js')];
+        } else {
+          loads = [];
+          for (var p = 0; p < parts; p++) loads.push(loadScriptOnce(baseUrl + '.' + p + '.js'));
         }
+        return Promise.all(loads).then(function () {
+          try {
+            var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
+            var row = idxMap ? idxMap[idStr] : null;
+            return row || null;
+          } catch (e) {
+            return null;
+          }
+        });
       });
     });
   };
@@ -687,26 +737,43 @@
       if (id == null) return null;
       var idStr = String(id);
       var key = getShardKey2(idStr);
-      var url = BASE + '/data/index/id/' + key + '.js';
-      return loadScriptOnce(url).then(function () {
+      return loadIdIndexMetaOnce().then(function (meta) {
+        var parts = 1;
         try {
-          var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
-          var row = idxMap ? idxMap[idStr] : null;
-          if (row && row.t) {
-            return BASE + '/data/batches/' + String(row.t);
+          if (meta && meta.parts && meta.parts[key] != null) {
+            parts = parseInt(meta.parts[key], 10) || 1;
           }
-          var i = row && typeof row.i === 'number' ? row.i : -1;
-          if (i < 0) return null;
-          var BATCH = (window.DAOP && window.DAOP.batchSize) || 120;
-          var start = Math.floor(i / BATCH) * BATCH;
-          return loadIndexMetaOnce().then(function (meta) {
-            var total = meta && typeof meta.total === 'number' ? meta.total : -1;
-            var end = total > 0 ? Math.min(start + BATCH, total) : (start + BATCH);
-            return BASE + '/data/batches/tmdb_batch_' + start + '_' + end + '.js';
-          });
-        } catch (e) {
-          return null;
+          if (!isFinite(parts) || parts < 1) parts = 1;
+        } catch (e0) { parts = 1; }
+
+        var baseUrl = BASE + '/data/index/id/' + key;
+        var loads;
+        if (parts <= 1) {
+          loads = [loadScriptOnce(baseUrl + '.js')];
+        } else {
+          loads = [];
+          for (var p = 0; p < parts; p++) loads.push(loadScriptOnce(baseUrl + '.' + p + '.js'));
         }
+        return Promise.all(loads).then(function () {
+          try {
+            var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
+            var row = idxMap ? idxMap[idStr] : null;
+            if (row && row.t) {
+              return BASE + '/data/batches/' + String(row.t);
+            }
+            var i = row && typeof row.i === 'number' ? row.i : -1;
+            if (i < 0) return null;
+            var BATCH = (window.DAOP && window.DAOP.batchSize) || 120;
+            var start = Math.floor(i / BATCH) * BATCH;
+            return loadIndexMetaOnce().then(function (meta2) {
+              var total = meta2 && typeof meta2.total === 'number' ? meta2.total : -1;
+              var end = total > 0 ? Math.min(start + BATCH, total) : (start + BATCH);
+              return BASE + '/data/batches/tmdb_batch_' + start + '_' + end + '.js';
+            });
+          } catch (e) {
+            return null;
+          }
+        });
       });
     });
   };

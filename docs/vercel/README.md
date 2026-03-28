@@ -99,7 +99,7 @@ Cần khi dùng **Upload R2** trên Banners, Slider, Site Settings, v.v.
 |------|---------|
 | `VITE_API_URL` | Chủ yếu **dev local**: Admin chạy `localhost` nhưng gọi API bản deploy. Production thường **để trống** — nhiều màn dùng `window.location.origin` hoặc URL tương đối `/api/...`. |
 | `VITE_OPHIM_BASE_URL` | Trang GitHub Actions: base URL OPhim (mặc định trong code `https://ophim1.com/v1/api`). |
-| `VITE_TMDB_API_KEY` | Trang sửa phim: gọi TMDB từ **trình duyệt**. **Khác** `TMDB_API_KEY` trên GitHub Actions (build site). |
+| `VITE_TMDB_API_KEY` | Trang sửa phim: gọi TMDB từ **trình duyệt**. Có thể nhiều key (phẩy). Tùy chọn `VITE_TMDB_API_KEYS`. **Khác** `TMDB_API_KEY` trên GitHub (build). |
 
 ---
 

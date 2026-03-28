@@ -29,6 +29,7 @@ import {
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
+import { parseViteTmdbKeys, fetchWithTmdbKeyRotation } from '../lib/tmdb-fetch';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -501,9 +502,11 @@ export default function MovieEdit() {
       return;
     }
 
-    const tmdbApiKey = (import.meta as any).env?.VITE_TMDB_API_KEY;
-    if (!tmdbApiKey) {
-      message.error('Thiếu VITE_TMDB_API_KEY (TMDB API key). Hãy cấu hình trong admin/.env');
+    const tmdbKeys = parseViteTmdbKeys();
+    if (!tmdbKeys.length) {
+      message.error(
+        'Thiếu VITE_TMDB_API_KEY (hoặc VITE_TMDB_API_KEYS). Hãy cấu hình trong Vercel / admin/.env'
+      );
       return;
     }
 
@@ -518,10 +521,12 @@ export default function MovieEdit() {
       };
 
       const fetchDetails = async (resource: 'movie' | 'tv', language: string) => {
-        const url = `https://api.themoviedb.org/3/${resource}/${tmdbId}?api_key=${tmdbApiKey}&language=${encodeURIComponent(
-          language
-        )}&region=VN&append_to_response=translations`;
-        const res = await fetch(url);
+        const res = await fetchWithTmdbKeyRotation(
+          (k) =>
+            `https://api.themoviedb.org/3/${resource}/${tmdbId}?api_key=${encodeURIComponent(
+              k
+            )}&language=${encodeURIComponent(language)}&region=VN&append_to_response=translations`
+        );
         return { ok: res.ok, status: res.status, data: await safeJson(res) };
       };
 
@@ -537,8 +542,8 @@ export default function MovieEdit() {
       const viTrans = pickTranslation((viData as any)?.translations, 'vi');
 
       // Credits (names usually not localized by TMDB)
-      const creditsRes = await fetch(
-        `https://api.themoviedb.org/3/${resource}/${tmdbId}/credits?api_key=${tmdbApiKey}`
+      const creditsRes = await fetchWithTmdbKeyRotation(
+        (k) => `https://api.themoviedb.org/3/${resource}/${tmdbId}/credits?api_key=${encodeURIComponent(k)}`
       );
       const credits = creditsRes.ok ? await safeJson(creditsRes) : { crew: [], cast: [] };
 
