@@ -86,7 +86,9 @@ jobs:
       - name: Build (1-phase full)
         id: build_one_phase_full
         if: ${{ env.TWO_PHASE != 'true' }}
-        run: npm run build
+        run: |
+          npm run build
+          echo "ONE_PHASE_BUILD_OK=1" >> $GITHUB_ENV
         env:
           CLEAN_OLD_DATA: ${{ inputs.clean == 'true' && '1' || '0' }}
           OPHIM_BASE_URL: ${{ secrets.OPHIM_BASE_URL || 'https://ophim1.com/v1/api' }}
@@ -222,7 +224,9 @@ jobs:
       - name: Build TMDB ONLY (2-phase)
         id: build_two_phase_tmdb
         if: ${{ env.TWO_PHASE == 'true' }}
-        run: npm run build
+        run: |
+          npm run build
+          echo "TWO_PHASE_TMDB_READY=1" >> $GITHUB_ENV
         env:
           CLEAN_OLD_DATA: '0'
           TMDB_ONLY: '1'
@@ -282,9 +286,9 @@ jobs:
             done
           fi
 
-      # Chạy sau khi pipeline dữ liệu xong (build + commit), trước deploy Pages 2-phase. Không dùng success(): deploy Pages (continue-on-error) không làm bỏ qua export.
+      # Cờ từ $GITHUB_ENV sau build thành công (tin cậy hơn steps.*.outcome khi 2-phase: bước 1-phase bị skip).
       - name: Export batches → Supabase (movies + movie_episodes)
-        if: ${{ !cancelled() && (steps.build_one_phase_full.outcome == 'success' || steps.build_two_phase_tmdb.outcome == 'success') }}
+        if: ${{ !cancelled() && (env.ONE_PHASE_BUILD_OK == '1' || env.TWO_PHASE_TMDB_READY == '1') }}
         env:
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
