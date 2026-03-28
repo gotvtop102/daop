@@ -84,6 +84,7 @@ jobs:
           fi
 
       - name: Build (1-phase full)
+        id: build_one_phase_full
         if: ${{ env.TWO_PHASE != 'true' }}
         run: npm run build
         env:
@@ -217,6 +218,7 @@ jobs:
           path: public/data
 
       - name: Build TMDB ONLY (2-phase)
+        id: build_two_phase_tmdb
         if: ${{ env.TWO_PHASE == 'true' }}
         run: npm run build
         env:
@@ -286,9 +288,10 @@ jobs:
           wranglerVersion: '4.77.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
-      # Luôn hiện trong log (không skip bởi if vars). Bỏ qua khi SKIP_EXPORT_TO_SUPABASE=1; deploy Pages có continue-on-error để export vẫn chạy nếu wrangler lỗi.
+      # Không dùng success(): deploy Pages (continue-on-error) vẫn đánh dấu step failed → success() = false và export bị skip hẳn.
+      # Chỉ cần build batch cuối cùng thành công (1-phase hoặc 2-phase TMDB).
       - name: Export batches → Supabase (movies + movie_episodes)
-        if: success()
+        if: ${{ !cancelled() && (steps.build_one_phase_full.outcome == 'success' || steps.build_two_phase_tmdb.outcome == 'success') }}
         env:
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
