@@ -982,7 +982,7 @@ export default function MovieEdit() {
                       name="chieurap"
                       label="Phim chiếu rạp"
                       valuePropName="checked"
-                      extra="Sheet: cột chieurap. Bật nếu là phim chiếu rạp."
+                      extra="Cột chieurap (DB). Bật nếu là phim chiếu rạp."
                     >
                       <Switch />
                     </Form.Item>
@@ -991,7 +991,7 @@ export default function MovieEdit() {
                     <Form.Item
                       name="showtimes"
                       label="Showtimes (lịch chiếu)"
-                      extra="Sheet: cột showtimes. VD: 'Tập mới mỗi thứ 6' hoặc để trống nếu không có."
+                      extra="Cột showtimes (DB). VD: 'Tập mới mỗi thứ 6' hoặc để trống nếu không có."
                     >
                       <Input.TextArea rows={2} placeholder="VD: Tập mới mỗi thứ 6" />
                     </Form.Item>
@@ -1001,7 +1001,7 @@ export default function MovieEdit() {
                       name="is_exclusive"
                       label="Exclusive"
                       valuePropName="checked"
-                      extra="Sheet: cột is_exclusive. Build nhận 0/1 hoặc true/false. Bật nếu là phim độc quyền."
+                      extra="Cột is_exclusive (DB). Build nhận 0/1 hoặc true/false. Bật nếu là phim độc quyền."
                     >
                       <Switch />
                     </Form.Item>
@@ -1011,7 +1011,7 @@ export default function MovieEdit() {
                 <Form.Item
                   name="update"
                   label="Update"
-                  extra="Sheet: cột update (không bắt buộc). NEW: ép build coi phim thay đổi; sau build/update sẽ tự clear về trống."
+                  extra="Cột update (không bắt buộc). NEW: ép build coi phim thay đổi; sau build/update sẽ tự clear về trống."
                 >
                   <Select placeholder="Chọn update" allowClear>
                     {UPDATE_OPTIONS.map((o) => (

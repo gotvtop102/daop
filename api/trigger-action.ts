@@ -25,7 +25,7 @@ const ACTIONS: { id: ActionId; name: string; description: string }[] = [
   {
     id: 'export-to-supabase',
     name: 'Export to Supabase',
-    description: 'Đẩy public/data/batches lên bảng movies + movie_episodes (thay export Google Sheets).',
+    description: 'Đẩy public/data/batches lên bảng movies + movie_episodes.',
   },
   { id: 'upload-movie-images-r2', name: 'Upload movie images to R2', description: 'Tải + nén + upload thumb/poster lên R2, rồi commit upload state.' },
   { id: 'delete-movie-images-r2', name: 'Delete movie images on R2', description: 'Xóa ảnh trên R2 theo prefix/keys/movie_ids. Mặc định dry-run để an toàn.' },

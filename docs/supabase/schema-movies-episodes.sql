@@ -1,4 +1,4 @@
--- Bảng phim + tập (thay thế tab Google Sheets movies / episodes) — chạy trong SQL Editor project Supabase Admin
+-- Bảng phim + tập (phim tùy chỉnh) — chạy trong SQL Editor project Supabase Admin
 -- Yêu cầu đã chạy schema-admin.sql (bảng site_settings). Build script (scripts/build.js) đọc phim tùy chỉnh từ Supabase hoặc custom_movies.xlsx.
 -- API Vercel dùng SUPABASE_ADMIN_SERVICE_ROLE_KEY (bypass RLS). Không expose dữ liệu này cho anon nếu không có policy.
 

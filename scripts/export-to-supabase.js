@@ -1,10 +1,10 @@
 /**
- * Đẩy dữ liệu phim đã build (public/data/batches) lên Supabase — thay cho export-to-sheets trước đây.
+ * Đẩy dữ liệu phim đã build (public/data/batches) lên Supabase.
  *
  * Cần: SUPABASE_ADMIN_URL (hoặc VITE_SUPABASE_ADMIN_URL), SUPABASE_ADMIN_SERVICE_ROLE_KEY
  *
  * EXPORT_TO_SUPABASE_SCOPE:
- *   - all (mặc định): toàn bộ phim trong batch — giống export sheet trước đây
+ *   - all (mặc định): toàn bộ phim trong batch
  *   - custom: chỉ phim có _from_supabase hoặc id bắt đầu ext_ (tránh đẩy nhầm batch lớn)
  *
  * Chạy sau khi đã build (có batch-windows.json + batch_*.js).

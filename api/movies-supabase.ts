@@ -40,7 +40,8 @@ function rowToMovie(row: Record<string, any>) {
   return m;
 }
 
-function sortMoviesLikeSheet(movies: any[]) {
+/** Sắp xếp theo modified/update mới nhất, tie-break theo _rowIndex (giống thứ tự dòng trong bảng). */
+function sortMoviesByModifiedDesc(movies: any[]) {
   const toTs = (v: any) => {
     const s = String(v || '').trim();
     if (!s) return 0;
@@ -98,7 +99,7 @@ export async function listMoviesSb(
     if (!res.ok) throw await errFromRes(res);
     const rows = await restJson<any[]>(res);
     let movies = (rows || []).map((r, i) => ({ ...rowToMovie(r), _rowIndex: i + 2 }));
-    movies = sortMoviesLikeSheet(movies);
+    movies = sortMoviesByModifiedDesc(movies);
     const total = movies.length;
     const start = (page - 1) * limit;
     return { data: movies.slice(start, start + limit), total, page, limit };
@@ -157,7 +158,7 @@ export async function getMovieBySlugSb(slug: string) {
   if (!res.ok) throw await errFromRes(res);
   const rows = await restJson<any[]>(res);
   if (!rows?.length) return null;
-  const sorted = sortMoviesLikeSheet(rows.map((r, i) => ({ ...rowToMovie(r), _rowIndex: i + 2 })));
+  const sorted = sortMoviesByModifiedDesc(rows.map((r, i) => ({ ...rowToMovie(r), _rowIndex: i + 2 })));
   return sorted[0] || null;
 }
 
@@ -273,10 +274,10 @@ export async function updateShowtimesExclusiveSb(movieId: string, body: any) {
   };
 }
 
-export async function countRowsSb(sheetNames: string[]) {
+export async function countRowsSb(tableNames: string[]) {
   const { key } = getEnv();
   const results: any[] = [];
-  for (const name of sheetNames) {
+  for (const name of tableNames) {
     const n = String(name || '').trim().toLowerCase();
     if (n === 'movies') {
       const res = await restFetch(`/movies?select=id`, {
@@ -286,7 +287,7 @@ export async function countRowsSb(sheetNames: string[]) {
       });
       if (!res.ok) throw await errFromRes(res);
       const c = parseContentRangeTotal(res) ?? 0;
-      results.push({ sheet: 'movies', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
+      results.push({ table: 'movies', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
     } else if (n === 'episodes') {
       const res = await restFetch(`/movie_episodes?select=id`, {
         method: 'HEAD',
@@ -295,7 +296,7 @@ export async function countRowsSb(sheetNames: string[]) {
       });
       if (!res.ok) throw await errFromRes(res);
       const c = parseContentRangeTotal(res) ?? 0;
-      results.push({ sheet: 'episodes', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
+      results.push({ table: 'episodes', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
     }
   }
   return { ok: true, results };

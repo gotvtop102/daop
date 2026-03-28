@@ -12,11 +12,11 @@ Sẽ tạo ra **custom_movies_template.xlsx**. Đổi tên thành `custom_movies
 
 ## Cấu trúc file
 
-### Sheet `movies`
+### Worksheet `movies` (trong file Excel)
 
 | Cột | Bắt buộc | Mô tả |
 |-----|----------|--------|
-| id | Không | **Dãy số duy nhất** (1, 2, 3...) – dùng làm movie_id trong sheet episodes. Nếu trống, build tự sinh id. **Đồng bộ với episodes.movie_id.** |
+| id | Không | **Dãy số duy nhất** (1, 2, 3...) – dùng làm `movie_id` ở tab episodes. Nếu trống, build tự sinh id. **Đồng bộ với episodes.movie_id.** |
 | title | Có | Tên phim |
 | slug | Không | Tùy chọn. Nếu trống, build tạo từ title; nếu nhiều phim trùng tên → slug trùng → build tự thêm -2, -3... để không trùng. |
 | origin_name | Không | Tên gốc |
@@ -38,7 +38,7 @@ Sẽ tạo ra **custom_movies_template.xlsx**. Đổi tên thành `custom_movies
 
 Tên cột không phân biệt hoa thường; dấu gạch dưới có thể thay bằng space (vd. `origin name`).
 
-### Sheet `episodes` (tùy chọn)
+### Worksheet `episodes` (tùy chọn)
 
 Dùng để gán tập phim và nguồn phát cho từng phim.
 
@@ -50,4 +50,4 @@ Dùng để gán tập phim và nguồn phát cho từng phim.
 
 ## File CSV mẫu (tham khảo / import tay vào Supabase)
 
-Trong `docs/google-sheets/` vẫn giữ **movies-template.csv** và **episodes-template.csv** — cột tương ứng bảng Supabase; có thể dùng làm mẫu khi nhập dữ liệu hoặc import vào DB (không còn luồng build đọc Google Sheets).
+Trong `docs/csv-templates/` có **movies-template.csv** và **episodes-template.csv** — cột tương ứng bảng Supabase; có thể dùng làm mẫu khi nhập dữ liệu hoặc import vào DB.

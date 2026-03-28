@@ -160,7 +160,7 @@ function writeAutoSliderFile(allMovies) {
 }
 
 async function ensureR2ImagesForNewCustomMovies(_customMovies) {
-  // (Trước đây cũng không ghi URL ảnh R2 ngược lại sheet/Excel; ảnh nằm trên R2 + trong batch build.)
+  // Không ghi URL ảnh R2 ngược lại nguồn tùy chỉnh; ảnh nằm trên R2 + trong batch build.
 }
 
 function getR2PublicBase() {
@@ -892,7 +892,7 @@ function dedupeThumbPoster(m) {
   }
 }
 
-/** Chuyển dữ liệu Supabase Admin (movies + movie_episodes) sang cùng dạng object như parseSheetMovies. */
+/** Chuyển dữ liệu Supabase Admin (movies + movie_episodes) sang cùng dạng object như parseCustomMoviesFromExcelRows. */
 function buildMoviesFromSupabase(movieRows, epRows) {
   const movies = [];
   for (const row of movieRows || []) {
@@ -951,9 +951,9 @@ function buildMoviesFromSupabase(movieRows, epRows) {
 
     if (updateStatus === 'NEW') {
       movie.modified = new Date().toISOString();
-      movie._sheetUpdateStatus = updateStatus;
+      movie._customUpdateStatus = updateStatus;
     } else if (updateStatus) {
-      movie._sheetUpdateStatus = updateStatus;
+      movie._customUpdateStatus = updateStatus;
     }
     movie._supabaseOriginalSlug = baseSlug;
 
@@ -1055,14 +1055,13 @@ async function fetchCustomMovies() {
     const episodesSheet = wb.Sheets['episodes'];
     const moviesRows = XLSX.utils.sheet_to_json(moviesSheet, { header: 1 });
     const episodesRows = episodesSheet ? XLSX.utils.sheet_to_json(episodesSheet, { header: 1 }) : [];
-    const movies = parseSheetMovies(moviesRows, episodesRows);
+    const movies = parseCustomMoviesFromExcelRows(moviesRows, episodesRows);
     return movies;
   }
   return [];
 }
 
-function parseSheetMovies(moviesRows, episodesRows, opts) {
-  opts = opts || {};
+function parseCustomMoviesFromExcelRows(moviesRows, episodesRows) {
   if (moviesRows.length < 2) return [];
   const headers = moviesRows[0].map((h) => (h || '').toString().toLowerCase().trim());
   const idx = (name) => {
@@ -1109,10 +1108,10 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
       title: title.toString(),
       origin_name: (row[idx('origin_name')] || '').toString(),
       slug: baseSlug,
-      // Source URLs from sheet. Build will upload to R2 and overwrite thumb/poster with id-based R2 URLs.
+      // URL nguồn từ Excel. Build upload R2 và ghi đè thumb/poster bằng URL theo id.
       thumb: sheetThumbUrl || thumbPick,
       poster: sheetPosterUrl || posterPick,
-      _from_sheet: true,
+      _from_xlsx: true,
       year: (row[idx('year')] || '').toString(),
       type: (row[idx('type')] || 'single').toString(),
       genre,
@@ -1138,22 +1137,15 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
     // NEW: ép modified=now để chắc chắn build lại/batch thay đổi, và lưu info để clear update sau build.
     if (updateStatus === 'NEW') {
       movie.modified = new Date().toISOString();
-      movie._sheetUpdateStatus = updateStatus;
+      movie._customUpdateStatus = updateStatus;
     } else if (updateStatus) {
-      movie._sheetUpdateStatus = updateStatus;
-    }
-    if (opts.sheetId) {
-      movie._sheetId = opts.sheetId;
-      movie._sheetRowNumber = i + 1;
-      movie._sheetUpdateColIndex = idxUpdate;
-      movie._sheetSlugColIndex = idxSlug;
-      movie._sheetOriginalSlug = baseSlug;
+      movie._customUpdateStatus = updateStatus;
     }
 
     movies.push(movie);
   }
   // Không tự sửa slug ở đây nữa. Việc chống trùng slug sẽ xử lý trong mergeMovies
-  // (để xét cả trùng với OPhim), và sẽ sync ngược slug mới về sheet nếu có.
+  // (để xét cả trùng với OPhim), và sẽ sync ngược slug mới về Supabase nếu có.
   const epHeaders = episodesRows[0]?.map((h) => (h || '').toString().toLowerCase().trim()) || [];
   const epIdx = (name) => {
     const i = epHeaders.indexOf(name);
@@ -1241,7 +1233,7 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
 }
 
 /**
- * Sau build: ghi ngược lên bảng `movies` (giống sheet/Excel trước — không ghi URL ảnh, chỉ metadata):
+ * Sau build: ghi ngược lên bảng `movies` (không ghi URL ảnh, chỉ metadata):
  * - Xóa cờ cột `update` (NEW), cập nhật `modified` / `updated_at`
  * - Đồng bộ `slug` nếu merge đã đổi slug (tránh trùng OPhim)
  */
@@ -1251,7 +1243,7 @@ async function applySupabaseUpdateStatuses(custom) {
   if (!url || !key) return;
 
   const need = (custom || []).filter(
-    (m) => m && m._from_supabase && String(m._sheetUpdateStatus || '').toUpperCase() === 'NEW'
+    (m) => m && m._from_supabase && String(m._customUpdateStatus || '').toUpperCase() === 'NEW'
   );
 
   const slugFix = (custom || []).filter(
@@ -1569,7 +1561,7 @@ function mergeMovies(ophim, custom) {
     const curTs = getModTs(cur);
     const nextTs = getModTs(m);
     if (nextTs > curTs) customById.set(idStr, m);
-    else console.warn('   Duplicate id from Sheet/Custom, keep newer/first:', idStr);
+    else console.warn('   Duplicate id from custom source, keep newer/first:', idStr);
   }
 
   function ensureUniqueSlug(base, used) {
@@ -1616,7 +1608,7 @@ function mergeMovies(ophim, custom) {
   // - NEW: luôn được build (build mới / build lại), nhưng nếu trùng slug với OPhim/custom thì auto thêm hậu tố và sync trạng thái về nguồn (Supabase).
   for (const m of custom) {
     if (!m || !m.slug) continue;
-    const st = (m._sheetUpdateStatus || '').toString().toUpperCase();
+    const st = (m._customUpdateStatus || '').toString().toUpperCase();
     const isNew = st === 'NEW';
     const idStr = m && m.id != null ? String(m.id) : '';
 
@@ -1637,7 +1629,7 @@ function mergeMovies(ophim, custom) {
           usedSlugs.add(fixed);
         }
       } else {
-        console.warn('   Sheet movie skipped (slug collision, not NEW):', m.slug, st || '(empty)');
+        console.warn('   Custom movie skipped (slug collision, not NEW):', m.slug, st || '(empty)');
         continue;
       }
     } else {
@@ -3682,7 +3674,7 @@ async function main() {
   const custom = await fetchCustomMovies();
   console.log('   Custom count:', custom.length);
 
-  // NEW: upload images to R2 if missing (store urls back to sheet later)
+  // NEW: upload images to R2 if missing (metadata trong DB / batch, không ghi URL ngược Excel)
   await ensureR2ImagesForNewCustomMovies(custom);
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');

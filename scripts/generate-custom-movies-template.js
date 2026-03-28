@@ -1,7 +1,7 @@
 /**
- * Tạo file Excel mẫu custom_movies_template.xlsx (sheet movies + episodes)
+ * Tạo file Excel mẫu custom_movies_template.xlsx (worksheet movies + episodes)
  * Chạy: node scripts/generate-custom-movies-template.js
- * Cột theo parseSheetMovies trong build.js
+ * Cột theo parseCustomMoviesFromExcelRows trong build.js
  */
 import fs from 'fs-extra';
 import path from 'path';

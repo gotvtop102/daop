@@ -234,7 +234,7 @@ export default function Dashboard() {
       value: stats.movies_unbuilt ?? 0,
       icon: <UnorderedListOutlined />,
       color: '#ff4d4f',
-      hint: 'Trên sheet: update=NEW',
+      hint: 'Trong DB: cột update = NEW',
       to: '/movies/unbuilt',
     },
     {
@@ -243,7 +243,7 @@ export default function Dashboard() {
       value: stats.movies_duplicates ?? 0,
       icon: <UnorderedListOutlined />,
       color: '#b37feb',
-      hint: 'Trên sheet: update trống nhưng trùng slug hoặc ID',
+      hint: 'Cột update trống nhưng trùng slug hoặc ID',
       to: '/movies/duplicates',
     },
   ];

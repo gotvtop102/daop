@@ -157,7 +157,7 @@ Mở trình duyệt: **http://localhost:5174** (hoặc cổng Vite in ra trong t
 
 ## Cấu trúc dự án
 
-- **`scripts/build.js`** – Script build: OPhim, TMDB, Google Sheets → file tĩnh trong `public/data/`.
+- **`scripts/build.js`** – Script build: OPhim, TMDB, phim tùy chỉnh (Supabase hoặc `custom_movies.xlsx`) → file tĩnh trong `public/data/`.
 - **`public/`** – Website chính (deploy Cloudflare Pages).
 - **`admin/`** – Admin panel React (deploy Vercel).
 - **`app/`** – (Tùy chọn) Project Capacitor nếu bạn tạo; xem `docs/capacitor/README.md`.

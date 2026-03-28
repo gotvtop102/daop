@@ -43,7 +43,7 @@ Làm **lần lượt Bước 1 → 5**. Chi tiết sâu: [TRIEN-KHAI.md](./TRIEN
 | `CLOUDFLARE_API_TOKEN` | Token sau khi làm Bước 5 |
 | `CLOUDFLARE_ACCOUNT_ID` | Account ID Cloudflare |
 
-Danh sách **đủ secret + variable** (R2, Sheets, `GH_PAT`, `OPHIM_BASE_URL`, …): [docs/env/github.env.example](./env/github.env.example).
+Danh sách **đủ secret + variable** (R2, Supabase, `GH_PAT`, `OPHIM_BASE_URL`, …): [docs/env/github.env.example](./env/github.env.example).
 
 3. **Variables → Actions** (tùy chọn): `CLOUDFLARE_PAGES_PROJECT_NAME` = tên project Pages bạn đặt ở Cloudflare (nếu khác mặc định trong file workflow).
 
@@ -126,6 +126,6 @@ Website deploy bằng **Pages — Direct Upload** (Actions đẩy `public/`), **
 - Vào **Admin** (Vercel) → **Cài đặt chung** → dán Supabase **User** URL + anon → **Lưu** → dùng **Build website** để build lại và deploy (nếu đã cấu hình `GITHUB_TOKEN`).
 - Site: URL dạng `https://<tên-project>.pages.dev`.
 
-**Tùy:** domain riêng, R2, Sheets, comment, app — xem [README.md](./README.md) (danh mục `docs/`).
+**Tùy:** domain riêng, R2, Supabase, comment, app — xem [README.md](./README.md) (danh mục `docs/`).
 
 **Lỗi thường gặp:** [TRIEN-KHAI.md](./TRIEN-KHAI.md) phần **Bước 7** (Admin không đọc dữ liệu, build không ra Site, deploy lỗi).

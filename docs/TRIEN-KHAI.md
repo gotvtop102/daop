@@ -345,7 +345,7 @@ Sau khi có `public/data` trên nhánh `main`, deploy lại Pages (tự động 
 ## Bước 9: Tùy chọn bổ sung
 
 - **R2:** Tạo bucket, lấy key (xem `docs/r2/README.md`), thêm secrets R2. Build sẽ upload ảnh WebP lên R2 và cập nhật URL trong dữ liệu.
-- **Phim tùy chỉnh (Supabase):** Schema bảng `movies` / `movie_episodes` và seed: `docs/supabase/schema-movies-episodes.sql`. File CSV mẫu cột (tham khảo): `docs/google-sheets/README.md`.
+- **Phim tùy chỉnh (Supabase):** Schema bảng `movies` / `movie_episodes` và seed: `docs/supabase/schema-movies-episodes.sql`. File CSV mẫu cột (tham khảo): `docs/csv-templates/README.md`.
 - **Comment nội bộ:** cấu hình D1 + KV + `SUPABASE_JWT_SECRET` theo `docs/comments/README.md`.
 - **Capacitor (app Android/iOS/TV):** Luồng đầy đủ trong `docs/capacitor/README.md` (build `public/` → `cap copy` → mở Android Studio / Xcode; cấu hình `webDir` hoặc thư mục `www`).
 
