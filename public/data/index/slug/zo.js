@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["zo"] = {"zola":{"id":"625b4feb941a26e421dc1ecd","i":328,"title":"Zola","origin_name":"Zola","slug":"zola","thumb":"https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/625b4feb941a26e421dc1ecd.webp","year":2021,"type":"single","episode_current":"Full"}};

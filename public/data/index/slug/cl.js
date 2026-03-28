@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["cl"] = {"clark":{"id":"6273b7a03a2c0c6289bccd7b","i":576,"title":"Clark","origin_name":"Clark","slug":"clark","thumb":"https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/6273b7a03a2c0c6289bccd7b.webp","year":2022,"type":"series","episode_current":"Hoàn Tất (6/6)"}};
