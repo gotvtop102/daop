@@ -6,7 +6,7 @@
 
 ## Workflows
 
-1. **update-data.yml** – Chạy hàng ngày (cron), gọi `npm run build` với secrets (TMDB, OPhim, Supabase Admin, R2). Commit và push `public/data`, thể loại/quốc gia/năm, **và mọi `public/**/*.html`** (build inject `?v=` vào `filters.js` — nếu không commit HTML, trang như **Chủ đề** vẫn trỏ cache cũ). Cuối job chạy **`npm run export-to-supabase`**, trừ khi **`SKIP_EXPORT_TO_SUPABASE=1`**. Cùng **`EXPORT_TO_SUPABASE_SCOPE`** như workflow export riêng.
+1. **update-data.yml** – Chạy hàng ngày (cron), gọi `npm run build` với secrets (TMDB, OPhim, Supabase Admin, R2). Commit và push `public/data`, thể loại/quốc gia/năm, **và mọi `public/**/*.html`** (build inject `?v=` vào `filters.js` — nếu không commit HTML, trang như **Chủ đề** vẫn trỏ cache cũ). Cuối job luôn có bước **Export Supabase** trong log; nếu **`SKIP_EXPORT_TO_SUPABASE=1`** (Variables) thì bước đó ghi notice và thoát 0. Deploy Pages (2 pha) dùng **`continue-on-error`** để export vẫn chạy khi wrangler lỗi. Cùng **`EXPORT_TO_SUPABASE_SCOPE`** như workflow export riêng.
 2. **build-on-demand.yml** – Kích hoạt bằng `repository_dispatch` (event `build-on-demand`). Admin Panel gọi webhook → GitHub API trigger workflow này. Chạy build với flag `--incremental` nếu cần.
 3. **deploy.yml** – Sau khi build xong (hoặc push nhánh chính), dùng `cloudflare/pages-action` để deploy thư mục `public/` lên Cloudflare Pages.
 4. **export-to-supabase.yml** – `workflow_dispatch` hoặc `repository_dispatch` (`export-to-supabase`). Cùng lệnh như bước cuối **update-data**; dùng khi cần export lại mà không chạy full update data. Biến **`EXPORT_TO_SUPABASE_SCOPE`**: `all` (mặc định) hoặc `custom` — **Actions → Variables**.

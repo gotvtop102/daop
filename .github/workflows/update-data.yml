@@ -59,7 +59,7 @@ jobs:
         run: |
           if [ "${{ inputs.phase }}" = "2" ]; then
             echo "TWO_PHASE=true" >> $GITHUB_ENV
-          elif [ "${UPDATE_DATA_TWO_PHASE}" = "1" ]; then
+          elif [ "${{ vars.UPDATE_DATA_TWO_PHASE }}" = "1" ]; then
             echo "TWO_PHASE=true" >> $GITHUB_ENV
           else
             echo "TWO_PHASE=false" >> $GITHUB_ENV
@@ -69,10 +69,18 @@ jobs:
         run: |
           if [ "${{ inputs.upload_images }}" = "true" ]; then
             echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
-          elif [ "${UPLOAD_IMAGES_AFTER_BUILD}" = "1" ]; then
+          elif [ "${{ vars.UPLOAD_IMAGES_AFTER_BUILD }}" = "1" ]; then
             echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
           else
             echo "UPLOAD_IMAGES=false" >> $GITHUB_ENV
+          fi
+
+      - name: Export / deploy flags (repository variables → env)
+        run: |
+          if [ "${{ vars.DEPLOY_AFTER_R2_UPLOAD }}" = "1" ]; then
+            echo "DEPLOY_AFTER_R2_UPLOAD=1" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_AFTER_R2_UPLOAD=0" >> $GITHUB_ENV
           fi
 
       - name: Build (1-phase full)
@@ -187,6 +195,7 @@ jobs:
 
       - name: Deploy CORE to Cloudflare Pages (2-phase)
         if: ${{ env.TWO_PHASE == 'true' && env.DEPLOY_AFTER_R2_UPLOAD != '1' }}
+        continue-on-error: true
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -269,6 +278,7 @@ jobs:
 
       - name: Deploy TMDB to Cloudflare Pages (2-phase)
         if: ${{ env.TWO_PHASE == 'true' }}
+        continue-on-error: true
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -276,12 +286,24 @@ jobs:
           wranglerVersion: '4.77.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
-      # Sau build 1 pha hoặc sau bước cuối (2 pha: TMDB), public/data/batches đã đầy đủ trên runner
+      # Luôn hiện trong log (không skip bởi if vars). Bỏ qua khi SKIP_EXPORT_TO_SUPABASE=1; deploy Pages có continue-on-error để export vẫn chạy nếu wrangler lỗi.
       - name: Export batches → Supabase (movies + movie_episodes)
-        if: ${{ vars.SKIP_EXPORT_TO_SUPABASE != '1' }}
-        run: npm run export-to-supabase
+        if: success()
         env:
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
           EXPORT_TO_SUPABASE_SCOPE: ${{ vars.EXPORT_TO_SUPABASE_SCOPE || 'all' }}
+          SKIP_EXPORT_TO_SUPABASE: ${{ vars.SKIP_EXPORT_TO_SUPABASE }}
+        run: |
+          set -e
+          if [ "${SKIP_EXPORT_TO_SUPABASE}" = "1" ]; then
+            echo "::notice title=Export Supabase::Bỏ qua: Repository Variable SKIP_EXPORT_TO_SUPABASE=1"
+            exit 0
+          fi
+          if [ -z "${SUPABASE_ADMIN_URL}" ] || [ -z "${SUPABASE_ADMIN_SERVICE_ROLE_KEY}" ]; then
+            echo "::error::Thiếu secrets SUPABASE_ADMIN_URL hoặc SUPABASE_ADMIN_SERVICE_ROLE_KEY."
+            exit 1
+          fi
+          echo "::notice title=Export Supabase::Chạy npm run export-to-supabase (EXPORT_TO_SUPABASE_SCOPE=${EXPORT_TO_SUPABASE_SCOPE})"
+          npm run export-to-supabase
 
