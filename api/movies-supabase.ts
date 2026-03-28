@@ -1,4 +1,4 @@
-import { authHeaders, errFromRes, getRestEnv, parseContentRangeTotal, restFetch, restJson } from './supabase-rest';
+import { authHeaders, errFromRes, getRestEnv, parseContentRangeTotal, restFetch, restJson } from './supabase-rest.js';
 
 function getEnv() {
   return getRestEnv();

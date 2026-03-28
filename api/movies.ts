@@ -11,7 +11,7 @@ import {
   saveEpisodesSb,
   updateShowtimesExclusiveSb,
   updateShowtimesSb,
-} from './movies-supabase';
+} from './movies-supabase.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -90,7 +90,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
-        const { saveMovieSb } = await import('./movies-supabase-save');
+        const { saveMovieSb } = await import('./movies-supabase-save.js');
         const result = await saveMovieSb(req.body || {});
         return res.status(200).json(result);
       }

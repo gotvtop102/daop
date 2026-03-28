@@ -2,7 +2,7 @@
  * Tách khỏi movies-supabase.ts để bundle /api/movies không kéo movies-media (sharp, @aws-sdk/s3).
  * Chỉ được import động từ api/movies.ts khi action=save.
  */
-import { movieExistsByIdRest, moviePayloadToRow, upsertMovieRowRest } from './movies-supabase';
+import { movieExistsByIdRest, moviePayloadToRow, upsertMovieRowRest } from './movies-supabase.js';
 
 export async function saveMovieSb(movieData: any) {
   const isNew = !movieData.id;
@@ -16,7 +16,7 @@ export async function saveMovieSb(movieData: any) {
     movieData.update = 'NEW';
   }
 
-  const { applyMovieR2Uploads } = await import('./movies-media');
+  const { applyMovieR2Uploads } = await import('./movies-media.js');
   await applyMovieR2Uploads(movieData);
 
   const row = moviePayloadToRow(movieData);
