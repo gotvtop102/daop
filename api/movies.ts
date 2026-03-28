@@ -9,7 +9,6 @@ import {
   isSupabaseMoviesConfigured,
   listMoviesSb,
   saveEpisodesSb,
-  saveMovieSb,
   updateShowtimesExclusiveSb,
   updateShowtimesSb,
 } from './movies-supabase';
@@ -91,6 +90,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
+        const { saveMovieSb } = await import('./movies-supabase-save');
         const result = await saveMovieSb(req.body || {});
         return res.status(200).json(result);
       }
