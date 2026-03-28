@@ -3,10 +3,10 @@ on:
   schedule:
     # GitHub Actions cron dùng UTC (GMT+0). Dưới đây là lịch chạy theo giờ Việt Nam (UTC+7): 00:00, 06:00, 12:00, 18:00
     # 00:00 VN = 17:00 UTC (ngày hôm trước), 06:00 VN = 23:00 UTC (ngày hôm trước), 12:00 VN = 05:00 UTC, 18:00 VN = 11:00 UTC, 23:15 VN = 16:15 UTC
-    - cron: '0 17 * * *'
-    - cron: '0 23 * * *'
-    - cron: '0 5 * * *'
-    - cron: '0 11 * * *'
+    #- cron: '0 17 * * *'
+    #- cron: '0 23 * * *'
+    #- cron: '0 5 * * *'
+    #- cron: '0 11 * * *'
   workflow_dispatch:
     inputs:
       phase:
