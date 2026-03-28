@@ -15,6 +15,7 @@ import {
 } from 'antd';
 import { CopyOutlined, DownloadOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
+import { normalizeCommentsAdminSecret } from '../lib/commentAdminSecret';
 
 type ExportPayload = Record<string, any[]>;
 
@@ -123,7 +124,7 @@ export default function SupabaseTools() {
 
   const exportCommentsD1 = async () => {
     const base = commentPagesBaseUrl();
-    const secret = commentAdminSecret.trim();
+    const secret = normalizeCommentsAdminSecret(commentAdminSecret);
     if (!base) {
       message.warning('Nhập URL website tĩnh (Cloudflare Pages), ví dụ https://ten.pages.dev');
       return;
@@ -163,7 +164,7 @@ export default function SupabaseTools() {
       return;
     }
     const base = commentPagesBaseUrl();
-    const secret = commentAdminSecret.trim();
+    const secret = normalizeCommentsAdminSecret(commentAdminSecret);
     if (!base) {
       message.warning('Nhập URL website');
       return;

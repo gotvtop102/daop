@@ -34,22 +34,29 @@ export type CommentsAdminVerify =
 
 const MIN_SECRET_LEN = 8;
 
+/** Bỏ khoảng trắng ẩn (ZWSP, BOM) và chuẩn NFC — tránh lệch khi copy từ UI/password manager. */
+export function normalizeCommentsAdminSecret(input: string): string {
+  return String(input ?? '')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .normalize('NFC')
+    .trim();
+}
+
 function extractBearerToken(authorization: string): string {
   const m = /^Bearer\s+(.+)$/i.exec(String(authorization || '').trim());
-  return m ? m[1].trim() : '';
+  return m ? normalizeCommentsAdminSecret(m[1]) : '';
 }
 
 /** Export/import bulk — không dùng JWT User; chỉ secret khớp COMMENTS_ADMIN_SECRET. */
 export function verifyCommentsAdminSecret(env: Env, request: Request): CommentsAdminVerify {
-  const raw = env.COMMENTS_ADMIN_SECRET;
-  const secret = String(raw ?? '').trim();
+  const secret = normalizeCommentsAdminSecret(String(env.COMMENTS_ADMIN_SECRET ?? ''));
   if (!secret) {
     return { ok: false, reason: 'missing_env' };
   }
   if (secret.length < MIN_SECRET_LEN) {
     return { ok: false, reason: 'missing_env' };
   }
-  const xh = request.headers.get('x-comments-admin-secret')?.trim() || '';
+  const xh = normalizeCommentsAdminSecret(request.headers.get('x-comments-admin-secret') || '');
   const auth = request.headers.get('authorization') || request.headers.get('Authorization') || '';
   const bearer = extractBearerToken(auth);
   if (!xh && !bearer) {
@@ -89,7 +96,7 @@ export function commentsAdminErrorMessage(
     body: {
       ok: false,
       error:
-        'Secret trong request không khớp COMMENTS_ADMIN_SECRET trên Cloudflare (đúng project, Production/Preview, và dán lại giá trị Secret — không thừa khoảng trắng/xuống dòng).',
+        'Secret trong request không khớp COMMENTS_ADMIN_SECRET trên Cloudflare. Đặt lại Secret (Pages → Settings → Variables and Secrets) bằng CLI: npx wrangler pages secret put COMMENTS_ADMIN_SECRET --project-name=<tên> (chọn Production/Preview đúng URL), rồi dán đúng cùng một chuỗi vào Admin.',
     },
   };
 }
