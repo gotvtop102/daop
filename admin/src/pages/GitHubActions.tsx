@@ -3,10 +3,9 @@ import { Card, Button, List, message, Spin, Typography, InputNumber, Input, Form
 import type { RadioChangeEvent } from 'antd';
 import { PlayCircleOutlined, InfoCircleOutlined, SaveOutlined, DeleteOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
+import { getApiBaseUrl } from '../lib/api';
 
 const { Text } = Typography;
-
-const API_URL = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
 const OPHIM_BASE = (((import.meta as any).env?.VITE_OPHIM_BASE_URL) || 'https://ophim1.com/v1/api').replace(/\/$/, '');
 const OPHIM_KEYS = {
   start_page: 'ophim_start_page',
@@ -169,7 +168,7 @@ export default function GitHubActions() {
     try {
       const values = await uploadUrlsForm.validateFields();
       const payload: any = { ...values };
-      const res = await fetch(`${API_URL}/api/trigger-action`, {
+      const res = await fetch(`${getApiBaseUrl()}/api/trigger-action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'upload-r2-from-urls', ...payload }),
@@ -192,7 +191,7 @@ export default function GitHubActions() {
     try {
       const values = await downloadForm.validateFields();
       const payload: any = { ...values };
-      const res = await fetch(`${API_URL}/api/trigger-action`, {
+      const res = await fetch(`${getApiBaseUrl()}/api/trigger-action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'download-r2-files', ...payload }),
@@ -223,7 +222,7 @@ export default function GitHubActions() {
         reupload_existing: values.reupload_existing ? 'true' : 'false',
       } as any;
       delete payload.force_slugs_file;
-      const res = await fetch(`${API_URL}/api/trigger-action`, {
+      const res = await fetch(`${getApiBaseUrl()}/api/trigger-action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'upload-movie-images-r2', ...payload }),
@@ -270,7 +269,7 @@ export default function GitHubActions() {
         setTriggering('delete-movie-images-r2');
         try {
           const payload: any = { ...values };
-          const res = await fetch(`${API_URL}/api/trigger-action`, {
+          const res = await fetch(`${getApiBaseUrl()}/api/trigger-action`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'delete-movie-images-r2', ...payload }),
@@ -324,7 +323,7 @@ export default function GitHubActions() {
     const silent = !!opts?.silent;
     if (!silent) setRunsLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/github-runs?per_page=20&page=1`, { method: 'GET' });
+      const res = await fetch(`${getApiBaseUrl()}/api/github-runs?per_page=20&page=1`, { method: 'GET' });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data?.ok && Array.isArray(data?.runs)) {
         setRuns(data.runs as WorkflowRunItem[]);
@@ -439,7 +438,7 @@ export default function GitHubActions() {
   const fetchActions = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/trigger-action`, { method: 'GET' });
+      const res = await fetch(`${getApiBaseUrl()}/api/trigger-action`, { method: 'GET' });
       const data = await res.json().catch(() => ({}));
       if (res.ok && Array.isArray(data.actions)) {
         setActions(data.actions);
@@ -601,7 +600,7 @@ export default function GitHubActions() {
           body.reupload_existing = reuploadExisting ? 'true' : 'false';
         }
       }
-      const res = await fetch(`${API_URL}/api/trigger-action`, {
+      const res = await fetch(`${getApiBaseUrl()}/api/trigger-action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

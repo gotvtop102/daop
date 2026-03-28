@@ -25,6 +25,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { getApiBaseUrl } from '../lib/api';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -106,8 +107,7 @@ export default function MovieList() {
     if (!configReady) return;
     setLoading(true);
     try {
-      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-      const base = envBase || window.location.origin;
+      const base = getApiBaseUrl();
       const p = opts?.nextPage ?? page;
       const ps = opts?.nextPageSize ?? pageSize;
 
@@ -176,8 +176,7 @@ export default function MovieList() {
 
   const handleDelete = async (id: string) => {
     try {
-      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-      const base = envBase || window.location.origin;
+      const base = getApiBaseUrl();
       const url = new URL(`${base}/api/movies`);
       url.searchParams.append('action', 'delete');
       url.searchParams.append('id', id);

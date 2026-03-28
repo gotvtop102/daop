@@ -26,6 +26,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { getApiBaseUrl } from '../lib/api';
 const { Title } = Typography;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -93,8 +94,7 @@ export default function EpisodeEdit() {
     }
     setImporting(true);
     try {
-      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-      const base = envBase || window.location.origin;
+      const base = getApiBaseUrl();
 
       const res = await fetch(`${base}/api/movies`, {
         method: 'POST',
@@ -159,8 +159,7 @@ export default function EpisodeEdit() {
     if (!configReady) return;
     setLoading(true);
     try {
-      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-      const base = envBase || window.location.origin;
+      const base = getApiBaseUrl();
 
       // First get movie info
       const movieRes = await fetch(`${base}/api/movies`, {
@@ -254,8 +253,7 @@ export default function EpisodeEdit() {
     }
     setSaving(true);
     try {
-      const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-      const base = envBase || window.location.origin;
+      const base = getApiBaseUrl();
 
       // Flatten all episodes from all servers
       const allEpisodes: Episode[] = [];

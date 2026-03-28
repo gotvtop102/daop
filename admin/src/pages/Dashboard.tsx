@@ -11,6 +11,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
+import { getApiBaseUrl } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -35,8 +36,7 @@ export default function Dashboard() {
         }));
         setLogs((l as any).data ?? []);
 
-        const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-        const base = envBase || window.location.origin;
+        const base = getApiBaseUrl();
 
         try {
           const unbuiltUrl = new URL(`${base}/api/movies`);
@@ -77,6 +77,12 @@ export default function Dashboard() {
         }
 
         try {
+          const totalUrl = new URL(`${base}/api/movies`);
+          totalUrl.searchParams.append('action', 'list');
+          totalUrl.searchParams.append('type', 'all');
+          totalUrl.searchParams.append('page', '1');
+          totalUrl.searchParams.append('limit', '1');
+
           const seriesUrl = new URL(`${base}/api/movies`);
           seriesUrl.searchParams.append('action', 'list');
           seriesUrl.searchParams.append('type', 'series');
@@ -101,18 +107,22 @@ export default function Dashboard() {
           tvshowsUrl.searchParams.append('page', '1');
           tvshowsUrl.searchParams.append('limit', '1');
 
-          const [seriesRes, singleRes, hoathinhRes, tvshowsRes] = await Promise.all([
+          const [totalRes, seriesRes, singleRes, hoathinhRes, tvshowsRes] = await Promise.all([
+            fetch(totalUrl.toString(), { cache: 'no-store' }),
             fetch(seriesUrl.toString(), { cache: 'no-store' }),
             fetch(singleUrl.toString(), { cache: 'no-store' }),
             fetch(hoathinhUrl.toString(), { cache: 'no-store' }),
             fetch(tvshowsUrl.toString(), { cache: 'no-store' }),
           ]);
 
-          const seriesData = await seriesRes.json().catch(async () => ({ total: 0 }));
-          const singleData = await singleRes.json().catch(async () => ({ total: 0 }));
-          const hoathinhData = await hoathinhRes.json().catch(async () => ({ total: 0 }));
-          const tvshowsData = await tvshowsRes.json().catch(async () => ({ total: 0 }));
+          const totalData = await totalRes.json().catch(() => ({}));
+          const seriesData = await seriesRes.json().catch(() => ({ total: 0 }));
+          const singleData = await singleRes.json().catch(() => ({ total: 0 }));
+          const hoathinhData = await hoathinhRes.json().catch(() => ({ total: 0 }));
+          const tvshowsData = await tvshowsRes.json().catch(() => ({ total: 0 }));
 
+          const moviesTotal =
+            !totalRes.ok || (totalData as any)?.error ? 0 : Number((totalData as any)?.total || 0);
           const moviesSeries = Number(seriesData?.total || 0);
           const moviesSingle = Number(singleData?.total || 0);
           const moviesHoathinh = Number(hoathinhData?.total || 0);
@@ -120,7 +130,7 @@ export default function Dashboard() {
 
           setStats((prev) => ({
             ...prev,
-            movies_total: moviesSeries + moviesSingle + moviesHoathinh + moviesTvshows,
+            movies_total: moviesTotal,
             movies_series: moviesSeries,
             movies_single: moviesSingle,
             movies_hoathinh: moviesHoathinh,

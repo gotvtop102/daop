@@ -28,6 +28,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { getApiBaseUrl } from '../lib/api';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -426,8 +427,7 @@ export default function MovieEdit() {
     if (!configReady) return;
     setLoading(true);
     try {
-      const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-      const apiBase = base || window.location.origin;
+      const apiBase = getApiBaseUrl();
       const res = await fetch(`${apiBase}/api/movies`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -623,8 +623,7 @@ export default function MovieEdit() {
   const handleSave = async (values: MovieForm) => {
     setSaving(true);
     try {
-      const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
-      const apiBase = base || window.location.origin;
+      const apiBase = getApiBaseUrl();
 
       const movieId = isNew ? String(values.id || '').trim() : String(id || '').trim();
       if (isNew && !movieId) {

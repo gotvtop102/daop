@@ -3,6 +3,7 @@ import { Layout as AntLayout, Menu, Button, message, Drawer, Grid, Modal, Input 
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
+import { getApiBaseUrl } from '../lib/api';
 import { useAccess } from '../context/AccessContext';
 import { setAccessEnabled } from '../lib/accessGate';
 import type { MenuProps } from 'antd';
@@ -145,7 +146,7 @@ export default function Layout() {
 
   const triggerBuild = async () => {
     try {
-      const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+      const base = getApiBaseUrl();
       const res = await fetch(`${base}/api/trigger-build`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

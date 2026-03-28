@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
+import { getApiBaseUrl } from '../lib/api';
 
 type BannerRow = {
   id: string;
@@ -278,8 +279,7 @@ export default function Banners() {
                       const base64 = (reader.result as string)?.split(',')[1];
                       if (!base64) return;
                       try {
-                        const apiBase = (import.meta as any).env?.VITE_API_URL || '';
-                        const r = await fetch(apiBase + '/api/upload-image', {
+                        const r = await fetch(`${getApiBaseUrl()}/api/upload-image`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({

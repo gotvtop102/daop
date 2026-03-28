@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, Form, Input, Button, message, Image } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
+import { getApiBaseUrl } from '../lib/api';
 
 const MENU_ITEMS = [
   { key: 'menu_bg_1', label: '1. Phim bộ' },
@@ -82,8 +83,7 @@ export default function MenuBackground() {
       const base64 = (reader.result as string)?.split(',')[1];
       if (!base64) return;
       try {
-        const apiBase = (import.meta as any).env?.VITE_API_URL || '';
-        const r = await fetch(apiBase + '/api/upload-image', {
+        const r = await fetch(`${getApiBaseUrl()}/api/upload-image`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

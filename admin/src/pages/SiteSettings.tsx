@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Card, Form, Input, Button, Switch, Tabs, message, Select } from 'antd';
 import { supabase } from '../lib/supabase';
+import { getApiBaseUrl } from '../lib/api';
 
 /** Footer HTML mặc định (banner + logo + 3 link + copyright). Logo dùng ảnh từ Logo URL ở trên. */
 const DEFAULT_FOOTER_HTML = `<div class="footer-vietnam-wrap">
@@ -194,8 +195,7 @@ export default function SiteSettings() {
                                   const base64 = (reader.result as string)?.split(',')[1];
                                   if (!base64) return;
                                   try {
-                                    const apiBase = ((import.meta as any).env?.VITE_API_URL || window.location.origin).replace(/\/$/, '');
-                                    const r = await fetch(apiBase + '/api/upload-image', {
+                                    const r = await fetch(`${getApiBaseUrl()}/api/upload-image`, {
                                       method: 'POST',
                                       headers: { 'Content-Type': 'application/json' },
                                       body: JSON.stringify({
@@ -248,8 +248,7 @@ export default function SiteSettings() {
                                   const base64 = (reader.result as string)?.split(',')[1];
                                   if (!base64) return;
                                   try {
-                                    const apiBase = ((import.meta as any).env?.VITE_API_URL || window.location.origin).replace(/\/$/, '');
-                                    const r = await fetch(apiBase + '/api/upload-image', {
+                                    const r = await fetch(`${getApiBaseUrl()}/api/upload-image`, {
                                       method: 'POST',
                                       headers: { 'Content-Type': 'application/json' },
                                       body: JSON.stringify({
