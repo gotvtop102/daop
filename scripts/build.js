@@ -2168,6 +2168,9 @@ function splitArrayBySize(arr, maxBytes, keySelector) {
 function writeIndexAndSearchShards(movies, batchPtrById) {
   const BATCH = 120;
   const maxBytes = Math.max(50_000, parseInt(process.env.SHARD_MAX_BYTES || '300000', 10) || 300000);
+  /** Giảm số shard search trùng: bỏ token 1 ký tự; giới hạn số từ gán vào prefix (0 = không giới hạn). */
+  const SEARCH_PREFIX_MIN_TOKEN_LEN = Math.max(1, parseInt(process.env.SEARCH_PREFIX_MIN_TOKEN_LEN || '2', 10) || 2);
+  const SEARCH_PREFIX_MAX_TOKENS = Math.max(0, parseInt(process.env.SEARCH_PREFIX_MAX_TOKENS || '0', 10) || 0);
   const sorted = [...movies].sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
   const outIndexDir = path.join(PUBLIC_DATA, 'index');
@@ -2229,8 +2232,13 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
     }
 
     const baseText = normalizeSearchText(`${m.title || ''} ${m.origin_name || ''} ${m.slug || ''}`);
-    const tokens = baseText ? Array.from(new Set(baseText.split(/\s+/).filter(Boolean))) : [];
-    const tokenShardSet = new Set(tokens.map(getShardKey2));
+    let tokenWords = baseText ? baseText.split(/\s+/).filter(Boolean) : [];
+    tokenWords = Array.from(new Set(tokenWords));
+    tokenWords = tokenWords.filter((t) => String(t).length >= SEARCH_PREFIX_MIN_TOKEN_LEN);
+    if (SEARCH_PREFIX_MAX_TOKENS > 0 && tokenWords.length > SEARCH_PREFIX_MAX_TOKENS) {
+      tokenWords = tokenWords.slice(0, SEARCH_PREFIX_MAX_TOKENS);
+    }
+    const tokenShardSet = new Set(tokenWords.map(getShardKey2));
     if (slugStr) tokenShardSet.add(getShardKey2(slugStr));
     if (m.title) tokenShardSet.add(getShardKey2(m.title));
 
@@ -2241,7 +2249,6 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
       slug: slugStr,
       thumb: m.thumb,
       year: m.year,
-      type: m.type,
       episode_current: m.episode_current,
       _t: baseText,
     };
@@ -2294,7 +2301,14 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
   }
   fs.writeFileSync(path.join(outIdDir, 'meta.json'), JSON.stringify(idMeta), 'utf8');
 
-  const searchMeta = { maxBytes, parts: {} };
+  const searchMeta = {
+    maxBytes,
+    parts: {},
+    searchOpts: {
+      minTokenLen: SEARCH_PREFIX_MIN_TOKEN_LEN,
+      maxTokensPerMovie: SEARCH_PREFIX_MAX_TOKENS,
+    },
+  };
   for (const [k, arr] of searchByShard.entries()) {
     const spl = splitArrayBySize(arr, maxBytes, (it) => (it && (it.slug || it.id) ? String(it.slug || it.id) : ''));
     searchMeta.parts[k] = spl.parts;

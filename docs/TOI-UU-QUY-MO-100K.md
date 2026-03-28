@@ -22,10 +22,11 @@ File này ghi lại phân tích kiến trúc hiện tại, rủi ro khi scale, v
 - Client: `loadIdIndexMetaOnce()` + `Promise.all` load đủ part trước khi đọc `window.DAOP.idIndex[key]`.
 - Nếu deploy cũ không có `meta.json`: client coi `parts = 1` và chỉ tải `{key}.js` (tương thích).
 
-### 2. Search prefix — phình theo token × số phim (P1)
+### 2. Search prefix — đã giảm payload + tùy chọn giới hạn token (P1 một phần)
 
-- Mỗi phim đẩy `item` vào nhiều shard theo token/title/slug → tổng bản ghi logic rất lớn ở 100k.
-- **Hướng:** giảm payload search; hoặc search phía server (Supabase FTS, Meilisearch…); hoặc thiết kế lại prefix/token.
+- Build: bỏ `type` khỏi item trong `search/prefix` (không dùng khi render thẻ); lọc token theo `SEARCH_PREFIX_MIN_TOKEN_LEN` (mặc định 2); tùy chọn `SEARCH_PREFIX_MAX_TOKENS` (0 = không cắt).
+- `public/data/search/prefix/meta.json` có thêm `searchOpts` (ghi nhận cấu hình).
+- **Nếu vẫn quá lớn:** tăng `SHARD_MAX_BYTES` / giảm token; hoặc **search ngoài static** (Supabase FTS, Meilisearch, Typesense…) — cần API + đồng bộ dữ liệu, không nằm trong thay đổi hiện tại.
 
 ### 3. Batch — số file và TMDB_ONLY (P1)
 
@@ -76,6 +77,8 @@ File này ghi lại phân tích kiến trúc hiện tại, rủi ro khi scale, v
 | `BASE_BATCH_SIZE` | Kích thước batch cơ sở (mặc định 120) |
 | `BATCH_MAX_BYTES` | Trần byte mỗi file batch core |
 | `SHARD_MAX_BYTES` | Trần byte mỗi file shard (slug, **idIndex**, search prefix) |
+| `SEARCH_PREFIX_MIN_TOKEN_LEN` | Không đưa token ngắn hơn (mặc định 2) vào phân phối prefix |
+| `SEARCH_PREFIX_MAX_TOKENS` | Tối đa số từ/phim cho prefix (0 = không giới hạn) |
 | `OPHIM_*` | Giới hạn trang/phạm vi fetch OPhim |
 | `TMDB_CONCURRENCY`, `TMDB_API_KEY(S)` | Song song + xoay key khi 429 |
 | `SKIP_TMDB` / `TMDB_ONLY` / `FORCE_TMDB` | Tách pha TMDB |
@@ -95,3 +98,4 @@ _(Thêm dòng dưới đây mỗi khi họp / quyết định quan trọng.)_
 
 - 2026-03-28: Khởi tạo file từ phân tích quy mô ~100k (idIndex, search, batch, CI, ingest).
 - 2026-03-28: P0-1 — idIndex split + `index/id/meta.json` + cập nhật `public/js/main.js`; `validateBuildOutputs` + `loadIdIndexShardMapFromDisk` trong `scripts/build.js`.
+- 2026-03-28: P1-1 (partial) — search prefix: bỏ `type` khỏi item, `SEARCH_PREFIX_MIN_TOKEN_LEN` / `SEARCH_PREFIX_MAX_TOKENS`, `searchOpts` trong `search/prefix/meta.json`.
