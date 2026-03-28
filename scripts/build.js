@@ -159,8 +159,8 @@ function writeAutoSliderFile(allMovies) {
   }
 }
 
-async function ensureR2ImagesForNewCustomMovies(customMovies) {
-  // Removed
+async function ensureR2ImagesForNewCustomMovies(_customMovies) {
+  // (Trước đây cũng không ghi URL ảnh R2 ngược lại sheet/Excel; ảnh nằm trên R2 + trong batch build.)
 }
 
 function getR2PublicBase() {
@@ -1239,16 +1239,21 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
   return movies;
 }
 
-async function applySupabaseUpdateStatuses(movies) {
+/**
+ * Sau build: ghi ngược lên bảng `movies` (giống sheet/Excel trước — không ghi URL ảnh, chỉ metadata):
+ * - Xóa cờ cột `update` (NEW), cập nhật `modified` / `updated_at`
+ * - Đồng bộ `slug` nếu merge đã đổi slug (tránh trùng OPhim)
+ */
+async function applySupabaseUpdateStatuses(custom) {
   const url = String(process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || '').trim();
   const key = String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim();
   if (!url || !key) return;
 
-  const need = (movies || []).filter(
+  const need = (custom || []).filter(
     (m) => m && m._from_supabase && String(m._sheetUpdateStatus || '').toUpperCase() === 'NEW'
   );
 
-  const slugFix = (movies || []).filter(
+  const slugFix = (custom || []).filter(
     (m) =>
       m &&
       m._from_supabase &&
@@ -1262,11 +1267,12 @@ async function applySupabaseUpdateStatuses(movies) {
   try {
     const supabase = createClient(url, key);
     const now = new Date().toISOString();
+
     for (const m of need) {
       await supabase.from('movies').update({ update: '', modified: now, updated_at: now }).eq('id', String(m.id));
     }
     for (const m of slugFix) {
-      await supabase.from('movies').update({ slug: String(m.slug) }).eq('id', String(m.id));
+      await supabase.from('movies').update({ slug: String(m.slug), updated_at: now }).eq('id', String(m.id));
     }
     if (need.length) {
       console.log('   Supabase: cleared update flag (NEW) for', need.length, 'movies');
@@ -3783,7 +3789,7 @@ async function main() {
     fs.writeFileSync(path.join(PUBLIC_DATA, 'last_modified.json'), JSON.stringify(newLastModified, null, 2));
   } catch {}
 
-  console.log('6b. Sync update status back to Supabase (NEW -> blank)...');
+  console.log('6b. Sync update status back to Supabase (NEW → blank, slug if needed)...');
   await applySupabaseUpdateStatuses(custom);
 
   const buildVersion = { builtAt: new Date().toISOString() };

@@ -27,7 +27,9 @@ type TableKey =
   | 'site_settings'
   | 'static_pages'
   | 'donate_settings'
-  | 'player_settings';
+  | 'player_settings'
+  | 'movies'
+  | 'movie_episodes';
 
 const TABLES: Array<{ key: TableKey; label: string }> = [
   { key: 'site_settings', label: 'Site settings' },
@@ -38,7 +40,14 @@ const TABLES: Array<{ key: TableKey; label: string }> = [
   { key: 'server_sources', label: 'Server sources' },
   { key: 'static_pages', label: 'Static pages' },
   { key: 'donate_settings', label: 'Donate settings' },
+  { key: 'movies', label: 'Movies (phim — Admin/API)' },
+  { key: 'movie_episodes', label: 'Movie episodes (tập)' },
 ];
+
+/** Mặc định không chọn phim/tập (có thể rất lớn); bật tay khi cần backup. */
+const DEFAULT_SELECTED_TABLES: TableKey[] = TABLES.filter(
+  (t) => t.key !== 'movies' && t.key !== 'movie_episodes'
+).map((t) => t.key);
 
 function downloadJson(filename: string, data: any) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
@@ -62,7 +71,7 @@ async function copyToClipboard(text: string) {
 }
 
 export default function SupabaseTools() {
-  const [selectedTables, setSelectedTables] = useState<TableKey[]>(TABLES.map((t) => t.key));
+  const [selectedTables, setSelectedTables] = useState<TableKey[]>(DEFAULT_SELECTED_TABLES);
   const [exporting, setExporting] = useState(false);
 
   const [importMode, setImportMode] = useState<'upsert' | 'replace'>('upsert');
@@ -582,6 +591,8 @@ drop policy if exists "Admin only" on public.static_pages;
 drop policy if exists "Admin only" on public.donate_settings;
 drop policy if exists "Admin only" on public.player_settings;
 drop policy if exists "Admin only" on public.audit_logs;
+drop policy if exists "Admin only" on public.movies;
+drop policy if exists "Admin only" on public.movie_episodes;
 
 create policy "Admin only" on public.ad_banners for all using (public.is_admin());
 create policy "Admin only" on public.ad_preroll for all using (public.is_admin());
@@ -591,7 +602,9 @@ create policy "Admin only" on public.site_settings for all using (public.is_admi
 create policy "Admin only" on public.static_pages for all using (public.is_admin());
 create policy "Admin only" on public.donate_settings for all using (public.is_admin());
 create policy "Admin only" on public.player_settings for all using (public.is_admin());
-create policy "Admin only" on public.audit_logs for all using (public.is_admin());`;
+create policy "Admin only" on public.audit_logs for all using (public.is_admin());
+create policy "Admin only" on public.movies for all using (public.is_admin());
+create policy "Admin only" on public.movie_episodes for all using (public.is_admin());`;
 
     const auditTriggersSql = `-- Auto Audit Logs triggers for Supabase Admin tables
 -- Run this script in Supabase SQL Editor (Admin project)
@@ -683,6 +696,12 @@ begin
   execute 'drop trigger if exists trg_audit_player_settings on public.player_settings';
   execute 'create trigger trg_audit_player_settings after insert or update or delete on public.player_settings for each row execute function public.audit_log_write()';
 
+  execute 'drop trigger if exists trg_audit_movies on public.movies';
+  execute 'create trigger trg_audit_movies after insert or update or delete on public.movies for each row execute function public.audit_log_write()';
+
+  execute 'drop trigger if exists trg_audit_movie_episodes on public.movie_episodes';
+  execute 'create trigger trg_audit_movie_episodes after insert or update or delete on public.movie_episodes for each row execute function public.audit_log_write()';
+
   execute 'drop trigger if exists trg_audit_admin_access_state on public.admin_access_state';
   execute 'create trigger trg_audit_admin_access_state after insert or update or delete on public.admin_access_state for each row execute function public.audit_log_write()';
 exception
@@ -719,9 +738,97 @@ set raw_app_meta_data = jsonb_set(
 )
 where email = 'admin@example.com';`;
 
+    const moviesSchemaSql = `-- Bảng phim + tập — đồng bộ với docs/supabase/schema-movies-episodes.sql
+-- Chạy sau schema-admin.sql (cần public.is_admin()).
+
+create table if not exists public.movies (
+  id text primary key,
+  slug text,
+  title text,
+  name text,
+  origin_name text,
+  type text,
+  year text,
+  genre text,
+  country text,
+  language text,
+  quality text,
+  episode_current text,
+  thumb_url text,
+  poster_url text,
+  description text,
+  content text,
+  status text,
+  chieurap text,
+  showtimes text,
+  is_exclusive text,
+  tmdb_id text,
+  modified text,
+  "update" text,
+  note text,
+  director text,
+  actor text,
+  tmdb_type text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create index if not exists movies_slug_idx on public.movies (slug);
+create index if not exists movies_type_idx on public.movies (type);
+create index if not exists movies_update_flag_idx on public.movies ("update");
+
+create table if not exists public.movie_episodes (
+  id uuid primary key default gen_random_uuid(),
+  movie_id text not null references public.movies(id) on delete cascade,
+  episode_code text,
+  episode_name text,
+  server_slug text,
+  server_name text,
+  link_m3u8 text,
+  link_embed text,
+  link_backup text,
+  link_vip1 text,
+  link_vip2 text,
+  link_vip3 text,
+  link_vip4 text,
+  link_vip5 text,
+  note text,
+  sort_order integer default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create index if not exists movie_episodes_movie_id_idx on public.movie_episodes (movie_id);
+
+create or replace function public.movies_duplicate_slugs()
+returns table (slug text)
+language sql
+stable
+as $$
+  select m.slug::text
+  from public.movies m
+  where m.slug is not null and trim(m.slug) <> ''
+  group by m.slug
+  having count(*) > 1;
+$$;
+
+alter table public.movies enable row level security;
+alter table public.movie_episodes enable row level security;
+
+drop policy if exists "Admin only" on public.movies;
+create policy "Admin only" on public.movies for all using (public.is_admin());
+
+drop policy if exists "Admin only" on public.movie_episodes;
+create policy "Admin only" on public.movie_episodes for all using (public.is_admin());
+
+insert into public.site_settings (key, value)
+values ('movies_data_source', 'supabase')
+on conflict (key) do nothing;`;
+
     return [
       // Admin
       { key: 'schema-admin', title: '[Admin] Tạo bảng + RLS', sql: schemaAdminSql },
+      { key: 'schema-movies', title: '[Admin] Bảng movies + movie_episodes', sql: moviesSchemaSql },
       { key: 'fix-rls', title: '[Admin] Fix RLS', sql: fixRlsSql },
       { key: 'audit', title: '[Admin] Triggers Audit Logs', sql: auditTriggersSql },
       { key: 'seed-static', title: '[Admin] Seed Static Pages', sql: seedStaticPagesSql },
@@ -791,12 +898,48 @@ where email = 'admin@example.com';`;
       return;
     }
 
+    if (table === 'movies') {
+      const r: any = await supabase.from(table).upsert(list, { onConflict: 'id' });
+      if (r.error) throw r.error;
+      return;
+    }
+
+    if (table === 'movie_episodes') {
+      const r: any = await supabase.from(table).upsert(list, { onConflict: 'id' });
+      if (r.error) throw r.error;
+      return;
+    }
+
     const r: any = await supabase.from(table).upsert(list);
     if (r.error) throw r.error;
   };
 
   const replaceTable = async (table: TableKey, rows: any[]) => {
     const list = Array.isArray(rows) ? rows : [];
+
+    if (table === 'movies') {
+      const del: any = await supabase.from('movies').delete().not('id', 'is', null);
+      if (del.error) throw del.error;
+      if (list.length) {
+        const ins: any = await supabase.from('movies').insert(list);
+        if (ins.error) throw ins.error;
+      }
+      return;
+    }
+
+    if (table === 'movie_episodes') {
+      const del: any = await supabase
+        .from('movie_episodes')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+      if (del.error) throw del.error;
+      if (list.length) {
+        const ins: any = await supabase.from('movie_episodes').insert(list);
+        if (ins.error) throw ins.error;
+      }
+      return;
+    }
+
     const del: any = await supabase.from(table).delete().neq('id', '00000000-0000-0000-0000-000000000000');
     if (del.error) {
       const del2: any = await supabase.from(table).delete().gte('created_at', '1970-01-01T00:00:00.000Z');
@@ -871,7 +1014,8 @@ where email = 'admin@example.com';`;
           Supabase Tools
         </Typography.Title>
         <Typography.Text type="secondary">
-          Backup/restore nhanh dữ liệu cấu hình và copy SQL cần thiết để setup Supabase
+          Backup/restore dữ liệu cấu hình + phim (movies / movie_episodes), và copy SQL setup. Export phim/tập mặc định{' '}
+          <strong>không bật</strong> — chọn tay nếu cần (có thể rất lớn).
         </Typography.Text>
       </Space>
 
@@ -946,7 +1090,7 @@ where email = 'admin@example.com';`;
                     </Space>
 
                     <Typography.Text type="secondary">
-                      Lưu ý: Sau khi import, nếu đây là dữ liệu dùng cho frontend thì cần chạy Build website.
+                      Lưu ý: Sau khi import cấu hình / phim, chạy Build website để cập nhật site. Replace trên phim/tập là thao tác mạnh — nên có bản export trước.
                     </Typography.Text>
                   </Space>
                 </Card>

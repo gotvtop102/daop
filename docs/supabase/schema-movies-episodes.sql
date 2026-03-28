@@ -77,7 +77,12 @@ $$;
 alter table public.movies enable row level security;
 alter table public.movie_episodes enable row level security;
 
--- Không thêm policy cho authenticated/anon — chỉ service_role (API) truy cập được
+-- Admin Panel + Supabase Tools (JWT role = admin; hàm is_admin() trong schema-admin.sql)
+drop policy if exists "Admin only" on public.movies;
+create policy "Admin only" on public.movies for all using (public.is_admin());
+
+drop policy if exists "Admin only" on public.movie_episodes;
+create policy "Admin only" on public.movie_episodes for all using (public.is_admin());
 
 insert into public.site_settings (key, value)
 values ('movies_data_source', 'supabase')

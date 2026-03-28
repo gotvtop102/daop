@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node scripts/build.js",
     "build:incremental": "node scripts/build.js --incremental",
-    "regenerate-actors": "node scripts/regenerate-actors-shards.js"
+    "regenerate-actors": "node scripts/regenerate-actors-shards.js",
+    "export-to-supabase": "node scripts/export-to-supabase.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.490.0",
