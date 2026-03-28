@@ -1,11 +1,7 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { authHeaders, errFromRes, getRestEnv, parseContentRangeTotal, restFetch, restJson } from './supabase-rest';
 
 function getEnv() {
-  const url = String(
-    process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || ''
-  ).trim();
-  const key = String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim();
-  return { url, key };
+  return getRestEnv();
 }
 
 export function isSupabaseMoviesConfigured() {
@@ -13,75 +9,11 @@ export function isSupabaseMoviesConfigured() {
   return !!(url && key);
 }
 
-export function getSupabaseAdmin(): SupabaseClient {
-  const { url, key } = getEnv();
-  if (!url || !key) {
-    throw new Error(
-      'Thiếu URL Supabase Admin (SUPABASE_ADMIN_URL hoặc VITE_SUPABASE_ADMIN_URL) hoặc SUPABASE_ADMIN_SERVICE_ROLE_KEY. ' +
-        'Không dùng VITE_SUPABASE_ADMIN_ANON_KEY cho API phim — cần service_role.'
-    );
-  }
-  return createClient(url, key);
-}
-
 function rowToMovie(row: Record<string, any>) {
   const m: any = { ...row };
   if (m.content && !m.description) m.description = m.content;
   if (m.name && !m.title) m.title = m.name;
   return m;
-}
-
-export async function listMoviesSb(
-  type: string,
-  page: number,
-  limit: number,
-  search: string,
-  unbuiltOnly: boolean,
-  duplicatesOnly: boolean
-) {
-  const sb = getSupabaseAdmin();
-
-  if (duplicatesOnly) {
-    const { data: dupSlugs, error: rpcErr } = await sb.rpc('movies_duplicate_slugs');
-    if (rpcErr) throw rpcErr;
-    const slugs = (dupSlugs || []).map((r: any) => (typeof r === 'string' ? r : r?.slug)).filter(Boolean);
-    if (!slugs.length) {
-      return { data: [], total: 0, page, limit };
-    }
-    let q = sb.from('movies').select('*', { count: 'exact' }).in('slug', slugs);
-    if (type && type !== 'all') {
-      q = q.eq('type', type);
-    }
-    const { data: rows, error, count } = await q;
-    if (error) throw error;
-    let movies = (rows || []).map((r, i) => ({ ...rowToMovie(r), _rowIndex: i + 2 }));
-    movies = sortMoviesLikeSheet(movies);
-    const total = count ?? movies.length;
-    const start = (page - 1) * limit;
-    return { data: movies.slice(start, start + limit), total, page, limit };
-  }
-
-  let q = sb.from('movies').select('*', { count: 'exact' });
-
-  if (type && type !== 'all') {
-    q = q.eq('type', type);
-  }
-  if (unbuiltOnly) {
-    q = q.eq('update', 'NEW');
-  }
-  if (search.trim()) {
-    const raw = search.trim().replace(/%/g, '\\%').replace(/,/g, ' ');
-    const s = `%${raw}%`;
-    q = q.or(`title.ilike.${s},origin_name.ilike.${s},id.ilike.${s}`);
-  }
-
-  const from = (page - 1) * limit;
-  const to = from + limit - 1;
-  const { data: rows, error, count } = await q.order('modified', { ascending: false }).range(from, to);
-  if (error) throw error;
-
-  const movies = (rows || []).map((r, i) => ({ ...rowToMovie(r), _rowIndex: from + i + 2 }));
-  return { data: movies, total: count ?? movies.length, page, limit };
 }
 
 function sortMoviesLikeSheet(movies: any[]) {
@@ -101,20 +33,105 @@ function sortMoviesLikeSheet(movies: any[]) {
   });
 }
 
+function buildSlugInParam(slugs: string[]) {
+  const inner = slugs
+    .map((v) => {
+      const s = String(v);
+      if (/[",()]/.test(s) || /\s/.test(s)) return `"${s.replace(/"/g, '')}"`;
+      return s;
+    })
+    .join(',');
+  return `in.(${inner})`;
+}
+
+export async function listMoviesSb(
+  type: string,
+  page: number,
+  limit: number,
+  search: string,
+  unbuiltOnly: boolean,
+  duplicatesOnly: boolean
+) {
+  const { key } = getEnv();
+
+  if (duplicatesOnly) {
+    const rpcRes = await restFetch('/rpc/movies_duplicate_slugs', {
+      method: 'POST',
+      key,
+      headers: authHeaders(key),
+      body: JSON.stringify({}),
+    });
+    if (!rpcRes.ok) throw await errFromRes(rpcRes);
+    const dupSlugs = await rpcRes.json();
+    const slugs = (dupSlugs || []).map((r: any) => (typeof r === 'string' ? r : r?.slug)).filter(Boolean);
+    if (!slugs.length) {
+      return { data: [], total: 0, page, limit };
+    }
+    const slugFilter = `slug=${encodeURIComponent(buildSlugInParam(slugs))}`;
+    const typePart = type && type !== 'all' ? `&type=eq.${encodeURIComponent(type)}` : '';
+    const path = `/movies?select=*&${slugFilter}${typePart}`;
+    const res = await restFetch(path, { method: 'GET', key, headers: authHeaders(key) });
+    if (!res.ok) throw await errFromRes(res);
+    const rows = await restJson<any[]>(res);
+    let movies = (rows || []).map((r, i) => ({ ...rowToMovie(r), _rowIndex: i + 2 }));
+    movies = sortMoviesLikeSheet(movies);
+    const total = movies.length;
+    const start = (page - 1) * limit;
+    return { data: movies.slice(start, start + limit), total, page, limit };
+  }
+
+  const parts = ['select=*', 'order=modified.desc'];
+  if (type && type !== 'all') parts.push(`type=eq.${encodeURIComponent(type)}`);
+  if (unbuiltOnly) parts.push(`update=eq.${encodeURIComponent('NEW')}`);
+  if (search.trim()) {
+    const raw = search.trim().replace(/%/g, '\\%').replace(/,/g, ' ');
+    const patt = encodeURIComponent(`%${raw}%`);
+    parts.push(`or=(title.ilike.${patt},origin_name.ilike.${patt},id.ilike.${patt})`);
+  }
+  const query = parts.join('&');
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+  const res = await restFetch(`/movies?${query}`, {
+    method: 'GET',
+    key,
+    headers: {
+      ...authHeaders(key, 'count=exact'),
+      Range: `${from}-${to}`,
+    },
+  });
+  if (!res.ok) throw await errFromRes(res);
+  const rows = await restJson<any[]>(res);
+  const total = parseContentRangeTotal(res) ?? rows.length;
+  const movies = (rows || []).map((r, i) => ({ ...rowToMovie(r), _rowIndex: from + i + 2 }));
+  return { data: movies, total, page, limit };
+}
+
 export async function getMovieSb(id: string) {
-  const sb = getSupabaseAdmin();
-  const { data, error } = await sb.from('movies').select('*').eq('id', String(id).trim()).maybeSingle();
-  if (error) throw error;
+  const { key } = getEnv();
+  const sid = String(id).trim();
+  const res = await restFetch(`/movies?select=*&id=eq.${encodeURIComponent(sid)}`, {
+    method: 'GET',
+    key,
+    headers: authHeaders(key),
+  });
+  if (!res.ok) throw await errFromRes(res);
+  const rows = await restJson<any[]>(res);
+  const data = Array.isArray(rows) && rows.length ? rows[0] : null;
   if (!data) return null;
   return rowToMovie(data);
 }
 
 export async function getMovieBySlugSb(slug: string) {
-  const sb = getSupabaseAdmin();
+  const { key } = getEnv();
   const s = String(slug || '').trim();
   if (!s) return null;
-  const { data: rows, error } = await sb.from('movies').select('*').eq('slug', s);
-  if (error) throw error;
+  const res = await restFetch(`/movies?select=*&slug=eq.${encodeURIComponent(s)}`, {
+    method: 'GET',
+    key,
+    headers: authHeaders(key),
+  });
+  if (!res.ok) throw await errFromRes(res);
+  const rows = await restJson<any[]>(res);
   if (!rows?.length) return null;
   const sorted = sortMoviesLikeSheet(rows.map((r, i) => ({ ...rowToMovie(r), _rowIndex: i + 2 })));
   return sorted[0] || null;
@@ -154,43 +171,77 @@ export function moviePayloadToRow(movieData: any) {
   };
 }
 
+/** Dùng từ movies-supabase-save — PostgREST upsert, không dùng supabase-js */
+export async function movieExistsByIdRest(id: string): Promise<boolean> {
+  const { key } = getEnv();
+  const res = await restFetch(`/movies?select=id&id=eq.${encodeURIComponent(String(id).trim())}&limit=1`, {
+    method: 'GET',
+    key,
+    headers: authHeaders(key),
+  });
+  if (!res.ok) throw await errFromRes(res);
+  const rows = await restJson<any[]>(res);
+  return Array.isArray(rows) && rows.length > 0;
+}
+
+export async function upsertMovieRowRest(row: Record<string, any>) {
+  const { key } = getEnv();
+  const res = await restFetch(`/movies?on_conflict=id`, {
+    method: 'POST',
+    key,
+    headers: authHeaders(key, 'resolution=merge-duplicates,return=minimal'),
+    body: JSON.stringify([row]),
+  });
+  if (!res.ok) throw await errFromRes(res);
+}
+
 export async function deleteMovieSb(id: string) {
-  const sb = getSupabaseAdmin();
-  const { error } = await sb.from('movies').delete().eq('id', String(id).trim());
-  if (error) throw error;
+  const { key } = getEnv();
+  const res = await restFetch(`/movies?id=eq.${encodeURIComponent(String(id).trim())}`, {
+    method: 'DELETE',
+    key,
+    headers: authHeaders(key),
+  });
+  if (!res.ok) throw await errFromRes(res);
   return { success: true };
 }
 
 export async function updateShowtimesSb(movieId: string, body: any) {
-  const sb = getSupabaseAdmin();
+  const { key } = getEnv();
   const modifiedVal = new Date().toISOString();
-  const { error } = await sb
-    .from('movies')
-    .update({
-      showtimes: String((body as any)?.showtimes ?? '').trim(),
-      modified: modifiedVal,
-      update: 'NEW',
-      updated_at: modifiedVal,
-    })
-    .eq('id', String(movieId).trim());
-  if (error) throw error;
+  const patch = {
+    showtimes: String((body as any)?.showtimes ?? '').trim(),
+    modified: modifiedVal,
+    update: 'NEW',
+    updated_at: modifiedVal,
+  };
+  const res = await restFetch(`/movies?id=eq.${encodeURIComponent(String(movieId).trim())}`, {
+    method: 'PATCH',
+    key,
+    headers: authHeaders(key),
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) throw await errFromRes(res);
   return { success: true, id: String(movieId).trim(), updated: ['showtimes', 'modified', 'update'] };
 }
 
 export async function updateShowtimesExclusiveSb(movieId: string, body: any) {
-  const sb = getSupabaseAdmin();
+  const { key } = getEnv();
   const modifiedVal = new Date().toISOString();
-  const { error } = await sb
-    .from('movies')
-    .update({
-      showtimes: String((body as any)?.showtimes ?? '').trim(),
-      is_exclusive: (body as any)?.is_exclusive ? '1' : '0',
-      modified: modifiedVal,
-      update: 'NEW',
-      updated_at: modifiedVal,
-    })
-    .eq('id', String(movieId).trim());
-  if (error) throw error;
+  const patch = {
+    showtimes: String((body as any)?.showtimes ?? '').trim(),
+    is_exclusive: (body as any)?.is_exclusive ? '1' : '0',
+    modified: modifiedVal,
+    update: 'NEW',
+    updated_at: modifiedVal,
+  };
+  const res = await restFetch(`/movies?id=eq.${encodeURIComponent(String(movieId).trim())}`, {
+    method: 'PATCH',
+    key,
+    headers: authHeaders(key),
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) throw await errFromRes(res);
   return {
     success: true,
     id: String(movieId).trim(),
@@ -199,49 +250,52 @@ export async function updateShowtimesExclusiveSb(movieId: string, body: any) {
 }
 
 export async function countRowsSb(sheetNames: string[]) {
-  const sb = getSupabaseAdmin();
+  const { key } = getEnv();
   const results: any[] = [];
   for (const name of sheetNames) {
     const n = String(name || '').trim().toLowerCase();
     if (n === 'movies') {
-      const { count, error } = await sb.from('movies').select('*', { count: 'exact', head: true });
-      if (error) throw error;
-      results.push({ sheet: 'movies', headerRows: 1, lastRow: (count ?? 0) + 1, nonEmptyDataRows: count ?? 0 });
+      const res = await restFetch(`/movies?select=*`, {
+        method: 'HEAD',
+        key,
+        headers: authHeaders(key, 'count=exact'),
+      });
+      if (!res.ok) throw await errFromRes(res);
+      const c = parseContentRangeTotal(res) ?? 0;
+      results.push({ sheet: 'movies', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
     } else if (n === 'episodes') {
-      const { count, error } = await sb.from('movie_episodes').select('*', { count: 'exact', head: true });
-      if (error) throw error;
-      results.push({ sheet: 'episodes', headerRows: 1, lastRow: (count ?? 0) + 1, nonEmptyDataRows: count ?? 0 });
+      const res = await restFetch(`/movie_episodes?select=*`, {
+        method: 'HEAD',
+        key,
+        headers: authHeaders(key, 'count=exact'),
+      });
+      if (!res.ok) throw await errFromRes(res);
+      const c = parseContentRangeTotal(res) ?? 0;
+      results.push({ sheet: 'episodes', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
     }
   }
   return { ok: true, results };
 }
 
 export async function getEpisodesSb(movieId: string, debug?: boolean) {
-  const sb = getSupabaseAdmin();
+  const { key } = getEnv();
   const movieIdStr = String(movieId ?? '').trim();
 
-  let q = sb
-    .from('movie_episodes')
-    .select('*')
-    .eq('movie_id', movieIdStr)
-    .order('sort_order', { ascending: true })
-    .order('episode_code', { ascending: true });
-
-  const { data: byId, error } = await q;
-  if (error) throw error;
-  let matchedRows = byId || [];
+  const path = `/movie_episodes?select=*&movie_id=eq.${encodeURIComponent(movieIdStr)}&order=sort_order.asc,episode_code.asc`;
+  const res = await restFetch(path, { method: 'GET', key, headers: authHeaders(key) });
+  if (!res.ok) throw await errFromRes(res);
+  let matchedRows = await restJson<any[]>(res);
 
   if (!matchedRows.length && movieIdStr) {
     const movie = await getMovieSb(movieIdStr);
     const slug = String((movie as any)?.slug ?? '').trim();
     if (slug) {
-      const { data: bySlug } = await sb
-        .from('movie_episodes')
-        .select('*')
-        .eq('movie_id', slug)
-        .order('sort_order', { ascending: true })
-        .order('episode_code', { ascending: true });
-      matchedRows = bySlug || [];
+      const res2 = await restFetch(
+        `/movie_episodes?select=*&movie_id=eq.${encodeURIComponent(slug)}&order=sort_order.asc,episode_code.asc`,
+        { method: 'GET', key, headers: authHeaders(key) }
+      );
+      if (!res2.ok) throw await errFromRes(res2);
+      matchedRows = await restJson<any[]>(res2);
     }
   }
 
@@ -263,9 +317,14 @@ export async function getEpisodesSb(movieId: string, debug?: boolean) {
 }
 
 export async function saveEpisodesSb(movieId: string, episodes: any[]) {
-  const sb = getSupabaseAdmin();
+  const { key } = getEnv();
   const mid = String(movieId).trim();
-  await sb.from('movie_episodes').delete().eq('movie_id', mid);
+  const del = await restFetch(`/movie_episodes?movie_id=eq.${encodeURIComponent(mid)}`, {
+    method: 'DELETE',
+    key,
+    headers: authHeaders(key),
+  });
+  if (!del.ok) throw await errFromRes(del);
 
   const rows = (episodes || []).map((ep: any, index: number) => {
     const episodeCode = ep.episode_code || ep.episode || ep.code || String(index + 1);
@@ -293,8 +352,13 @@ export async function saveEpisodesSb(movieId: string, episodes: any[]) {
   });
 
   if (rows.length) {
-    const { error } = await sb.from('movie_episodes').insert(rows);
-    if (error) throw error;
+    const ins = await restFetch(`/movie_episodes`, {
+      method: 'POST',
+      key,
+      headers: authHeaders(key, 'return=minimal'),
+      body: JSON.stringify(rows),
+    });
+    if (!ins.ok) throw await errFromRes(ins);
   }
 
   return { success: true, count: rows.length };
