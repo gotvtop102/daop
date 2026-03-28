@@ -66,6 +66,16 @@ const STATUS_OPTIONS = [
   { value: 'trailer', label: 'Trailer' },
 ];
 
+/** DB: text 0|1; Switch cần boolean — trong JS chuỗi '0' vẫn truthy nên phải parse. */
+function coerceBoolFlag(v: unknown): boolean {
+  if (v === true || v === 1) return true;
+  if (v === false || v === 0) return false;
+  const s = String(v ?? '').trim().toLowerCase();
+  if (s === '' || s === '0' || s === 'false' || s === 'no' || s === 'off') return false;
+  if (s === '1' || s === 'true' || s === 'yes' || s === 'on') return true;
+  return false;
+}
+
 const LANGUAGE_OPTIONS = [
   { value: 'Vietsub', label: 'Vietsub' },
   { value: 'Thuyết minh', label: 'Thuyết minh' },
@@ -459,6 +469,8 @@ export default function MovieEdit() {
         director: typeof result.director === 'string' ? result.director.split(',').filter(Boolean) : result.director || [],
         actor: typeof result.actor === 'string' ? result.actor.split(',').filter(Boolean) : result.actor || [],
         year: result.year ? parseInt(result.year) : undefined,
+        chieurap: coerceBoolFlag(result.chieurap),
+        is_exclusive: coerceBoolFlag(result.is_exclusive),
       });
 
       refreshSourcePreviews({ poster: result.poster_url || '', thumb: result.thumb_url || '' });

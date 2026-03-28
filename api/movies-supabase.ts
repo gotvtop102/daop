@@ -9,10 +9,26 @@ export function isSupabaseMoviesConfigured() {
   return !!(url && key);
 }
 
+/** DB / export dùng text 0|1; Switch Ant cần boolean — chuỗi '0' là truthy trong JS nên phải parse. */
+export function parseBoolFlag(v: unknown): boolean {
+  if (v === true || v === 1) return true;
+  if (v === false || v === 0) return false;
+  const s = String(v ?? '').trim().toLowerCase();
+  if (s === '' || s === '0' || s === 'false' || s === 'no' || s === 'off') return false;
+  if (s === '1' || s === 'true' || s === 'yes' || s === 'on') return true;
+  return false;
+}
+
+function boolToDbFlag(v: unknown): string {
+  return parseBoolFlag(v) ? '1' : '0';
+}
+
 function rowToMovie(row: Record<string, any>) {
   const m: any = { ...row };
   if (m.content && !m.description) m.description = m.content;
   if (m.name && !m.title) m.title = m.name;
+  m.chieurap = parseBoolFlag(m.chieurap);
+  m.is_exclusive = parseBoolFlag(m.is_exclusive);
   return m;
 }
 
@@ -157,9 +173,9 @@ export function moviePayloadToRow(movieData: any) {
     description: str(movieData.description),
     content: str(movieData.content),
     status: str(movieData.status),
-    chieurap: str(movieData.chieurap),
+    chieurap: boolToDbFlag(movieData.chieurap),
     showtimes: str(movieData.showtimes),
-    is_exclusive: str(movieData.is_exclusive),
+    is_exclusive: boolToDbFlag(movieData.is_exclusive),
     tmdb_id: str(movieData.tmdb_id),
     modified: str(movieData.modified),
     update: str(movieData.update),
