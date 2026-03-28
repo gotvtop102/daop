@@ -1,5 +1,7 @@
 # Hệ thống Comment nội bộ (Cloudflare Pages + D1 + KV)
 
+**Tổng quan Cloudflare (gồm D1/KV và biến Pages):** [../cloudflare/README.md](../cloudflare/README.md).
+
 Tài liệu này thay thế Twikoo. Hệ thống comment mới dùng:
 - Cloudflare Pages Functions
 - D1 (bảng `comments`)
@@ -11,8 +13,11 @@ Tài liệu này thay thế Twikoo. Hệ thống comment mới dùng:
 - `functions/api/comment/has.ts` - kiểm tra bài viết có comment hay chưa
 - `functions/api/comment/index.ts` - GET danh sách + POST tạo comment
 - `functions/api/comment/[id].ts` - DELETE comment (chủ sở hữu hoặc admin)
+- `functions/api/comment/admin-export.ts` - export toàn bộ D1 (JSON) — bảo vệ bằng `COMMENTS_ADMIN_SECRET`
+- `functions/api/comment/admin-import.ts` - import JSON vào D1 (merge/replace)
 - `functions/api/comment/_shared.ts` - helper chung (JWT verify, sanitize, rate-limit)
-- `migrations/001_comments.sql` - schema D1
+- `migrations/001_comments.sql` - schema D1 (`comments`)
+- `migrations/002_comment_reactions.sql` - bảng `comment_reactions`
 - `public/js/comments.js` - component comment frontend
 - `public/css/comments.css` - style comment
 
@@ -34,6 +39,7 @@ Sau đó copy các ID vào `wrangler.toml`:
 
 ```bash
 wrangler d1 execute daop-comments --file=./migrations/001_comments.sql
+wrangler d1 execute daop-comments --file=./migrations/002_comment_reactions.sql
 ```
 
 ## 4) Biến môi trường bắt buộc
@@ -41,8 +47,9 @@ wrangler d1 execute daop-comments --file=./migrations/001_comments.sql
 Trong Cloudflare Pages > Settings > Environment Variables:
 
 - `SUPABASE_JWT_SECRET` = JWT secret của project Supabase Auth đang dùng trên website.
+- `COMMENTS_ADMIN_SECRET` (tùy chọn) = chỉ khi dùng export/import bulk; xem mục **6**.
 
-Lưu ý: API POST/DELETE sẽ verify chữ ký token bằng secret này.
+Lưu ý: API POST/DELETE sẽ verify chữ ký token bằng `SUPABASE_JWT_SECRET`.
 
 ## 5) Cách frontend hoạt động
 
@@ -54,7 +61,20 @@ Component tại `public/js/comments.js`:
 - Dùng `IntersectionObserver` để lazy load
 - Có retry khi API lỗi, hỗ trợ "Tải thêm", lưu draft vào localStorage
 
-## 6) Cache và chống spam
+## 6) Export / import D1 (backup & migration)
+
+1. **Cloudflare Pages → Environment variables:** thêm `COMMENTS_ADMIN_SECRET` — chuỗi ngẫu nhiên **≥ 16 ký tự** (khuyến nghị 32+). Không đưa vào Git.
+2. **Deploy** lại site để Functions nhận biến.
+3. **Cách 1 — Admin UI:** **Supabase Tools** → tab **Comment (D1)** — nhập URL website (vd. `https://ten.pages.dev`), dán secret, **Export** (tải JSON) hoặc dán JSON và **Import** (`merge` hoặc `replace`).
+4. **Cách 2 — HTTP thủ công:**
+   - `GET /api/comment/admin-export` — header `X-Comments-Admin-Secret` hoặc `Authorization: Bearer …`.
+   - `POST /api/comment/admin-import` — `Content-Type: application/json`, cùng header, body:
+     `{ "mode": "merge" | "replace", "comments": [...], "comment_reactions": [...] }`.
+5. **Ý nghĩa mode:** **replace** = `DELETE` toàn bộ `comment_reactions` + `comments` rồi ghi lại; **merge** = `INSERT … ON CONFLICT(id) DO UPDATE` (bản ghi không có trong JSON vẫn giữ trên D1). Sau import, xóa KV `has:{post_slug}` cho các slug liên quan.
+
+Cần chạy migration **002** nếu bảng `comment_reactions` chưa có (export/import gồm cả reaction).
+
+## 7) Cache và chống spam
 
 - KV cache:
   - `has:{postSlug}`
@@ -66,7 +86,7 @@ Component tại `public/js/comments.js`:
 - Honeypot:
   - Field ẩn `website`, nếu có dữ liệu sẽ bỏ qua
 
-## 7) Nhúng vào trang
+## 8) Nhúng vào trang
 
 Trang đã được gắn sẵn:
 - `/phim/*` -> `#comments-container`

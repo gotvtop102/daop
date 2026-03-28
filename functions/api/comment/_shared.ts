@@ -3,6 +3,40 @@ export interface Env {
   COMMENT_CACHE: KVNamespace;
   COMMENT_RATE_LIMIT: KVNamespace;
   SUPABASE_JWT_SECRET: string;
+  /** Bí mật dùng cho export/import comment qua Admin (header X-Comments-Admin-Secret hoặc Bearer cùng giá trị). Đặt trên Pages → Environment variables. */
+  COMMENTS_ADMIN_SECRET?: string;
+}
+
+const CORS_ADMIN = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Comments-Admin-Secret, Authorization',
+};
+
+export function jsonCors(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+      ...CORS_ADMIN,
+    },
+  });
+}
+
+export function corsOptions(): Response {
+  return new Response(null, { status: 204, headers: CORS_ADMIN });
+}
+
+/** Export/import bulk — không dùng JWT User; chỉ secret khớp COMMENTS_ADMIN_SECRET. */
+export function verifyCommentsAdminSecret(env: Env, request: Request): boolean {
+  const secret = String(env.COMMENTS_ADMIN_SECRET || '').trim();
+  if (!secret || secret.length < 16) return false;
+  const xh = request.headers.get('x-comments-admin-secret')?.trim() || '';
+  if (xh && xh === secret) return true;
+  const auth = request.headers.get('authorization') || request.headers.get('Authorization') || '';
+  const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+  return !!bearer && bearer === secret;
 }
 
 export function json(data: unknown, status = 200): Response {

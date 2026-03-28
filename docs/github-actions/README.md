@@ -1,5 +1,7 @@
 # GitHub Actions
 
+**Tổng quan mọi thứ cần tạo trên GitHub (repo, quyền Actions, Secrets, PAT):** [../github/README.md](../github/README.md).
+
 ## Workflows
 
 1. **update-data.yml** – Chạy hàng ngày (cron), gọi `npm run build` với secrets (TMDB, OPhim, Supabase Admin, R2, Google Sheets). Commit và push thay đổi vào repo. **Cuối workflow**, nếu các bước trước thành công, tự động chạy `scripts/export-to-sheets.js` (cần `GOOGLE_SHEETS_ID`, `GOOGLE_SHEETS_JSON`).
@@ -8,11 +10,17 @@
 
 ## Secrets cần thiết
 
+Danh sách đầy đủ (và **Variables** tùy chọn) dạng checklist: **[docs/env/github.env.example](../env/github.env.example)**.
+
+Tóm tắt:
+
 - `SUPABASE_ADMIN_URL`, `SUPABASE_ADMIN_SERVICE_ROLE_KEY`
 - `TMDB_API_KEY`
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`
-- `GITHUB_TOKEN` (hoặc PAT) để push và trigger.
-- `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` cho deploy Pages.
+- `GOOGLE_SHEETS_ID`, `GOOGLE_SHEETS_JSON` (khi build/export Sheets)
+- `GH_PAT` (khuyến nghị nếu cần push/commit từ workflow) hoặc dùng `GITHUB_TOKEN` mặc định của Actions
+- `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` cho deploy Pages
+- `OPHIM_BASE_URL` (tùy chọn)
 
 ## Webhook từ Admin (Build website)
 

@@ -11,6 +11,7 @@ import {
   Modal,
   Divider,
   Collapse,
+  Alert,
 } from 'antd';
 import { CopyOutlined, DownloadOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
@@ -81,6 +82,129 @@ export default function SupabaseTools() {
   const [userImportMode, setUserImportMode] = useState<'upsert' | 'replace'>('upsert');
   const [userImportText, setUserImportText] = useState('');
   const [userImporting, setUserImporting] = useState(false);
+
+  const COMMENT_SITE_LS = 'daop_comment_site_base';
+  const [commentSiteBase, setCommentSiteBase] = useState('');
+  const [commentAdminSecret, setCommentAdminSecret] = useState('');
+  const [commentImportText, setCommentImportText] = useState('');
+  const [commentImportMode, setCommentImportMode] = useState<'merge' | 'replace'>('merge');
+  const [commentExporting, setCommentExporting] = useState(false);
+  const [commentImporting, setCommentImporting] = useState(false);
+
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem(COMMENT_SITE_LS);
+      if (v) setCommentSiteBase(v);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const persistCommentSiteBase = (v: string) => {
+    setCommentSiteBase(v);
+    try {
+      localStorage.setItem(COMMENT_SITE_LS, v);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const commentPagesBaseUrl = () => {
+    const raw = (commentSiteBase || '').trim().replace(/\/$/, '');
+    if (!raw) return '';
+    return raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`;
+  };
+
+  const exportCommentsD1 = async () => {
+    const base = commentPagesBaseUrl();
+    const secret = commentAdminSecret.trim();
+    if (!base) {
+      message.warning('Nhập URL website tĩnh (Cloudflare Pages), ví dụ https://ten.pages.dev');
+      return;
+    }
+    if (secret.length < 16) {
+      message.warning('Nhập COMMENTS_ADMIN_SECRET (đặt trên Pages, tối thiểu ~16 ký tự)');
+      return;
+    }
+    setCommentExporting(true);
+    try {
+      const res = await fetch(`${base}/api/comment/admin-export`, {
+        headers: { 'X-Comments-Admin-Secret': secret },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+      downloadJson(`comments-d1-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`, data);
+      message.success('Đã export comment từ D1');
+    } catch (e: any) {
+      message.error(e?.message || 'Export thất bại');
+    } finally {
+      setCommentExporting(false);
+    }
+  };
+
+  const runImportCommentsD1 = async () => {
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(commentImportText || '');
+    } catch {
+      message.error('JSON không hợp lệ');
+      return;
+    }
+    const comments = Array.isArray(parsed.comments) ? parsed.comments : [];
+    const comment_reactions = Array.isArray(parsed.comment_reactions) ? parsed.comment_reactions : [];
+    if (!comments.length && !comment_reactions.length) {
+      message.warning('JSON cần có mảng comments và/hoặc comment_reactions (format từ export)');
+      return;
+    }
+    const base = commentPagesBaseUrl();
+    const secret = commentAdminSecret.trim();
+    if (!base) {
+      message.warning('Nhập URL website');
+      return;
+    }
+    if (secret.length < 16) {
+      message.warning('Nhập COMMENTS_ADMIN_SECRET');
+      return;
+    }
+    setCommentImporting(true);
+    try {
+      const res = await fetch(`${base}/api/comment/admin-import`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Comments-Admin-Secret': secret,
+        },
+        body: JSON.stringify({
+          mode: commentImportMode,
+          comments,
+          comment_reactions,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+      message.success(
+        `Import xong: ${data.commentsUpserted ?? 0} comment, ${data.reactionsProcessed ?? 0} reaction`
+      );
+    } catch (e: any) {
+      message.error(e?.message || 'Import thất bại');
+    } finally {
+      setCommentImporting(false);
+    }
+  };
+
+  const importCommentsD1 = async () => {
+    if (commentImportMode === 'replace') {
+      Modal.confirm({
+        title: 'Replace sẽ xóa toàn bộ comment + reaction trong D1 rồi ghi lại',
+        okText: 'Tiếp tục',
+        okButtonProps: { danger: true },
+        cancelText: 'Hủy',
+        onOk: runImportCommentsD1,
+      });
+      return;
+    }
+    await runImportCommentsD1();
+  };
 
   const exportUserTables = async () => {
     try {
@@ -890,6 +1014,102 @@ where email = 'admin@example.com';`;
                     <Typography.Text type="secondary">
                       Lưu ý: Mặc định thao tác qua API server-side để tránh RLS chặn khi dùng anon key.
                     </Typography.Text>
+                  </Space>
+                </Card>
+              </Space>
+            ),
+          },
+          {
+            key: 'comments-d1',
+            label: 'Comment (D1)',
+            children: (
+              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Alert
+                  type="info"
+                  showIcon
+                  message="Bình luận lưu trên Cloudflare D1 (Pages Functions), không nằm trong Supabase."
+                  description={
+                    <span>
+                      Trên Cloudflare Pages → Settings → Environment variables: thêm{' '}
+                      <Typography.Text code>COMMENTS_ADMIN_SECRET</Typography.Text> (chuỗi ngẫu nhiên đủ dài, ví dụ 32+
+                      ký tự). Sau khi deploy, dùng tab này để export/import JSON. API:{' '}
+                      <Typography.Text code>/api/comment/admin-export</Typography.Text>,{' '}
+                      <Typography.Text code>/api/comment/admin-import</Typography.Text>.
+                    </span>
+                  }
+                />
+                <Card title="Kết nối" bordered={false} style={{ borderRadius: 12 }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={10}>
+                    <div>
+                      <Typography.Text strong>URL website (Pages)</Typography.Text>
+                      <Input
+                        style={{ marginTop: 8 }}
+                        placeholder="https://ten-project.pages.dev"
+                        value={commentSiteBase}
+                        onChange={(e) => persistCommentSiteBase(e.target.value)}
+                      />
+                      <Typography.Text type="secondary" style={{ display: 'block', marginTop: 4 }}>
+                        Lưu trong trình duyệt (localStorage). Phải là site đã bật comment + D1.
+                      </Typography.Text>
+                    </div>
+                    <div>
+                      <Typography.Text strong>COMMENTS_ADMIN_SECRET</Typography.Text>
+                      <Input.Password
+                        style={{ marginTop: 8 }}
+                        placeholder="Cùng giá trị đã đặt trên Cloudflare Pages"
+                        value={commentAdminSecret}
+                        onChange={(e) => setCommentAdminSecret(e.target.value)}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </Space>
+                </Card>
+                <Card title="Export" bordered={false} style={{ borderRadius: 12 }}>
+                  <Space wrap>
+                    <Button
+                      type="primary"
+                      icon={<DownloadOutlined />}
+                      onClick={exportCommentsD1}
+                      loading={commentExporting}
+                    >
+                      Tải JSON (comments + comment_reactions)
+                    </Button>
+                  </Space>
+                </Card>
+                <Card title="Import" bordered={false} style={{ borderRadius: 12 }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={10}>
+                    <Space wrap>
+                      <Typography.Text strong>Chế độ</Typography.Text>
+                      <Select
+                        value={commentImportMode}
+                        onChange={(v: 'merge' | 'replace') => setCommentImportMode(v)}
+                        options={[
+                          { value: 'merge', label: 'Merge / upsert theo id (khuyến nghị)' },
+                          { value: 'replace', label: 'Replace — xóa hết D1 rồi ghi lại' },
+                        ]}
+                        style={{ width: 320 }}
+                      />
+                    </Space>
+                    <Input.TextArea
+                      rows={12}
+                      value={commentImportText}
+                      onChange={(e: any) => setCommentImportText(e.target.value)}
+                      placeholder='Dán JSON từ export (có "comments" và "comment_reactions")...'
+                    />
+                    <Space wrap>
+                      <Button
+                        type="primary"
+                        icon={<UploadOutlined />}
+                        onClick={importCommentsD1}
+                        loading={commentImporting}
+                      >
+                        Import
+                      </Button>
+                      <Button onClick={() => setCommentImportText('')}>Xóa nội dung</Button>
+                      <Button icon={<CopyOutlined />} onClick={() => copyToClipboard(commentImportText || '')}>
+                        Copy JSON
+                      </Button>
+                    </Space>
                   </Space>
                 </Card>
               </Space>

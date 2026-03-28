@@ -2,6 +2,8 @@
 
 Hệ thống gồm: **Website phim tĩnh** (Cloudflare Pages), **Admin Panel** (Vercel), **Ứng dụng đa nền tảng** (Capacitor).
 
+**Người mới có mã nguồn — cài đặt 5 bước:** [docs/BAT-DAU-NHANH.md](docs/BAT-DAU-NHANH.md) (tài khoản & key → GitHub → Supabase → Vercel → Cloudflare). Toàn bộ tài liệu: [docs/README.md](docs/README.md). Chi tiết và gỡ lỗi: [docs/TRIEN-KHAI.md](docs/TRIEN-KHAI.md).
+
 ---
 
 ## Node.js có bắt buộc chạy trên máy PC không?
@@ -158,7 +160,7 @@ Mở trình duyệt: **http://localhost:5174** (hoặc cổng Vite in ra trong t
 - **`scripts/build.js`** – Script build: OPhim, TMDB, Google Sheets → file tĩnh trong `public/data/`.
 - **`public/`** – Website chính (deploy Cloudflare Pages).
 - **`admin/`** – Admin panel React (deploy Vercel).
-- **`app/`** – Cấu hình Capacitor (Android/iOS/Android TV).
+- **`app/`** – (Tùy chọn) Project Capacitor nếu bạn tạo; xem `docs/capacitor/README.md`.
 - **`docs/`** – Hướng dẫn chi tiết: Supabase, R2, Vercel, Cloudflare Pages, GitHub Actions, Comments, Capacitor, Google Sheets.
 
 ### Section trang chủ (mặc định)
@@ -182,13 +184,6 @@ Chi tiết từng dịch vụ (tạo Supabase, R2, deploy…) xem trong từng t
 
 ## Triển khai lên môi trường (deploy)
 
-**Hướng dẫn từng bước:** xem **`docs/TRIEN-KHAI.md`**.
+**Làm lần lượt:** **`docs/BAT-DAU-NHANH.md`** — Bước 1 (tài khoản & key) → 2 (GitHub) → 3 (Supabase) → 4 (Vercel) → 5 (Cloudflare). Chi tiết và xử lý sự cố: **`docs/TRIEN-KHAI.md`**.
 
-Tóm tắt:
-
-1. **Supabase:** Tạo 2 project (User + Admin), chạy SQL trong `docs/supabase/`, tạo user admin.
-2. **GitHub:** Push code, thêm Secrets (TMDB, Supabase Admin, Cloudflare, …).
-3. **Cloudflare Pages:** dùng **Direct Upload + GitHub Actions deploy**.
-4. **Vercel:** Import repo, root = repo root, build = `cd admin && npm run build`, output = `admin/dist`; thêm env Supabase Admin + GITHUB_TOKEN, GITHUB_REPO cho API trigger build.
-5. **Build dữ liệu:** Chạy `npm run build` (local hoặc qua Actions), push `public/data`, deploy lại site.
-6. **Admin:** Đăng nhập, cấu hình Cài đặt chung (Supabase User URL/Key, tracking…), bấm Build website rồi deploy lại site nếu cần.
+Sau khi cấu hình xong: chạy workflow build trên Actions (hoặc `npm run build` rồi push), vào Admin **Cài đặt chung** (Supabase User), bấm **Build website** nếu cần, đợi deploy `public/` lên Cloudflare Pages.

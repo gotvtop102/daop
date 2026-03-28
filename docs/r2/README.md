@@ -1,5 +1,7 @@
 # Cloudflare R2 – Lưu trữ file
 
+Tổng quan Cloudflare (Pages + token + R2 + comment): [../cloudflare/README.md](../cloudflare/README.md).
+
 R2 dùng để lưu ảnh (thumb, poster đã chuyển WebP), video quảng cáo, và có thể file batch nếu cần.
 
 ## Các bước cấu hình
