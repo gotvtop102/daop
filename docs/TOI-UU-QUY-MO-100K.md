@@ -66,7 +66,7 @@ File này ghi lại phân tích kiến trúc hiện tại, rủi ro khi scale, v
 | P1-2 | P1 | CI: tách pha, artifact, chiến lược không commit toàn bộ `public/data` | ☐ Chưa |
 | P1-3 | P1 | Client: `batchSize` từ `index/meta.json`, fallback khớp `baseBatchSize` build; `loadIdIndexShardsForKey` | ☑ 2026-03-28 |
 | P2-1 | P2 | Tune `BASE_BATCH_SIZE`, `BATCH_MAX_BYTES`, `SHARD_MAX_BYTES` theo đo thực tế | ☐ Chưa |
-| P2-2 | P2 | Đo thời gian từng bước build (OPhim / TMDB / ghi index) | ☐ Chưa |
+| P2-2 | P2 | Đo thời gian từng bước build (OPhim / TMDB / ghi index) | ☑ 2026-03-28 — `scripts/build.js`: `[TIMING]` (`timeBuildPhase` / `timeBuildPhaseSync`) cho OPhim, Custom/R2, TMDB, merge, export+inject, `writeBatches`, index/search, filters/actors, Supabase sync; tổng thời gian incremental / TMDB_ONLY / full build. |
 
 **Ghi chú tiến độ:** đổi `☐ Chưa` → `☑ YYYY-MM-DD` hoặc mô tả ngắn khi xong.
 
@@ -102,3 +102,4 @@ _(Thêm dòng dưới đây mỗi khi họp / quyết định quan trọng.)_
 - 2026-03-28: P0-1 — idIndex split + `index/id/meta.json` + cập nhật `public/js/main.js`; `validateBuildOutputs` + `loadIdIndexShardMapFromDisk` trong `scripts/build.js`.
 - 2026-03-28: P1-1 (partial) — search prefix: bỏ `type` khỏi item, `SEARCH_PREFIX_MIN_TOKEN_LEN` / `SEARCH_PREFIX_MAX_TOKENS`, `searchOpts` trong `search/prefix/meta.json`.
 - 2026-03-28: P1-3 — `index/meta.json` lấy `batchSize` từ `batch-windows.json`; `main.js`: `applyRootIndexMeta`, `loadIdIndexShardsForKey`.
+- 2026-03-28: P2-2 — log `[TIMING]` trong `main()` (`scripts/build.js`) để đo wall-clock từng bước và tổng thời gian theo nhánh build.

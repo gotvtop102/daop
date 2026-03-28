@@ -55,6 +55,39 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function fmtBuildMs(ms) {
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  return `${(ms / 1000).toFixed(2)}s`;
+}
+
+/** Đo thời gian bước build async (P2-2). */
+async function timeBuildPhase(label, fn) {
+  const t0 = Date.now();
+  console.log(`[TIMING] → ${label}`);
+  try {
+    const result = await fn();
+    console.log(`[TIMING] ✓ ${label}: ${fmtBuildMs(Date.now() - t0)}`);
+    return result;
+  } catch (e) {
+    console.log(`[TIMING] ✗ ${label}: ${fmtBuildMs(Date.now() - t0)} (error)`);
+    throw e;
+  }
+}
+
+/** Đo thời gian bước build đồng bộ. */
+function timeBuildPhaseSync(label, fn) {
+  const t0 = Date.now();
+  console.log(`[TIMING] → ${label}`);
+  try {
+    const result = fn();
+    console.log(`[TIMING] ✓ ${label}: ${fmtBuildMs(Date.now() - t0)}`);
+    return result;
+  } catch (e) {
+    console.log(`[TIMING] ✗ ${label}: ${fmtBuildMs(Date.now() - t0)} (error)`);
+    throw e;
+  }
+}
+
 function parseBooleanFlag(v, defaultVal = false) {
   if (v == null || v === '') return !!defaultVal;
   const t = String(v).trim().toLowerCase();
@@ -3537,6 +3570,7 @@ async function main() {
   const incremental = process.argv.includes('--incremental');
   const cleanOldData = process.argv.includes('--clean') || process.env.CLEAN_OLD_DATA === '1';
   console.log('Build started (incremental:', incremental, ')');
+  const buildT0 = Date.now();
 
   const isPartialOphimRange =
     (OPHIM_START_PAGE > 1) ||
@@ -3685,6 +3719,7 @@ async function main() {
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
     injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
     console.log('Incremental build xong.');
+    console.log('[TIMING] Total (incremental):', fmtBuildMs(Date.now() - buildT0));
     return;
   }
 
@@ -3719,12 +3754,14 @@ async function main() {
   if (tmdbOnly) {
     if (skipTmdb) {
       console.log('TMDB_ONLY: SKIP_TMDB đang bật, không có gì để làm.');
+      console.log('[TIMING] Total (TMDB_ONLY skip):', fmtBuildMs(Date.now() - buildT0));
       return;
     }
     if (!prevMoviesById || prevMoviesById.size === 0) {
       throw new Error('TMDB_ONLY requires existing built movies in public/data/batches (prevMoviesById is empty). Run CORE/full build first.');
     }
 
+    const tLoadBatches = Date.now();
     let allMovies = [];
     try {
       const wins = loadBatchWindowsOrThrow();
@@ -3768,6 +3805,7 @@ async function main() {
       allMovies = Array.from(prevMoviesById.values());
     }
     console.log('TMDB_ONLY: loaded movies from existing batches:', allMovies.length);
+    console.log('[TIMING] ✓ TMDB_ONLY: load movies from batches:', fmtBuildMs(Date.now() - tLoadBatches));
 
     const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
     const shouldEnrich = (m) => {
@@ -3787,7 +3825,7 @@ async function main() {
 
     const need = (allMovies || []).filter(shouldEnrich);
     console.log('TMDB_ONLY: movies to enrich:', need.length);
-    await enrichTmdb(need);
+    await timeBuildPhase('TMDB_ONLY: enrich TMDB', () => enrichTmdb(need));
 
     const tmdbById = new Map(prevTmdbById || []);
     for (const m of allMovies) {
@@ -3815,12 +3853,17 @@ async function main() {
     }
 
     console.log('Writing TMDB batches only...');
-    writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
+    timeBuildPhaseSync('TMDB_ONLY: writeBatches', () => {
+      writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
+    });
 
     // Rebuild actors từ TMDB payload: CORE phase (SKIP_TMDB) thường không có cast/cast_meta,
     // và core batches còn strip các field này. Nếu không rebuild ở đây, /dien-vien sẽ rỗng.
     try {
+      const tActors = Date.now();
+      console.log('[TIMING] → TMDB_ONLY: writeActors');
       writeActors(hydrateMoviesWithTmdbPayload(allMovies, tmdbById));
+      console.log('[TIMING] ✓ TMDB_ONLY: writeActors:', fmtBuildMs(Date.now() - tActors));
     } catch (e) {
       console.warn('TMDB_ONLY: rebuild actors failed (continue):', e && e.message ? e.message : e);
     }
@@ -3829,54 +3872,59 @@ async function main() {
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
     injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
     console.log('TMDB_ONLY build done.');
+    console.log('[TIMING] Total (TMDB_ONLY):', fmtBuildMs(Date.now() - buildT0));
     return;
   }
 
   console.log('1. Fetching OPhim...');
-  const ophim = await fetchOPhimMovies(prevMoviesById, prevOphimIndex, cleanOldData);
+  const ophim = await timeBuildPhase('1. OPhim (fetch list + detail)', () =>
+    fetchOPhimMovies(prevMoviesById, prevOphimIndex, cleanOldData)
+  );
   console.log('   OPhim count:', ophim.length);
 
   console.log('2. Fetching custom (Supabase / Excel)...');
-  const custom = await fetchCustomMovies();
+  const custom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies());
   console.log('   Custom count:', custom.length);
 
   // NEW: upload images to R2 if missing (metadata trong DB / batch, không ghi URL ngược Excel)
-  await ensureR2ImagesForNewCustomMovies(custom);
+  await timeBuildPhase('2b. R2 images (custom new)', () => ensureR2ImagesForNewCustomMovies(custom));
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');
-    if (tmdbOnly) {
-      const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
-      const shouldEnrich = (m) => {
-        if (!m) return false;
-        const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
-        if (!tid) return false;
-        if (forceTmdb) return true;
-        const idStr = m && m.id != null ? String(m.id) : '';
-        if (!idStr) return true;
-        if (!prevTmdbById || typeof prevTmdbById.get !== 'function') return true;
-        const prev = prevTmdbById.get(idStr);
-        if (!prev) return true;
-        const prevTid = prev && prev.tmdb ? prev.tmdb.id : null;
-        if (prevTid != null && String(prevTid) !== String(tid)) return true;
-        // Nếu phim không đổi so với last_modified và đã có payload TMDB trước đó => bỏ qua gọi TMDB.
-        if (prevLastModified && typeof prevLastModified === 'object') {
-          const curMod = m.modified || m.updated_at || '';
-          const oldMod = prevLastModified[idStr];
-          if (oldMod && curMod && String(oldMod) === String(curMod)) {
-            return false;
+    await timeBuildPhase('3. TMDB enrich', async () => {
+      if (tmdbOnly) {
+        const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
+        const shouldEnrich = (m) => {
+          if (!m) return false;
+          const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
+          if (!tid) return false;
+          if (forceTmdb) return true;
+          const idStr = m && m.id != null ? String(m.id) : '';
+          if (!idStr) return true;
+          if (!prevTmdbById || typeof prevTmdbById.get !== 'function') return true;
+          const prev = prevTmdbById.get(idStr);
+          if (!prev) return true;
+          const prevTid = prev && prev.tmdb ? prev.tmdb.id : null;
+          if (prevTid != null && String(prevTid) !== String(tid)) return true;
+          // Nếu phim không đổi so với last_modified và đã có payload TMDB trước đó => bỏ qua gọi TMDB.
+          if (prevLastModified && typeof prevLastModified === 'object') {
+            const curMod = m.modified || m.updated_at || '';
+            const oldMod = prevLastModified[idStr];
+            if (oldMod && curMod && String(oldMod) === String(curMod)) {
+              return false;
+            }
           }
-        }
-        return true;
-      };
-      const needOphim = (ophim || []).filter(shouldEnrich);
-      const needCustom = (custom || []).filter(shouldEnrich);
-      console.log('   TMDB_ONLY: movies to enrich:', needOphim.length + needCustom.length);
-      await enrichTmdb(needOphim);
-      await enrichTmdb(needCustom);
-    } else {
-      await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
-      await enrichTmdb(custom);
-    }
+          return true;
+        };
+        const needOphim = (ophim || []).filter(shouldEnrich);
+        const needCustom = (custom || []).filter(shouldEnrich);
+        console.log('   TMDB_ONLY: movies to enrich:', needOphim.length + needCustom.length);
+        await enrichTmdb(needOphim);
+        await enrichTmdb(needCustom);
+      } else {
+        await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
+        await enrichTmdb(custom);
+      }
+    });
   } else {
     console.log('3. Enriching TMDB... (SKIP_TMDB)');
   }
@@ -3906,61 +3954,73 @@ async function main() {
     });
   }
 
-  const allMovies = mergeMovies(ophim, custom);
+  const allMovies = timeBuildPhaseSync('4. merge movies (ophim + custom)', () => mergeMovies(ophim, custom));
   console.log('4. Total movies:', allMovies.length);
 
   console.log('4b. Fetching OPhim genres & countries...');
-  const { genreNames, countryNames } = await fetchOPhimGenresAndCountries();
+  const { genreNames, countryNames } = await timeBuildPhase('4b. OPhim genres + countries', () =>
+    fetchOPhimGenresAndCountries()
+  );
 
-  console.log('5. Exporting config from Supabase Admin (để có filter-order, site-settings...)...');
-  await exportConfigFromSupabase();
+  await timeBuildPhase('5. Supabase export + HTML inject', async () => {
+    console.log('5. Exporting config from Supabase Admin (để có filter-order, site-settings...)...');
+    await exportConfigFromSupabase();
 
-  console.log('5b. Injecting site_name into HTML files...');
-  injectSiteNameIntoHtml();
-  console.log('5c. Injecting footer into HTML files...');
-  injectFooterIntoHtml();
-  console.log('5d. Injecting nav into HTML files...');
-  injectNavIntoHtml();
-  console.log('5e. Injecting loading screen into HTML files...');
-  injectLoadingScreenIntoHtml();
-  console.log('5f. Removing movies-light.js script tags from HTML files...');
-  removeMoviesLightScriptFromHtml();
+    console.log('5b. Injecting site_name into HTML files...');
+    injectSiteNameIntoHtml();
+    console.log('5c. Injecting footer into HTML files...');
+    injectFooterIntoHtml();
+    console.log('5d. Injecting nav into HTML files...');
+    injectNavIntoHtml();
+    console.log('5e. Injecting loading screen into HTML files...');
+    injectLoadingScreenIntoHtml();
+    console.log('5f. Removing movies-light.js script tags from HTML files...');
+    removeMoviesLightScriptFromHtml();
+  });
 
   console.log('6. Writing movies-light.js, filters.js, actors (index + shards), batches...');
   if (process.env.GENERATE_MOVIES_LIGHT === '1') {
-    writeMoviesLight(allMovies);
+    timeBuildPhaseSync('6. movies-light.js (optional)', () => writeMoviesLight(allMovies));
   }
   // R2-only: upload thumb/poster for all movies and enforce id-based R2 URLs in output.
-  await ensureR2ImagesForAllMovies(allMovies);
-  const batchRes = writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
+  await timeBuildPhase('6a. R2 images (all movies)', () => ensureR2ImagesForAllMovies(allMovies));
+  const batchRes = timeBuildPhaseSync('6b. writeBatches', () =>
+    writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById)
+  );
   const newLastModified = batchRes && batchRes.newLastModified ? batchRes.newLastModified : batchRes;
 
-  writeHomeSectionsData(allMovies);
-  writeAutoSliderFile(allMovies);
+  timeBuildPhaseSync('6c. home sections + auto slider', () => {
+    writeHomeSectionsData(allMovies);
+    writeAutoSliderFile(allMovies);
+  });
   const batchPtrById = batchRes && batchRes.batchPtrById ? batchRes.batchPtrById : null;
 
-  writeIndexAndSearchShards(allMovies, batchPtrById);
-  const filters = writeFilters(allMovies, genreNames, countryNames);
-  writeCategoryPages(filters);
-  writeActors(hydrateMoviesWithTmdbPayload(allMovies, tmdbById));
+  timeBuildPhaseSync('6d. writeIndex + search shards', () => writeIndexAndSearchShards(allMovies, batchPtrById));
+  timeBuildPhaseSync('6e. filters + category pages + actors', () => {
+    const f = writeFilters(allMovies, genreNames, countryNames);
+    writeCategoryPages(f);
+    writeActors(hydrateMoviesWithTmdbPayload(allMovies, tmdbById));
+  });
 
   try {
     fs.writeFileSync(path.join(PUBLIC_DATA, 'last_modified.json'), JSON.stringify(newLastModified, null, 2));
   } catch {}
 
   console.log('6b. Sync update status back to Supabase (NEW → blank, slug if needed)...');
-  await applySupabaseUpdateStatuses(custom);
+  await timeBuildPhase('6f. Supabase sync (update status)', () => applySupabaseUpdateStatuses(custom));
 
   const buildVersion = { builtAt: new Date().toISOString() };
   fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
   injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
 
   console.log('7. Writing sitemap.xml & robots.txt...');
-  writeSitemap(allMovies);
-  writeRobots();
+  timeBuildPhaseSync('7. sitemap + robots', () => {
+    writeSitemap(allMovies);
+    writeRobots();
+  });
 
   if (process.env.VALIDATE_BUILD !== '0' && process.env.VALIDATE_BUILD !== 'false') {
-    validateBuildOutputs(allMovies);
+    timeBuildPhaseSync('validate build outputs', () => validateBuildOutputs(allMovies));
   }
 
   const lastBuild = { builtAt: new Date().toISOString(), movieCount: allMovies.length };
@@ -3968,6 +4028,7 @@ async function main() {
   const lastModifiedOut = newLastModified || {};
   fs.writeFileSync(lastModifiedPath, JSON.stringify(lastModifiedOut, null, 2));
   console.log('Build done.');
+  console.log('[TIMING] Total (full build):', fmtBuildMs(Date.now() - buildT0));
 }
 
 main().catch((e) => {
