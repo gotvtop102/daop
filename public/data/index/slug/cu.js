@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["cu"] = {"cujo":{"id":"69aa51db1d0b515454b152ae","i":55,"title":"Chó điên","origin_name":"Cujo","slug":"cujo","thumb":"https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69aa51db1d0b515454b152ae.webp","year":"1983","type":"single","episode_current":"Full"}};
