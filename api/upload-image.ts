@@ -5,7 +5,6 @@
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import sharp from 'sharp';
 
 const MAX_SIZE = 4 * 1024 * 1024; // 4MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -37,6 +36,7 @@ function sanitizeFolder(folder: string) {
 async function optimizeImage(buffer: Buffer, contentType: string) {
   if (contentType === 'image/gif') return buffer;
   try {
+    const sharp = (await import('sharp')).default;
     const img = sharp(buffer, { failOn: 'none' }).rotate();
     return await img.webp({ quality: 80 }).toBuffer();
   } catch {

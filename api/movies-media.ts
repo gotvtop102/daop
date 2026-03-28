@@ -1,5 +1,10 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import sharp from 'sharp';
+
+/** Lazy-load sharp (native) — import tĩnh hay gây FUNCTION_INVOCATION_FAILED trên Vercel. */
+async function getSharp() {
+  const m = await import('sharp');
+  return m.default;
+}
 
 export function isR2Configured() {
   return !!(
@@ -49,6 +54,7 @@ async function uploadToR2(buffer: Buffer, key: string, contentType = 'image/webp
 }
 
 async function optimizeToWebp(input: Buffer) {
+  const sharp = await getSharp();
   return sharp(input)
     .rotate()
     .webp({ quality: 82, effort: 5 })

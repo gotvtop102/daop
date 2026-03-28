@@ -77,7 +77,7 @@ export async function listMoviesSb(
 
   const from = (page - 1) * limit;
   const to = from + limit - 1;
-  const { data: rows, error, count } = await q.order('modified', { ascending: false, nullsFirst: false }).range(from, to);
+  const { data: rows, error, count } = await q.order('modified', { ascending: false }).range(from, to);
   if (error) throw error;
 
   const movies = (rows || []).map((r, i) => ({ ...rowToMovie(r), _rowIndex: from + i + 2 }));
