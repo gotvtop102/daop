@@ -15,6 +15,7 @@ import {
 } from 'antd';
 import { CopyOutlined, DownloadOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
+import { getApiBaseUrl } from '../lib/api';
 import { normalizeCommentsAdminSecret } from '../lib/commentAdminSecret';
 
 type ExportPayload = Record<string, any[]>;
@@ -49,30 +50,13 @@ const DEFAULT_SELECTED_TABLES: TableKey[] = TABLES.filter(
   (t) => t.key !== 'movies' && t.key !== 'movie_episodes'
 ).map((t) => t.key);
 
-/** PostgREST giới hạn mặc định ~1000 dòng/request — phải lặp range để export đủ. */
-const EXPORT_PAGE_SIZE = 1000;
-
-const TABLES_PAGINATE_ON_EXPORT: Set<TableKey> = new Set(['movies', 'movie_episodes']);
+/** Phim/tập: RLS + anon có thể trả [] dù DB có dữ liệu — export qua /api/movies (service role) giống trang Danh sách phim. */
+const MOVIE_EXPORT_TABLES: TableKey[] = ['movies', 'movie_episodes'];
 
 async function selectAllRowsForExport(table: TableKey): Promise<any[]> {
-  if (!TABLES_PAGINATE_ON_EXPORT.has(table)) {
-    const r = await supabase.from(table).select('*');
-    if (r.error) throw r.error;
-    return (r.data ?? []) as any[];
-  }
-
-  const rows: any[] = [];
-  let from = 0;
-  for (;;) {
-    const to = from + EXPORT_PAGE_SIZE - 1;
-    const r = await supabase.from(table).select('*').order('id', { ascending: true }).range(from, to);
-    if (r.error) throw r.error;
-    const chunk = (r.data ?? []) as any[];
-    rows.push(...chunk);
-    if (chunk.length < EXPORT_PAGE_SIZE) break;
-    from += EXPORT_PAGE_SIZE;
-  }
-  return rows;
+  const r = await supabase.from(table).select('*');
+  if (r.error) throw r.error;
+  return (r.data ?? []) as any[];
 }
 
 function downloadJson(filename: string, data: any) {
@@ -873,11 +857,31 @@ on conflict (key) do nothing;`;
       setExporting(true);
       const payload: ExportPayload = {};
 
-      const reqs = selectedTables.map(async (t: TableKey) => {
-        payload[t] = await selectAllRowsForExport(t);
-      });
+      const viaApi = selectedTables.filter((t) => MOVIE_EXPORT_TABLES.includes(t));
+      const viaSb = selectedTables.filter((t) => !MOVIE_EXPORT_TABLES.includes(t));
 
-      await Promise.all(reqs);
+      if (viaApi.length) {
+        const base = getApiBaseUrl().replace(/\/$/, '');
+        if (!base) throw new Error('Thiếu URL gọi API (dev: proxy /api; production: VITE_API_URL hoặc cùng host với deploy API).');
+        const res = await fetch(`${base}/api/movies?action=exportFull`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tables: viaApi }),
+        });
+        const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; data?: Record<string, any[]> };
+        if (!res.ok) throw new Error(j?.error || `HTTP ${res.status}`);
+        if (!j?.ok) throw new Error(j?.error || 'Export phim/tập thất bại');
+        const data = j.data || {};
+        for (const t of viaApi) {
+          payload[t] = Array.isArray(data[t]) ? data[t] : [];
+        }
+      }
+
+      await Promise.all(
+        viaSb.map(async (t: TableKey) => {
+          payload[t] = await selectAllRowsForExport(t);
+        })
+      );
       payload.__meta = [
         {
           exported_at: new Date().toISOString(),
@@ -1038,8 +1042,10 @@ on conflict (key) do nothing;`;
           Supabase Tools
         </Typography.Title>
         <Typography.Text type="secondary">
-          Backup/restore dữ liệu cấu hình + phim (movies / movie_episodes), và copy SQL setup. Export phim/tập mặc định{' '}
-          <strong>không bật</strong> — chọn tay nếu cần (có thể rất lớn).
+          Backup/restore dữ liệu cấu hình + phim (movies / movie_episodes), và copy SQL setup. Phim/tập được lấy qua{' '}
+          <Typography.Text code>/api/movies?action=exportFull</Typography.Text> (service role, không phụ thuộc RLS trình duyệt).
+          Dev: cần <Typography.Text code>VITE_API_URL</Typography.Text> trong admin để proxy <Typography.Text code>/api</Typography.Text>{' '}
+          tới Vercel. Export phim/tập mặc định <strong>không chọn</strong> — bật tay khi cần (file có thể rất lớn).
         </Typography.Text>
       </Space>
 

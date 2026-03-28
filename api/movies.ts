@@ -3,6 +3,7 @@ import {
   authInfoSb,
   countRowsSb,
   deleteMovieSb,
+  exportFullMovieTablesSb,
   getEpisodesSb,
   getMovieBySlugSb,
   getMovieSb,
@@ -55,6 +56,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .filter(Boolean);
         const out = await countRowsSb(tableNames);
         return res.status(200).json(out);
+      }
+
+      case 'exportFull': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        const raw = (req.body as any)?.tables;
+        const list = Array.isArray(raw)
+          ? raw.map((x: any) => String(x || '').trim()).filter(Boolean)
+          : ['movies', 'movie_episodes'];
+        const allowed = list.filter((t) => t === 'movies' || t === 'movie_episodes');
+        if (!allowed.length) {
+          return res.status(400).json({ error: 'tables phải gồm movies và/hoặc movie_episodes' });
+        }
+        const data = await exportFullMovieTablesSb(allowed);
+        return res.status(200).json({ ok: true, data });
       }
 
       case 'deleteRows': {

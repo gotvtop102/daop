@@ -389,6 +389,46 @@ export async function saveEpisodesSb(movieId: string, episodes: any[]) {
   return { success: true, count: rows.length };
 }
 
+const REST_EXPORT_PAGE = 1000;
+
+async function fetchAllRowsRestPaged(relPath: string, key: string): Promise<any[]> {
+  const pathBase = relPath.includes('?') ? `${relPath}&order=id.asc` : `${relPath}?order=id.asc`;
+  const all: any[] = [];
+  let from = 0;
+  for (;;) {
+    const to = from + REST_EXPORT_PAGE - 1;
+    const res = await restFetch(pathBase, {
+      method: 'GET',
+      key,
+      headers: {
+        ...authHeaders(key),
+        Range: `${from}-${to}`,
+      },
+    });
+    if (!res.ok) throw await errFromRes(res);
+    const rows = await restJson<any[]>(res);
+    const chunk = Array.isArray(rows) ? rows : [];
+    all.push(...chunk);
+    if (chunk.length < REST_EXPORT_PAGE) break;
+    from += REST_EXPORT_PAGE;
+  }
+  return all;
+}
+
+/** Toàn bộ dòng — dùng service role (bypass RLS). Admin UI export qua /api/movies?action=exportFull. */
+export async function exportFullMovieTablesSb(tables: string[]): Promise<Record<string, any[]>> {
+  const { key } = getEnv();
+  const want = new Set(tables.map((t) => String(t || '').trim()));
+  const out: Record<string, any[]> = {};
+  if (want.has('movies')) {
+    out.movies = await fetchAllRowsRestPaged('/movies?select=*', key);
+  }
+  if (want.has('movie_episodes')) {
+    out.movie_episodes = await fetchAllRowsRestPaged('/movie_episodes?select=*', key);
+  }
+  return out;
+}
+
 export function authInfoSb() {
   const { url } = getEnv();
   return {
