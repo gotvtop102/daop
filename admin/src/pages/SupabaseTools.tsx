@@ -16,7 +16,7 @@ import {
 import { CopyOutlined, DownloadOutlined, FileExcelOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
-import { buildMoviesEpisodesWorkbook, downloadWorkbook, parseMoviesEpisodesWorkbook } from '../lib/moviesExcel';
+import { buildMultiTableWorkbook, downloadWorkbook, parseMultiTableWorkbook } from '../lib/supabaseExcel';
 import { normalizeCommentsAdminSecret } from '../lib/commentAdminSecret';
 
 type ExportPayload = Record<string, any[]>;
@@ -83,6 +83,8 @@ async function copyToClipboard(text: string) {
 
 export default function SupabaseTools() {
   const excelFileInputRef = useRef<HTMLInputElement>(null);
+  const userExcelFileInputRef = useRef<HTMLInputElement>(null);
+  const commentExcelFileInputRef = useRef<HTMLInputElement>(null);
   const [selectedTables, setSelectedTables] = useState<TableKey[]>(DEFAULT_SELECTED_TABLES);
   const [exporting, setExporting] = useState(false);
 
@@ -307,6 +309,210 @@ export default function SupabaseTools() {
       return;
     }
 
+    await run();
+  };
+
+  const handleUserExcelExport = async () => {
+    try {
+      if (!selectedUserTables.length) {
+        message.warning('Chọn ít nhất 1 bảng');
+        return;
+      }
+      setUserExporting(true);
+      const r = await fetch('/api/supabase-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'export', tables: selectedUserTables }),
+      }).then((x) => x.json());
+      if (!r?.ok) throw new Error(r?.message || 'Export thất bại');
+      const payload = r?.data || {};
+      const metaRow = Array.isArray(payload.__meta) ? payload.__meta[0] : {};
+      const { __meta: _um, ...rest } = payload;
+      const buf = buildMultiTableWorkbook(rest as Record<string, any[]>, {
+        source: 'supabase_user',
+        ...metaRow,
+      });
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+      downloadWorkbook(`supabase-user-${stamp}.xlsx`, buf);
+      message.success('Đã tải Excel');
+    } catch (e: any) {
+      message.error(e?.message || 'Export Excel thất bại');
+    } finally {
+      setUserExporting(false);
+    }
+  };
+
+  const handleUserExcelFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    let buf: ArrayBuffer;
+    try {
+      buf = await file.arrayBuffer();
+    } catch {
+      message.error('Không đọc được file');
+      return;
+    }
+    let data: Record<string, any[]>;
+    try {
+      data = parseMultiTableWorkbook(buf, 'user');
+    } catch (err: any) {
+      message.error(err?.message || 'File Excel không hợp lệ');
+      return;
+    }
+    const allowed = new Set(USER_TABLES.map((t) => t.key));
+    const importPayload: Record<string, any[]> = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (allowed.has(k) && Array.isArray(v) && v.length) importPayload[k] = v;
+    }
+    const keys = Object.keys(importPayload);
+    if (!keys.length) {
+      message.warning('File không có dữ liệu bảng User (profiles / favorites / watch_history / user_changes).');
+      return;
+    }
+
+    const run = async () => {
+      setUserImporting(true);
+      try {
+        const r = await fetch('/api/supabase-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'import',
+            mode: userImportMode,
+            tables: keys,
+            data: importPayload,
+          }),
+        }).then((x) => x.json());
+        if (!r?.ok) throw new Error(r?.message || 'Import thất bại');
+        message.success('Import Excel thành công');
+      } catch (e: any) {
+        message.error(e?.message || 'Import Excel thất bại');
+      } finally {
+        setUserImporting(false);
+      }
+    };
+
+    if (userImportMode === 'replace') {
+      Modal.confirm({
+        title: 'Replace User: xóa và ghi lại dữ liệu các bảng trong file',
+        okText: 'Tiếp tục',
+        okButtonProps: { danger: true },
+        cancelText: 'Hủy',
+        onOk: run,
+      });
+      return;
+    }
+    await run();
+  };
+
+  const handleCommentExcelExport = async () => {
+    const base = commentPagesBaseUrl();
+    const secret = normalizeCommentsAdminSecret(commentAdminSecret);
+    if (!base) {
+      message.warning('Nhập URL website tĩnh (Cloudflare Pages)');
+      return;
+    }
+    if (secret.length < 8) {
+      message.warning('Nhập COMMENTS_ADMIN_SECRET');
+      return;
+    }
+    setCommentExporting(true);
+    try {
+      const res = await fetch(`${base}/api/comment/admin-export`, { headers: commentD1AuthHeaders(secret) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j?.ok) throw new Error(j?.error || `HTTP ${res.status}`);
+      const tables = {
+        comments: Array.isArray(j.comments) ? j.comments : [],
+        comment_reactions: Array.isArray(j.comment_reactions) ? j.comment_reactions : [],
+      };
+      const buf = buildMultiTableWorkbook(tables, {
+        source: 'd1',
+        exportedAt: j.exportedAt,
+        version: j.version,
+      });
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+      downloadWorkbook(`comments-d1-${stamp}.xlsx`, buf);
+      message.success('Đã tải Excel (D1)');
+    } catch (e: any) {
+      message.error(e?.message || 'Export Excel D1 thất bại');
+    } finally {
+      setCommentExporting(false);
+    }
+  };
+
+  const handleCommentExcelFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const base = commentPagesBaseUrl();
+    const secret = normalizeCommentsAdminSecret(commentAdminSecret);
+    if (!base) {
+      message.warning('Nhập URL website');
+      return;
+    }
+    if (secret.length < 8) {
+      message.warning('Nhập COMMENTS_ADMIN_SECRET');
+      return;
+    }
+    let buf: ArrayBuffer;
+    try {
+      buf = await file.arrayBuffer();
+    } catch {
+      message.error('Không đọc được file');
+      return;
+    }
+    let data: Record<string, any[]>;
+    try {
+      data = parseMultiTableWorkbook(buf, 'd1');
+    } catch (err: any) {
+      message.error(err?.message || 'File Excel không hợp lệ');
+      return;
+    }
+    const comments = data.comments || [];
+    const comment_reactions = data.comment_reactions || [];
+    if (!comments.length && !comment_reactions.length) {
+      message.warning('File cần sheet comments và/hoặc comment_reactions');
+      return;
+    }
+
+    const run = async () => {
+      setCommentImporting(true);
+      try {
+        const res = await fetch(`${base}/api/comment/admin-import`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...commentD1AuthHeaders(secret),
+          },
+          body: JSON.stringify({
+            mode: commentImportMode,
+            comments,
+            comment_reactions,
+          }),
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || !out?.ok) throw new Error(out?.error || `HTTP ${res.status}`);
+        message.success(
+          `Import Excel xong: ${out.commentsUpserted ?? 0} comment, ${out.reactionsProcessed ?? 0} reaction`
+        );
+      } catch (err: any) {
+        message.error(err?.message || 'Import Excel D1 thất bại');
+      } finally {
+        setCommentImporting(false);
+      }
+    };
+
+    if (commentImportMode === 'replace') {
+      Modal.confirm({
+        title: 'Replace sẽ xóa toàn bộ comment + reaction trong D1 rồi ghi lại',
+        okText: 'Tiếp tục',
+        okButtonProps: { danger: true },
+        cancelText: 'Hủy',
+        onOk: run,
+      });
+      return;
+    }
     await run();
   };
 
@@ -850,6 +1056,37 @@ on conflict (key) do nothing;`;
     ];
   }, []);
 
+  const buildAdminExportPayload = async (): Promise<ExportPayload> => {
+    const payload: ExportPayload = {};
+    const viaApi = selectedTables.filter((t) => MOVIE_EXPORT_TABLES.includes(t));
+    const viaSb = selectedTables.filter((t) => !MOVIE_EXPORT_TABLES.includes(t));
+
+    if (viaApi.length) {
+      const base = getApiBaseUrl().replace(/\/$/, '');
+      if (!base) throw new Error('Thiếu URL gọi API (dev: proxy /api; production: VITE_API_URL hoặc cùng host với deploy API).');
+      const res = await fetch(`${base}/api/movies?action=exportFull`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tables: viaApi }),
+      });
+      const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; data?: Record<string, any[]> };
+      if (!res.ok) throw new Error(j?.error || `HTTP ${res.status}`);
+      if (!j?.ok) throw new Error(j?.error || 'Export phim/tập thất bại');
+      const data = j.data || {};
+      for (const t of viaApi) {
+        payload[t] = Array.isArray(data[t]) ? data[t] : [];
+      }
+    }
+
+    await Promise.all(
+      viaSb.map(async (t: TableKey) => {
+        payload[t] = await selectAllRowsForExport(t);
+      })
+    );
+    payload.__meta = [{ exported_at: new Date().toISOString(), tables: selectedTables }];
+    return payload;
+  };
+
   const handleExport = async () => {
     try {
       if (!selectedTables.length) {
@@ -857,40 +1094,7 @@ on conflict (key) do nothing;`;
         return;
       }
       setExporting(true);
-      const payload: ExportPayload = {};
-
-      const viaApi = selectedTables.filter((t) => MOVIE_EXPORT_TABLES.includes(t));
-      const viaSb = selectedTables.filter((t) => !MOVIE_EXPORT_TABLES.includes(t));
-
-      if (viaApi.length) {
-        const base = getApiBaseUrl().replace(/\/$/, '');
-        if (!base) throw new Error('Thiếu URL gọi API (dev: proxy /api; production: VITE_API_URL hoặc cùng host với deploy API).');
-        const res = await fetch(`${base}/api/movies?action=exportFull`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tables: viaApi }),
-        });
-        const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; data?: Record<string, any[]> };
-        if (!res.ok) throw new Error(j?.error || `HTTP ${res.status}`);
-        if (!j?.ok) throw new Error(j?.error || 'Export phim/tập thất bại');
-        const data = j.data || {};
-        for (const t of viaApi) {
-          payload[t] = Array.isArray(data[t]) ? data[t] : [];
-        }
-      }
-
-      await Promise.all(
-        viaSb.map(async (t: TableKey) => {
-          payload[t] = await selectAllRowsForExport(t);
-        })
-      );
-      payload.__meta = [
-        {
-          exported_at: new Date().toISOString(),
-          tables: selectedTables,
-        },
-      ];
-
+      const payload = await buildAdminExportPayload();
       downloadJson(`supabase-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`, payload);
       message.success('Đã export JSON');
     } catch (e: any) {
@@ -915,44 +1119,43 @@ on conflict (key) do nothing;`;
     }
   };
 
+  const applyAdminTableRows = async (t: TableKey, rows: any[]) => {
+    const list = Array.isArray(rows) ? rows : [];
+    if (importMode === 'replace') {
+      if (t === 'movies' && list.length === 0) {
+        throw new Error(
+          'Sheet movies trống: Replace sẽ xóa hết phim. Thêm dòng có id hoặc đổi Upsert / xóa sheet movies khỏi file.'
+        );
+      }
+      await replaceTable(t, list);
+    } else {
+      if (!list.length) return;
+      if (t === 'movie_episodes') await upsertMovieEpisodesFromExcel(list);
+      else await upsertTable(t, list);
+    }
+  };
+
   const handleExcelExport = async () => {
-    setExporting(true);
     try {
-      const base = getApiBaseUrl().replace(/\/$/, '');
-      if (!base) throw new Error('Thiếu URL API (VITE_API_URL hoặc cùng host có /api/movies).');
-      const res = await fetch(`${base}/api/movies?action=exportFull`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tables: ['movies', 'movie_episodes'] }),
+      if (!selectedTables.length) {
+        message.warning('Chọn ít nhất 1 bảng để export Excel');
+        return;
+      }
+      setExporting(true);
+      const payload = await buildAdminExportPayload();
+      const metaRow = Array.isArray((payload as any).__meta) ? (payload as any).__meta[0] : {};
+      const { __meta: _m, ...tablesOnly } = payload as any;
+      const buf = buildMultiTableWorkbook(tablesOnly as Record<string, any[]>, {
+        source: 'supabase_admin',
+        ...metaRow,
       });
-      const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; data?: Record<string, any[]> };
-      if (!res.ok) throw new Error(j?.error || `HTTP ${res.status}`);
-      if (!j?.ok) throw new Error(j?.error || 'Export Excel thất bại');
-      const movies = Array.isArray(j.data?.movies) ? j.data!.movies! : [];
-      const eps = Array.isArray(j.data?.movie_episodes) ? j.data!.movie_episodes! : [];
-      const buf = buildMoviesEpisodesWorkbook(movies, eps);
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-      downloadWorkbook(`movies-episodes-${stamp}.xlsx`, buf);
-      message.success(`Đã tải Excel (${movies.length} phim, ${eps.length} dòng tập)`);
+      downloadWorkbook(`supabase-admin-${stamp}.xlsx`, buf);
+      message.success('Đã tải Excel');
     } catch (e: any) {
       message.error(e?.message || 'Export Excel thất bại');
     } finally {
       setExporting(false);
-    }
-  };
-
-  const runExcelImport = async (movies: any[], movie_episodes: any[]) => {
-    const validMovies = movies.filter((m) => String(m?.id ?? '').trim());
-    if (importMode === 'replace' && !validMovies.length) {
-      throw new Error('Replace: sheet movies cần ít nhất một dòng có id (replace sẽ xóa toàn bộ phim hiện tại).');
-    }
-
-    if (importMode === 'replace') {
-      await replaceTable('movies', validMovies);
-      await replaceTable('movie_episodes', movie_episodes);
-    } else {
-      if (validMovies.length) await upsertTable('movies', validMovies);
-      await upsertMovieEpisodesFromExcel(movie_episodes);
     }
   };
 
@@ -969,31 +1172,35 @@ on conflict (key) do nothing;`;
       return;
     }
 
-    let movies: any[] = [];
-    let movie_episodes: any[] = [];
+    let data: Record<string, any[]>;
     try {
-      const parsed = parseMoviesEpisodesWorkbook(buf);
-      movies = parsed.movies;
-      movie_episodes = parsed.movie_episodes;
+      data = parseMultiTableWorkbook(buf, 'admin');
     } catch (err: any) {
       message.error(err?.message || 'File Excel không hợp lệ');
       return;
     }
 
-    if (!movies.length && !movie_episodes.length) {
-      message.warning('File không có dòng dữ liệu (sau dòng tiêu đề).');
+    const tablesInFile = TABLES.map((t) => t.key).filter(
+      (k) => data[k] && Array.isArray(data[k]) && (data[k] as any[]).length > 0
+    );
+    if (!tablesInFile.length) {
+      message.warning('Không có sheet khớp bảng Admin hoặc sheet chỉ có dòng tiêu đề.');
       return;
     }
 
-    if (importMode === 'upsert' && movies.length && !movies.some((m) => String(m?.id ?? '').trim())) {
-      message.warning('Upsert phim: mỗi dòng cần có id (hoặc chỉ import sheet tập).');
+    const movieRows = data.movies || [];
+    if (importMode === 'upsert' && movieRows.length && !movieRows.some((m: any) => String(m?.id ?? '').trim())) {
+      message.warning('Upsert phim: mỗi dòng trong sheet movies cần có id (hoặc xóa sheet movies nếu chỉ import tập).');
       return;
     }
 
     const run = async () => {
       setImporting(true);
       try {
-        await runExcelImport(movies, movie_episodes);
+        for (const t of TABLES.map((x) => x.key)) {
+          if (!tablesInFile.includes(t)) continue;
+          await applyAdminTableRows(t, data[t] || []);
+        }
         message.success('Import Excel thành công');
       } catch (err: any) {
         message.error(err?.message || 'Import Excel thất bại');
@@ -1004,8 +1211,8 @@ on conflict (key) do nothing;`;
 
     if (importMode === 'replace') {
       Modal.confirm({
-        title: 'Replace sẽ xóa toàn bộ phim + tập rồi ghi lại từ file. Tiếp tục?',
-        content: 'Chỉ dùng khi chắc chắn file Excel đầy đủ và đúng.',
+        title: 'Replace sẽ xóa và ghi lại dữ liệu theo các sheet có trong file. Tiếp tục?',
+        content: 'Kiểm tra kỹ file Excel.',
         okText: 'Tiếp tục',
         okButtonProps: { danger: true },
         cancelText: 'Hủy',
@@ -1125,11 +1332,7 @@ on conflict (key) do nothing;`;
       try {
         for (const t of tablesInJson) {
           const rows = Array.isArray(parsed[t]) ? parsed[t] : [];
-          if (importMode === 'replace') {
-            await replaceTable(t, rows);
-          } else {
-            await upsertTable(t, rows);
-          }
+          await applyAdminTableRows(t, rows);
         }
         message.success('Import thành công');
       } catch (e: any) {
@@ -1204,14 +1407,14 @@ on conflict (key) do nothing;`;
                   </Space>
                 </Card>
 
-                <Card title="Excel — movies + movie_episodes" bordered={false} style={{ borderRadius: 12 }}>
+                <Card title="Excel — các bảng đã chọn (Admin)" bordered={false} style={{ borderRadius: 12 }}>
                   <Space direction="vertical" style={{ width: '100%' }} size={10}>
                     <Typography.Text type="secondary">
-                      Hai sheet: <Typography.Text code>movies</Typography.Text> và{' '}
-                      <Typography.Text code>movie_episodes</Typography.Text> (tiêu đề cột khớp bảng Supabase). Chế độ{' '}
-                      <strong>Upsert / Replace</strong> dùng chung với khối nhập JSON bên dưới. Tải file dùng{' '}
-                      <Typography.Text code>exportFull</Typography.Text> (đủ dòng). Upload ghi trực tiếp qua Supabase (JWT
-                      admin).
+                      Mỗi bảng một sheet (tên sheet = tên bảng; <Typography.Text code>episodes</Typography.Text> →{' '}
+                      <Typography.Text code>movie_episodes</Typography.Text>). Cột suy ra từ dữ liệu (jsonb → chuỗi JSON
+                      trong ô). <strong>Upsert / Replace</strong> dùng chung với JSON bên dưới. Phim/tập vẫn qua{' '}
+                      <Typography.Text code>exportFull</Typography.Text> khi export. Meta ghi trong sheet{' '}
+                      <Typography.Text code>_export_meta</Typography.Text>.
                     </Typography.Text>
                     <input
                       ref={excelFileInputRef}
@@ -1302,9 +1505,20 @@ on conflict (key) do nothing;`;
                       <Button icon={<DownloadOutlined />} type="primary" onClick={exportUserTables} loading={userExporting}>
                         Export JSON
                       </Button>
+                      <Button icon={<FileExcelOutlined />} onClick={handleUserExcelExport} loading={userExporting}>
+                        Tải Excel
+                      </Button>
                       <Button onClick={() => setSelectedUserTables(USER_TABLES.map((t) => t.key))}>Chọn tất cả</Button>
                       <Button onClick={() => setSelectedUserTables([])}>Bỏ chọn</Button>
                     </Space>
+
+                    <input
+                      ref={userExcelFileInputRef}
+                      type="file"
+                      accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      style={{ display: 'none' }}
+                      onChange={handleUserExcelFileChange}
+                    />
 
                     <Divider style={{ margin: '8px 0' }} />
 
@@ -1335,7 +1549,10 @@ on conflict (key) do nothing;`;
                         onClick={importUserTables}
                         loading={userImporting}
                       >
-                        Import
+                        Import JSON
+                      </Button>
+                      <Button icon={<UploadOutlined />} onClick={() => userExcelFileInputRef.current?.click()} loading={userImporting}>
+                        Import Excel
                       </Button>
                       <Button onClick={() => setUserImportText('')}>Xóa nội dung</Button>
                       <Button icon={<CopyOutlined />} onClick={() => copyToClipboard(userImportText || '')}>
@@ -1344,7 +1561,8 @@ on conflict (key) do nothing;`;
                     </Space>
 
                     <Typography.Text type="secondary">
-                      Lưu ý: Mặc định thao tác qua API server-side để tránh RLS chặn khi dùng anon key.
+                      JSON / Excel đều qua <Typography.Text code>/api/supabase-user</Typography.Text> (service role). Export Excel
+                      lặp Range 1000 dòng/bảng để đủ dữ liệu.
                     </Typography.Text>
                   </Space>
                 </Card>
@@ -1410,7 +1628,10 @@ on conflict (key) do nothing;`;
                       onClick={exportCommentsD1}
                       loading={commentExporting}
                     >
-                      Tải JSON (comments + comment_reactions)
+                      Tải JSON
+                    </Button>
+                    <Button icon={<FileExcelOutlined />} onClick={handleCommentExcelExport} loading={commentExporting}>
+                      Tải Excel
                     </Button>
                   </Space>
                 </Card>
@@ -1441,13 +1662,31 @@ on conflict (key) do nothing;`;
                         onClick={importCommentsD1}
                         loading={commentImporting}
                       >
-                        Import
+                        Import JSON
+                      </Button>
+                      <input
+                        ref={commentExcelFileInputRef}
+                        type="file"
+                        accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        style={{ display: 'none' }}
+                        onChange={handleCommentExcelFileChange}
+                      />
+                      <Button
+                        icon={<UploadOutlined />}
+                        onClick={() => commentExcelFileInputRef.current?.click()}
+                        loading={commentImporting}
+                      >
+                        Import Excel
                       </Button>
                       <Button onClick={() => setCommentImportText('')}>Xóa nội dung</Button>
                       <Button icon={<CopyOutlined />} onClick={() => copyToClipboard(commentImportText || '')}>
                         Copy JSON
                       </Button>
                     </Space>
+                    <Typography.Text type="secondary">
+                      Excel: hai sheet <Typography.Text code>comments</Typography.Text> và{' '}
+                      <Typography.Text code>comment_reactions</Typography.Text> (giống JSON export).
+                    </Typography.Text>
                   </Space>
                 </Card>
               </Space>

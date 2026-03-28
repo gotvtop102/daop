@@ -32,6 +32,23 @@ function fail(res: VercelResponse, status: number, message: string, extra?: any)
 
 const DEFAULT_TABLES = ['profiles', 'favorites', 'watch_history', 'user_changes'] as const;
 
+const EXPORT_PAGE = 1000;
+
+async function exportTableAllRows(client: any, table: string): Promise<any[]> {
+  const all: any[] = [];
+  let from = 0;
+  for (;;) {
+    const to = from + EXPORT_PAGE - 1;
+    const r: any = await client.from(table).select('*').order('id', { ascending: true }).range(from, to);
+    if (r.error) throw r.error;
+    const chunk = r.data ?? [];
+    all.push(...chunk);
+    if (chunk.length < EXPORT_PAGE) break;
+    from += EXPORT_PAGE;
+  }
+  return all;
+}
+
 function normalizeTables(input: any): string[] {
   const arr = Array.isArray(input) ? input : [];
   const cleaned = arr.map((x) => String(x || '').trim()).filter(Boolean);
@@ -124,9 +141,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (action === 'export') {
       const payload: Record<string, any[]> = {};
       for (const t of tables) {
-        const r: any = await client.from(t).select('*');
-        if (r.error) throw r.error;
-        payload[t] = r.data ?? [];
+        payload[t] = await exportTableAllRows(client, t);
       }
       payload.__meta = [{ exported_at: new Date().toISOString(), tables }];
       return ok(res, { data: payload });
