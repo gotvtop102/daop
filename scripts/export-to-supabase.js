@@ -4,8 +4,8 @@
  * Cần: SUPABASE_ADMIN_URL (hoặc VITE_SUPABASE_ADMIN_URL), SUPABASE_ADMIN_SERVICE_ROLE_KEY
  *
  * EXPORT_TO_SUPABASE_SCOPE:
- *   - custom (mặc định): chỉ phim đánh dấu _from_supabase hoặc id bắt đầu ext_
- *   - all: toàn bộ phim trong batch (có thể rất lớn)
+ *   - all (mặc định): toàn bộ phim trong batch — giống export sheet trước đây
+ *   - custom: chỉ phim có _from_supabase hoặc id bắt đầu ext_ (tránh đẩy nhầm batch lớn)
  *
  * Chạy sau khi đã build (có batch-windows.json + batch_*.js).
  */
@@ -170,7 +170,7 @@ function flattenEpisodes(m) {
 }
 
 function filterByScope(movies, scope) {
-  const s = String(scope || 'custom').toLowerCase();
+  const s = String(scope || 'all').toLowerCase();
   if (s === 'all') return movies;
   return movies.filter((m) => {
     if (!m || m.id == null) return false;
@@ -189,7 +189,7 @@ async function main() {
     process.exit(1);
   }
 
-  const scope = process.env.EXPORT_TO_SUPABASE_SCOPE || 'custom';
+  const scope = process.env.EXPORT_TO_SUPABASE_SCOPE || 'all';
   const batchSize = Math.max(20, Math.min(500, Number(process.env.EXPORT_TO_SUPABASE_BATCH || 150) || 150));
   const concurrency = Math.max(1, Math.min(16, Number(process.env.EXPORT_TO_SUPABASE_CONCURRENCY || 4) || 4));
 
@@ -202,7 +202,11 @@ async function main() {
   console.log('   After scope filter:', movies.length, 'movies');
 
   if (!movies.length) {
-    console.log('Nothing to export. (Kiểm tra EXPORT_TO_SUPABASE_SCOPE hoặc _from_supabase trong batch.)');
+    const hint =
+      String(scope || '').toLowerCase() === 'custom'
+        ? ' Với batch id thường (MongoDB…) không có _from_supabase: đặt EXPORT_TO_SUPABASE_SCOPE=all.'
+        : '';
+    console.log('Nothing to export.' + hint);
     return;
   }
 

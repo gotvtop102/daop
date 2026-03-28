@@ -9,7 +9,7 @@
 1. **update-data.yml** – Chạy hàng ngày (cron), gọi `npm run build` với secrets (TMDB, OPhim, Supabase Admin, R2). Commit và push thay đổi vào repo.
 2. **build-on-demand.yml** – Kích hoạt bằng `repository_dispatch` (event `build-on-demand`). Admin Panel gọi webhook → GitHub API trigger workflow này. Chạy build với flag `--incremental` nếu cần.
 3. **deploy.yml** – Sau khi build xong (hoặc push nhánh chính), dùng `cloudflare/pages-action` để deploy thư mục `public/` lên Cloudflare Pages.
-4. **export-to-supabase.yml** – `workflow_dispatch` hoặc `repository_dispatch` (`export-to-supabase`). Chạy `npm run export-to-supabase`: đọc `public/data/batches` đã commit, upsert vào Supabase (`movies`, `movie_episodes`). Biến tùy chọn **`EXPORT_TO_SUPABASE_SCOPE`**: `custom` (mặc định) hoặc `all` — đặt trong **Actions → Variables**.
+4. **export-to-supabase.yml** – `workflow_dispatch` hoặc `repository_dispatch` (`export-to-supabase`). Chạy `npm run export-to-supabase`: đọc `public/data/batches` đã commit, upsert vào Supabase (`movies`, `movie_episodes`). Biến tùy chọn **`EXPORT_TO_SUPABASE_SCOPE`**: `all` (mặc định) hoặc `custom` (chỉ phim `_from_supabase` / id `ext_*`) — đặt trong **Actions → Variables**.
 
 ## Secrets cần thiết
 

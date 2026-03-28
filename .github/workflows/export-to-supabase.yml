@@ -23,4 +23,4 @@ jobs:
         env:
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
-          EXPORT_TO_SUPABASE_SCOPE: ${{ vars.EXPORT_TO_SUPABASE_SCOPE || 'custom' }}
+          EXPORT_TO_SUPABASE_SCOPE: ${{ vars.EXPORT_TO_SUPABASE_SCOPE || 'all' }}
