@@ -1096,7 +1096,7 @@ on conflict (key) do nothing;`;
       setExporting(true);
       const payload = await buildAdminExportPayload();
       downloadJson(`supabase-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`, payload);
-      message.success('Đã xuất JSON');
+      message.success('Đã export JSON');
     } catch (e: any) {
       message.error(e?.message || 'Export thất bại');
     } finally {
@@ -1151,7 +1151,7 @@ on conflict (key) do nothing;`;
       });
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
       downloadWorkbook(`supabase-admin-${stamp}.xlsx`, buf);
-      message.success('Đã xuất Excel');
+      message.success('Đã tải Excel');
     } catch (e: any) {
       message.error(e?.message || 'Export Excel thất bại');
     } finally {
@@ -1163,11 +1163,6 @@ on conflict (key) do nothing;`;
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
-
-    if (!selectedTables.length) {
-      message.warning('Chọn ít nhất một bảng ở mục Xuất (danh sách áp dụng cho cả nhập Excel).');
-      return;
-    }
 
     let buf: ArrayBuffer;
     try {
@@ -1185,28 +1180,17 @@ on conflict (key) do nothing;`;
       return;
     }
 
-    const selected = new Set(selectedTables);
-    const tablesToApply = TABLES.map((t) => t.key).filter(
-      (k) =>
-        selected.has(k as TableKey) &&
-        data[k] &&
-        Array.isArray(data[k]) &&
-        (data[k] as any[]).length > 0
+    const tablesInFile = TABLES.map((t) => t.key).filter(
+      (k) => data[k] && Array.isArray(data[k]) && (data[k] as any[]).length > 0
     );
-    if (!tablesToApply.length) {
-      message.warning(
-        'Không có sheet nào trong file khớp các bảng đang chọn (hoặc sheet chỉ có tiêu đề). Kiểm tra tên sheet và mục Chọn bảng.'
-      );
+    if (!tablesInFile.length) {
+      message.warning('Không có sheet khớp bảng Admin hoặc sheet chỉ có dòng tiêu đề.');
       return;
     }
 
-    const movieRows = tablesToApply.includes('movies') ? data.movies || [] : [];
-    if (
-      importMode === 'upsert' &&
-      movieRows.length &&
-      !movieRows.some((m: any) => String(m?.id ?? '').trim())
-    ) {
-      message.warning('Upsert phim: mỗi dòng trong sheet movies cần có id (hoặc bỏ chọn bảng movies khi nhập).');
+    const movieRows = data.movies || [];
+    if (importMode === 'upsert' && movieRows.length && !movieRows.some((m: any) => String(m?.id ?? '').trim())) {
+      message.warning('Upsert phim: mỗi dòng trong sheet movies cần có id (hoặc xóa sheet movies nếu chỉ import tập).');
       return;
     }
 
@@ -1214,12 +1198,12 @@ on conflict (key) do nothing;`;
       setImporting(true);
       try {
         for (const t of TABLES.map((x) => x.key)) {
-          if (!tablesToApply.includes(t)) continue;
+          if (!tablesInFile.includes(t)) continue;
           await applyAdminTableRows(t, data[t] || []);
         }
-        message.success('Đã nhập Excel');
+        message.success('Import Excel thành công');
       } catch (err: any) {
-        message.error(err?.message || 'Nhập Excel thất bại');
+        message.error(err?.message || 'Import Excel thất bại');
       } finally {
         setImporting(false);
       }
@@ -1329,11 +1313,6 @@ on conflict (key) do nothing;`;
   };
 
   const handleImport = async () => {
-    if (!selectedTables.length) {
-      message.warning('Chọn ít nhất một bảng ở mục Xuất (danh sách áp dụng cho cả nhập JSON).');
-      return;
-    }
-
     let parsed: any = null;
     try {
       parsed = JSON.parse(importText || '');
@@ -1342,17 +1321,9 @@ on conflict (key) do nothing;`;
       return;
     }
 
-    const selected = new Set(selectedTables);
-    const tablesInJson = TABLES.map((t) => t.key).filter(
-      (k) =>
-        parsed &&
-        Object.prototype.hasOwnProperty.call(parsed, k) &&
-        selected.has(k as TableKey)
-    );
+    const tablesInJson = TABLES.map((t) => t.key).filter((k) => parsed && Object.prototype.hasOwnProperty.call(parsed, k));
     if (!tablesInJson.length) {
-      message.warning(
-        'JSON không chứa key nào trùng các bảng đang chọn — kiểm tra văn bản hoặc mục Chọn bảng (có thể bấm Chọn tất cả trước khi nhập bản backup đầy đủ).'
-      );
+      message.warning('Không tìm thấy bảng hợp lệ trong JSON');
       return;
     }
 
@@ -1363,9 +1334,9 @@ on conflict (key) do nothing;`;
           const rows = Array.isArray(parsed[t]) ? parsed[t] : [];
           await applyAdminTableRows(t, rows);
         }
-        message.success('Đã nhập JSON');
+        message.success('Import thành công');
       } catch (e: any) {
-        message.error(e?.message || 'Nhập JSON thất bại');
+        message.error(e?.message || 'Import thất bại');
       } finally {
         setImporting(false);
       }
@@ -1374,7 +1345,7 @@ on conflict (key) do nothing;`;
     if (importMode === 'replace') {
       Modal.confirm({
         title: 'Replace sẽ xóa dữ liệu hiện tại rồi nhập lại. Bạn chắc chắn?',
-        content: 'Hãy chắc chắn bạn đang nhập đúng JSON. Thao tác này không thể hoàn tác.',
+        content: 'Hãy chắc chắn bạn đang import đúng JSON. Thao tác này không thể hoàn tác.',
         okText: 'Tiếp tục',
         okButtonProps: { danger: true },
         cancelText: 'Hủy',
@@ -1407,16 +1378,8 @@ on conflict (key) do nothing;`;
             label: 'Xuất / Nhập dữ liệu',
             children: (
               <Space direction="vertical" size={12} style={{ width: '100%' }}>
-                <input
-                  ref={excelFileInputRef}
-                  type="file"
-                  accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                  style={{ display: 'none' }}
-                  onChange={handleExcelFileChange}
-                />
-
-                <Card title="Xuất dữ liệu (Supabase Admin)" bordered={false} style={{ borderRadius: 12 }}>
-                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                <Card title="Xuất dữ liệu (JSON)" bordered={false} style={{ borderRadius: 12 }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={10}>
                     <div>
                       <Typography.Text strong>Chọn bảng</Typography.Text>
                       <div style={{ marginTop: 8 }}>
@@ -1428,50 +1391,58 @@ on conflict (key) do nothing;`;
                           style={{ width: '100%' }}
                         />
                       </div>
-                      <Typography.Text type="secondary" style={{ display: 'block', marginTop: 6 }}>
-                        Cùng danh sách bảng dùng cho <strong>xuất JSON</strong> và <strong>xuất Excel</strong> (mỗi bảng một
-                        sheet, tiêu đề cột theo dữ liệu; sheet <Typography.Text code>_export_meta</Typography.Text>). Phim/tập
-                        qua <Typography.Text code>/api/movies?action=exportFull</Typography.Text>. Sheet{' '}
-                        <Typography.Text code>episodes</Typography.Text> khi nhập được hiểu là{' '}
-                        <Typography.Text code>movie_episodes</Typography.Text>.
-                      </Typography.Text>
                     </div>
-
-                    <Divider style={{ margin: 0 }} />
-
-                    <div>
-                      <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>
-                        Tải file
-                      </Typography.Text>
-                      <Space wrap>
-                        <Button
-                          icon={<DownloadOutlined />}
-                          type="primary"
-                          onClick={handleExport}
-                          loading={exporting}
-                        >
-                          Xuất JSON
-                        </Button>
-                        <Button
-                          icon={<FileExcelOutlined />}
-                          type="primary"
-                          onClick={handleExcelExport}
-                          loading={exporting}
-                        >
-                          Xuất Excel (.xlsx)
-                        </Button>
-                        <Button onClick={() => setSelectedTables(TABLES.map((t) => t.key))}>Chọn tất cả</Button>
-                        <Button onClick={() => setSelectedTables([])}>Bỏ chọn</Button>
-                      </Space>
-                    </div>
+                    <Space wrap>
+                      <Button
+                        icon={<DownloadOutlined />}
+                        type="primary"
+                        onClick={handleExport}
+                        loading={exporting}
+                      >
+                        Export JSON
+                      </Button>
+                      <Button onClick={() => setSelectedTables(TABLES.map((t) => t.key))}>Chọn tất cả</Button>
+                      <Button onClick={() => setSelectedTables([])}>Bỏ chọn</Button>
+                    </Space>
                   </Space>
                 </Card>
 
-                <Card title="Nhập dữ liệu (Supabase Admin)" bordered={false} style={{ borderRadius: 12 }}>
-                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                    <Space wrap align="center">
-                      <Typography.Text strong>Chế độ nhập</Typography.Text>
-                      <Typography.Text type="secondary">(JSON và Excel)</Typography.Text>
+                <Card title="Excel — các bảng đã chọn (Admin)" bordered={false} style={{ borderRadius: 12 }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={10}>
+                    <Typography.Text type="secondary">
+                      Mỗi bảng một sheet (tên sheet = tên bảng; <Typography.Text code>episodes</Typography.Text> →{' '}
+                      <Typography.Text code>movie_episodes</Typography.Text>). Cột suy ra từ dữ liệu (jsonb → chuỗi JSON
+                      trong ô). <strong>Upsert / Replace</strong> dùng chung với JSON bên dưới. Phim/tập vẫn qua{' '}
+                      <Typography.Text code>exportFull</Typography.Text> khi export. Meta ghi trong sheet{' '}
+                      <Typography.Text code>_export_meta</Typography.Text>.
+                    </Typography.Text>
+                    <input
+                      ref={excelFileInputRef}
+                      type="file"
+                      accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      style={{ display: 'none' }}
+                      onChange={handleExcelFileChange}
+                    />
+                    <Space wrap>
+                      <Button
+                        icon={<FileExcelOutlined />}
+                        type="primary"
+                        onClick={handleExcelExport}
+                        loading={exporting}
+                      >
+                        Tải Excel (.xlsx)
+                      </Button>
+                      <Button icon={<UploadOutlined />} onClick={() => excelFileInputRef.current?.click()} loading={importing}>
+                        Upload Excel (import)
+                      </Button>
+                    </Space>
+                  </Space>
+                </Card>
+
+                <Card title="Nhập dữ liệu (JSON)" bordered={false} style={{ borderRadius: 12 }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={10}>
+                    <Space wrap>
+                      <Typography.Text strong>Chế độ import</Typography.Text>
                       <Select
                         value={importMode}
                         onChange={(v: 'upsert' | 'replace') => setImportMode(v)}
@@ -1483,48 +1454,27 @@ on conflict (key) do nothing;`;
                       />
                     </Space>
 
-                    <Divider style={{ margin: '4px 0' }} />
+                    <Input.TextArea
+                      rows={10}
+                      value={importText}
+                      onChange={(e: any) => setImportText(e.target.value)}
+                      placeholder="Dán JSON export vào đây..."
+                    />
 
-                    <div>
-                      <Typography.Text strong>Từ JSON</Typography.Text>
-                      <Typography.Text type="secondary" style={{ display: 'block', marginTop: 4 }}>
-                        Chỉ các key trùng <strong>Chọn bảng</strong> mới được nhập. Muốn khôi phục full backup: bấm{' '}
-                        <Typography.Text code>Chọn tất cả</Typography.Text> ở card Xuất trước.
-                      </Typography.Text>
-                      <Input.TextArea
-                        style={{ marginTop: 8 }}
-                        rows={10}
-                        value={importText}
-                        onChange={(e: any) => setImportText(e.target.value)}
-                        placeholder="Dán nội dung file JSON đã xuất hoặc dán từng mảng theo key bảng..."
-                      />
-                      <Space wrap style={{ marginTop: 8 }}>
-                        <Button type="primary" icon={<UploadOutlined />} onClick={handleImport} loading={importing}>
-                          Nhập JSON
-                        </Button>
-                        <Button onClick={() => setImportText('')}>Xóa nội dung</Button>
-                      </Space>
-                    </div>
-
-                    <Divider style={{ margin: '4px 0' }} />
-
-                    <div>
-                      <Typography.Text strong>Từ Excel</Typography.Text>
-                      <Typography.Text type="secondary" style={{ display: 'block', marginTop: 4 }}>
-                        Giống JSON: chỉ xử lý các bảng đang tick ở <strong>Chọn bảng</strong> và có sheet (có ít nhất một dòng)
-                        trong file. Upsert phim cần cột <Typography.Text code>id</Typography.Text> trên sheet{' '}
-                        <Typography.Text code>movies</Typography.Text>.
-                      </Typography.Text>
-                      <Space wrap style={{ marginTop: 8 }}>
-                        <Button icon={<UploadOutlined />} onClick={() => excelFileInputRef.current?.click()} loading={importing}>
-                          Chọn file Excel…
-                        </Button>
-                      </Space>
-                    </div>
+                    <Space wrap>
+                      <Button
+                        type="primary"
+                        icon={<UploadOutlined />}
+                        onClick={handleImport}
+                        loading={importing}
+                      >
+                        Import
+                      </Button>
+                      <Button onClick={() => setImportText('')}>Xóa nội dung</Button>
+                    </Space>
 
                     <Typography.Text type="secondary">
-                      Sau khi nhập cấu hình / phim, chạy <strong>Build website</strong> để cập nhật site. Replace là thao tác
-                      mạnh — nên xuất bản backup trước.
+                      Lưu ý: Sau khi import cấu hình / phim, chạy Build website để cập nhật site. Replace trên phim/tập là thao tác mạnh — nên có bản export trước.
                     </Typography.Text>
                   </Space>
                 </Card>
