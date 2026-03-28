@@ -86,7 +86,9 @@ jobs:
       - name: Build (1-phase full)
         id: build_one_phase_full
         if: ${{ env.TWO_PHASE != 'true' }}
-        run: npm run build
+        run: |
+          npm run build
+          echo "HAVE_BATCHES=1" >> $GITHUB_ENV
         env:
           CLEAN_OLD_DATA: ${{ inputs.clean == 'true' && '1' || '0' }}
           OPHIM_BASE_URL: ${{ secrets.OPHIM_BASE_URL || 'https://ophim1.com/v1/api' }}
@@ -197,7 +199,6 @@ jobs:
           fi
 
       - name: Deploy CORE to Cloudflare Pages (2-phase)
-        id: deploy_core_cf
         if: ${{ env.TWO_PHASE == 'true' && env.DEPLOY_AFTER_R2_UPLOAD != '1' }}
         continue-on-error: true
         uses: cloudflare/wrangler-action@v3
@@ -223,7 +224,9 @@ jobs:
       - name: Build TMDB ONLY (2-phase)
         id: build_two_phase_tmdb
         if: ${{ env.TWO_PHASE == 'true' }}
-        run: npm run build
+        run: |
+          npm run build
+          echo "HAVE_BATCHES=1" >> $GITHUB_ENV
         env:
           CLEAN_OLD_DATA: '0'
           TMDB_ONLY: '1'
@@ -284,7 +287,6 @@ jobs:
           fi
 
       - name: Deploy TMDB to Cloudflare Pages (2-phase)
-        id: deploy_tmdb_cf
         if: ${{ env.TWO_PHASE == 'true' }}
         continue-on-error: true
         uses: cloudflare/wrangler-action@v3
@@ -294,32 +296,10 @@ jobs:
           wranglerVersion: '4.77.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
-      # Đẩy batch cuối cùng sang job export. Deploy Pages có continue-on-error → success() có thể false dù job OK.
-      - name: Upload public/data for Supabase export job
-        if: ${{ !cancelled() && (success() || steps.deploy_core_cf.outcome == 'failure' || steps.deploy_tmdb_cf.outcome == 'failure') }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: public-data-export
-          path: public/data
-          retention-days: 2
-          if-no-files-found: error
-
-  export_supabase:
-    needs: build
-    runs-on: ubuntu-latest
-    if: ${{ needs.build.result == 'success' }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm install
-      - uses: actions/download-artifact@v4
-        with:
-          name: public-data-export
-          path: public/data
+      # Cùng job + always(): deploy Pages (continue-on-error) làm success() = false nhưng vẫn phải export.
+      # HAVE_BATCHES=1 chỉ ghi sau build 1-phase hoặc sau build TMDB (2-phase), không ghi sau CORE (data sẽ bị xóa).
       - name: Export batches → Supabase (movies + movie_episodes)
+        if: ${{ always() && !cancelled() && env.HAVE_BATCHES == '1' }}
         env:
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
@@ -327,6 +307,10 @@ jobs:
           SKIP_EXPORT_TO_SUPABASE: ${{ vars.SKIP_EXPORT_TO_SUPABASE }}
         run: |
           set -e
+          if [ ! -f public/data/batches/batch-windows.json ]; then
+            echo "::warning::Thiếu batch-windows.json — bỏ qua export."
+            exit 0
+          fi
           if [ "${SKIP_EXPORT_TO_SUPABASE}" = "1" ]; then
             echo "::notice title=Export Supabase::Bỏ qua: Repository Variable SKIP_EXPORT_TO_SUPABASE=1"
             exit 0
