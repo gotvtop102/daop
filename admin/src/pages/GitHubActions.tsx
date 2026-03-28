@@ -73,12 +73,6 @@ const EXTRA_ACTIONS = [
     danger: true,
   },
   {
-    id: 'export-to-sheets',
-    name: 'Export to Google Sheets',
-    description: 'Đẩy phim hiện có (build) xuống Google Sheets (chỉ append phim mới).',
-    triggerable: true,
-  },
-  {
     id: 'clean-rebuild',
     name: 'Clean & Rebuild',
     description: 'Xóa toàn bộ dữ liệu cũ (batches, movies-light, actors…) rồi full build lại từ đầu.',
@@ -452,13 +446,13 @@ export default function GitHubActions() {
       } else {
         setActions([
           { id: 'build-on-demand', name: 'Build on demand', description: 'Build incremental (config + category pages).' },
-          { id: 'update-data', name: 'Update data daily', description: 'Full build (OPhim, TMDB, Sheets…).' },
+          { id: 'update-data', name: 'Update data daily', description: 'Full build (OPhim, TMDB, Supabase…).' },
         ]);
       }
     } catch {
       setActions([
         { id: 'build-on-demand', name: 'Build on demand', description: 'Build incremental (config + category pages).' },
-        { id: 'update-data', name: 'Update data daily', description: 'Full build (OPhim, TMDB, Sheets…).' },
+        { id: 'update-data', name: 'Update data daily', description: 'Full build (OPhim, TMDB, Supabase…).' },
       ]);
     } finally {
       setLoading(false);

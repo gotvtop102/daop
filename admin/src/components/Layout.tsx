@@ -92,7 +92,6 @@ function buildMenuItems(hasAccess: boolean): MenuProps['items'] {
         { key: '/movies/duplicates', icon: <UnorderedListOutlined />, disabled: !hasAccess, label: L('/movies/duplicates', 'Trùng lặp', !hasAccess) },
       ],
     },
-    { key: '/google-sheets', icon: <FileTextOutlined />, label: <Link to="/google-sheets">Google Sheets</Link> },
     { key: '/player-settings', icon: <PlaySquareOutlined />, label: <Link to="/player-settings">Player</Link> },
     { key: '/donate', icon: <DollarOutlined />, label: <Link to="/donate">Donate</Link> },
     { key: '/github-actions', icon: <ThunderboltOutlined />, label: <Link to="/github-actions">GitHub Actions</Link> },

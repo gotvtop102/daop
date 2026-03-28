@@ -18,21 +18,15 @@ export default function Dashboard() {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<number | null>(null);
-  const [spreadsheetId, setSpreadsheetId] = useState<string>('');
-  const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
   const navigate = useNavigate();
 
   const loadDashboard = useMemo(() => {
     return async () => {
       setLoading(true);
       try {
-        const [s, l, conf] = await Promise.all([
+        const [s, l] = await Promise.all([
           supabase.from('homepage_sections').select('id', { count: 'exact', head: true }),
           supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(10),
-          supabase
-            .from('site_settings')
-            .select('key, value')
-            .in('key', ['google_sheets_id', 'google_service_account_key']),
         ]);
 
         setStats((prev) => ({
@@ -41,75 +35,39 @@ export default function Dashboard() {
         }));
         setLogs((l as any).data ?? []);
 
-        let sidResolved = String(spreadsheetId || '').trim();
-        let sakResolved = String(serviceAccountKey || '').trim();
-        try {
-          const rows = (conf as any).data ?? [];
-          const map = (rows || []).reduce((acc: Record<string, any>, row: any) => {
-            acc[row.key] = row.value;
-            return acc;
-          }, {});
-          if (!sidResolved && map.google_sheets_id) sidResolved = String(map.google_sheets_id).trim();
-          if (!sakResolved && map.google_service_account_key) sakResolved = String(map.google_service_account_key).trim();
-        } catch {
-          // ignore
-        }
-
-        if (!sidResolved || !sakResolved) {
-          try {
-            const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
-            if (!sidResolved && saved?.google_sheets_id) sidResolved = String(saved.google_sheets_id).trim();
-            if (!sakResolved && saved?.google_service_account_key) sakResolved = String(saved.google_service_account_key).trim();
-          } catch {
-            // ignore
-          }
-        }
-
-        if (sidResolved && sidResolved !== spreadsheetId) setSpreadsheetId(sidResolved);
-        if (sakResolved && sakResolved !== serviceAccountKey) setServiceAccountKey(sakResolved);
-
-        const sid = sidResolved || '';
-        const sak = sakResolved || '';
         const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
         const base = envBase || window.location.origin;
 
         try {
-          if (sid) {
+          const unbuiltUrl = new URL(`${base}/api/movies`);
+          unbuiltUrl.searchParams.append('action', 'list');
+          unbuiltUrl.searchParams.append('type', 'all');
+          unbuiltUrl.searchParams.append('unbuilt', '1');
+          unbuiltUrl.searchParams.append('page', '1');
+          unbuiltUrl.searchParams.append('limit', '1');
 
-            const unbuiltUrl = new URL(`${base}/api/movies`);
-            unbuiltUrl.searchParams.append('action', 'list');
-            unbuiltUrl.searchParams.append('type', 'all');
-            unbuiltUrl.searchParams.append('unbuilt', '1');
-            unbuiltUrl.searchParams.append('page', '1');
-            unbuiltUrl.searchParams.append('limit', '1');
-            unbuiltUrl.searchParams.append('spreadsheetId', sid);
-            if (sak) unbuiltUrl.searchParams.append('serviceAccountKey', sak);
+          const duplicatesUrl = new URL(`${base}/api/movies`);
+          duplicatesUrl.searchParams.append('action', 'list');
+          duplicatesUrl.searchParams.append('type', 'all');
+          duplicatesUrl.searchParams.append('duplicates', '1');
+          duplicatesUrl.searchParams.append('page', '1');
+          duplicatesUrl.searchParams.append('limit', '1');
 
-            const duplicatesUrl = new URL(`${base}/api/movies`);
-            duplicatesUrl.searchParams.append('action', 'list');
-            duplicatesUrl.searchParams.append('type', 'all');
-            duplicatesUrl.searchParams.append('duplicates', '1');
-            duplicatesUrl.searchParams.append('page', '1');
-            duplicatesUrl.searchParams.append('limit', '1');
-            duplicatesUrl.searchParams.append('spreadsheetId', sid);
-            if (sak) duplicatesUrl.searchParams.append('serviceAccountKey', sak);
+          const [unbuiltRes, duplicatesRes] = await Promise.all([
+            fetch(unbuiltUrl.toString(), { cache: 'no-store' }),
+            fetch(duplicatesUrl.toString(), { cache: 'no-store' }),
+          ]);
 
-            const [unbuiltRes, duplicatesRes] = await Promise.all([
-              fetch(unbuiltUrl.toString(), { cache: 'no-store' }),
-              fetch(duplicatesUrl.toString(), { cache: 'no-store' }),
-            ]);
+          const unbuiltData = await unbuiltRes.json().catch(async () => ({ error: await unbuiltRes.text() }));
+          const duplicatesData = await duplicatesRes
+            .json()
+            .catch(async () => ({ error: await duplicatesRes.text() }));
 
-            const unbuiltData = await unbuiltRes.json().catch(async () => ({ error: await unbuiltRes.text() }));
-            const duplicatesData = await duplicatesRes
-              .json()
-              .catch(async () => ({ error: await duplicatesRes.text() }));
-
-            setStats((prev) => ({
-              ...prev,
-              movies_unbuilt: Number(unbuiltData?.total || 0),
-              movies_duplicates: Number(duplicatesData?.total || 0),
-            }));
-          }
+          setStats((prev) => ({
+            ...prev,
+            movies_unbuilt: Number(unbuiltData?.total || 0),
+            movies_duplicates: Number(duplicatesData?.total || 0),
+          }));
         } catch {
           setStats((prev) => ({
             ...prev,
@@ -119,40 +77,29 @@ export default function Dashboard() {
         }
 
         try {
-          // Fetch counts by type directly from API (real-time from Google Sheets)
-          if (!sid) return;
-
           const seriesUrl = new URL(`${base}/api/movies`);
           seriesUrl.searchParams.append('action', 'list');
           seriesUrl.searchParams.append('type', 'series');
           seriesUrl.searchParams.append('page', '1');
           seriesUrl.searchParams.append('limit', '1');
-          seriesUrl.searchParams.append('spreadsheetId', sid);
-          if (sak) seriesUrl.searchParams.append('serviceAccountKey', sak);
 
           const singleUrl = new URL(`${base}/api/movies`);
           singleUrl.searchParams.append('action', 'list');
           singleUrl.searchParams.append('type', 'single');
           singleUrl.searchParams.append('page', '1');
           singleUrl.searchParams.append('limit', '1');
-          singleUrl.searchParams.append('spreadsheetId', sid);
-          if (sak) singleUrl.searchParams.append('serviceAccountKey', sak);
 
           const hoathinhUrl = new URL(`${base}/api/movies`);
           hoathinhUrl.searchParams.append('action', 'list');
           hoathinhUrl.searchParams.append('type', 'hoathinh');
           hoathinhUrl.searchParams.append('page', '1');
           hoathinhUrl.searchParams.append('limit', '1');
-          hoathinhUrl.searchParams.append('spreadsheetId', sid);
-          if (sak) hoathinhUrl.searchParams.append('serviceAccountKey', sak);
 
           const tvshowsUrl = new URL(`${base}/api/movies`);
           tvshowsUrl.searchParams.append('action', 'list');
           tvshowsUrl.searchParams.append('type', 'tvshows');
           tvshowsUrl.searchParams.append('page', '1');
           tvshowsUrl.searchParams.append('limit', '1');
-          tvshowsUrl.searchParams.append('spreadsheetId', sid);
-          if (sak) tvshowsUrl.searchParams.append('serviceAccountKey', sak);
 
           const [seriesRes, singleRes, hoathinhRes, tvshowsRes] = await Promise.all([
             fetch(seriesUrl.toString(), { cache: 'no-store' }),

@@ -2,7 +2,7 @@
 
 **Mục lục tổng:** [README.md](./README.md).
 
-Build đọc phim tùy chỉnh từ **Google Sheets** (nếu cấu hình) hoặc file **custom_movies.xlsx** tại thư mục gốc. File mẫu có thể tạo bằng:
+Build đọc phim tùy chỉnh từ **Supabase** (bảng `movies` / `movie_episodes`, khi cấu hình `SUPABASE_ADMIN_URL` + service role) hoặc từ file **custom_movies.xlsx** tại thư mục gốc khi không dùng Supabase. File mẫu có thể tạo bằng:
 
 ```bash
 node scripts/generate-custom-movies-template.js
@@ -48,13 +48,6 @@ Dùng để gán tập phim và nguồn phát cho từng phim.
 | name | Tên tập (vd: Tập 1) |
 | sources hoặc source | Chuỗi JSON mảng server_data (link_embed, link_m3u8, name, slug...) |
 
-## Google Sheets (file mẫu)
+## File CSV mẫu (tham khảo / import tay vào Supabase)
 
-**File mẫu để import vào Google Sheets** nằm trong `docs/google-sheets/`:
-
-- **movies-template.csv** — import vào sheet tên `movies`
-- **episodes-template.csv** — import vào sheet tên `episodes`
-
-Cách tạo Sheet từ file mẫu: xem chi tiết **[docs/google-sheets/README.md](google-sheets/README.md)** (File → Import → Upload từng CSV, đặt tên sheet đúng là `movies` và `episodes`).
-
-Nếu đã cấu hình `GOOGLE_SHEETS_ID` và `GOOGLE_SERVICE_ACCOUNT_KEY`, build sẽ ưu tiên đọc từ Sheets (range `movies!A1:Z1000` và `episodes!A1:Z2000`). Cấu trúc cột giống bảng Excel ở trên: hàng đầu tiên là header, các hàng sau là dữ liệu.
+Trong `docs/google-sheets/` vẫn giữ **movies-template.csv** và **episodes-template.csv** — cột tương ứng bảng Supabase; có thể dùng làm mẫu khi nhập dữ liệu hoặc import vào DB (không còn luồng build đọc Google Sheets).

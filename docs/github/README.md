@@ -66,9 +66,8 @@ Ai có quyền **push `main`** sẽ kích hoạt **Deploy to Cloudflare Pages** 
 |---------------------|-----------|---------|
 | **deploy.yml** — *Deploy to Cloudflare Pages* | Push `main`; hoặc sau khi *Build on demand* / *Update data daily* thành công | Đẩy thư mục **`public/`** lên Cloudflare Pages (Wrangler). |
 | **build-on-demand.yml** — *Build on demand* | `workflow_dispatch`; **`repository_dispatch`** (từ Vercel Admin) | Build (incremental/full/two_phase…), có thể upload R2; commit `public/data` rồi push. |
-| **update-data.yml** — *Update data daily* | Cron (UTC) + `workflow_dispatch` | Build theo lịch; có nhánh two-phase tùy cấu hình; deploy/export tùy job. |
+| **update-data.yml** — *Update data daily* | Cron (UTC) + `workflow_dispatch` | Build theo lịch; có nhánh two-phase tùy cấu hình; deploy tùy job. |
 | **core-then-tmdb.yml** — *Core then TMDB* | `workflow_dispatch` | Luồng 2 pha (core → TMDB) + deploy. |
-| **export-to-sheets.yml** — *Export to Google Sheets* | **`repository_dispatch`** (`export-to-sheets`) | Export phim ra Sheets khi có dispatch loại này. *(Riêng trong `deploy.yml` có job cùng tên chạy script export sau deploy khi trigger bởi workflow *Update data daily*.)* |
 | **purge-movie-data.yml** — *Purge movie data* | `workflow_dispatch` | Xóa/gom dữ liệu phim trong `public/data` (thao tác nguy hiểm — đọc kỹ workflow). |
 | **upload-movie-images-r2.yml**, **delete-movie-images-r2.yml**, **upload-r2-from-urls.yml**, **download-r2-files.yml** | `workflow_dispatch` (hoặc theo từng file) | Thao tác ảnh / object trên R2. |
 

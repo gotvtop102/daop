@@ -10,7 +10,6 @@ type ActionId =
   | 'update-data'
   | 'clean-rebuild'
   | 'purge-movie-data'
-  | 'export-to-sheets'
   | 'core-then-tmdb'
   | 'upload-movie-images-r2'
   | 'delete-movie-images-r2'
@@ -19,10 +18,9 @@ type ActionId =
 
 const ACTIONS: { id: ActionId; name: string; description: string }[] = [
   { id: 'build-on-demand', name: 'Build on demand', description: 'Build incremental (config Supabase + category pages), commit & push.' },
-  { id: 'update-data', name: 'Update data daily', description: 'Full build (OPhim, TMDB, Sheets…), commit & push.' },
+  { id: 'update-data', name: 'Update data daily', description: 'Full build (OPhim, TMDB, Supabase…), commit & push.' },
   { id: 'clean-rebuild', name: 'Clean & Rebuild', description: 'Xóa toàn bộ dữ liệu cũ (batches, movies-light, actors…) rồi full build lại từ đầu.' },
   { id: 'purge-movie-data', name: 'Purge movie data', description: 'Xóa sạch dữ liệu phim đã build trong public/data (giữ config) để chạy update data lại từ đầu.' },
-  { id: 'export-to-sheets', name: 'Export to Google Sheets', description: 'Đẩy phim từ dữ liệu build hiện tại xuống Google Sheets (chỉ append phim mới).' },
   { id: 'upload-movie-images-r2', name: 'Upload movie images to R2', description: 'Tải + nén + upload thumb/poster lên R2, rồi commit upload state.' },
   { id: 'delete-movie-images-r2', name: 'Delete movie images on R2', description: 'Xóa ảnh trên R2 theo prefix/keys/movie_ids. Mặc định dry-run để an toàn.' },
   { id: 'download-r2-files', name: 'Download R2 files', description: 'Tải file từ R2 theo prefix/keys và xuất artifact (zip).' },
@@ -255,32 +253,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return;
       }
       res.status(200).json({ ok: true, message: 'Purge movie data triggered (xóa sạch public/data movie output)' });
-      return;
-    }
-
-    if (action === 'export-to-sheets') {
-      const r = await fetch(`https://api.github.com/repos/${repo}/dispatches`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ event_type: 'export-to-sheets', client_payload: {} }),
-      });
-      if (!r.ok) {
-        const t = await r.text();
-        let errMsg = t;
-        if (r.status === 401) {
-          try {
-            const j = JSON.parse(t);
-            if (j.message === 'Bad credentials') {
-              errMsg = 'GITHUB_TOKEN không hợp lệ hoặc hết hạn.';
-            }
-          } catch {
-            // keep raw t
-          }
-        }
-        res.status(r.status).json({ error: errMsg });
-        return;
-      }
-      res.status(200).json({ ok: true, message: 'Export to Google Sheets triggered' });
       return;
     }
 

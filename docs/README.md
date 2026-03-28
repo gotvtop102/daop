@@ -26,7 +26,7 @@ Một repo có **nhiều lớp** (GitHub, Supabase, Vercel, Cloudflare, tùy ch�
 | **Cloudflare** — Account, token, Pages, R2, D1/KV, biến Pages | [cloudflare/README.md](./cloudflare/README.md) | Tóm deploy ngắn: [cloudflare-pages/README.md](./cloudflare-pages/README.md) |
 | **Comment (D1 + KV + Functions)** | [comments/README.md](./comments/README.md) | Gồm `COMMENTS_ADMIN_SECRET`, export/import |
 | **R2** (ảnh) | [r2/README.md](./r2/README.md) | Tùy chọn |
-| **Google Sheets** (phim custom) | [google-sheets/README.md](./google-sheets/README.md) | Tùy chọn |
+| **CSV mẫu cột phim** (tham khảo / legacy) | [google-sheets/README.md](./google-sheets/README.md) | Không còn build từ Sheets |
 | **Capacitor** (Android / iOS / TV) | [capacitor/README.md](./capacitor/README.md) | Tùy chọn |
 | **Mẫu JSON / Excel** | [config-json-examples/README.md](./config-json-examples/README.md), [templates/README.md](./templates/README.md) | |
 | **Phim custom (template)** | [custom-movies-template.md](./custom-movies-template.md) | |

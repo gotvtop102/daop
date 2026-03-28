@@ -261,8 +261,6 @@ export default function MovieEdit() {
   const [fetchingTMDB, setFetchingTMDB] = useState(false);
   const [posterPreview, setPosterPreview] = useState('');
   const [thumbPreview, setThumbPreview] = useState('');
-  const [spreadsheetId, setSpreadsheetId] = useState<string>('');
-  const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
   const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
   const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
   const [configReady, setConfigReady] = useState<boolean>(false);
@@ -283,31 +281,18 @@ export default function MovieEdit() {
     setThumbPreview(t);
   };
 
-  // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
     const loadConfig = async () => {
       const { data: settings, error } = await supabase
         .from('site_settings')
         .select('key, value')
-        .in('key', ['google_sheets_id', 'google_service_account_key', 'r2_img_domain', 'ophim_img_domain']);
-      
+        .in('key', ['r2_img_domain', 'ophim_img_domain']);
+
       if (!error && settings) {
-        const sheetId = settings.find(s => s.key === 'google_sheets_id')?.value;
-        const svcKey = settings.find(s => s.key === 'google_service_account_key')?.value;
-        const r2Domain = settings.find(s => s.key === 'r2_img_domain')?.value;
-        const ophimDomain = settings.find(s => s.key === 'ophim_img_domain')?.value;
-        if (sheetId) setSpreadsheetId(sheetId);
-        if (svcKey) setServiceAccountKey(svcKey);
+        const r2Domain = settings.find((s) => s.key === 'r2_img_domain')?.value;
+        const ophimDomain = settings.find((s) => s.key === 'ophim_img_domain')?.value;
         if (r2Domain) setR2ImgDomain(r2Domain);
         if (ophimDomain) setOphimImgDomain(ophimDomain);
-      }
-      
-      try {
-        const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
-        if (saved?.google_sheets_id) setSpreadsheetId(saved.google_sheets_id);
-        if (saved?.google_service_account_key) setServiceAccountKey(saved.google_service_account_key);
-      } catch {
-        // ignore
       }
       setConfigReady(true);
     };
@@ -413,7 +398,7 @@ export default function MovieEdit() {
   // Load movie data
   useEffect(() => {
     if (!configReady) return; // Wait for config to load first
-    if (!isNew && id && spreadsheetId) {
+    if (!isNew && id) {
       loadMovie(id);
     } else if (isNew) {
       const existingId = String(form.getFieldValue('id') || '').trim();
@@ -435,14 +420,10 @@ export default function MovieEdit() {
       });
       refreshSourcePreviews();
     }
-  }, [id, typeFromQuery, spreadsheetId, serviceAccountKey, configReady]);
+  }, [id, typeFromQuery, configReady]);
 
   const loadMovie = async (movieId: string) => {
-    if (!configReady) return; // Wait for config to load first
-    if (!spreadsheetId) {
-      message.error('Chưa cấu hình Google Sheets ID');
-      return;
-    }
+    if (!configReady) return;
     setLoading(true);
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -453,8 +434,6 @@ export default function MovieEdit() {
         body: JSON.stringify({
           action: 'get',
           id: movieId,
-          spreadsheetId,
-          ...(serviceAccountKey ? { serviceAccountKey } : {}),
         }),
       });
 
@@ -642,10 +621,6 @@ export default function MovieEdit() {
   };
 
   const handleSave = async (values: MovieForm) => {
-    if (!spreadsheetId) {
-      message.error('Chưa cấu hình Google Sheets ID');
-      return;
-    }
     setSaving(true);
     try {
       const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -669,8 +644,6 @@ export default function MovieEdit() {
             id: movieId,
             showtimes: String(values.showtimes || '').trim(),
             is_exclusive: Boolean(values.is_exclusive),
-            spreadsheetId,
-            ...(serviceAccountKey ? { serviceAccountKey } : {}),
           }),
         });
 
@@ -704,8 +677,6 @@ export default function MovieEdit() {
       const payload = {
         ...values,
         id: movieId,
-        spreadsheetId,
-        ...(serviceAccountKey ? { serviceAccountKey } : {}),
         poster_url: String(values.poster_url || '').trim(),
         thumb_url: String(values.thumb_url || '').trim(),
         genre: Array.isArray(values.genre) ? values.genre.join(',') : values.genre,

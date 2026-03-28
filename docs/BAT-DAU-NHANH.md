@@ -23,7 +23,7 @@ Làm **lần lượt Bước 1 → 5**. Chi tiết sâu: [TRIEN-KHAI.md](./TRIEN
 | Tính năng | Cần thêm |
 |-----------|----------|
 | Ảnh trên **R2** | Access key, secret, bucket, public URL → GitHub Secrets (xem [r2/README.md](./r2/README.md)) |
-| **Google Sheets** phim custom | Service account JSON, ID sheet → env (xem [google-sheets/README.md](./google-sheets/README.md)) |
+| **Phim custom (Supabase)** | Bảng `movies` / `movie_episodes` — xem [supabase/schema-movies-episodes.sql](./supabase/schema-movies-episodes.sql) |
 | **Bình luận** nội bộ | D1, KV, `SUPABASE_JWT_SECRET` (xem [comments/README.md](./comments/README.md)) |
 
 ---
@@ -96,7 +96,7 @@ Chi tiết / sửa RLS: [supabase/README.md](./supabase/README.md).
 | `GITHUB_TOKEN` | PAT GitHub (classic), quyền **repo** |
 | `GITHUB_REPO` | `owner/repo` đúng với repo này |
 
-Bản **.env mẫu đủ biến** (R2, Google Sheets, Supabase User, `VITE_*` tùy chọn): [docs/env/vercel.env.example](./env/vercel.env.example).
+Bản **.env mẫu đủ biến** (R2, Supabase Admin cho API, Supabase User, `VITE_*` tùy chọn): [docs/env/vercel.env.example](./env/vercel.env.example).
 
 **Hướng dẫn gom** (project, `vercel.json`, từng nhóm env, bảng `/api/*`): [vercel/README.md](./vercel/README.md).
 

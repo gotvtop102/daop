@@ -72,43 +72,22 @@ export default function MovieList() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const [total, setTotal] = useState(0);
-  const [spreadsheetId, setSpreadsheetId] = useState<string>('');
-  const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
   const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
   const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
   const [configReady, setConfigReady] = useState<boolean>(false);
 
-  // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
     const loadConfig = async () => {
-      // Try Supabase first
       const { data: settings, error } = await supabase
         .from('site_settings')
         .select('key, value')
-        .in('key', ['google_sheets_id', 'google_service_account_key', 'r2_img_domain', 'ophim_img_domain']);
-      
+        .in('key', ['r2_img_domain', 'ophim_img_domain']);
+
       if (!error && settings) {
-        const sheetId = settings.find(s => s.key === 'google_sheets_id')?.value;
-        const svcKey = settings.find(s => s.key === 'google_service_account_key')?.value;
-        const r2Domain = settings.find(s => s.key === 'r2_img_domain')?.value;
-        const ophimDomain = settings.find(s => s.key === 'ophim_img_domain')?.value;
-        if (sheetId) setSpreadsheetId(sheetId);
-        if (svcKey) setServiceAccountKey(svcKey);
+        const r2Domain = settings.find((s) => s.key === 'r2_img_domain')?.value;
+        const ophimDomain = settings.find((s) => s.key === 'ophim_img_domain')?.value;
         if (r2Domain) setR2ImgDomain(r2Domain);
         if (ophimDomain) setOphimImgDomain(ophimDomain);
-      }
-      
-      // Fallback to localStorage
-      try {
-        const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
-        if (saved?.google_sheets_id && !spreadsheetId) {
-          setSpreadsheetId(saved.google_sheets_id);
-        }
-        if (saved?.google_service_account_key && !serviceAccountKey) {
-          setServiceAccountKey(saved.google_service_account_key);
-        }
-      } catch {
-        // ignore
       }
       setConfigReady(true);
     };
@@ -123,13 +102,8 @@ export default function MovieList() {
     return `${r2}/${kind === 'poster' ? 'posters' : 'thumbs'}/${idStr}.webp`;
   };
 
-  // Load movies from Google Sheets via API
   const loadMovies = async (opts?: { nextPage?: number; nextPageSize?: number }) => {
-    if (!configReady) return; // Wait for config to load first
-    if (!spreadsheetId) {
-      message.error('Chưa cấu hình Google Sheets ID. Vui lòng vào Google Sheets để thiết lập.');
-      return;
-    }
+    if (!configReady) return;
     setLoading(true);
     try {
       const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -139,8 +113,6 @@ export default function MovieList() {
 
       const url = new URL(`${base}/api/movies`);
       url.searchParams.append('action', 'list');
-      url.searchParams.append('spreadsheetId', spreadsheetId);
-      if (serviceAccountKey) url.searchParams.append('serviceAccountKey', serviceAccountKey);
       const isUnbuiltTab = category === 'unbuilt';
       const isDuplicatesTab = category === 'duplicates';
       url.searchParams.append('type', isUnbuiltTab || isDuplicatesTab ? 'all' : TYPE_MAP[category]);
@@ -187,13 +159,13 @@ export default function MovieList() {
   };
 
   useEffect(() => {
-    if (!configReady || !spreadsheetId) return; // Wait for config
+    if (!configReady) return;
     const t = setTimeout(() => {
       loadMovies({ nextPage: 1 });
       setPage(1);
     }, 100);
     return () => clearTimeout(t);
-  }, [category, search, configReady, spreadsheetId]);
+  }, [category, search, configReady]);
 
   const filteredMovies = useMemo(() => movies, [movies]);
 
@@ -203,20 +175,16 @@ export default function MovieList() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!spreadsheetId) {
-      message.error('Chưa cấu hình Google Sheets ID');
-      return;
-    }
     try {
       const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
       const base = envBase || window.location.origin;
       const url = new URL(`${base}/api/movies`);
       url.searchParams.append('action', 'delete');
       url.searchParams.append('id', id);
-      url.searchParams.append('spreadsheetId', spreadsheetId);
-      if (serviceAccountKey) url.searchParams.append('serviceAccountKey', serviceAccountKey);
       const res = await fetch(url.toString(), {
-        method: 'DELETE',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', id }),
       });
 
       if (!res.ok) {

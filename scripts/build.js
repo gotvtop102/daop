@@ -1,5 +1,5 @@
 /**
- * Build script: OPhim + Google Sheets + TMDB → static files + Supabase Admin config → JSON
+ * Build script: OPhim + Supabase/Excel (phim custom) + TMDB → static files + Supabase Admin config → JSON
  * Chạy: node scripts/build.js [--incremental]
  */
 import 'dotenv/config';
@@ -892,57 +892,161 @@ function dedupeThumbPoster(m) {
   }
 }
 
-async function loadServiceAccountFromEnv(readWrite) {
-  // Ưu tiên JSON nguyên từ env (an toàn hơn, không cần commit file key)
-  const jsonEnv = process.env.GOOGLE_SHEETS_JSON || process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (jsonEnv) {
-    try {
-      return JSON.parse(jsonEnv);
-    } catch (e) {
-      console.warn('Không parse được GOOGLE_SHEETS_JSON/GOOGLE_SERVICE_ACCOUNT_JSON:', e.message || e);
+/** Chuyển dữ liệu Supabase Admin (movies + movie_episodes) sang cùng dạng object như parseSheetMovies. */
+function buildMoviesFromSupabase(movieRows, epRows) {
+  const movies = [];
+  for (const row of movieRows || []) {
+    if (!row) continue;
+    const title = String(row.title || row.name || '').trim();
+    if (!title) continue;
+    const movieId =
+      String(row.id != null ? row.id : '').trim() || `ext_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const slugFromDb = String(row.slug || '').trim();
+    const baseSlug = slugFromDb || slugify(title, { lower: true }) || movieId;
+    const genre = String(row.genre || '')
+      .split(',')
+      .map((g) => g.trim())
+      .filter(Boolean)
+      .map((g) => ({ name: g, slug: slugify(g, { lower: true }) }));
+    const country = String(row.country || '')
+      .split(',')
+      .map((c) => c.trim())
+      .filter(Boolean)
+      .map((c) => ({ name: c, slug: slugify(c, { lower: true }) }));
+    const quality = String(row.quality || '').trim();
+    const is4k = /4k|uhd|2160p/i.test(quality);
+    const updateRaw = String(row.update ?? row['update'] ?? '').trim();
+    const updateStatus = updateRaw ? updateRaw.toUpperCase() : '';
+    const sheetModified = String(row.modified || '').trim();
+
+    const movie = {
+      id: movieId,
+      title,
+      origin_name: String(row.origin_name || '').trim(),
+      slug: baseSlug,
+      thumb: String(row.thumb_url || row.thumb || '').trim(),
+      poster: String(row.poster_url || row.poster || '').trim(),
+      _from_supabase: true,
+      year: String(row.year || '').trim(),
+      type: String(row.type || 'single').trim() || 'single',
+      genre,
+      country,
+      lang_key: String(row.lang_key || row.language || '').trim(),
+      episode_current: String(row.episode_current || '1').trim(),
+      quality,
+      modified: sheetModified || new Date().toISOString(),
+      is_4k: is4k,
+      is_exclusive: parseBooleanFlag(row.is_exclusive, false),
+      status: String(row.status || '').trim(),
+      showtimes: String(row.showtimes || '').trim(),
+      chieurap: parseBooleanFlag(row.chieurap, false),
+      sub_docquyen: false,
+      episodes: [],
+      description: String(row.description || row.content || '').trim(),
+      tmdb_id: row.tmdb_id != null && String(row.tmdb_id).trim() !== '' ? Number(row.tmdb_id) : null,
+      cast: [],
+      director: [],
+      keywords: [],
+    };
+
+    if (updateStatus === 'NEW') {
+      movie.modified = new Date().toISOString();
+      movie._sheetUpdateStatus = updateStatus;
+    } else if (updateStatus) {
+      movie._sheetUpdateStatus = updateStatus;
+    }
+    movie._supabaseOriginalSlug = baseSlug;
+
+    movies.push(movie);
+  }
+
+  const movieById = Object.fromEntries(movies.map((m) => [String(m.id), m]));
+  const movieBySlug = Object.fromEntries(movies.map((m) => [m.slug, m]));
+  const movieByTitle = Object.fromEntries(movies.map((m) => [(m.title || '').toString().trim(), m]));
+  const serverGroupsByMovie = new Map();
+
+  for (const er of epRows || []) {
+    if (!er) continue;
+    const mid = String(er.movie_id ?? '').trim();
+    const movie =
+      movieById[mid] ||
+      movies.find((m) => String(m.id) === String(mid) || m.slug === mid) ||
+      movieByTitle[mid] ||
+      (mid && movieBySlug[slugify(mid, { lower: true })]);
+    if (!movie) continue;
+
+    const epCode = String(er.episode_code || '').trim() || '1';
+    const epName = String(er.episode_name || '').trim() || `Tập ${epCode}`;
+    const serverSlugRaw = String(er.server_slug || '').trim();
+    const serverNameRaw = String(er.server_name || '').trim();
+    const serverSlug = serverSlugRaw || slugify(serverNameRaw || 'default', { lower: true }) || 'default';
+    const serverName = serverNameRaw || serverSlug;
+
+    const linkM3U8 = String(er.link_m3u8 || '').trim();
+    const linkEmbed = String(er.link_embed || '').trim();
+    const linkBackup = String(er.link_backup || '').trim();
+    const linkVip1 = String(er.link_vip1 || '').trim();
+    const linkVip2 = String(er.link_vip2 || '').trim();
+    const linkVip3 = String(er.link_vip3 || '').trim();
+    const linkVip4 = String(er.link_vip4 || '').trim();
+    const linkVip5 = String(er.link_vip5 || '').trim();
+
+    const src = {
+      name: epName,
+      slug: slugify(epCode || epName, { lower: true }),
+    };
+    if (linkEmbed) src.link_embed = linkEmbed;
+    if (linkM3U8) src.link_m3u8 = linkM3U8;
+    if (linkBackup) src.link_backup = linkBackup;
+    if (linkVip1) src.link_vip1 = linkVip1;
+    if (linkVip2) src.link_vip2 = linkVip2;
+    if (linkVip3) src.link_vip3 = linkVip3;
+    if (linkVip4) src.link_vip4 = linkVip4;
+    if (linkVip5) src.link_vip5 = linkVip5;
+
+    let groups = serverGroupsByMovie.get(movie);
+    if (!groups) {
+      groups = new Map();
+      serverGroupsByMovie.set(movie, groups);
+    }
+    let group = groups.get(serverSlug);
+    if (!group) {
+      group = { name: serverName, slug: serverSlug, server_name: serverName, server_data: [] };
+      groups.set(serverSlug, group);
+    }
+    group.server_data.push(src);
+  }
+
+  for (const [movie, groups] of serverGroupsByMovie.entries()) {
+    movie.episodes = movie.episodes || [];
+    for (const grp of groups.values()) {
+      movie.episodes.push(grp);
     }
   }
-  const keyPathEnv = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  if (keyPathEnv) {
-    const keyPath = path.isAbsolute(keyPathEnv) ? keyPathEnv : path.join(ROOT, keyPathEnv);
-    if (await fs.pathExists(keyPath)) {
-      return fs.readJson(keyPath);
-    }
-  }
-  if (!readWrite) return null;
-  // Fallback cũ: file JSON mặc định trong repo (không khuyến khích, chỉ dùng local)
-  const defaultPath = path.join(ROOT, 'gotv-394615-89fa7961dcb3.json');
-  if (await fs.pathExists(defaultPath)) {
-    return fs.readJson(defaultPath);
-  }
-  return null;
+  return movies;
 }
 
-/** 2. Đọc Google Sheets (hoặc Excel fallback) */
-async function fetchCustomMovies() {
-  const sheetId = process.env.GOOGLE_SHEETS_ID;
-  const key = await loadServiceAccountFromEnv(false);
-  if (sheetId && key) {
-    try {
-      const { google } = await import('googleapis');
-      const auth = new google.auth.GoogleAuth({
-        credentials: key,
-        scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-      });
-      const sheets = google.sheets({ version: 'v4', auth });
-      const res = await sheets.spreadsheets.values.batchGet({
-        spreadsheetId: sheetId,
-        ranges: ['movies!A1:Z1000', 'episodes!A1:Z2000'],
-      });
-      const valueRanges = res.data.valueRanges || [];
-      const moviesRows = valueRanges[0]?.values || [];
-      const episodesRows = valueRanges[1]?.values || [];
-      const movies = parseSheetMovies(moviesRows, episodesRows, { sheetId });
-      return movies;
-    } catch (e) {
-      console.warn('Google Sheets fetch failed, fallback Excel (nếu có):', e.message);
-    }
+async function fetchCustomMoviesFromSupabase() {
+  const url = String(process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || '').trim();
+  const key = String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim();
+  if (!url || !key) return null;
+  try {
+    const supabase = createClient(url, key);
+    const { data: movieRows, error: e1 } = await supabase.from('movies').select('*');
+    if (e1) throw e1;
+    const { data: epRows, error: e2 } = await supabase.from('movie_episodes').select('*').order('sort_order');
+    if (e2) throw e2;
+    return buildMoviesFromSupabase(movieRows || [], epRows || []);
+  } catch (e) {
+    console.warn('Supabase custom movies fetch failed, fallback Excel (nếu có):', e.message || e);
+    return null;
   }
+}
+
+/** 2. Đọc Supabase Admin (ưu tiên) hoặc Excel fallback */
+async function fetchCustomMovies() {
+  const fromDb = await fetchCustomMoviesFromSupabase();
+  if (fromDb !== null) return fromDb;
   const xlsxPath = path.join(ROOT, 'custom_movies.xlsx');
   if (await fs.pathExists(xlsxPath)) {
     const wb = XLSX.readFile(xlsxPath);
@@ -1135,72 +1239,43 @@ function parseSheetMovies(moviesRows, episodesRows, opts) {
   return movies;
 }
 
-async function applySheetUpdateStatuses(movies) {
-  const sheetId = process.env.GOOGLE_SHEETS_ID;
-  if (!sheetId) return;
+async function applySupabaseUpdateStatuses(movies) {
+  const url = String(process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || '').trim();
+  const key = String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim();
+  if (!url || !key) return;
 
   const need = (movies || []).filter(
-    (m) =>
-      m &&
-      m._sheetUpdateStatus === 'NEW' &&
-      m._sheetRowNumber &&
-      m._sheetUpdateColIndex >= 0
+    (m) => m && m._from_supabase && String(m._sheetUpdateStatus || '').toUpperCase() === 'NEW'
   );
 
   const slugFix = (movies || []).filter(
     (m) =>
       m &&
-      m._sheetId &&
-      m._sheetRowNumber &&
-      m._sheetSlugColIndex >= 0 &&
-      m._sheetOriginalSlug &&
+      m._from_supabase &&
+      m._supabaseOriginalSlug &&
       m.slug &&
-      String(m.slug) !== String(m._sheetOriginalSlug)
+      String(m.slug) !== String(m._supabaseOriginalSlug)
   );
 
   if (!need.length && !slugFix.length) return;
 
   try {
-    const key = await loadServiceAccountFromEnv(true);
-    const { google } = await import('googleapis');
-    const auth = new google.auth.GoogleAuth({
-      credentials: key,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-    const sheets = google.sheets({ version: 'v4', auth });
-
+    const supabase = createClient(url, key);
+    const now = new Date().toISOString();
     for (const m of need) {
-      const col = colToLetter(m._sheetUpdateColIndex);
-      const rowNum = Number(m._sheetRowNumber);
-      const range = `movies!${col}${rowNum}`;
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: sheetId,
-        range,
-        valueInputOption: 'RAW',
-        requestBody: { values: [['']] },
-      });
+      await supabase.from('movies').update({ update: '', modified: now, updated_at: now }).eq('id', String(m.id));
     }
-
     for (const m of slugFix) {
-      const col = colToLetter(m._sheetSlugColIndex);
-      const rowNum = Number(m._sheetRowNumber);
-      const range = `movies!${col}${rowNum}`;
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: sheetId,
-        range,
-        valueInputOption: 'RAW',
-        requestBody: { values: [[String(m.slug)]] },
-      });
+      await supabase.from('movies').update({ slug: String(m.slug) }).eq('id', String(m.id));
     }
-
     if (need.length) {
-      console.log('   Google Sheets: updated', need.length, 'rows update NEW -> (blank)');
+      console.log('   Supabase: cleared update flag (NEW) for', need.length, 'movies');
     }
     if (slugFix.length) {
-      console.log('   Google Sheets: updated', slugFix.length, 'rows slug (auto-fix collisions)');
+      console.log('   Supabase: synced slug for', slugFix.length, 'movies');
     }
   } catch (e) {
-    console.warn('   Google Sheets: failed to sync update statuses / slugs:', e?.message || e);
+    console.warn('   Supabase: failed to sync update statuses / slugs:', e?.message || e);
   }
 }
 
@@ -1530,8 +1605,8 @@ function mergeMovies(ophim, custom) {
 
   const usedSlugs = new Set(bySlug.keys());
 
-  // Custom (từ Google Sheets/Excel):
-  // - NEW: luôn được build (build mới / build lại), nhưng nếu trùng slug với OPhim/custom thì auto thêm hậu tố và sync ngược lại sheet.
+  // Custom (Supabase / Excel):
+  // - NEW: luôn được build (build mới / build lại), nhưng nếu trùng slug với OPhim/custom thì auto thêm hậu tố và sync trạng thái về nguồn (Supabase).
   for (const m of custom) {
     if (!m || !m.slug) continue;
     const st = (m._sheetUpdateStatus || '').toString().toUpperCase();
@@ -3596,7 +3671,7 @@ async function main() {
   const ophim = await fetchOPhimMovies(prevMoviesById, prevOphimIndex, cleanOldData);
   console.log('   OPhim count:', ophim.length);
 
-  console.log('2. Fetching custom (Sheets/Excel)...');
+  console.log('2. Fetching custom (Supabase / Excel)...');
   const custom = await fetchCustomMovies();
   console.log('   Custom count:', custom.length);
 
@@ -3708,8 +3783,8 @@ async function main() {
     fs.writeFileSync(path.join(PUBLIC_DATA, 'last_modified.json'), JSON.stringify(newLastModified, null, 2));
   } catch {}
 
-  console.log('6b. Sync update status back to Google Sheets (NEW -> blank)...');
-  await applySheetUpdateStatuses(custom);
+  console.log('6b. Sync update status back to Supabase (NEW -> blank)...');
+  await applySupabaseUpdateStatuses(custom);
 
   const buildVersion = { builtAt: new Date().toISOString() };
   fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));

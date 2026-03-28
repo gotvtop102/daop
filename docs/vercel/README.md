@@ -76,15 +76,14 @@ Thêm tại **Project → Settings → Environment Variables**.
 
 Không cần trên Vercel nếu không dùng API này.
 
-### 3.5. Tùy chọn — Google Sheets + `/api/movies`
+### 3.5. Bắt buộc cho `/api/movies` — Supabase Admin (server)
 
 | Biến | Ý nghĩa |
 |------|---------|
-| `GOOGLE_SHEETS_ID` | ID spreadsheet (trong URL Google Sheets). |
-| `GOOGLE_SHEETS_JSON` | Một dòng hoặc JSON đầy đủ **service account** (thường dùng trên Vercel). |
-| `GOOGLE_SERVICE_ACCOUNT_KEY` / `GOOGLE_SERVICE_ACCOUNT_JSON` | Cách khác mà `api/movies.ts` hỗ trợ (path file ít dùng trên serverless). |
+| `SUPABASE_ADMIN_URL` hoặc fallback `VITE_SUPABASE_ADMIN_URL` | URL project Supabase (Admin). |
+| `SUPABASE_ADMIN_SERVICE_ROLE_KEY` | **Service role** — chỉ trên server; **không** dùng anon key. |
 
-Cần khi Dashboard / MovieList / Google Sheets / EpisodeEdit… gọi `/api/movies`.
+Dùng khi Dashboard / MovieList / MovieEdit / EpisodeEdit gọi `/api/movies`. Ảnh phim qua R2 vẫn cần nhóm biến R2 ở mục dưới.
 
 ### 3.6. Tùy chọn — R2 + upload ảnh (server)
 
@@ -111,7 +110,7 @@ Cần khi dùng **Upload R2** trên Banners, Slider, Site Settings, v.v.
 | `trigger-build.ts` | `POST /api/trigger-build` | Kích hoạt workflow build (thiết kế đơn giản; thường gọi kèm `trigger-action`). |
 | `trigger-action.ts` | `POST/GET /api/trigger-action` | Trigger linh hoạt nhiều workflow GitHub (build-on-demand, purge, …). |
 | `github-runs.ts` | `GET /api/github-runs` | Đọc lịch sử run GitHub Actions cho UI. |
-| `movies.ts` | `/api/movies` | CRUD/phụ trợ phim, Sheets, R2 — cần env Sheets/R2 tương ứng. |
+| `movies.ts` | `/api/movies` | CRUD/phụ trợ phim (Supabase), R2 — cần env Supabase Admin + R2 tương ứng. |
 | `upload-image.ts` | `POST /api/upload-image` | Upload ảnh lên R2 (Admin). |
 | `supabase-user.ts` | `POST /api/supabase-user` | Import/export dữ liệu user — cần `SUPABASE_USER_*`. |
 

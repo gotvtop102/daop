@@ -79,7 +79,7 @@ cd ..
 2. Mở file `.env` bằng notepad/editor và điền (ít nhất các dòng cần thiết để chạy):
    - **TMDB:** lấy API key tại [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) → điền `TMDB_API_KEY=...`
    - **Supabase Admin:** nếu đã tạo project Supabase (xem `docs/supabase/`), điền `SUPABASE_ADMIN_URL` và `SUPABASE_ADMIN_SERVICE_ROLE_KEY`.
-   - Các biến khác (OPhim, R2, Google Sheets, GitHub...) có thể để trống khi chạy thử; build vẫn chạy nhưng có thể không lấy đủ dữ liệu hoặc không upload ảnh.
+   - Các biến khác (OPhim, R2, GitHub…) có thể để trống khi chạy thử; build vẫn chạy nhưng có thể không lấy đủ dữ liệu hoặc không upload ảnh.
 
 3. **Admin Panel:** trong thư mục `admin/`, tạo file `.env` (hoặc copy từ `admin/.env.example`) và điền:
    - `VITE_SUPABASE_ADMIN_URL=https://xxx.supabase.co`
@@ -95,7 +95,7 @@ cd ..
 npm run build
 ```
 
-- Script sẽ: gọi API OPhim (nếu có), đọc Google Sheets/Excel (nếu cấu hình), làm giàu TMDB, xuất file vào `public/data/` (movies-light.js, filters.js, actors.js, batches, config JSON…).
+- Script sẽ: gọi API OPhim (nếu có), đọc phim tùy chỉnh từ Supabase hoặc `custom_movies.xlsx` (nếu cấu hình), làm giàu TMDB, xuất file vào `public/data/` (movies-light.js, filters.js, actors.js, batches, config JSON…).
 - Lần đầu có thể mất vài phút. Nếu thiếu TMDB/Supabase, một số file có thể rỗng hoặc dùng dữ liệu mẫu đã có sẵn trong `public/data/`.
 
 ---
@@ -161,7 +161,7 @@ Mở trình duyệt: **http://localhost:5174** (hoặc cổng Vite in ra trong t
 - **`public/`** – Website chính (deploy Cloudflare Pages).
 - **`admin/`** – Admin panel React (deploy Vercel).
 - **`app/`** – (Tùy chọn) Project Capacitor nếu bạn tạo; xem `docs/capacitor/README.md`.
-- **`docs/`** – Hướng dẫn chi tiết: Supabase, R2, Vercel, Cloudflare Pages, GitHub Actions, Comments, Capacitor, Google Sheets.
+- **`docs/`** – Hướng dẫn chi tiết: Supabase, R2, Vercel, Cloudflare Pages, GitHub Actions, Comments, Capacitor.
 
 ### Section trang chủ (mặc định)
 

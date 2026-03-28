@@ -26,8 +26,6 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
-
 const { Title } = Typography;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -77,36 +75,10 @@ export default function EpisodeEdit() {
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   const [episodePages, setEpisodePages] = useState<Record<string, number>>({});
   const [movieTitle, setMovieTitle] = useState('');
-  const [spreadsheetId, setSpreadsheetId] = useState<string>('');
-  const [serviceAccountKey, setServiceAccountKey] = useState<string>('');
   const [configReady, setConfigReady] = useState<boolean>(false);
 
-  // Load spreadsheetId và serviceAccountKey từ Supabase hoặc localStorage
   useEffect(() => {
-    const loadConfig = async () => {
-      const { data: settings, error } = await supabase
-        .from('site_settings')
-        .select('key, value')
-        .in('key', ['google_sheets_id', 'google_service_account_key']);
-      
-      if (!error && settings) {
-        const sheetId = settings.find(s => s.key === 'google_sheets_id')?.value;
-        const svcKey = settings.find(s => s.key === 'google_service_account_key')?.value;
-        if (sheetId) setSpreadsheetId(sheetId);
-        if (svcKey) setServiceAccountKey(svcKey);
-      }
-      
-      try {
-        const saved = JSON.parse(localStorage.getItem('daop_google_sheets_config') || '{}');
-        if (saved?.google_sheets_id) setSpreadsheetId(saved.google_sheets_id);
-        if (saved?.google_service_account_key) setServiceAccountKey(saved.google_service_account_key);
-      } catch {
-        // ignore
-      }
-      setConfigReady(true);
-    };
-
-    loadConfig();
+    setConfigReady(true);
   }, []);
 
   const importEpisodesFromMovieId = async (sourceMovieId: string) => {
@@ -119,11 +91,6 @@ export default function EpisodeEdit() {
       message.error('Thiếu movie ID');
       return;
     }
-    if (!spreadsheetId) {
-      message.error('Chưa cấu hình Google Sheets ID');
-      return;
-    }
-
     setImporting(true);
     try {
       const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -135,8 +102,6 @@ export default function EpisodeEdit() {
         body: JSON.stringify({
           action: 'episodes',
           movie_id: src,
-          spreadsheetId,
-          ...(serviceAccountKey ? { serviceAccountKey } : {}),
         }),
       });
       if (!res.ok) {
@@ -183,19 +148,15 @@ export default function EpisodeEdit() {
   };
 
   useEffect(() => {
-    if (!configReady || !spreadsheetId) return; // Wait for config
-    if (id && spreadsheetId) {
+    if (!configReady) return;
+    if (id) {
       setInitialLoadDone(false);
       loadEpisodes(id);
     }
-  }, [id, spreadsheetId, configReady]);
+  }, [id, configReady]);
 
   const loadEpisodes = async (movieId: string) => {
-    if (!configReady) return; // Wait for config to load first
-    if (!spreadsheetId) {
-      message.error('Chưa cấu hình Google Sheets ID');
-      return;
-    }
+    if (!configReady) return;
     setLoading(true);
     try {
       const envBase = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
@@ -208,8 +169,6 @@ export default function EpisodeEdit() {
         body: JSON.stringify({
           action: 'get',
           id: movieId,
-          spreadsheetId,
-          ...(serviceAccountKey ? { serviceAccountKey } : {}),
         }),
       });
       if (movieRes.ok) {
@@ -227,8 +186,6 @@ export default function EpisodeEdit() {
           action: 'episodes',
           movie_id: movieId,
           debug: true,
-          spreadsheetId,
-          ...(serviceAccountKey ? { serviceAccountKey } : {}),
         }),
       });
 
@@ -291,10 +248,6 @@ export default function EpisodeEdit() {
   };
 
   const handleSave = async () => {
-    if (!spreadsheetId) {
-      message.error('Chưa cấu hình Google Sheets ID');
-      return;
-    }
     if (!id) {
       message.error('Thiếu movie ID');
       return;
@@ -320,8 +273,6 @@ export default function EpisodeEdit() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          spreadsheetId,
-          ...(serviceAccountKey ? { serviceAccountKey } : {}),
           episodes: allEpisodes,
         }),
       });
@@ -699,7 +650,7 @@ export default function EpisodeEdit() {
                   <Card size="small" style={{ marginBottom: 12 }}>
                     <Space direction="vertical" style={{ width: '100%' }}>
                       <div>
-                        Nếu phim này chưa có tập do lệch <strong>movie_id</strong> trong sheet, bạn có thể nạp tập từ movie_id khác rồi bấm <strong>Lưu</strong> để ghi sang phim hiện tại.
+                        Nếu phim này chưa có tập do lệch <strong>movie_id</strong>, bạn có thể nạp tập từ movie_id khác rồi bấm <strong>Lưu</strong> để ghi sang phim hiện tại.
                       </div>
                       <Space wrap>
                         <Input
