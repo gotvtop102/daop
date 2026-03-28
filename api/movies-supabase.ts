@@ -1,5 +1,13 @@
 import { authHeaders, errFromRes, getRestEnv, parseContentRangeTotal, restFetch, restJson } from './supabase-rest.js';
 
+/** Không gồm description/content (thường rất dài) — chỉ dùng cho list / tab trùng slug. */
+const MOVIE_LIST_SELECT =
+  'id,slug,title,name,origin_name,type,year,genre,country,language,quality,episode_current,thumb_url,poster_url,status,showtimes,chieurap,is_exclusive,tmdb_id,modified,update,note,director,actor,tmdb_type,created_at,updated_at';
+
+/** Tập phim: đủ field hiểnịh/sửa link, không cần uuid nội bộ nếu không dùng. */
+const EPISODE_ROW_SELECT =
+  'movie_id,episode_code,episode_name,server_slug,server_name,link_m3u8,link_embed,link_backup,link_vip1,link_vip2,link_vip3,link_vip4,link_vip5,note,sort_order';
+
 function getEnv() {
   return getRestEnv();
 }
@@ -85,7 +93,7 @@ export async function listMoviesSb(
     }
     const slugFilter = `slug=${encodeURIComponent(buildSlugInParam(slugs))}`;
     const typePart = type && type !== 'all' ? `&type=eq.${encodeURIComponent(type)}` : '';
-    const path = `/movies?select=*&${slugFilter}${typePart}`;
+    const path = `/movies?select=${encodeURIComponent(MOVIE_LIST_SELECT)}&${slugFilter}${typePart}`;
     const res = await restFetch(path, { method: 'GET', key, headers: authHeaders(key) });
     if (!res.ok) throw await errFromRes(res);
     const rows = await restJson<any[]>(res);
@@ -96,7 +104,7 @@ export async function listMoviesSb(
     return { data: movies.slice(start, start + limit), total, page, limit };
   }
 
-  const parts = ['select=*', 'order=modified.desc'];
+  const parts = [`select=${encodeURIComponent(MOVIE_LIST_SELECT)}`, 'order=modified.desc'];
   if (type && type !== 'all') parts.push(`type=eq.${encodeURIComponent(type)}`);
   if (unbuiltOnly) parts.push(`update=eq.${encodeURIComponent('NEW')}`);
   if (search.trim()) {
@@ -271,7 +279,7 @@ export async function countRowsSb(sheetNames: string[]) {
   for (const name of sheetNames) {
     const n = String(name || '').trim().toLowerCase();
     if (n === 'movies') {
-      const res = await restFetch(`/movies?select=*`, {
+      const res = await restFetch(`/movies?select=id`, {
         method: 'HEAD',
         key,
         headers: authHeaders(key, 'count=exact'),
@@ -280,7 +288,7 @@ export async function countRowsSb(sheetNames: string[]) {
       const c = parseContentRangeTotal(res) ?? 0;
       results.push({ sheet: 'movies', headerRows: 1, lastRow: c + 1, nonEmptyDataRows: c });
     } else if (n === 'episodes') {
-      const res = await restFetch(`/movie_episodes?select=*`, {
+      const res = await restFetch(`/movie_episodes?select=id`, {
         method: 'HEAD',
         key,
         headers: authHeaders(key, 'count=exact'),
@@ -297,7 +305,7 @@ export async function getEpisodesSb(movieId: string, debug?: boolean) {
   const { key } = getEnv();
   const movieIdStr = String(movieId ?? '').trim();
 
-  const path = `/movie_episodes?select=*&movie_id=eq.${encodeURIComponent(movieIdStr)}&order=sort_order.asc,episode_code.asc`;
+  const path = `/movie_episodes?select=${encodeURIComponent(EPISODE_ROW_SELECT)}&movie_id=eq.${encodeURIComponent(movieIdStr)}&order=sort_order.asc,episode_code.asc`;
   const res = await restFetch(path, { method: 'GET', key, headers: authHeaders(key) });
   if (!res.ok) throw await errFromRes(res);
   let matchedRows = await restJson<any[]>(res);
@@ -307,7 +315,7 @@ export async function getEpisodesSb(movieId: string, debug?: boolean) {
     const slug = String((movie as any)?.slug ?? '').trim();
     if (slug) {
       const res2 = await restFetch(
-        `/movie_episodes?select=*&movie_id=eq.${encodeURIComponent(slug)}&order=sort_order.asc,episode_code.asc`,
+        `/movie_episodes?select=${encodeURIComponent(EPISODE_ROW_SELECT)}&movie_id=eq.${encodeURIComponent(slug)}&order=sort_order.asc,episode_code.asc`,
         { method: 'GET', key, headers: authHeaders(key) }
       );
       if (!res2.ok) throw await errFromRes(res2);

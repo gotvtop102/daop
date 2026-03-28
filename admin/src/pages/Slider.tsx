@@ -252,32 +252,43 @@ export default function Slider() {
 
   const loadData = async () => {
     setLoading(true);
-    const [sliderRes, r2Res, ophimRes, siteUrlRes, modeRes, autoCountRes] = await Promise.all([
-      supabase.from('site_settings').select('value').eq('key', SLIDER_KEY).single(),
-      supabase.from('site_settings').select('value').eq('key', 'r2_img_domain').maybeSingle(),
-      supabase.from('site_settings').select('value').eq('key', 'ophim_img_domain').maybeSingle(),
-      supabase.from('site_settings').select('value').eq('key', SITE_URL_KEY).maybeSingle(),
-      supabase.from('site_settings').select('value').eq('key', SLIDER_DISPLAY_MODE_KEY).maybeSingle(),
-      supabase.from('site_settings').select('value').eq('key', SLIDER_AUTO_COUNT_KEY).maybeSingle(),
-    ]);
+    const sliderKeys = [
+      SLIDER_KEY,
+      'r2_img_domain',
+      'ophim_img_domain',
+      SITE_URL_KEY,
+      SLIDER_DISPLAY_MODE_KEY,
+      SLIDER_AUTO_COUNT_KEY,
+    ];
+    const { data: settingsRows, error: settingsErr } = await supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', sliderKeys);
+    if (settingsErr) {
+      message.error(settingsErr.message || 'Không tải cấu hình site_settings');
+      setLoading(false);
+      return;
+    }
+    const byKey = Object.fromEntries((settingsRows || []).map((r: { key: string; value: string }) => [r.key, r.value]));
 
-    const r2Domain = String(r2Res.data?.value ?? '');
-    const ophimDomain = String(ophimRes.data?.value ?? '');
-    const base = String(siteUrlRes.data?.value ?? '').trim();
+    const r2Domain = String(byKey['r2_img_domain'] ?? '');
+    const ophimDomain = String(byKey['ophim_img_domain'] ?? '');
+    const base = String(byKey[SITE_URL_KEY] ?? '').trim();
 
     setR2ImgDomain(r2Domain);
     setOphimImgDomain(ophimDomain);
     setSiteBase(base);
 
-    const modeRaw = String(modeRes.data?.value ?? '').trim().toLowerCase();
+    const modeRaw = String(byKey[SLIDER_DISPLAY_MODE_KEY] ?? '').trim().toLowerCase();
     const mode = (modeRaw === 'auto' || modeRaw === 'manual') ? modeRaw : 'manual';
-    const autoCountNum = Number(autoCountRes.data?.value);
+    const autoCountNum = Number(byKey[SLIDER_AUTO_COUNT_KEY]);
     const autoCountFinal = Number.isFinite(autoCountNum) && autoCountNum > 0 ? autoCountNum : 5;
     setDisplayMode(mode as any);
     setAutoLatestCount(autoCountFinal);
 
     try {
-      const parsed = sliderRes.data?.value ? JSON.parse(sliderRes.data.value) : [];
+      const sliderJson = byKey[SLIDER_KEY];
+      const parsed = sliderJson ? JSON.parse(sliderJson) : [];
       const arr = Array.isArray(parsed) ? parsed : [];
       setList(arr.map((s: SlideItem) => ({
         ...s,

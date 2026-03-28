@@ -27,7 +27,11 @@ export default function Dashboard() {
       try {
         const [s, l] = await Promise.all([
           supabase.from('homepage_sections').select('id', { count: 'exact', head: true }),
-          supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(10),
+          supabase
+            .from('audit_logs')
+            .select('id, created_at, action, entity_type, entity_id')
+            .order('created_at', { ascending: false })
+            .limit(10),
         ]);
 
         setStats((prev) => ({

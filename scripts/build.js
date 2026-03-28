@@ -1032,6 +1032,7 @@ async function fetchCustomMoviesFromSupabase() {
   if (!url || !key) return null;
   try {
     const supabase = createClient(url, key);
+    // Build cần toàn bộ cột + toàn bộ tập — chấp nhận một lần tải lớn (không giống API Admin list có chọn cột).
     const { data: movieRows, error: e1 } = await supabase.from('movies').select('*');
     if (e1) throw e1;
     const { data: epRows, error: e2 } = await supabase.from('movie_episodes').select('*').order('sort_order');
