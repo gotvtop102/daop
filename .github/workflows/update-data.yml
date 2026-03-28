@@ -139,6 +139,18 @@ jobs:
             git push
           fi
 
+      # 1-phase trước đây không có deploy trong workflow (chỉ 2-phase mới wrangler). Export cần chạy sau khi đã deploy Pages.
+      - name: Deploy to Cloudflare Pages (1-phase)
+        id: deploy_cf_one_phase
+        if: ${{ env.TWO_PHASE != 'true' && steps.build_one_phase_full.outcome == 'success' }}
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.77.0'
+          command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
+
       - name: Build CORE (2-phase, skip TMDB)
         if: ${{ env.TWO_PHASE == 'true' }}
         run: npm run build
@@ -279,6 +291,7 @@ jobs:
           fi
 
       - name: Deploy TMDB to Cloudflare Pages (2-phase)
+        id: deploy_cf_two_phase_tmdb
         if: ${{ env.TWO_PHASE == 'true' }}
         continue-on-error: true
         uses: cloudflare/wrangler-action@v3
@@ -288,10 +301,9 @@ jobs:
           wranglerVersion: '4.77.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
-      # Không dùng success(): deploy Pages (continue-on-error) vẫn đánh dấu step failed → success() = false và export bị skip hẳn.
-      # Chỉ cần build batch cuối cùng thành công (1-phase hoặc 2-phase TMDB).
+      # Sau deploy Pages (1-phase hoặc 2-phase). always(): không bị skip khi step trước failed nhưng job vẫn tiếp tục (continue-on-error).
       - name: Export batches → Supabase (movies + movie_episodes)
-        if: ${{ !cancelled() && (steps.build_one_phase_full.outcome == 'success' || steps.build_two_phase_tmdb.outcome == 'success') }}
+        if: ${{ always() && !cancelled() && (steps.build_one_phase_full.outcome == 'success' || steps.build_two_phase_tmdb.outcome == 'success') }}
         env:
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
