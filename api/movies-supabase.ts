@@ -1,5 +1,4 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { applyMovieR2Uploads } from './movies-media';
 
 function getEnv() {
   const url = String(
@@ -167,6 +166,9 @@ export async function saveMovieSb(movieData: any) {
     movieData.update = 'NEW';
   }
 
+  // Dynamic import: movies-media pulls in `sharp` (native). Loading it for every /api/movies
+  // request breaks Vercel serverless (FUNCTION_INVOCATION_FAILED); only load when saving.
+  const { applyMovieR2Uploads } = await import('./movies-media');
   await applyMovieR2Uploads(movieData);
 
   const row = moviePayloadToRow(movieData);
