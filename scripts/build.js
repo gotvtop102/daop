@@ -5,6 +5,7 @@
 import 'dotenv/config';
 import fs from 'fs-extra';
 import path from 'path';
+import { gzipSync, gunzipSync, constants as zlibConstants } from 'node:zlib';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 import sharp from 'sharp';
@@ -24,6 +25,54 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
 const BATCH_SIZE = 120;
+const BATCH_MAX_BYTES_DEFAULT = 300_000;
+
+/**
+ * P2-1: số phim “mục tiêu” mỗi cửa sổ batch (trước khi cắt theo byte).
+ * Ít file hơn → tăng; mỗi request tải nặng hơn → giảm hoặc giảm BATCH_MAX_BYTES.
+ */
+function getBaseBatchSizeFromEnv() {
+  const raw = parseInt(process.env.BASE_BATCH_SIZE || String(BATCH_SIZE), 10);
+  const n = Number.isFinite(raw) && raw > 0 ? raw : BATCH_SIZE;
+  return Math.max(10, Math.min(1000, n));
+}
+
+/** Trần kích thước mỗi file batch core (JSON); vượt thì tách cửa sổ nhỏ hơn. */
+function getBatchMaxBytesFromEnv() {
+  const raw = parseInt(process.env.BATCH_MAX_BYTES || String(BATCH_MAX_BYTES_DEFAULT), 10);
+  const n = Number.isFinite(raw) && raw > 0 ? raw : BATCH_MAX_BYTES_DEFAULT;
+  return Math.max(50_000, Math.min(2_000_000, n));
+}
+
+const SHARD_MAX_BYTES_DEFAULT = 300_000;
+/** Số bucket tối đa khi hash-split một shard 2 ký tự (slug / idIndex / search prefix). Client tải `parts` file .0…N-1 — không đặt quá cao. */
+const SHARD_SPLIT_MAX_PARTS = 256;
+
+/** Trần byte mỗi file shard (slug, idIndex, search prefix); đồng bộ với client lazy load. */
+function getShardMaxBytesFromEnv() {
+  const raw = parseInt(process.env.SHARD_MAX_BYTES || String(SHARD_MAX_BYTES_DEFAULT), 10);
+  const n = Number.isFinite(raw) && raw > 0 ? raw : SHARD_MAX_BYTES_DEFAULT;
+  return Math.max(50_000, Math.min(2_000_000, n));
+}
+
+/** Token quá ngắn không đưa vào `search/prefix` (tránh shard rác). */
+function getSearchPrefixMinTokenLenFromEnv() {
+  const raw = parseInt(process.env.SEARCH_PREFIX_MIN_TOKEN_LEN || '2', 10);
+  const n = Number.isFinite(raw) && raw > 0 ? raw : 2;
+  return Math.max(1, Math.min(20, n));
+}
+
+/**
+ * Tối đa số từ (sau chuẩn hóa) mỗi phim gán vào prefix shards; 0 = không cắt.
+ * Catalog lớn: thử 32–64 để giảm trùng lặp trong các file prefix.
+ */
+function getSearchPrefixMaxTokensFromEnv() {
+  const raw = parseInt(process.env.SEARCH_PREFIX_MAX_TOKENS ?? '0', 10);
+  if (!Number.isFinite(raw) || raw < 0) return 0;
+  if (raw === 0) return 0;
+  return Math.min(500, raw);
+}
+
 const OPHIM_DELAY_MS = 200;
 
 const OPHIM_BASE = process.env.OPHIM_BASE_URL || 'https://ophim1.com/v1/api';
@@ -1434,14 +1483,93 @@ async function fetchJsonWithTmdbKeys(urlBuilder) {
 
 const TMDB_CACHE_DIR = path.join(PUBLIC_DATA, 'cache', 'tmdb');
 const TMDB_CACHE_ENABLED = (process.env.TMDB_CACHE !== '0' && process.env.TMDB_CACHE !== 'false');
-const TMDB_CACHE_TTL_DAYS = Number(process.env.TMDB_CACHE_TTL_DAYS || 7);
-const TMDB_CACHE_TTL_MS = Number.isFinite(TMDB_CACHE_TTL_DAYS) ? (TMDB_CACHE_TTL_DAYS * 24 * 60 * 60 * 1000) : (7 * 24 * 60 * 60 * 1000);
+const _ttlRaw = Number(process.env.TMDB_CACHE_TTL_DAYS ?? 7);
+const TMDB_CACHE_TTL_DAYS = Number.isFinite(_ttlRaw) && _ttlRaw > 0 && _ttlRaw <= 365 ? _ttlRaw : 7;
+const TMDB_CACHE_TTL_MS = TMDB_CACHE_TTL_DAYS * 24 * 60 * 60 * 1000;
 const TMDB_CONCURRENCY = Math.max(1, Math.min(32, Number(process.env.TMDB_CONCURRENCY || 6)));
+/** Số file shard (1–256): tăng khi catalog lớn để mỗi file nhỏ hơn / ít contention ghi. */
 const TMDB_CACHE_SHARDS = Math.max(1, Math.min(256, Number(process.env.TMDB_CACHE_SHARDS || 200)));
+const TMDB_CACHE_PRUNE = (process.env.TMDB_CACHE_PRUNE !== '0' && process.env.TMDB_CACHE_PRUNE !== 'false');
+const TMDB_CACHE_GZIP = (process.env.TMDB_CACHE_GZIP !== '0' && process.env.TMDB_CACHE_GZIP !== 'false');
 
-function safeJsonRead(p) {
+function pruneTmdbDetailForCache(data) {
+  if (!data || typeof data !== 'object') return data;
+  return { poster_path: data.poster_path != null ? data.poster_path : null };
+}
+
+function pruneTmdbCreditsForCache(data) {
+  if (!data || typeof data !== 'object') return data;
+  const cast = Array.isArray(data.cast)
+    ? data.cast.slice(0, 18).map((c) => ({
+      id: c && c.id,
+      name: c && c.name,
+      profile_path: c && c.profile_path != null ? c.profile_path : null,
+    }))
+    : [];
+  const crew = Array.isArray(data.crew)
+    ? data.crew
+      .filter((c) => c && c.job === 'Director')
+      .map((c) => ({ job: c.job, name: c.name }))
+    : [];
+  return { cast, crew };
+}
+
+function pruneTmdbKeywordsForCache(data) {
+  if (!data || typeof data !== 'object') return data;
+  const keywords = Array.isArray(data.keywords)
+    ? data.keywords.map((k) => ({ name: k && k.name }))
+    : [];
+  return { keywords };
+}
+
+function pruneTmdbPersonTranslationsForCache(data) {
+  if (!data || typeof data !== 'object') return data;
+  const translations = Array.isArray(data.translations)
+    ? data.translations.map((t) => {
+      const name = t && t.data && t.data.name != null ? t.data.name : '';
+      return {
+        iso_639_1: t && t.iso_639_1,
+        data: { name },
+      };
+    })
+    : [];
+  return { translations };
+}
+
+/** Giảm dung lượng cache: chỉ giữ field enrichTmdb / getTmdbPersonNameVi cần (tương thích khi đọc entry cũ đầy đủ). */
+function pruneTmdbCacheEntry(cacheKey, data) {
+  if (!TMDB_CACHE_PRUNE) return data;
+  if (data == null || typeof data !== 'object' || Array.isArray(data)) return data;
+  const key = String(cacheKey || '');
+  if (key.startsWith('person_') && key.endsWith('_translations')) {
+    return pruneTmdbPersonTranslationsForCache(data);
+  }
+  if (key.endsWith('_keywords')) {
+    return pruneTmdbKeywordsForCache(data);
+  }
+  if (key.endsWith('_credits')) {
+    return pruneTmdbCreditsForCache(data);
+  }
+  if (key.includes('_detail_')) {
+    return pruneTmdbDetailForCache(data);
+  }
+  return data;
+}
+
+function parseTmdbShardFileBuffer(buf) {
+  if (!buf || !buf.length) return null;
+  let text;
+  if (buf[0] === 0x1f && buf[1] === 0x8b) {
+    try {
+      text = gunzipSync(buf).toString('utf8');
+    } catch {
+      return null;
+    }
+  } else {
+    text = buf.toString('utf8');
+  }
   try {
-    return JSON.parse(fs.readFileSync(p, 'utf8'));
+    return JSON.parse(text);
   } catch {
     return null;
   }
@@ -1474,11 +1602,16 @@ async function withShardLock(idx, fn) {
 }
 
 function loadTmdbShardFile(p) {
-  const j = safeJsonRead(p);
+  try {
+    const buf = fs.readFileSync(p);
+    const j = parseTmdbShardFileBuffer(buf);
   if (!j || typeof j !== 'object') return { version: 1, entries: {} };
   if (!j.version) j.version = 1;
   if (!j.entries || typeof j.entries !== 'object') j.entries = {};
   return j;
+  } catch {
+    return { version: 1, entries: {} };
+  }
 }
 
 async function tmdbFetchJsonCached(urlBuilder, cacheKey) {
@@ -1522,9 +1655,10 @@ async function tmdbFetchJsonCached(urlBuilder, cacheKey) {
   }
 
   // Miss -> fetch
-  const data = await fetchMiss();
+  const rawData = await fetchMiss();
+  const data = pruneTmdbCacheEntry(key, rawData);
 
-  // Write back (serialized)
+  // Write back (serialized; gzip optional — tương thích đọc JSON thuần cũ)
   await withShardLock(idx, async () => {
     const s2 = _tmdbShardMem.get(idx) || { version: 1, entries: {} };
     s2.entries = s2.entries && typeof s2.entries === 'object' ? s2.entries : {};
@@ -1542,7 +1676,11 @@ async function tmdbFetchJsonCached(urlBuilder, cacheKey) {
 
     _tmdbShardMem.set(idx, s2);
     try {
-      fs.writeFileSync(p, JSON.stringify(s2), 'utf8');
+      const json = JSON.stringify(s2);
+      const out = TMDB_CACHE_GZIP
+        ? gzipSync(Buffer.from(json, 'utf8'), { level: zlibConstants.Z_BEST_SPEED })
+        : json;
+      fs.writeFileSync(p, out);
     } catch {}
   });
 
@@ -1585,6 +1723,20 @@ async function enrichTmdb(movies) {
   }
   if (TMDB_KEYS.length > 1) {
     console.log('   TMDB:', TMDB_KEYS.length, 'API key(s) — khi 429 sẽ chuyển key tiếp theo.');
+  }
+  if (TMDB_CACHE_ENABLED) {
+    console.log(
+      '   TMDB disk cache:',
+      path.relative(ROOT, TMDB_CACHE_DIR) || 'cache/tmdb',
+      '| TTL',
+      `${TMDB_CACHE_TTL_DAYS}d`,
+      '| shards',
+      TMDB_CACHE_SHARDS,
+      '| prune',
+      TMDB_CACHE_PRUNE,
+      '| gzip',
+      TMDB_CACHE_GZIP
+    );
   }
   const list = Array.isArray(movies) ? movies : [];
   let nextIndex = 0;
@@ -2134,7 +2286,20 @@ function hashStringDjb2(s) {
   return h >>> 0;
 }
 
-function splitObjectBySize(keyToObj, maxBytes, keySelector) {
+function warnShardBucketsOverLimit(kind, shardKey, maxBytes, buckets) {
+  for (let i = 0; i < buckets.length; i++) {
+    const b = buckets[i];
+    const len = Buffer.byteLength(JSON.stringify(b), 'utf8');
+    if (len <= maxBytes) continue;
+    const n = b && typeof b === 'object' && !Array.isArray(b) ? Object.keys(b).length : (Array.isArray(b) ? b.length : 0);
+    console.warn(
+      `[P2-1] Shard vượt SHARD_MAX_BYTES (${kind} key=${JSON.stringify(shardKey)} part=${i} ~${len}B > ${maxBytes}B, ~${n} keys/items). ` +
+        'Tăng SHARD_MAX_BYTES hoặc giảm payload index/search.'
+    );
+  }
+}
+
+function splitObjectBySize(keyToObj, maxBytes, keySelector, debugShardKey = '') {
   const keys = Object.keys(keyToObj || {});
   if (!keys.length) return { parts: 1, buckets: [{ ...keyToObj }] };
 
@@ -2142,7 +2307,7 @@ function splitObjectBySize(keyToObj, maxBytes, keySelector) {
   if (rawLen <= maxBytes) return { parts: 1, buckets: [{ ...keyToObj }] };
 
   let parts = 2;
-  while (parts <= 64) {
+  while (parts <= SHARD_SPLIT_MAX_PARTS) {
     const buckets = Array.from({ length: parts }, () => ({}));
     for (const k of keys) {
       const sel = keySelector ? keySelector(k, keyToObj[k]) : k;
@@ -2157,16 +2322,17 @@ function splitObjectBySize(keyToObj, maxBytes, keySelector) {
     if (ok) return { parts, buckets };
     parts *= 2;
   }
-  const buckets = Array.from({ length: 64 }, () => ({}));
+  const buckets = Array.from({ length: SHARD_SPLIT_MAX_PARTS }, () => ({}));
   for (const k of keys) {
     const sel = keySelector ? keySelector(k, keyToObj[k]) : k;
-    const idx = hashStringDjb2(sel) % 64;
+    const idx = hashStringDjb2(sel) % SHARD_SPLIT_MAX_PARTS;
     buckets[idx][k] = keyToObj[k];
   }
-  return { parts: 64, buckets };
+  if (debugShardKey) warnShardBucketsOverLimit('slug|id', debugShardKey, maxBytes, buckets);
+  return { parts: SHARD_SPLIT_MAX_PARTS, buckets };
 }
 
-function splitArrayBySize(arr, maxBytes, keySelector) {
+function splitArrayBySize(arr, maxBytes, keySelector, debugShardKey = '') {
   const list = Array.isArray(arr) ? arr : [];
   if (!list.length) return { parts: 1, buckets: [[]] };
 
@@ -2174,7 +2340,7 @@ function splitArrayBySize(arr, maxBytes, keySelector) {
   if (rawLen <= maxBytes) return { parts: 1, buckets: [list.slice(0)] };
 
   let parts = 2;
-  while (parts <= 64) {
+  while (parts <= SHARD_SPLIT_MAX_PARTS) {
     const buckets = Array.from({ length: parts }, () => []);
     for (const it of list) {
       const sel = keySelector ? keySelector(it) : (it && (it.slug || it.id) ? String(it.slug || it.id) : '');
@@ -2189,17 +2355,18 @@ function splitArrayBySize(arr, maxBytes, keySelector) {
     if (ok) return { parts, buckets };
     parts *= 2;
   }
-  const buckets = Array.from({ length: 64 }, () => []);
+  const buckets = Array.from({ length: SHARD_SPLIT_MAX_PARTS }, () => []);
   for (const it of list) {
     const sel = keySelector ? keySelector(it) : (it && (it.slug || it.id) ? String(it.slug || it.id) : '');
-    const idx = hashStringDjb2(sel) % 64;
+    const idx = hashStringDjb2(sel) % SHARD_SPLIT_MAX_PARTS;
     buckets[idx].push(it);
   }
-  return { parts: 64, buckets };
+  if (debugShardKey) warnShardBucketsOverLimit('search', debugShardKey, maxBytes, buckets);
+  return { parts: SHARD_SPLIT_MAX_PARTS, buckets };
 }
 
 function writeIndexAndSearchShards(movies, batchPtrById) {
-  let indexBatchSize = Math.max(10, parseInt(process.env.BASE_BATCH_SIZE || String(BATCH_SIZE || 120), 10) || 120);
+  let indexBatchSize = getBaseBatchSizeFromEnv();
   const batchWindowsPath = path.join(PUBLIC_DATA, 'batches', 'batch-windows.json');
   if (fs.existsSync(batchWindowsPath)) {
     try {
@@ -2211,10 +2378,22 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
       /* keep indexBatchSize */
     }
   }
-  const maxBytes = Math.max(50_000, parseInt(process.env.SHARD_MAX_BYTES || '300000', 10) || 300000);
-  /** Giảm số shard search trùng: bỏ token 1 ký tự; giới hạn số từ gán vào prefix (0 = không giới hạn). */
-  const SEARCH_PREFIX_MIN_TOKEN_LEN = Math.max(1, parseInt(process.env.SEARCH_PREFIX_MIN_TOKEN_LEN || '2', 10) || 2);
-  const SEARCH_PREFIX_MAX_TOKENS = Math.max(0, parseInt(process.env.SEARCH_PREFIX_MAX_TOKENS || '0', 10) || 0);
+  const maxBytes = getShardMaxBytesFromEnv();
+  console.log(
+    '   [P2-1] Index/search shards: SHARD_MAX_BYTES =',
+    maxBytes,
+    '| hash split tối đa',
+    SHARD_SPLIT_MAX_PARTS,
+    'bucket/shard'
+  );
+  const SEARCH_PREFIX_MIN_TOKEN_LEN = getSearchPrefixMinTokenLenFromEnv();
+  const SEARCH_PREFIX_MAX_TOKENS = getSearchPrefixMaxTokensFromEnv();
+  console.log(
+    '   [P2-1] Search prefix: SEARCH_PREFIX_MIN_TOKEN_LEN =',
+    SEARCH_PREFIX_MIN_TOKEN_LEN,
+    '| SEARCH_PREFIX_MAX_TOKENS =',
+    SEARCH_PREFIX_MAX_TOKENS === 0 ? '(0 = không giới hạn)' : SEARCH_PREFIX_MAX_TOKENS
+  );
   const sorted = [...movies].sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
   const outIndexDir = path.join(PUBLIC_DATA, 'index');
@@ -2310,7 +2489,7 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
 
   const slugMeta = { maxBytes, parts: {} };
   for (const [k, map] of slugIndexByShard.entries()) {
-    const spl = splitObjectBySize(map, maxBytes, (slug) => slug);
+    const spl = splitObjectBySize(map, maxBytes, (slug) => slug, k);
     slugMeta.parts[k] = spl.parts;
     if (spl.parts <= 1) {
       const content = `window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex[${JSON.stringify(k)}] = ${JSON.stringify(map)};`;
@@ -2328,11 +2507,11 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
 
   const idMeta = { maxBytes, parts: {} };
   for (const [k, map] of idIndexByShard.entries()) {
-    const spl = splitObjectBySize(map, maxBytes, (idKey) => idKey);
+    const spl = splitObjectBySize(map, maxBytes, (idKey) => idKey, k);
     idMeta.parts[k] = spl.parts;
     if (spl.parts <= 1) {
-      const content = `window.DAOP = window.DAOP || {};window.DAOP.idIndex = window.DAOP.idIndex || {};window.DAOP.idIndex[${JSON.stringify(k)}] = ${JSON.stringify(map)};`;
-      fs.writeFileSync(path.join(outIdDir, `${k}.js`), content, 'utf8');
+    const content = `window.DAOP = window.DAOP || {};window.DAOP.idIndex = window.DAOP.idIndex || {};window.DAOP.idIndex[${JSON.stringify(k)}] = ${JSON.stringify(map)};`;
+    fs.writeFileSync(path.join(outIdDir, `${k}.js`), content, 'utf8');
       continue;
     }
     for (let p = 0; p < spl.buckets.length; p++) {
@@ -2356,7 +2535,7 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
     },
   };
   for (const [k, arr] of searchByShard.entries()) {
-    const spl = splitArrayBySize(arr, maxBytes, (it) => (it && (it.slug || it.id) ? String(it.slug || it.id) : ''));
+    const spl = splitArrayBySize(arr, maxBytes, (it) => (it && (it.slug || it.id) ? String(it.slug || it.id) : ''), k);
     searchMeta.parts[k] = spl.parts;
     if (spl.parts <= 1) {
       const content = `window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix[${JSON.stringify(k)}] = ${JSON.stringify(arr)};`;
@@ -2813,9 +2992,17 @@ function writeBatches(movies, prevLastModified, tmdbById, prevTmdbById) {
     }
   }
 
-  const BASE_BATCH = Math.max(10, parseInt(process.env.BASE_BATCH_SIZE || String(BATCH_SIZE || 120), 10) || 120);
-  const MAX_BATCH_BYTES = Math.max(50_000, parseInt(process.env.BATCH_MAX_BYTES || '300000', 10) || 300000);
+  const BASE_BATCH = getBaseBatchSizeFromEnv();
+  const MAX_BATCH_BYTES = getBatchMaxBytesFromEnv();
   const windowsPath = path.join(batchDir, 'batch-windows.json');
+
+  console.log(
+    '   [P2-1] Batch:',
+    BASE_BATCH,
+    'phim/cửa sổ (mục tiêu), tối đa',
+    MAX_BATCH_BYTES,
+    'byte/file core — BASE_BATCH_SIZE / BATCH_MAX_BYTES'
+  );
 
   const toCoreMovie = (m) => {
     if (!m) return m;
@@ -3077,14 +3264,24 @@ async function exportConfigFromSupabase() {
   fs.ensureDirSync(configDir);
 
   const today = new Date().toISOString().slice(0, 10);
+  /** Chỉ các cột dùng cho JSON tĩnh — tránh kéo cột/thêm cột tương lai không cần (giảm payload & row “phình”). */
+  const selBanners =
+    'id,title,image_url,link_url,html_code,position,start_date,end_date,is_active,priority';
+  const selSections =
+    'id,title,display_type,source_type,source_value,filter_config,manual_movies,limit_count,more_link,sort_order,is_active';
+  const selStatic = 'page_key,content,apk_link,apk_tv_link,testflight_link';
+  const selDonate =
+    'target_amount,target_currency,current_amount,paypal_link,methods,bank_info,crypto_addresses';
+  const selPreroll = 'id,name,video_url,image_url,duration,skip_after,weight,roll,is_active';
+
   const [bannersRes, sections, settings, staticPages, donate, playerSettingsRes, prerollRes] = await Promise.all([
-    supabase.from('ad_banners').select('*').eq('is_active', true),
-    supabase.from('homepage_sections').select('*').eq('is_active', true).order('sort_order'),
-    supabase.from('site_settings').select('key, value'),
-    supabase.from('static_pages').select('*'),
-    supabase.from('donate_settings').select('*').limit(1).maybeSingle(),
-    supabase.from('player_settings').select('key, value'),
-    supabase.from('ad_preroll').select('*').eq('is_active', true).order('weight', { ascending: false }),
+    supabase.from('ad_banners').select(selBanners).eq('is_active', true),
+    supabase.from('homepage_sections').select(selSections).eq('is_active', true).order('sort_order'),
+    supabase.from('site_settings').select('key,value'),
+    supabase.from('static_pages').select(selStatic),
+    supabase.from('donate_settings').select(selDonate).limit(1).maybeSingle(),
+    supabase.from('player_settings').select('key,value'),
+    supabase.from('ad_preroll').select(selPreroll).eq('is_active', true).order('weight', { ascending: false }),
   ]);
 
   const errors = [
@@ -3854,7 +4051,7 @@ async function main() {
 
     console.log('Writing TMDB batches only...');
     timeBuildPhaseSync('TMDB_ONLY: writeBatches', () => {
-      writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
+    writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
     });
 
     // Rebuild actors từ TMDB payload: CORE phase (SKIP_TMDB) thường không có cast/cast_meta,
@@ -3891,39 +4088,39 @@ async function main() {
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');
     await timeBuildPhase('3. TMDB enrich', async () => {
-      if (tmdbOnly) {
-        const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
-        const shouldEnrich = (m) => {
-          if (!m) return false;
-          const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
-          if (!tid) return false;
-          if (forceTmdb) return true;
-          const idStr = m && m.id != null ? String(m.id) : '';
-          if (!idStr) return true;
-          if (!prevTmdbById || typeof prevTmdbById.get !== 'function') return true;
-          const prev = prevTmdbById.get(idStr);
-          if (!prev) return true;
-          const prevTid = prev && prev.tmdb ? prev.tmdb.id : null;
-          if (prevTid != null && String(prevTid) !== String(tid)) return true;
-          // Nếu phim không đổi so với last_modified và đã có payload TMDB trước đó => bỏ qua gọi TMDB.
-          if (prevLastModified && typeof prevLastModified === 'object') {
-            const curMod = m.modified || m.updated_at || '';
-            const oldMod = prevLastModified[idStr];
-            if (oldMod && curMod && String(oldMod) === String(curMod)) {
-              return false;
-            }
+    if (tmdbOnly) {
+      const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
+      const shouldEnrich = (m) => {
+        if (!m) return false;
+        const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
+        if (!tid) return false;
+        if (forceTmdb) return true;
+        const idStr = m && m.id != null ? String(m.id) : '';
+        if (!idStr) return true;
+        if (!prevTmdbById || typeof prevTmdbById.get !== 'function') return true;
+        const prev = prevTmdbById.get(idStr);
+        if (!prev) return true;
+        const prevTid = prev && prev.tmdb ? prev.tmdb.id : null;
+        if (prevTid != null && String(prevTid) !== String(tid)) return true;
+        // Nếu phim không đổi so với last_modified và đã có payload TMDB trước đó => bỏ qua gọi TMDB.
+        if (prevLastModified && typeof prevLastModified === 'object') {
+          const curMod = m.modified || m.updated_at || '';
+          const oldMod = prevLastModified[idStr];
+          if (oldMod && curMod && String(oldMod) === String(curMod)) {
+            return false;
           }
-          return true;
-        };
-        const needOphim = (ophim || []).filter(shouldEnrich);
-        const needCustom = (custom || []).filter(shouldEnrich);
-        console.log('   TMDB_ONLY: movies to enrich:', needOphim.length + needCustom.length);
-        await enrichTmdb(needOphim);
-        await enrichTmdb(needCustom);
-      } else {
-        await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
-        await enrichTmdb(custom);
-      }
+        }
+        return true;
+      };
+      const needOphim = (ophim || []).filter(shouldEnrich);
+      const needCustom = (custom || []).filter(shouldEnrich);
+      console.log('   TMDB_ONLY: movies to enrich:', needOphim.length + needCustom.length);
+      await enrichTmdb(needOphim);
+      await enrichTmdb(needCustom);
+    } else {
+      await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
+      await enrichTmdb(custom);
+    }
     });
   } else {
     console.log('3. Enriching TMDB... (SKIP_TMDB)');
@@ -3963,19 +4160,19 @@ async function main() {
   );
 
   await timeBuildPhase('5. Supabase export + HTML inject', async () => {
-    console.log('5. Exporting config from Supabase Admin (để có filter-order, site-settings...)...');
-    await exportConfigFromSupabase();
+  console.log('5. Exporting config from Supabase Admin (để có filter-order, site-settings...)...');
+  await exportConfigFromSupabase();
 
-    console.log('5b. Injecting site_name into HTML files...');
-    injectSiteNameIntoHtml();
-    console.log('5c. Injecting footer into HTML files...');
-    injectFooterIntoHtml();
-    console.log('5d. Injecting nav into HTML files...');
-    injectNavIntoHtml();
-    console.log('5e. Injecting loading screen into HTML files...');
-    injectLoadingScreenIntoHtml();
-    console.log('5f. Removing movies-light.js script tags from HTML files...');
-    removeMoviesLightScriptFromHtml();
+  console.log('5b. Injecting site_name into HTML files...');
+  injectSiteNameIntoHtml();
+  console.log('5c. Injecting footer into HTML files...');
+  injectFooterIntoHtml();
+  console.log('5d. Injecting nav into HTML files...');
+  injectNavIntoHtml();
+  console.log('5e. Injecting loading screen into HTML files...');
+  injectLoadingScreenIntoHtml();
+  console.log('5f. Removing movies-light.js script tags from HTML files...');
+  removeMoviesLightScriptFromHtml();
   });
 
   console.log('6. Writing movies-light.js, filters.js, actors (index + shards), batches...');
@@ -3990,8 +4187,8 @@ async function main() {
   const newLastModified = batchRes && batchRes.newLastModified ? batchRes.newLastModified : batchRes;
 
   timeBuildPhaseSync('6c. home sections + auto slider', () => {
-    writeHomeSectionsData(allMovies);
-    writeAutoSliderFile(allMovies);
+  writeHomeSectionsData(allMovies);
+  writeAutoSliderFile(allMovies);
   });
   const batchPtrById = batchRes && batchRes.batchPtrById ? batchRes.batchPtrById : null;
 
@@ -3999,7 +4196,7 @@ async function main() {
   timeBuildPhaseSync('6e. filters + category pages + actors', () => {
     const f = writeFilters(allMovies, genreNames, countryNames);
     writeCategoryPages(f);
-    writeActors(hydrateMoviesWithTmdbPayload(allMovies, tmdbById));
+  writeActors(hydrateMoviesWithTmdbPayload(allMovies, tmdbById));
   });
 
   try {
@@ -4015,8 +4212,8 @@ async function main() {
 
   console.log('7. Writing sitemap.xml & robots.txt...');
   timeBuildPhaseSync('7. sitemap + robots', () => {
-    writeSitemap(allMovies);
-    writeRobots();
+  writeSitemap(allMovies);
+  writeRobots();
   });
 
   if (process.env.VALIDATE_BUILD !== '0' && process.env.VALIDATE_BUILD !== 'false') {

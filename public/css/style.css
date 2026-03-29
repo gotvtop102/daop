@@ -1561,6 +1561,8 @@ body.site-header--collapsed .site-header {
 
  .ad-banner-img {
    width: 100%;
+   height: auto;
+   aspect-ratio: 3 / 1;
    max-height: clamp(160px, 30vw, 320px);
    object-fit: cover;
    display: block;

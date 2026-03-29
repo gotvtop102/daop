@@ -4,11 +4,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 import sharp from 'sharp';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
+
+/** State: R2_STATE_PRETTY=1 → JSON đẹp; R2_STATE_WARN_MB / R2_STATE_WARN_ENTRIES → ngưỡng cảnh báo file lớn. */
 
 function parseArgs(argv) {
   const out = {};
@@ -44,6 +46,30 @@ function getR2Client() {
     endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
     credentials: { accessKeyId: key, secretAccessKey: secret },
   });
+}
+
+/** Giống build.js: tránh upload trùng khi object id-based đã có trên R2 (kể cả mất/corrupt state file). */
+async function r2KeyExists(client, bucket, key) {
+  if (!client || !bucket || !key) return false;
+  try {
+    await client.send(
+      new HeadObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      })
+    );
+    return true;
+  } catch (e) {
+    const status = e && e.$metadata && typeof e.$metadata.httpStatusCode === 'number'
+      ? e.$metadata.httpStatusCode
+      : undefined;
+    if (status === 404) return false;
+    if (status === 401 || status === 403) {
+      console.warn('WARNING: R2 HeadObject not allowed (HTTP ' + status + '). Không thể xác nhận key, tiếp tục upload. key=' + key);
+      return false;
+    }
+    return false;
+  }
 }
 
 async function uploadToR2(buffer, key, contentType) {
@@ -195,7 +221,8 @@ function loadMovieListFromBatches() {
 function loadState(statePath) {
   try {
     if (!fs.existsSync(statePath)) return { version: 1, uploaded: {} };
-    const j = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    const raw = fs.readFileSync(statePath, 'utf8');
+    const j = JSON.parse(raw);
     if (!j || typeof j !== 'object') return { version: 1, uploaded: {} };
     if (!j.uploaded || typeof j.uploaded !== 'object') j.uploaded = {};
     if (!j.version) j.version = 1;
@@ -203,6 +230,38 @@ function loadState(statePath) {
   } catch {
     return { version: 1, uploaded: {} };
   }
+}
+
+function formatBytes(n) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KiB`;
+  return `${(n / (1024 * 1024)).toFixed(2)} MiB`;
+}
+
+function logR2StateStats(label, state, statePath) {
+  const entries = state && state.uploaded && typeof state.uploaded === 'object'
+    ? Object.keys(state.uploaded).length
+    : 0;
+  let bytes = 0;
+  try {
+    if (fs.existsSync(statePath)) bytes = fs.statSync(statePath).size;
+  } catch {
+    /* ignore */
+  }
+  const warnMb = Math.max(1, Number(process.env.R2_STATE_WARN_MB || 40) || 40);
+  const warnN = Math.max(1000, Number(process.env.R2_STATE_WARN_ENTRIES || 400000) || 400000);
+  console.log(`   [r2_upload_state] ${label}: ${entries} movie id(s), file ~${formatBytes(bytes)} (${statePath})`);
+  if (bytes > warnMb * 1024 * 1024) {
+    console.warn(`   [r2_upload_state] Cảnh báo: file state > ~${warnMb} MiB — xem xóa key cũ (delete-movie-images-r2) hoặc tách repo.`);
+  }
+  if (entries > warnN) {
+    console.warn(`   [r2_upload_state] Cảnh báo: > ${warnN} id trong state — theo dõi dung lượng file.`);
+  }
+}
+
+function stringifyState(state) {
+  const pretty = /^1|true|yes$/i.test(String(process.env.R2_STATE_PRETTY || '').trim());
+  return pretty ? JSON.stringify(state, null, 2) : JSON.stringify(state);
 }
 
 function parseSlugList(raw) {
@@ -353,6 +412,10 @@ async function main() {
   if (!process.env.R2_PUBLIC_URL) missing.push('R2_PUBLIC_URL');
   if (missing.length) throw new Error('Missing env: ' + missing.join(', '));
 
+  const r2Client = getR2Client();
+  const r2Bucket = process.env.R2_BUCKET_NAME;
+  logR2StateStats('loaded', state, statePath);
+
   let moviesToProcess = [];
   if (forceSlugSet) {
     const sample = Array.from(forceSlugSet).slice(0, 12);
@@ -397,7 +460,7 @@ async function main() {
   const enqueueStateWrite = () => {
     writeQueue = writeQueue.then(() => {
       fs.ensureDirSync(path.dirname(statePath));
-      fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+      fs.writeFileSync(statePath, stringifyState(state), 'utf8');
     });
     return writeQueue;
   };
@@ -441,6 +504,19 @@ async function main() {
         skipped++;
         skippedAlready++;
         continue;
+      }
+
+      const folderEarly = kind === 'thumb' ? 'thumbs' : 'posters';
+      const objectKeyEarly = `${folderEarly}/${idStr}.webp`;
+      if (!reuploadExisting && r2Client && r2Bucket) {
+        const existsOnR2 = await r2KeyExists(r2Client, r2Bucket, objectKeyEarly);
+        if (existsOnR2) {
+          state.uploaded[idStr] = state.uploaded[idStr] || {};
+          state.uploaded[idStr][kind] = { ok: true, at: Date.now(), key: objectKeyEarly, skip: 'r2_head' };
+          skipped++;
+          skippedAlready++;
+          continue;
+        }
       }
 
       let rawUrl = kind === 'thumb'
@@ -541,6 +617,7 @@ async function main() {
 
   await enqueueStateWrite();
   await writeQueue;
+  logR2StateStats('saved', state, statePath);
 
   if (failureSamples.length) {
     console.log('Failure samples (first ' + failureSamples.length + '):');

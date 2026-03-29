@@ -14,6 +14,13 @@
 /js/*
   Cache-Control: public, max-age=86400, must-revalidate
 
+/images/*
+  Cache-Control: public, max-age=604800, must-revalidate
+
+# JS tại /data/*.js (movies-light, actors-index, …). Thư mục con đã có rule riêng (batches, index, search, …).
+/data/*.js
+  Cache-Control: public, max-age=3600, must-revalidate
+
 /data/batches/*
   Cache-Control: public, max-age=3600, must-revalidate
 

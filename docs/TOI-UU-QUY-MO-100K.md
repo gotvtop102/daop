@@ -62,10 +62,10 @@ File này ghi lại phân tích kiến trúc hiện tại, rủi ro khi scale, v
 |----|---------|----------|------------|
 | P0-1 | P0 | Tách/chia nhỏ `idIndex` hoặc tăng bucket; cập nhật client load đúng part | ☑ 2026-03-28 — `writeIndexAndSearchShards` + `index/id/meta.json` + `main.js` (`loadIdIndexMetaOnce`, tải `key.js` hoặc `key.N.js`). Tương thích cũ: không có `meta.json` thì chỉ tải `key.js`. |
 | P0-2 | P0 | Chiến lược dữ liệu: incremental, không kỳ vọng một lần build full 100k từ một list API ngắn | ☐ Chưa |
-| P1-1 | P1 | Giảm chi phí search (payload / thiết kế) hoặc search ngoài static | ☑ Một phần — payload + env; FTS/Meilisearch sau |
+| P1-1 | P1 | Giảm chi phí search (payload / thiết kế) hoặc search ngoài static | ☑ Một phần — payload + env + clamp/log `SEARCH_PREFIX_*` (P2-1); FTS/Meilisearch sau |
 | P1-2 | P1 | CI: tách pha, artifact, chiến lược không commit toàn bộ `public/data` | ☐ Chưa |
-| P1-3 | P1 | Client: `batchSize` từ `index/meta.json`, fallback khớp `baseBatchSize` build; `loadIdIndexShardsForKey` | ☑ 2026-03-28 |
-| P2-1 | P2 | Tune `BASE_BATCH_SIZE`, `BATCH_MAX_BYTES`, `SHARD_MAX_BYTES` theo đo thực tế | ☐ Chưa |
+| P1-3 | P1 | Client: `batchSize` từ `index/meta.json`, fallback khớp `baseBatchSize` build; `loadIdIndexShardsForKey` | ☑ 2026-03-28 — thêm `preloadIndexMeta`, `getEffectiveBatchSize`; actors-index lazy trên trang chi tiết phim |
+| P2-1 | P2 | Tune `BASE_BATCH_SIZE`, `BATCH_MAX_BYTES`, `SHARD_MAX_BYTES` theo đo thực tế | ☑ Một phần — batch: helpers + log; shard: `getShardMaxBytesFromEnv`, log + cảnh báo vượt byte, hash-split tối đa 256 (trước 64). Đo thực tế + chỉnh env. |
 | P2-2 | P2 | Đo thời gian từng bước build (OPhim / TMDB / ghi index) | ☑ 2026-03-28 — `scripts/build.js`: `[TIMING]` (`timeBuildPhase` / `timeBuildPhaseSync`) cho OPhim, Custom/R2, TMDB, merge, export+inject, `writeBatches`, index/search, filters/actors, Supabase sync; tổng thời gian incremental / TMDB_ONLY / full build. |
 
 **Ghi chú tiến độ:** đổi `☐ Chưa` → `☑ YYYY-MM-DD` hoặc mô tả ngắn khi xong.
@@ -76,11 +76,11 @@ File này ghi lại phân tích kiến trúc hiện tại, rủi ro khi scale, v
 
 | Biến | Ý nghĩa ngắn |
 |------|----------------|
-| `BASE_BATCH_SIZE` | Kích thước batch cơ sở (mặc định 120) |
-| `BATCH_MAX_BYTES` | Trần byte mỗi file batch core |
-| `SHARD_MAX_BYTES` | Trần byte mỗi file shard (slug, **idIndex**, search prefix) |
-| `SEARCH_PREFIX_MIN_TOKEN_LEN` | Không đưa token ngắn hơn (mặc định 2) vào phân phối prefix |
-| `SEARCH_PREFIX_MAX_TOKENS` | Tối đa số từ/phim cho prefix (0 = không giới hạn) |
+| `BASE_BATCH_SIZE` | Batch cơ sở (mặc định 120, clamp 10–1000) — ghi `batch-windows.json` |
+| `BATCH_MAX_BYTES` | Trần byte mỗi file batch core (mặc định 300000, clamp 50k–2MB) |
+| `SHARD_MAX_BYTES` | Trần byte mỗi file shard (slug, **idIndex**, search prefix); clamp 50k–2MB; hash-split tối đa 256 bucket/shard |
+| `SEARCH_PREFIX_MIN_TOKEN_LEN` | Token ngắn hơn bỏ qua (mặc định 2, clamp 1–20); log `[P2-1] Search prefix` |
+| `SEARCH_PREFIX_MAX_TOKENS` | Tối đa từ/phim gán vào prefix mỗi title (0 = không cắt, clamp trần 500) |
 | `OPHIM_*` | Giới hạn trang/phạm vi fetch OPhim |
 | `TMDB_CONCURRENCY`, `TMDB_API_KEY(S)` | Song song + xoay key khi 429 |
 | `SKIP_TMDB` / `TMDB_ONLY` / `FORCE_TMDB` | Tách pha TMDB |
@@ -103,3 +103,7 @@ _(Thêm dòng dưới đây mỗi khi họp / quyết định quan trọng.)_
 - 2026-03-28: P1-1 (partial) — search prefix: bỏ `type` khỏi item, `SEARCH_PREFIX_MIN_TOKEN_LEN` / `SEARCH_PREFIX_MAX_TOKENS`, `searchOpts` trong `search/prefix/meta.json`.
 - 2026-03-28: P1-3 — `index/meta.json` lấy `batchSize` từ `batch-windows.json`; `main.js`: `applyRootIndexMeta`, `loadIdIndexShardsForKey`.
 - 2026-03-28: P2-2 — log `[TIMING]` trong `main()` (`scripts/build.js`) để đo wall-clock từng bước và tổng thời gian theo nhánh build.
+- 2026-03-28: P2-1 (partial) — `BASE_BATCH_SIZE` / `BATCH_MAX_BYTES`: helper + clamp trong `scripts/build.js`, log `[P2-1] Batch` khi ghi batch; `.env.example` hướng dẫn tune.
+- 2026-03-28: P2-1 (shard) — `getShardMaxBytesFromEnv`, log `[P2-1] Index/search shards`, cảnh báo bucket vượt `SHARD_MAX_BYTES`, hash-split tối đa 256 bucket (slug/id/search).
+- 2026-03-28: P2-1 (search prefix) — `getSearchPrefixMinTokenLenFromEnv` / `getSearchPrefixMaxTokensFromEnv` (clamp), log `[P2-1] Search prefix`.
+- 2026-03-28: Client — `preloadIndexMeta` + `getEffectiveBatchSize` (`main.js`); trang chi tiết phim: preload `index/meta.json` song song slug index, `actors-index.js` lazy trước `renderFull` (bỏ script tĩnh trên `phim/index.html`).

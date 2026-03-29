@@ -10,6 +10,11 @@
  * EXPORT_TO_SUPABASE_ALWAYS_FULL=1: luôn upsert mọi phim + đồng bộ lại toàn bộ tập (bỏ qua tối ưu).
  * Mặc định: chỉ ghi phim mới hoặc khi trường modified trên batch khác với DB (bỏ qua upsert + tập nếu không đổi).
  *
+ * EXPORT_TO_SUPABASE_BATCH: kích thước chunk upsert movies (mặc định 120, max 500).
+ * EXPORT_TO_SUPABASE_UPSERT_RETRIES: số lần thử lại khi timeout/lỗi mạng (mặc định 4).
+ * EXPORT_TO_SUPABASE_EP_MOVIE_BATCH: gom N phim/lượt cho delete tập + insert tập (mặc định 12, max 80).
+ * EXPORT_TO_SUPABASE_EP_INSERT_CHUNK: tối đa số dòng movie_episodes mỗi request insert (mặc định 400).
+ *
  * Chạy sau khi đã build (có batch-windows.json + batch_*.js).
  */
 import 'dotenv/config';
@@ -200,19 +205,70 @@ function batchModifiedComparable(m) {
   return s === '' ? null : s;
 }
 
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/** Lỗi PostgREST/edge thường gặp khi volume lớn — đáng retry. */
+function isRetryableSupabaseError(err) {
+  if (!err) return false;
+  const code = err.code != null ? String(err.code) : '';
+  const msg = String(err.message || err.details || err.hint || err).toLowerCase();
+  if (code === '57014') return true;
+  return /timeout|timed out|502|503|504|connection|network|fetch failed|econnreset|etimedout|too large|payload/i.test(
+    msg
+  );
+}
+
+/** Supabase JS trả { data, error } — retry khi error retryable. */
+async function supabaseWithRetry(label, run, retries = 4) {
+  let last;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const r = await run();
+    if (!r.error) return r;
+    last = r.error;
+    if (!isRetryableSupabaseError(r.error) || attempt === retries) return r;
+    const wait = Math.min(8000, 400 * 2 ** attempt);
+    console.warn(`   ${label}: retry ${attempt + 1}/${retries} sau ${wait}ms —`, r.error.message || r.error);
+    await sleep(wait);
+  }
+  return { data: null, error: last };
+}
+
 async function fetchExistingModifiedMap(supabase, ids) {
   const map = new Map();
-  const chunkSize = 150;
+  const chunkSize = 100;
   const unique = [...new Set(ids.map((id) => String(id)))];
   for (let i = 0; i < unique.length; i += chunkSize) {
     const chunk = unique.slice(i, i + chunkSize);
-    const { data, error } = await supabase.from('movies').select('id, modified').in('id', chunk);
+    const { data, error } = await supabaseWithRetry('select movies (modified)', () =>
+      supabase.from('movies').select('id, modified').in('id', chunk)
+    );
     if (error) throw error;
     for (const row of data || []) {
       map.set(String(row.id), row.modified);
     }
   }
   return map;
+}
+
+/**
+ * Upsert movies: retry từng chunk; nếu vẫn lỗi (payload/timeout) thì chia đôi chunk.
+ */
+async function upsertMoviesChunked(supabase, rows, minSplit = 8) {
+  if (!rows.length) return;
+  const r = await supabaseWithRetry('upsert movies', () =>
+    supabase.from('movies').upsert(rows, { onConflict: 'id' })
+  );
+  if (!r.error) return;
+  if (rows.length <= minSplit) {
+    const msg = r.error.message || String(r.error);
+    console.error('Upsert movies failed:', msg);
+    throw r.error;
+  }
+  const mid = Math.ceil(rows.length / 2);
+  await upsertMoviesChunked(supabase, rows.slice(0, mid), minSplit);
+  await upsertMoviesChunked(supabase, rows.slice(mid), minSplit);
 }
 
 function movieNeedsDbWrite(m, existingModifiedMap) {
@@ -234,18 +290,22 @@ async function main() {
 
   const scope = process.env.EXPORT_TO_SUPABASE_SCOPE || 'all';
   const alwaysFull = /^1|true|yes$/i.test(String(process.env.EXPORT_TO_SUPABASE_ALWAYS_FULL || '').trim());
-  const batchSize = Math.max(20, Math.min(500, Number(process.env.EXPORT_TO_SUPABASE_BATCH || 150) || 150));
-  const concurrency = Math.max(1, Math.min(16, Number(process.env.EXPORT_TO_SUPABASE_CONCURRENCY || 4) || 4));
+  const batchSize = Math.max(20, Math.min(500, Number(process.env.EXPORT_TO_SUPABASE_BATCH || 120) || 120));
+  const epMovieBatch = Math.max(1, Math.min(80, Number(process.env.EXPORT_TO_SUPABASE_EP_MOVIE_BATCH || 12) || 12));
+  const epInsertChunk = Math.max(50, Math.min(2000, Number(process.env.EXPORT_TO_SUPABASE_EP_INSERT_CHUNK || 400) || 400));
 
   console.log(
     'Export to Supabase — scope:',
     scope,
     '| incremental:',
     alwaysFull ? 'off (always full)' : 'on',
-    '| batch upsert:',
+    '| movies upsert chunk:',
     batchSize,
-    '| concurrency:',
-    concurrency
+    '| episodes: delete per',
+    epMovieBatch,
+    'phim, insert ≤',
+    epInsertChunk,
+    'dòng/request'
   );
 
   const all = loadMoviesFromBatches();
@@ -279,40 +339,60 @@ async function main() {
 
   for (let i = 0; i < toSync.length; i += batchSize) {
     const chunk = toSync.slice(i, i + batchSize).map(movieToRow);
-    const { error } = await supabase.from('movies').upsert(chunk, { onConflict: 'id' });
-    if (error) {
-      console.error('Upsert movies failed:', error.message || error);
+    try {
+      await upsertMoviesChunked(supabase, chunk);
+    } catch (e) {
+      console.error('Upsert movies failed:', e?.message || e);
       process.exit(1);
     }
     upserted += chunk.length;
     console.log('   Upserted movies:', upserted, '/', toSync.length);
   }
 
-  let next = 0;
-  const worker = async () => {
-    for (;;) {
-      const j = next++;
-      if (j >= toSync.length) break;
-      const m = toSync[j];
-      const mid = String(m.id);
-      const { error: delErr } = await supabase.from('movie_episodes').delete().eq('movie_id', mid);
-      if (delErr) {
-        console.warn('   Delete episodes failed', mid, delErr.message);
-        continue;
-      }
-      const rows = flattenEpisodes(m);
-      if (rows.length) {
-        const { error: insErr } = await supabase.from('movie_episodes').insert(rows);
-        if (insErr) {
-          console.warn('   Insert episodes failed', mid, insErr.message);
-        } else {
-          epInserted += rows.length;
+  for (let g = 0; g < toSync.length; g += epMovieBatch) {
+    const group = toSync.slice(g, g + epMovieBatch);
+    const mids = group.map((m) => String(m.id));
+    const { error: delErr } = await supabaseWithRetry('delete movie_episodes (batch movie_id)', () =>
+      supabase.from('movie_episodes').delete().in('movie_id', mids)
+    );
+    if (delErr) {
+      console.warn('   Xóa tập theo batch thất bại, fallback từng phim:', delErr.message || delErr);
+      for (const m of group) {
+        const mid = String(m.id);
+        const { error: d1 } = await supabaseWithRetry('delete movie_episodes (one)', () =>
+          supabase.from('movie_episodes').delete().eq('movie_id', mid)
+        );
+        if (d1) console.warn('   Delete episodes failed', mid, d1.message);
+        const rows = flattenEpisodes(m);
+        for (let j = 0; j < rows.length; j += epInsertChunk) {
+          const part = rows.slice(j, j + epInsertChunk);
+          const { error: insErr } = await supabaseWithRetry('insert movie_episodes', () =>
+            supabase.from('movie_episodes').insert(part)
+          );
+          if (insErr) console.warn('   Insert episodes failed', mid, insErr.message);
+          else epInserted += part.length;
         }
       }
+      continue;
     }
-  };
 
-  await Promise.all(Array.from({ length: Math.min(concurrency, toSync.length) }, () => worker()));
+    const allEpRows = [];
+    for (const m of group) {
+      const fe = flattenEpisodes(m);
+      for (let k = 0; k < fe.length; k++) allEpRows.push(fe[k]);
+    }
+    for (let j = 0; j < allEpRows.length; j += epInsertChunk) {
+      const part = allEpRows.slice(j, j + epInsertChunk);
+      const { error: insErr } = await supabaseWithRetry('insert movie_episodes', () =>
+        supabase.from('movie_episodes').insert(part)
+      );
+      if (insErr) {
+        console.warn('   Insert episodes chunk failed:', insErr.message);
+      } else {
+        epInserted += part.length;
+      }
+    }
+  }
 
   console.log(
     'Done. Movies upserted:',

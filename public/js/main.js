@@ -276,7 +276,7 @@
         var img = norm2(b.image_url || '').replace(/^\/\//, 'https://');
         var link = b.link_url || '#';
         html = '<a class="ad-banner-link" href="' + escAttr(link) + '" rel="nofollow noopener" target="_blank">' +
-          '<img class="ad-banner-img" src="' + escAttr(img) + '" alt="" decoding="async" loading="lazy">' +
+          '<img class="ad-banner-img" width="1200" height="400" src="' + escAttr(img) + '" alt="" decoding="async" loading="lazy">' +
         '</a>';
       }
 
@@ -566,6 +566,13 @@
     } catch (e) {}
   }
 
+  /** batchSize từ index/meta.json (sau preload); fallback 120 — dùng cho tính batch_*.js khi không có pointer file trong idIndex. */
+  function getEffectiveBatchSize() {
+    var bs = window.DAOP && window.DAOP.batchSize;
+    var n = parseInt(bs, 10);
+    return isFinite(n) && n > 0 ? n : 120;
+  }
+
   function loadIndexMetaOnce() {
     window.DAOP = window.DAOP || {};
     if (window.DAOP._indexMetaPromise) return window.DAOP._indexMetaPromise;
@@ -583,6 +590,11 @@
     });
     return window.DAOP._indexMetaPromise;
   }
+
+  /** Gọi sớm (vd. trang chi tiết phim) để batchSize khớp build trước khi resolve đường dẫn batch. */
+  window.DAOP.preloadIndexMeta = function () {
+    return loadIndexMetaOnce();
+  };
 
   function loadSlugIndexMetaOnce() {
     window.DAOP = window.DAOP || {};
@@ -702,9 +714,10 @@
           }
           var i = row && typeof row.i === 'number' ? row.i : -1;
           if (i < 0) return null;
-          var BATCH = (window.DAOP && window.DAOP.batchSize) || 120;
-          var start = Math.floor(i / BATCH) * BATCH;
           return loadIndexMetaOnce().then(function (meta2) {
+            if (meta2) applyRootIndexMeta(meta2);
+            var BATCH = getEffectiveBatchSize();
+            var start = Math.floor(i / BATCH) * BATCH;
             var total = meta2 && typeof meta2.total === 'number' ? meta2.total : -1;
             var end = total > 0 ? Math.min(start + BATCH, total) : start + BATCH;
             return BASE + '/data/batches/batch_' + start + '_' + end + '.js';
@@ -753,9 +766,10 @@
           }
           var i = row && typeof row.i === 'number' ? row.i : -1;
           if (i < 0) return null;
-          var BATCH = (window.DAOP && window.DAOP.batchSize) || 120;
-          var start = Math.floor(i / BATCH) * BATCH;
           return loadIndexMetaOnce().then(function (meta2) {
+            if (meta2) applyRootIndexMeta(meta2);
+            var BATCH = getEffectiveBatchSize();
+            var start = Math.floor(i / BATCH) * BATCH;
             var total = meta2 && typeof meta2.total === 'number' ? meta2.total : -1;
             var end = total > 0 ? Math.min(start + BATCH, total) : start + BATCH;
             return BASE + '/data/batches/tmdb_batch_' + start + '_' + end + '.js';
@@ -936,6 +950,7 @@
     const fallbackUrl = ((fallbackRaw || '').replace(/^\/\//, 'https://') || fromIndexPrimary || '').replace(/^\/\//, 'https://') || defaultImg;
     const title = (m.title || '').replace(/</g, '&lt;');
     const origin = (m.origin_name || '').replace(/</g, '&lt;');
+    var thumbDims = cardOrientation === 'horizontal' ? ' width="300" height="200"' : ' width="200" height="300"';
 
     var isFav = false;
     try {
@@ -959,7 +974,7 @@
       '<div class="movie-card movie-card--' + cardOrientation + '">' +
       favBtn +
       '<a href="' + href + '">' +
-      '<div class="thumb-wrap"><img loading="lazy" src="' + imgUrl + '"' +
+      '<div class="thumb-wrap"><img' + thumbDims + ' loading="lazy" src="' + imgUrl + '"' +
       (function(){
         var d = defaultImg.replace(/'/g, '%27');
         var f = (fallbackUrl || '').replace(/'/g, '%27');
@@ -1109,6 +1124,17 @@
       } catch (e) {}
     }
 
+    /** Gom đo layout vào một frame — giảm forced reflow khi scroll/resize liên tục. */
+    var headerLayoutRaf = null;
+    function scheduleHeaderLayoutSync() {
+      if (headerLayoutRaf != null) return;
+      headerLayoutRaf = window.requestAnimationFrame(function () {
+        headerLayoutRaf = null;
+        syncHeaderOffsetVar();
+        syncDesktopTop();
+      });
+    }
+
     function syncDesktopTop() {
       try {
         var w = window.innerWidth || document.documentElement.clientWidth || 0;
@@ -1166,17 +1192,12 @@
       } catch (e3) {}
     });
 
-    window.addEventListener('resize', function () {
-      syncDesktopTop();
-      syncHeaderOffsetVar();
-    }, { passive: true });
-    window.addEventListener('scroll', function () {
-      syncDesktopTop();
-    }, { passive: true });
+    window.addEventListener('resize', scheduleHeaderLayoutSync, { passive: true });
+    window.addEventListener('scroll', scheduleHeaderLayoutSync, { passive: true });
 
     try {
       var mo = new MutationObserver(function () {
-        syncHeaderOffsetVar();
+        scheduleHeaderLayoutSync();
       });
       mo.observe(header, { attributes: true, attributeFilter: ['class', 'style'] });
     } catch (e2) {}
@@ -1232,7 +1253,7 @@
       html +=
         '<div class="slider-slide" data-index="' + i + '">' +
         '<a href="' + href + '" class="slider-slide-link">' +
-        '<div class="slider-slide-bg"><img loading="' + imgLoading + '" decoding="async" fetchpriority="' + imgPriority + '" src="' + imgEsc + '"' +
+        '<div class="slider-slide-bg"><img width="1200" height="750" loading="' + imgLoading + '" decoding="async" fetchpriority="' + imgPriority + '" src="' + imgEsc + '"' +
         (function(){
           if (oEsc && oEsc !== imgEsc) {
             return ' onerror="this.onerror=function(){this.onerror=null;this.src=\'' + dEsc + '\';};this.src=\'' + oEsc + '\';"';
@@ -1453,10 +1474,31 @@
     }
   };
 
+  /** Thêm preconnect tới origin CDN (một lần) — không thay đổi logic tải ảnh. */
+  function ensurePreconnectOrigin(raw) {
+    if (!raw || typeof document === 'undefined') return;
+    try {
+      var o = String(raw).trim().replace(/\/$/, '');
+      if (!o) return;
+      if (o.indexOf('//') === 0) o = window.location.protocol + o;
+      else if (!/^https?:\/\//i.test(o)) o = 'https://' + o;
+      var u = new URL(o);
+      if (!u.hostname || u.origin === window.location.origin) return;
+      var sel = 'link[rel="preconnect"][href="' + u.origin + '"]';
+      if (document.head.querySelector(sel)) return;
+      var l = document.createElement('link');
+      l.rel = 'preconnect';
+      l.href = u.origin;
+      l.crossOrigin = '';
+      document.head.appendChild(l);
+    } catch (ePc) {}
+  }
+
   /** Áp dụng site-settings lên trang: theme, logo, favicon, footer, TMDB, slider */
   window.DAOP.applySiteSettings = function (settings) {
     if (!settings) return;
     window.DAOP.siteSettings = Object.assign({}, window.DAOP.siteSettings || {}, settings);
+    if (settings.r2_img_domain) ensurePreconnectOrigin(settings.r2_img_domain);
     window.DAOP.siteName = settings.site_name || 'DAOP Phim';
     window.DAOP.supabaseUserUrl = settings.supabase_user_url || settings.supabaseUserUrl || window.DAOP.supabaseUserUrl || '';
     window.DAOP.supabaseUserAnonKey = settings.supabase_user_anon_key || settings.supabaseUserAnonKey || window.DAOP.supabaseUserAnonKey || '';

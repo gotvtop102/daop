@@ -394,6 +394,35 @@
     }
   }
 
+  /** actors-index.js (~vài MB): tải lazy khi render chi tiết để link cast → /dien-vien/ — không chặn first paint. */
+  function loadActorsIndexForCastLinks() {
+    if (window.actorsIndex && window.actorsIndex.names) return Promise.resolve();
+    var base = (window.DAOP && window.DAOP.basePath) || '';
+    return (window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function'
+      ? window.DAOP.ensureDataCacheBust()
+      : Promise.resolve('')
+    ).then(function (q) {
+      return new Promise(function (resolve) {
+        var url = base + '/data/actors-index.js' + (q || '');
+        try {
+          window.DAOP = window.DAOP || {};
+          window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+          if (window.DAOP._loadedScripts[url]) return resolve();
+          var s = document.createElement('script');
+          s.src = url;
+          s.onload = function () {
+            window.DAOP._loadedScripts[url] = true;
+            resolve();
+          };
+          s.onerror = function () { resolve(); };
+          document.head.appendChild(s);
+        } catch (e) {
+          resolve();
+        }
+      });
+    });
+  }
+
   function init() {
     var slug = getSlug();
     if (!slug) {
@@ -403,7 +432,11 @@
     var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
       ? window.DAOP.getMovieBySlugAsync
       : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
-    getLight(slug).then(function (light) {
+    var preloadMeta = (window.DAOP && typeof window.DAOP.preloadIndexMeta === 'function')
+      ? window.DAOP.preloadIndexMeta()
+      : Promise.resolve();
+    Promise.all([getLight(slug), preloadMeta]).then(function (arr) {
+      var light = arr[0];
       if (!light) {
         var base = (window.DAOP && window.DAOP.basePath) || '';
         var msg = '<div class="movie-not-found"><p><strong>Không tìm thấy phim</strong> với đường dẫn này.</p>' +
@@ -421,7 +454,9 @@
           renderFromLight(light);
           return;
         }
-        renderFull(movie);
+        loadActorsIndexForCastLinks().then(function () {
+          renderFull(movie);
+        });
       });
     });
   }
@@ -452,7 +487,7 @@
       '    <div class="md-hero">' +
       '      <div class="md-hero-bg" id="md-hero-bg" style="background-image:url(' + esc(posterBg || posterFinal) + ')"></div>' +
       '      <div class="md-hero-inner">' +
-      '        <div class="md-thumb"><img decoding="async" fetchpriority="high" src="' + esc(thumbFinal) + '" onerror="this.onerror=null;this.src=\'' + esc(defaultThumb) + '\';" alt=""></div>' +
+      '        <div class="md-thumb"><img width="400" height="600" decoding="async" fetchpriority="high" src="' + esc(thumbFinal) + '" onerror="this.onerror=null;this.src=\'' + esc(defaultThumb) + '\';" alt=""></div>' +
       '        <div class="md-hero-meta">' +
       '          <div class="md-title">' + title + '</div>' +
       (origin ? '        <div class="md-origin">' + origin + '</div>' : '') +
@@ -555,7 +590,7 @@
       '    <div class="md-hero">' +
       '      <div class="md-hero-bg" id="md-hero-bg" style="background-image:url(' + esc(posterBg || posterFinal) + ')"></div>' +
       '      <div class="md-hero-inner">' +
-      '        <div class="md-thumb"><img decoding="async" fetchpriority="high" src="' + esc(thumbFinal) + '" onerror="this.onerror=null;this.src=\'' + esc(defaultThumb) + '\';" alt=""></div>' +
+      '        <div class="md-thumb"><img width="400" height="600" decoding="async" fetchpriority="high" src="' + esc(thumbFinal) + '" onerror="this.onerror=null;this.src=\'' + esc(defaultThumb) + '\';" alt=""></div>' +
       '        <div class="md-hero-meta">' +
       '          <div class="md-title">' + title + '</div>' +
       (origin ? '        <div class="md-origin">' + origin + '</div>' : '') +

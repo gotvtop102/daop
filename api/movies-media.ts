@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 
 /** Lazy-load sharp (native) — import tĩnh hay gây FUNCTION_INVOCATION_FAILED trên Vercel. */
 async function getSharp() {
@@ -36,6 +36,29 @@ function getR2Client() {
   });
 }
 
+async function r2KeyExists(key: string): Promise<boolean> {
+  const client = getR2Client();
+  const bucket = process.env.R2_BUCKET_NAME;
+  if (!client || !bucket || !key) return false;
+  try {
+    await client.send(
+      new HeadObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      })
+    );
+    return true;
+  } catch (e: any) {
+    const status = e?.$metadata?.httpStatusCode;
+    if (status === 404) return false;
+    if (status === 401 || status === 403) {
+      console.warn('[movies-media] R2 HeadObject denied (HTTP ' + status + '). Không bỏ qua upload. key=' + key);
+      return false;
+    }
+    return false;
+  }
+}
+
 async function uploadToR2(buffer: Buffer, key: string, contentType = 'image/webp') {
   const client = getR2Client();
   const bucket = process.env.R2_BUCKET_NAME;
@@ -67,12 +90,15 @@ export async function uploadMovieImageById(sourceUrl: string, id: string, folder
   if (!url || !idStr) return '';
   const base = String(process.env.R2_PUBLIC_URL || '').trim();
   if (!base) return '';
+  const key = `${folder}/${idStr}.webp`;
+  if (await r2KeyExists(key)) {
+    return `${base.replace(/\/$/, '')}/${key}`;
+  }
   try {
     const res = await fetch(url);
     if (!res.ok) return '';
     const buf = Buffer.from(await res.arrayBuffer());
     const optimized = await optimizeToWebp(buf);
-    const key = `${folder}/${idStr}.webp`;
     const out = await uploadToR2(optimized, key, 'image/webp');
     return out || '';
   } catch {
