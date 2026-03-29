@@ -1,7 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card, Button, List, message, Spin, Typography, InputNumber, Input, Form, Space, Modal, Radio, Switch, Tag, Tabs, Select, Checkbox } from 'antd';
 import type { RadioChangeEvent } from 'antd';
-import { PlayCircleOutlined, InfoCircleOutlined, SaveOutlined, DeleteOutlined, DatabaseOutlined, CopyOutlined } from '@ant-design/icons';
+import {
+  PlayCircleOutlined,
+  InfoCircleOutlined,
+  SaveOutlined,
+  DeleteOutlined,
+  DatabaseOutlined,
+  CopyOutlined,
+  DownloadOutlined,
+} from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
 
@@ -111,6 +119,9 @@ export default function GitHubActions() {
   const [r2LinkIdsText, setR2LinkIdsText] = useState('');
   const [r2LinkOutput, setR2LinkOutput] = useState('');
   const [r2LinkPrefixes, setR2LinkPrefixes] = useState<string[]>(['thumbs', 'posters']);
+  const [r2LinkMode, setR2LinkMode] = useState<'by_id' | 'by_prefix'>('by_id');
+  const [r2ListUrlsLoading, setR2ListUrlsLoading] = useState(false);
+  const [r2ListCap, setR2ListCap] = useState<number>(0);
 
   const [sbMovieCount, setSbMovieCount] = useState<number | null>(null);
   const [sbEpisodeCount, setSbEpisodeCount] = useState<number | null>(null);
@@ -227,6 +238,68 @@ export default function GitHubActions() {
       message.success('Đã copy vào clipboard.');
     } catch {
       message.error('Không copy được (trình duyệt chặn clipboard).');
+    }
+  };
+
+  const handleDownloadR2LinksFile = () => {
+    const t = String(r2LinkOutput || '').trim();
+    if (!t) {
+      message.warning('Chưa có danh sách link để tải.');
+      return;
+    }
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    const suffix = r2LinkMode === 'by_prefix' ? 'prefix' : 'by-id';
+    const filename = `r2-image-urls_${suffix}_${stamp}.txt`;
+    const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    message.success(`Đã tải ${filename}`);
+  };
+
+  const handleFetchR2UrlsFromBucket = async () => {
+    const base = String(r2LinkBaseUrl || '').trim();
+    if (!base) {
+      message.warning('Nhập domain ảnh R2 (ví dụ từ Cài đặt trang → Domain ảnh R2).');
+      return;
+    }
+    const folders = (r2LinkPrefixes || []).map((x) => normalizePresetPrefixValue(String(x))).filter(Boolean);
+    if (!folders.length) {
+      message.warning('Chọn ít nhất một prefix (thư mục).');
+      return;
+    }
+    setR2ListUrlsLoading(true);
+    try {
+      const payload: Record<string, unknown> = { prefixes: folders, public_base: base };
+      const cap = Number(r2ListCap) || 0;
+      if (cap > 0) payload.limit = cap;
+      const res = await fetch(`${getApiBaseUrl()}/api/r2-list-urls`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(async () => ({ error: await res.text() }));
+      if (!res.ok || !data?.ok) {
+        message.error(data?.error || data?.message || `Lỗi ${res.status}`);
+        return;
+      }
+      const urls: string[] = Array.isArray(data.urls) ? data.urls : [];
+      setR2LinkOutput(urls.join('\n'));
+      let msg = `Đã lấy ${data.count} link từ bucket.`;
+      if (data.capped) {
+        msg += ` (dừng ở giới hạn ${data.cap}; tăng «Giới hạn» hoặc đổi R2_LIST_MAX_KEYS trên server nếu cần.)`;
+      }
+      message.success(msg);
+    } catch (e: any) {
+      message.error(e?.message || 'Không gọi được API r2-list-urls.');
+    } finally {
+      setR2ListUrlsLoading(false);
     }
   };
 
@@ -1415,14 +1488,26 @@ export default function GitHubActions() {
                     key: 'r2-download',
                     label: 'Link ảnh',
                     children: (
-                      <Card title="Link ảnh R2 (theo ID)">
+                      <Card title="Link ảnh R2">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                          Không chạy GitHub Action. Tạo URL công khai theo chuẩn{' '}
-                          <Text code>{'{domain}'}/{'{thư mục}'}/{'{id}'}.webp</Text> — dùng để tải trực tiếp (trình duyệt, wget, IDM…). Domain lấy từ Cài đặt
-                          trang (r2_img_domain); có thể sửa tạm bên dưới. Các thư mục thumb/poster và prefix khác lấy từ mục Danh sách prefix R2 phía trên.
+                          Tạo URL công khai để tải trực tiếp (trình duyệt, wget, IDM…). Domain lấy từ Cài đặt trang (r2_img_domain), có thể sửa tạm bên dưới.
+                          Chế độ theo prefix gọi API liệt kê object trên R2 (cần biến môi trường R2 trên Vercel).
                         </Text>
 
                         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                          <Radio.Group
+                            optionType="button"
+                            buttonStyle="solid"
+                            value={r2LinkMode}
+                            onChange={(e) => {
+                              setR2LinkMode(e.target.value);
+                              setR2LinkOutput('');
+                            }}
+                          >
+                            <Radio.Button value="by_id">Theo movie ID</Radio.Button>
+                            <Radio.Button value="by_prefix">Toàn bộ object trong prefix</Radio.Button>
+                          </Radio.Group>
+
                           <div>
                             <Text strong>Domain ảnh R2</Text>
                             <Input
@@ -1431,17 +1516,6 @@ export default function GitHubActions() {
                               value={r2LinkBaseUrl}
                               onChange={(e) => setR2LinkBaseUrl(e.target.value || '')}
                               allowClear
-                            />
-                          </div>
-
-                          <div>
-                            <Text strong>Movie ID</Text>
-                            <Input.TextArea
-                              style={{ marginTop: 6 }}
-                              rows={5}
-                              placeholder={'Mỗi dòng một id, hoặc cách nhau bởi dấu phẩy / khoảng trắng\n62a4f2...\n626577...'}
-                              value={r2LinkIdsText}
-                              onChange={(e) => setR2LinkIdsText(e.target.value || '')}
                             />
                           </div>
 
@@ -1464,18 +1538,77 @@ export default function GitHubActions() {
                             </div>
                           </div>
 
+                          {r2LinkMode === 'by_id' ? (
+                            <div>
+                              <Text strong>Movie ID</Text>
+                              <Input.TextArea
+                                style={{ marginTop: 6 }}
+                                rows={5}
+                                placeholder={'Mỗi dòng một id, hoặc cách nhau bởi dấu phẩy / khoảng trắng\n62a4f2...\n626577...'}
+                                value={r2LinkIdsText}
+                                onChange={(e) => setR2LinkIdsText(e.target.value || '')}
+                              />
+                              <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+                                Chuẩn URL: <Text code>{'{domain}'}/{'{thư mục}'}/{'{id}'}.webp</Text>
+                              </Text>
+                            </div>
+                          ) : (
+                            <div>
+                              <Space wrap align="center">
+                                <div>
+                                  <Text strong>Giới hạn số link</Text>
+                                  <InputNumber
+                                    min={0}
+                                    style={{ marginLeft: 8, width: 200 }}
+                                    placeholder="0 = tối đa server"
+                                    value={r2ListCap}
+                                    onChange={(v) => setR2ListCap(typeof v === 'number' ? v : 0)}
+                                  />
+                                </div>
+                              </Space>
+                              <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+                                Gọi ListObjects cho từng thư mục đã chọn, dựng URL <Text code>{'{domain}'}/{'{key}'}</Text> theo key thật trên bucket (có thể
+                                khác .webp nếu object không theo chuẩn phim).
+                              </Text>
+                              <Button
+                                type="primary"
+                                style={{ marginTop: 12 }}
+                                loading={r2ListUrlsLoading}
+                                disabled={!!triggering || r2ListUrlsLoading}
+                                onClick={handleFetchR2UrlsFromBucket}
+                              >
+                                Lấy link từ R2
+                              </Button>
+                            </div>
+                          )}
+
                           <Space wrap>
-                            <Button type="primary" onClick={handleGenerateR2Links}>
-                              Tạo link
-                            </Button>
-                            <Button icon={<CopyOutlined />} onClick={handleCopyR2Links}>
+                            {r2LinkMode === 'by_id' ? (
+                              <Button type="primary" onClick={handleGenerateR2Links} disabled={!!r2ListUrlsLoading}>
+                                Tạo link
+                              </Button>
+                            ) : null}
+                            <Button icon={<CopyOutlined />} onClick={handleCopyR2Links} disabled={!r2LinkOutput.trim()}>
                               Copy toàn bộ
+                            </Button>
+                            <Button icon={<DownloadOutlined />} onClick={handleDownloadR2LinksFile} disabled={!r2LinkOutput.trim()}>
+                              Tải file .txt
                             </Button>
                           </Space>
 
                           <div>
                             <Text strong>Kết quả (mỗi dòng một URL)</Text>
-                            <Input.TextArea style={{ marginTop: 6 }} rows={12} readOnly value={r2LinkOutput} placeholder="Bấm «Tạo link»…" />
+                            <Input.TextArea
+                              style={{ marginTop: 6 }}
+                              rows={12}
+                              readOnly
+                              value={r2LinkOutput}
+                              placeholder={
+                                r2LinkMode === 'by_prefix'
+                                  ? 'Bấm «Lấy link từ R2»…'
+                                  : 'Bấm «Tạo link»…'
+                              }
+                            />
                           </div>
                         </Space>
                       </Card>
