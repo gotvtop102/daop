@@ -1,0 +1,5041 @@
+{
+  "buildVersion": null,
+  "siteSettings": {
+    "site_name": "GoTV",
+    "logo_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/site/logo/gotv.webp",
+    "favicon_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771769477571-2nqdpe9u.png",
+    "r2_img_domain": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev",
+    "ophim_img_domain": "https://img.ophim.live",
+    "theme_light_bg": "#f3eee6",
+    "home_prebuild_enabled": "true",
+    "home_prebuild_limit": "24",
+    "home_prebuild_enable_series": "true",
+    "home_prebuild_enable_single": "true",
+    "home_prebuild_enable_hoathinh": "true",
+    "home_prebuild_enable_tvshows": "true",
+    "home_prebuild_enable_year": "true",
+    "home_prebuild_years": "2026",
+    "home_prebuild_enable_genre": "true",
+    "home_prebuild_genres": "hanh-dong,tinh-cam,hai-huoc,co-trang",
+    "home_prebuild_enable_country": "true",
+    "home_prebuild_countries": "au-my,han-quoc,trung-quoc",
+    "home_prebuild_enable_quality_4k": "true",
+    "home_prebuild_enable_status_current": "true",
+    "home_prebuild_enable_status_upcoming": "true",
+    "home_prebuild_enable_status_theater": "true",
+    "home_prebuild_enable_exclusive": "true",
+    "home_prebuild_enable_vietsub": "true",
+    "home_prebuild_enable_thuyetminh": "true",
+    "home_prebuild_enable_longtieng": "true",
+    "google_analytics_id": "",
+    "simple_analytics_script": "",
+    "supabase_user_url": "https://oqmcargitpdbidmgglck.supabase.co",
+    "supabase_user_anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xbWNhcmdpdHBkYmlkbWdnbGNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwOTYyMjksImV4cCI6MjA4NjY3MjIyOX0.m5OkWQzWYk8lYOGrt1zoRhTROkXQbTxmpXqXW-Hdb28",
+    "player_warning_enabled": "true",
+    "player_warning_text": "",
+    "player_visible": "true",
+    "movie_detail_similar_limit": "24",
+    "social_facebook": "",
+    "social_twitter": "",
+    "social_instagram": "",
+    "social_youtube": "",
+    "footer_content": "",
+    "tmdb_attribution": "true",
+    "loading_screen_enabled": "true",
+    "loading_screen_min_seconds": "2",
+    "homepage_slider": "[]",
+    "homepage_slider_display_mode": "auto",
+    "homepage_slider_auto_latest_count": "12",
+    "menu_bg_1": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741107665-uwudpxke.jpg",
+    "menu_bg_2": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741187694-car5c7dm.jpg",
+    "menu_bg_3": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741196920-8k4dj059.jpg",
+    "menu_bg_4": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741205610-y3a3gy6q.jpg",
+    "menu_bg_5": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741215721-6epnm794.jpg",
+    "menu_bg_6": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741224828-exyvi80s.jpg",
+    "menu_bg_7": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741234933-g0pb84h5.jpg",
+    "menu_bg_8": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741241234-jxtj6by0.jpg",
+    "menu_bg_9": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741251190-vkmx2r1g.jpg",
+    "menu_bg_10": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741260227-ymahgl2g.jpg",
+    "menu_bg_11": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741107665-uwudpxke.jpg",
+    "menu_bg_12": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771741187694-car5c7dm.jpg",
+    "movies_data_url": "",
+    "filter_row_order": "[\"year\",\"genre\",\"country\",\"videoType\",\"lang\"]",
+    "filter_genre_order": "[\"short-drama\",\"co-trang\",\"hanh-dong\",\"tinh-cam\",\"hai-huoc\",\"tam-ly\",\"vo-thuat\",\"hinh-su\",\"hoc-duong\",\"vien-tuong\",\"kinh-di\",\"than-thoai\",\"phieu-luu\",\"gia-dinh\",\"kinh-dien\",\"chinh-kich\",\"the-thao\",\"chien-tranh\",\"khoa-hoc\",\"am-nhac\",\"tai-lieu\",\"bi-an\",\"phim-18\"]",
+    "filter_country_order": "[\"trung-quoc\",\"han-quoc\",\"nhat-ban\",\"au-my\",\"dai-loan\",\"hong-kong\",\"an-do\",\"viet-nam\",\"thai-lan\",\"anh\",\"phap\",\"canada\",\"duc\",\"tay-ban-nha\",\"tho-nhi-ky\",\"ha-lan\",\"indonesia\",\"nga\",\"mexico\",\"ba-lan\",\"uc\",\"thuy-dien\",\"malaysia\",\"brazil\",\"philippines\",\"bo-dao-nha\",\"y\",\"dan-mach\",\"uae\",\"na-uy\",\"thuy-si\",\"chau-phi\",\"nam-phi\",\"ukraina\",\"a-rap-xe-ut\",\"bi\",\"ireland\",\"colombia\",\"phan-lan\",\"chile\",\"hy-lap\",\"nigeria\",\"argentina\",\"singapore\",\"quoc-gia-khac\"]",
+    "filter_video_type_order": "[\"tvshows\",\"hoathinh\",\"4k\",\"exclusive\"]",
+    "filter_lang_order": "[\"vietsub\",\"thuyetminh\",\"longtieng\",\"khac\"]",
+    "theme_primary": "#58a6ff",
+    "theme_bg": "#0d1117",
+    "theme_card": "#161b22",
+    "theme_accent": "#58a6ff",
+    "theme_text": "#e6edf3",
+    "theme_muted": "#8b949e",
+    "theme_slider_title": "#d23737",
+    "theme_slider_meta": "rgba(255,255,255,0.75)",
+    "theme_slider_desc": "rgba(255,255,255,0.7)",
+    "theme_movie_card_title": "#ffffff",
+    "theme_movie_card_meta": "#8b949e",
+    "theme_header_logo": "#e6edf3",
+    "theme_header_link": "#e6edf3",
+    "theme_footer_text": "#8b949e",
+    "theme_section_title": "#e6edf3",
+    "theme_filter_label": "#8b949e",
+    "theme_pagination": "#e6edf3",
+    "theme_link": "#58a6ff",
+    "default_grid_cols_xs": "3",
+    "default_grid_cols_sm": "4",
+    "default_grid_cols_md": "4",
+    "default_grid_cols_lg": "8",
+    "grid_columns_extra": "8",
+    "default_use_poster": "thumb",
+    "category_grid_cols_xs": "3",
+    "category_grid_cols_sm": "4",
+    "category_grid_cols_md": "4",
+    "category_grid_cols_lg": "8",
+    "category_grid_columns_extra": "8",
+    "category_use_poster": "thumb",
+    "rec_grid_cols_xs": "3",
+    "rec_grid_cols_sm": "4",
+    "rec_grid_cols_md": "4",
+    "rec_grid_cols_lg": "8",
+    "rec_grid_columns_extra": "8",
+    "rec_use_poster": "poster",
+    "actor_grid_cols_xs": "3",
+    "actor_grid_cols_sm": "4",
+    "actor_grid_cols_md": "4",
+    "actor_grid_cols_lg": "8",
+    "actor_grid_columns_extra": "8",
+    "actor_use_poster": "thumb",
+    "actor_detail_grid_cols_xs": "3",
+    "actor_detail_grid_cols_sm": "4",
+    "actor_detail_grid_cols_md": "4",
+    "actor_detail_grid_cols_lg": "8",
+    "actor_detail_grid_columns_extra": "8",
+    "actor_detail_use_poster": "poster",
+    "ad_popup_enabled": "true",
+    "ad_popup_delay_ms": "3000",
+    "ad_popup_cooldown_hours": "12",
+    "theme_border": "#30363d",
+    "ophim_max_pages": "10",
+    "ophim_max_movies": "1000",
+    "theme_primary_light": "#2563eb",
+    "filter_list_order": "[\"lich-chieu\",\"phim-doc-quyen\",\"phim-4k\",\"phim-dang-chieu\",\"phim-sap-chieu\",\"shows\",\"hoat-hinh\",\"phim-vietsub\",\"phim-thuyet-minh\",\"phim-long-tieng\",\"phim-chieu-rap\",\"the-loai\",\"quoc-gia\",\"nam-phat-hanh\",\"dien-vien\"]",
+    "theme_light_border": "#d8cfc2",
+    "theme_light_surface": "rgba(245, 158, 11, 0.12)",
+    "update_data_manual_two_phase": "1",
+    "theme_header_link_light": "#1f2328",
+    "theme_filter_label_light": "#5c6773",
+    "theme_slider_title_light": "#d23737",
+    "theme_movie_card_title_light": "#1f2328",
+    "twikoo_env_id": "",
+    "upload_r2_mode": "thumb,poster",
+    "upload_r2_quality": "70",
+    "upload_r2_thumb_quality": "",
+    "upload_r2_poster_quality": "",
+    "upload_r2_thumb_width": "238",
+    "upload_r2_thumb_height": "344",
+    "upload_r2_poster_width": "486",
+    "upload_r2_poster_height": "274",
+    "upload_r2_limit": "0",
+    "upload_r2_concurrency": "6",
+    "upload_r2_reupload_existing": "0",
+    "ophim_start_page": "1440",
+    "ophim_end_page": "1430",
+    "ophim_auto_start_page": "1",
+    "ophim_auto_end_page": "1",
+    "update_data_two_phase": "1",
+    "deploy_after_r2_upload": "1",
+    "theme_accent_light": "#1d4ed8",
+    "theme_light_card": "#fbf6ef",
+    "theme_light_muted": "#4f5b66",
+    "theme_footer_text_light": "#5c6773",
+    "theme_pagination_light": "#1f2328",
+    "theme_slider_meta_light": "rgba(255,255,255,0.75)",
+    "theme_movie_card_meta_light": "#5c6773",
+    "detail_hide_header_default": "false",
+    "watch_hide_header_default": "false",
+    "site_url": "https://3xtv.live/",
+    "google_sheets_id": "1gyMtgm3vehWx-BCTUO-tBWwjOeGaVTDUt6YpgdbB84w",
+    "theme_light_text": "#1f2328",
+    "upload_images_after_build": "1",
+    "movies_data_source": "supabase",
+    "google_service_account_key": "",
+    "theme_header_logo_light": "#1f2328",
+    "theme_section_title_light": "#1f2328",
+    "theme_link_light": "#2563eb",
+    "theme_slider_desc_light": "rgba(255,255,255,0.7)"
+  },
+  "homepageSections": [
+    {
+      "id": "89d66342-dcec-426e-aabb-eaa8f593a005",
+      "title": "Chỉ có trên GoTV",
+      "display_type": "slider",
+      "source_type": "exclusive",
+      "source_value": "/chu-de/phim-doc-quyen",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-doc-quyen",
+      "sort_order": 0,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "299d392b-d736-4174-8cad-b19756224f74",
+      "title": "Phim 4K",
+      "display_type": "slider",
+      "source_type": "quality_4k",
+      "source_value": "/chu-de/phim-4k",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-4k",
+      "sort_order": 1,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "56948f2b-66c4-4500-abec-ade04429b862",
+      "title": "Phim bộ",
+      "display_type": "grid_featured",
+      "source_type": "type",
+      "source_value": "series",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 3,
+        "featured_span_md": 2,
+        "featured_span_sm": 2,
+        "featured_span_xs": 3,
+        "featured_count_lg": 1,
+        "featured_count_md": 1,
+        "featured_count_sm": 1,
+        "featured_count_xs": 1
+      },
+      "manual_movies": null,
+      "limit_count": 13,
+      "more_link": "/phim-bo.html",
+      "sort_order": 2,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 3,
+      "featured_span_md": 2,
+      "featured_span_sm": 2,
+      "featured_span_xs": 3,
+      "featured_count_lg": 1,
+      "featured_count_md": 1,
+      "featured_count_sm": 1,
+      "featured_count_xs": 1
+    },
+    {
+      "id": "2281e75b-ff45-4818-a4f9-aa0c6667823d",
+      "title": "Phim lẻ",
+      "display_type": "grid",
+      "source_type": "type",
+      "source_value": "single",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/phim-le.html",
+      "sort_order": 3,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2
+    },
+    {
+      "id": "c17735a4-db3c-4cf8-ad78-90443d6aad37",
+      "title": "Phát hành năm 2026",
+      "display_type": "list",
+      "source_type": "year",
+      "source_value": "2026",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/nam-phat-hanh/",
+      "sort_order": 4,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2
+    },
+    {
+      "id": "d78ad490-b9d9-4781-b131-64c7b5b18417",
+      "title": "Phim đang chiếu",
+      "display_type": "grid_featured",
+      "source_type": "status",
+      "source_value": "current",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 3,
+        "featured_span_md": 2,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 1,
+        "featured_count_md": 1,
+        "featured_count_sm": 1,
+        "featured_count_xs": 1
+      },
+      "manual_movies": null,
+      "limit_count": 13,
+      "more_link": "/chu-de/phim-dang-chieu",
+      "sort_order": 5,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 3,
+      "featured_span_md": 2,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 1,
+      "featured_count_md": 1,
+      "featured_count_sm": 1,
+      "featured_count_xs": 1
+    },
+    {
+      "id": "43ce5b9b-5323-4195-a256-26cad65e8b0d",
+      "title": "Phim sắp chiếu",
+      "display_type": "slider",
+      "source_type": "status",
+      "source_value": "upcoming",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/chu-de/phim-sap-chieu",
+      "sort_order": 6,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "6ed86af8-f531-4a2d-972e-2569d9291d70",
+      "title": "Phim hay chiếu rạp",
+      "display_type": "grid",
+      "source_type": "status",
+      "source_value": "theater",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/chu-de/phim-chieu-rap",
+      "sort_order": 7,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "6af08f1b-af33-4320-a60e-76760d2a0cd9",
+      "title": "TV Shows",
+      "display_type": "slider",
+      "source_type": "type",
+      "source_value": "tvshows",
+      "filter_config": null,
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/shows/",
+      "sort_order": 8,
+      "is_active": true
+    },
+    {
+      "id": "342c70a5-c426-4ac0-8975-efc517b46991",
+      "title": "Phim Hoạt hình",
+      "display_type": "grid_featured",
+      "source_type": "type",
+      "source_value": "hoathinh",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 3,
+        "featured_span_md": 2,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 1,
+        "featured_count_md": 1,
+        "featured_count_sm": 1,
+        "featured_count_xs": 1
+      },
+      "manual_movies": null,
+      "limit_count": 13,
+      "more_link": "/hoat-hinh/",
+      "sort_order": 9,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 3,
+      "featured_span_md": 2,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 1,
+      "featured_count_md": 1,
+      "featured_count_sm": 1,
+      "featured_count_xs": 1
+    },
+    {
+      "id": "7170d3ba-2a4b-4f02-97c5-6d9ff1cb42ba",
+      "title": "Phim Lồng tiếng",
+      "display_type": "slider",
+      "source_type": "longtieng",
+      "source_value": "/chu-de/phim-long-tieng",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-long-tieng",
+      "sort_order": 10,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "39f33745-b623-4295-8d22-544aff094247",
+      "title": "Phim Thuyết minh",
+      "display_type": "slider",
+      "source_type": "thuyetminh",
+      "source_value": "/chu-de/phim-thuyet-minh",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-thuyet-minh",
+      "sort_order": 11,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "9b332ecd-f248-4e0b-9c2c-26e44eee9e59",
+      "title": "Phim Vietsub",
+      "display_type": "slider",
+      "source_type": "vietsub",
+      "source_value": "/chu-de/phim-vietsub",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-vietsub",
+      "sort_order": 12,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "8dcc5fda-ddfd-4c5f-8276-6128643405c1",
+      "title": "Phim Trung Quốc",
+      "display_type": "slider",
+      "source_type": "country",
+      "source_value": "trung-quoc",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/quoc-gia/trung-quoc",
+      "sort_order": 13,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "6cf3b5d0-deef-440a-862f-5e073f59bc03",
+      "title": "Phim Hàn Quốc",
+      "display_type": "slider",
+      "source_type": "country",
+      "source_value": "han-quoc",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/quoc-gia/han-quoc",
+      "sort_order": 14,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "be9f2f08-194f-4c8e-b89f-ab8f325c723b",
+      "title": "Phim Âu Mỹ",
+      "display_type": "slider",
+      "source_type": "country",
+      "source_value": "au-my",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/quoc-gia/au-my",
+      "sort_order": 15,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "027bcf08-3335-4109-9d31-9c761eb18313",
+      "title": "Phim Cổ trang",
+      "display_type": "grid",
+      "source_type": "genre",
+      "source_value": "co-trang",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 4,
+        "grid_columns_xs": 3,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/the-loai/co-trang",
+      "sort_order": 16,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 4,
+      "grid_columns_xs": 3,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    },
+    {
+      "id": "91aab5f2-0bf7-4dc1-92f3-f3aa65144501",
+      "title": "Phim Hành động",
+      "display_type": "grid",
+      "source_type": "genre",
+      "source_value": "hanh-dong",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 3,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/the-loai/hanh-dong",
+      "sort_order": 17,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 3,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0
+    }
+  ],
+  "homeSectionsData": [
+    {
+      "id": "89d66342-dcec-426e-aabb-eaa8f593a005",
+      "title": "Chỉ có trên GoTV",
+      "display_type": "slider",
+      "source_type": "exclusive",
+      "source_value": "/chu-de/phim-doc-quyen",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-doc-quyen",
+      "sort_order": 0,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [],
+      "movies": []
+    },
+    {
+      "id": "299d392b-d736-4174-8cad-b19756224f74",
+      "title": "Phim 4K",
+      "display_type": "slider",
+      "source_type": "quality_4k",
+      "source_value": "/chu-de/phim-4k",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-4k",
+      "sort_order": 1,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [],
+      "movies": []
+    },
+    {
+      "id": "56948f2b-66c4-4500-abec-ade04429b862",
+      "title": "Phim bộ",
+      "display_type": "grid_featured",
+      "source_type": "type",
+      "source_value": "series",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 3,
+        "featured_span_md": 2,
+        "featured_span_sm": 2,
+        "featured_span_xs": 3,
+        "featured_count_lg": 1,
+        "featured_count_md": 1,
+        "featured_count_sm": 1,
+        "featured_count_xs": 1
+      },
+      "manual_movies": null,
+      "limit_count": 13,
+      "more_link": "/phim-bo.html",
+      "sort_order": 2,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 3,
+      "featured_span_md": 2,
+      "featured_span_sm": 2,
+      "featured_span_xs": 3,
+      "featured_count_lg": 1,
+      "featured_count_md": 1,
+      "featured_count_sm": 1,
+      "featured_count_xs": 1,
+      "ids": [
+        "692ead4fca27378366af81b0",
+        "69b9275e32adc86a1e815cde",
+        "69bfc6ce400bf394bd942519",
+        "69c7aab9e263b2a946273f02",
+        "697f03db124287e08252ff23",
+        "69c8dd53f07c400a86d65f08",
+        "69c8dd160a0114095c859c7e",
+        "69c8dc42ccc6cea26886edbe",
+        "69c8dbad4da3bf6eb3463c5d"
+      ],
+      "movies": [
+        {
+          "id": "692ead4fca27378366af81b0",
+          "title": "Mộ Tư Từ",
+          "origin_name": "Love Beyond the Grave",
+          "slug": "mo-tu-tu",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/692ead4fca27378366af81b0.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692ead4fca27378366af81b0.webp",
+          "year": 2025,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 6",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:17:10.000Z"
+        },
+        {
+          "id": "69b9275e32adc86a1e815cde",
+          "title": "Xin Chào 1983",
+          "origin_name": "Dream of Golden Years",
+          "slug": "xin-chao-1983",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub + Thuyết Minh",
+          "episode_current": "Tập 27",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:16:54.000Z"
+        },
+        {
+          "id": "69bfc6ce400bf394bd942519",
+          "title": "Săn Tội Huyết Oán",
+          "origin_name": "Hunting For Crime · Red Deep Grudge",
+          "slug": "san-toi-huyet-oan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bfc6ce400bf394bd942519.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 18",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:53.000Z"
+        },
+        {
+          "id": "69c7aab9e263b2a946273f02",
+          "title": "Minh Châu Kỳ Đàm (Phần 2)",
+          "origin_name": "The Secret of the Lost Pearl (Season 2)",
+          "slug": "minh-chau-ky-dam-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c7aab9e263b2a946273f02.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c7aab9e263b2a946273f02.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 8",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:39.000Z"
+        },
+        {
+          "id": "697f03db124287e08252ff23",
+          "title": "Soda Master",
+          "origin_name": "Soda Master",
+          "slug": "soda-master",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/697f03db124287e08252ff23.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/697f03db124287e08252ff23.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2307e0fc277084dfd726",
+              "name": "Nhật Bản",
+              "slug": "nhat-ban"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 9",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:24.000Z"
+        },
+        {
+          "id": "69c8dd53f07c400a86d65f08",
+          "title": "Eva mãi mãi (Phần 4)",
+          "origin_name": "Eva Lasting (Season 4)",
+          "slug": "eva-mai-mai-phan-4",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dd53f07c400a86d65f08.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd53f07c400a86d65f08.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "625ff28adb43524328afc13f",
+              "name": "Colombia",
+              "slug": "colombia"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:06:04.000Z"
+        },
+        {
+          "id": "69c8dd160a0114095c859c7e",
+          "title": "Homicide: Án mạng (Phần 3)",
+          "origin_name": "Homicide (Season 3)",
+          "slug": "homicide-an-mang-phan-3",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dd160a0114095c859c7e.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd160a0114095c859c7e.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620e0e64d9648f114cde7728",
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:04:40.000Z"
+        },
+        {
+          "id": "69c8dc42ccc6cea26886edbe",
+          "title": "Cám Dỗ Chết Chóc (Phần 3)",
+          "origin_name": "Fatal Seduction (Season 3)",
+          "slug": "cam-do-chet-choc-phan-3",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dc42ccc6cea26886edbe.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dc42ccc6cea26886edbe.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "621f64bca666e8a57f65c51a",
+              "name": "Nam Phi",
+              "slug": "nam-phi"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:01:30.000Z"
+        },
+        {
+          "id": "69c8dbad4da3bf6eb3463c5d",
+          "title": "Thế giới ngầm Paris (Phần 2)",
+          "origin_name": "Furies (Season 2)",
+          "slug": "the-gioi-ngam-paris-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dbad4da3bf6eb3463c5d.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dbad4da3bf6eb3463c5d.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2378e0fc277084dfd972",
+              "name": "Pháp",
+              "slug": "phap"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:58:49.000Z"
+        }
+      ]
+    },
+    {
+      "id": "2281e75b-ff45-4818-a4f9-aa0c6667823d",
+      "title": "Phim lẻ",
+      "display_type": "grid",
+      "source_type": "type",
+      "source_value": "single",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/phim-le.html",
+      "sort_order": 3,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "ids": [
+        "69c8da5a400bf394bd95e620",
+        "69c8da41da6ce23e8eaa271f",
+        "69c8da0f0a0114095c859ae4",
+        "69c8d9d21d0b515454b88977",
+        "69c8d998f063d23bbbd72075",
+        "69c8d96954ca9185bbbe04d7",
+        "69c8d94ab9fc4b542977a1ec",
+        "69c8d92cd88856be7725a6eb",
+        "69c8d90cf65d22d617b95e4d",
+        "69c8d8c846046a8eb69850dd",
+        "69c8d8a7f07c400a86d65baf",
+        "69c8d83c4da3bf6eb34639db"
+      ],
+      "movies": [
+        {
+          "id": "69c8da5a400bf394bd95e620",
+          "title": "Defenseless",
+          "origin_name": "Defenseless",
+          "slug": "defenseless",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da5a400bf394bd95e620.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da5a400bf394bd95e620.webp",
+          "year": 1991,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:53:00.000Z"
+        },
+        {
+          "id": "69c8da41da6ce23e8eaa271f",
+          "title": "Kẻ giết người huyết thống",
+          "origin_name": "Bloodline Killer",
+          "slug": "ke-giet-nguoi-huyet-thong",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da41da6ce23e8eaa271f.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da41da6ce23e8eaa271f.webp",
+          "year": 2024,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:52:35.000Z"
+        },
+        {
+          "id": "69c8da0f0a0114095c859ae4",
+          "title": "Những kẻ giết người",
+          "origin_name": "The Killers",
+          "slug": "nhung-ke-giet-nguoi",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da0f0a0114095c859ae4.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da0f0a0114095c859ae4.webp",
+          "year": 1946,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:51:45.000Z"
+        },
+        {
+          "id": "69c8d9d21d0b515454b88977",
+          "title": "Khủng long ăn thịt 2",
+          "origin_name": "Carnosaur 2",
+          "slug": "khung-long-an-thit-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d9d21d0b515454b88977.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d9d21d0b515454b88977.webp",
+          "year": 1995,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:50:44.000Z"
+        },
+        {
+          "id": "69c8d998f063d23bbbd72075",
+          "title": "Sự kỳ lạ",
+          "origin_name": "The Unearthly",
+          "slug": "su-ky-la",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d998f063d23bbbd72075.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d998f063d23bbbd72075.webp",
+          "year": 1957,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:49:47.000Z"
+        },
+        {
+          "id": "69c8d96954ca9185bbbe04d7",
+          "title": "Swimfan",
+          "origin_name": "Swimfan",
+          "slug": "swimfan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d96954ca9185bbbe04d7.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d96954ca9185bbbe04d7.webp",
+          "year": 2002,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:48:59.000Z"
+        },
+        {
+          "id": "69c8d94ab9fc4b542977a1ec",
+          "title": "Bingo Bongo",
+          "origin_name": "Bingo Bongo",
+          "slug": "bingo-bongo",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d94ab9fc4b542977a1ec.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d94ab9fc4b542977a1ec.webp",
+          "year": 1982,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            }
+          ],
+          "country": [
+            {
+              "id": "621674a770b58bba6858b852",
+              "name": "Ý",
+              "slug": "y"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:48:29.000Z"
+        },
+        {
+          "id": "69c8d92cd88856be7725a6eb",
+          "title": "Buffaloed",
+          "origin_name": "Buffaloed",
+          "slug": "buffaloed",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d92cd88856be7725a6eb.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d92cd88856be7725a6eb.webp",
+          "year": 2020,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:47:58.000Z"
+        },
+        {
+          "id": "69c8d90cf65d22d617b95e4d",
+          "title": "Rage",
+          "origin_name": "Rage",
+          "slug": "rage",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d90cf65d22d617b95e4d.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d90cf65d22d617b95e4d.webp",
+          "year": 1972,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:47:28.000Z"
+        },
+        {
+          "id": "69c8d8c846046a8eb69850dd",
+          "title": "Texasville",
+          "origin_name": "Texasville",
+          "slug": "texasville",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d8c846046a8eb69850dd.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d8c846046a8eb69850dd.webp",
+          "year": 1990,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:46:20.000Z"
+        },
+        {
+          "id": "69c8d8a7f07c400a86d65baf",
+          "title": "Attila",
+          "origin_name": "Attila",
+          "slug": "attila",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d8a7f07c400a86d65baf.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d8a7f07c400a86d65baf.webp",
+          "year": 2018,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2238e0fc277084dfd291",
+              "name": "Tâm Lý",
+              "slug": "tam-ly"
+            }
+          ],
+          "country": [
+            {
+              "id": "621674a770b58bba6858b852",
+              "name": "Ý",
+              "slug": "y"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:45:48.000Z"
+        },
+        {
+          "id": "69c8d83c4da3bf6eb34639db",
+          "title": "Sundutan",
+          "origin_name": "Sundutan",
+          "slug": "sundutan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d83c4da3bf6eb34639db.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d83c4da3bf6eb34639db.webp",
+          "year": 2026,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:44:09.000Z"
+        }
+      ]
+    },
+    {
+      "id": "c17735a4-db3c-4cf8-ad78-90443d6aad37",
+      "title": "Phát hành năm 2026",
+      "display_type": "list",
+      "source_type": "year",
+      "source_value": "2026",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/nam-phat-hanh/",
+      "sort_order": 4,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "ids": [
+        "69b9275e32adc86a1e815cde",
+        "69bfc6ce400bf394bd942519",
+        "69c7aab9e263b2a946273f02",
+        "697f03db124287e08252ff23",
+        "69c8dd53f07c400a86d65f08",
+        "69c8dd160a0114095c859c7e",
+        "69c8dc42ccc6cea26886edbe",
+        "69c8dbad4da3bf6eb3463c5d",
+        "69c8d83c4da3bf6eb34639db",
+        "69c8d804d88856be7725a5f3"
+      ],
+      "movies": [
+        {
+          "id": "69b9275e32adc86a1e815cde",
+          "title": "Xin Chào 1983",
+          "origin_name": "Dream of Golden Years",
+          "slug": "xin-chao-1983",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub + Thuyết Minh",
+          "episode_current": "Tập 27",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:16:54.000Z"
+        },
+        {
+          "id": "69bfc6ce400bf394bd942519",
+          "title": "Săn Tội Huyết Oán",
+          "origin_name": "Hunting For Crime · Red Deep Grudge",
+          "slug": "san-toi-huyet-oan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bfc6ce400bf394bd942519.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 18",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:53.000Z"
+        },
+        {
+          "id": "69c7aab9e263b2a946273f02",
+          "title": "Minh Châu Kỳ Đàm (Phần 2)",
+          "origin_name": "The Secret of the Lost Pearl (Season 2)",
+          "slug": "minh-chau-ky-dam-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c7aab9e263b2a946273f02.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c7aab9e263b2a946273f02.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 8",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:39.000Z"
+        },
+        {
+          "id": "697f03db124287e08252ff23",
+          "title": "Soda Master",
+          "origin_name": "Soda Master",
+          "slug": "soda-master",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/697f03db124287e08252ff23.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/697f03db124287e08252ff23.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2307e0fc277084dfd726",
+              "name": "Nhật Bản",
+              "slug": "nhat-ban"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 9",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:24.000Z"
+        },
+        {
+          "id": "69c8dd53f07c400a86d65f08",
+          "title": "Eva mãi mãi (Phần 4)",
+          "origin_name": "Eva Lasting (Season 4)",
+          "slug": "eva-mai-mai-phan-4",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dd53f07c400a86d65f08.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd53f07c400a86d65f08.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "625ff28adb43524328afc13f",
+              "name": "Colombia",
+              "slug": "colombia"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:06:04.000Z"
+        },
+        {
+          "id": "69c8dd160a0114095c859c7e",
+          "title": "Homicide: Án mạng (Phần 3)",
+          "origin_name": "Homicide (Season 3)",
+          "slug": "homicide-an-mang-phan-3",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dd160a0114095c859c7e.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd160a0114095c859c7e.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620e0e64d9648f114cde7728",
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:04:40.000Z"
+        },
+        {
+          "id": "69c8dc42ccc6cea26886edbe",
+          "title": "Cám Dỗ Chết Chóc (Phần 3)",
+          "origin_name": "Fatal Seduction (Season 3)",
+          "slug": "cam-do-chet-choc-phan-3",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dc42ccc6cea26886edbe.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dc42ccc6cea26886edbe.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "621f64bca666e8a57f65c51a",
+              "name": "Nam Phi",
+              "slug": "nam-phi"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:01:30.000Z"
+        },
+        {
+          "id": "69c8dbad4da3bf6eb3463c5d",
+          "title": "Thế giới ngầm Paris (Phần 2)",
+          "origin_name": "Furies (Season 2)",
+          "slug": "the-gioi-ngam-paris-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dbad4da3bf6eb3463c5d.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dbad4da3bf6eb3463c5d.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2378e0fc277084dfd972",
+              "name": "Pháp",
+              "slug": "phap"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:58:49.000Z"
+        },
+        {
+          "id": "69c8d83c4da3bf6eb34639db",
+          "title": "Sundutan",
+          "origin_name": "Sundutan",
+          "slug": "sundutan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d83c4da3bf6eb34639db.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d83c4da3bf6eb34639db.webp",
+          "year": 2026,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:44:09.000Z"
+        },
+        {
+          "id": "69c8d804d88856be7725a5f3",
+          "title": "Bản thảo!",
+          "origin_name": "The Draft!",
+          "slug": "ban-thao",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d804d88856be7725a5f3.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d804d88856be7725a5f3.webp",
+          "year": 2026,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "6211fbe91f1609c9d9344bd7",
+              "name": "Indonesia",
+              "slug": "indonesia"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:43:03.000Z"
+        }
+      ]
+    },
+    {
+      "id": "d78ad490-b9d9-4781-b131-64c7b5b18417",
+      "title": "Phim đang chiếu",
+      "display_type": "grid_featured",
+      "source_type": "status",
+      "source_value": "current",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 3,
+        "featured_span_md": 2,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 1,
+        "featured_count_md": 1,
+        "featured_count_sm": 1,
+        "featured_count_xs": 1
+      },
+      "manual_movies": null,
+      "limit_count": 13,
+      "more_link": "/chu-de/phim-dang-chieu",
+      "sort_order": 5,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 3,
+      "featured_span_md": 2,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 1,
+      "featured_count_md": 1,
+      "featured_count_sm": 1,
+      "featured_count_xs": 1,
+      "ids": [
+        "692ead4fca27378366af81b0",
+        "69b9275e32adc86a1e815cde",
+        "69bfc6ce400bf394bd942519",
+        "69c7aab9e263b2a946273f02",
+        "697f03db124287e08252ff23"
+      ],
+      "movies": [
+        {
+          "id": "692ead4fca27378366af81b0",
+          "title": "Mộ Tư Từ",
+          "origin_name": "Love Beyond the Grave",
+          "slug": "mo-tu-tu",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/692ead4fca27378366af81b0.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692ead4fca27378366af81b0.webp",
+          "year": 2025,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 6",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:17:10.000Z"
+        },
+        {
+          "id": "69b9275e32adc86a1e815cde",
+          "title": "Xin Chào 1983",
+          "origin_name": "Dream of Golden Years",
+          "slug": "xin-chao-1983",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub + Thuyết Minh",
+          "episode_current": "Tập 27",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:16:54.000Z"
+        },
+        {
+          "id": "69bfc6ce400bf394bd942519",
+          "title": "Săn Tội Huyết Oán",
+          "origin_name": "Hunting For Crime · Red Deep Grudge",
+          "slug": "san-toi-huyet-oan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bfc6ce400bf394bd942519.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 18",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:53.000Z"
+        },
+        {
+          "id": "69c7aab9e263b2a946273f02",
+          "title": "Minh Châu Kỳ Đàm (Phần 2)",
+          "origin_name": "The Secret of the Lost Pearl (Season 2)",
+          "slug": "minh-chau-ky-dam-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c7aab9e263b2a946273f02.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c7aab9e263b2a946273f02.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 8",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:39.000Z"
+        },
+        {
+          "id": "697f03db124287e08252ff23",
+          "title": "Soda Master",
+          "origin_name": "Soda Master",
+          "slug": "soda-master",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/697f03db124287e08252ff23.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/697f03db124287e08252ff23.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2307e0fc277084dfd726",
+              "name": "Nhật Bản",
+              "slug": "nhat-ban"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 9",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:24.000Z"
+        }
+      ]
+    },
+    {
+      "id": "43ce5b9b-5323-4195-a256-26cad65e8b0d",
+      "title": "Phim sắp chiếu",
+      "display_type": "slider",
+      "source_type": "status",
+      "source_value": "upcoming",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/chu-de/phim-sap-chieu",
+      "sort_order": 6,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [
+        "69c8dd53f07c400a86d65f08",
+        "69c8dd160a0114095c859c7e",
+        "69c8dc42ccc6cea26886edbe",
+        "69c8dbad4da3bf6eb3463c5d",
+        "69c8da5a400bf394bd95e620",
+        "69c8da41da6ce23e8eaa271f",
+        "69c8da0f0a0114095c859ae4",
+        "69c8d9d21d0b515454b88977",
+        "69c8d998f063d23bbbd72075",
+        "69c8d96954ca9185bbbe04d7",
+        "69c8d94ab9fc4b542977a1ec",
+        "69c8d92cd88856be7725a6eb"
+      ],
+      "movies": [
+        {
+          "id": "69c8dd53f07c400a86d65f08",
+          "title": "Eva mãi mãi (Phần 4)",
+          "origin_name": "Eva Lasting (Season 4)",
+          "slug": "eva-mai-mai-phan-4",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dd53f07c400a86d65f08.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd53f07c400a86d65f08.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "625ff28adb43524328afc13f",
+              "name": "Colombia",
+              "slug": "colombia"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:06:04.000Z"
+        },
+        {
+          "id": "69c8dd160a0114095c859c7e",
+          "title": "Homicide: Án mạng (Phần 3)",
+          "origin_name": "Homicide (Season 3)",
+          "slug": "homicide-an-mang-phan-3",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dd160a0114095c859c7e.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd160a0114095c859c7e.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620e0e64d9648f114cde7728",
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:04:40.000Z"
+        },
+        {
+          "id": "69c8dc42ccc6cea26886edbe",
+          "title": "Cám Dỗ Chết Chóc (Phần 3)",
+          "origin_name": "Fatal Seduction (Season 3)",
+          "slug": "cam-do-chet-choc-phan-3",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dc42ccc6cea26886edbe.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dc42ccc6cea26886edbe.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "621f64bca666e8a57f65c51a",
+              "name": "Nam Phi",
+              "slug": "nam-phi"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:01:30.000Z"
+        },
+        {
+          "id": "69c8dbad4da3bf6eb3463c5d",
+          "title": "Thế giới ngầm Paris (Phần 2)",
+          "origin_name": "Furies (Season 2)",
+          "slug": "the-gioi-ngam-paris-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dbad4da3bf6eb3463c5d.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dbad4da3bf6eb3463c5d.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2378e0fc277084dfd972",
+              "name": "Pháp",
+              "slug": "phap"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:58:49.000Z"
+        },
+        {
+          "id": "69c8da5a400bf394bd95e620",
+          "title": "Defenseless",
+          "origin_name": "Defenseless",
+          "slug": "defenseless",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da5a400bf394bd95e620.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da5a400bf394bd95e620.webp",
+          "year": 1991,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:53:00.000Z"
+        },
+        {
+          "id": "69c8da41da6ce23e8eaa271f",
+          "title": "Kẻ giết người huyết thống",
+          "origin_name": "Bloodline Killer",
+          "slug": "ke-giet-nguoi-huyet-thong",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da41da6ce23e8eaa271f.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da41da6ce23e8eaa271f.webp",
+          "year": 2024,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:52:35.000Z"
+        },
+        {
+          "id": "69c8da0f0a0114095c859ae4",
+          "title": "Những kẻ giết người",
+          "origin_name": "The Killers",
+          "slug": "nhung-ke-giet-nguoi",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da0f0a0114095c859ae4.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da0f0a0114095c859ae4.webp",
+          "year": 1946,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:51:45.000Z"
+        },
+        {
+          "id": "69c8d9d21d0b515454b88977",
+          "title": "Khủng long ăn thịt 2",
+          "origin_name": "Carnosaur 2",
+          "slug": "khung-long-an-thit-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d9d21d0b515454b88977.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d9d21d0b515454b88977.webp",
+          "year": 1995,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:50:44.000Z"
+        },
+        {
+          "id": "69c8d998f063d23bbbd72075",
+          "title": "Sự kỳ lạ",
+          "origin_name": "The Unearthly",
+          "slug": "su-ky-la",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d998f063d23bbbd72075.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d998f063d23bbbd72075.webp",
+          "year": 1957,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:49:47.000Z"
+        },
+        {
+          "id": "69c8d96954ca9185bbbe04d7",
+          "title": "Swimfan",
+          "origin_name": "Swimfan",
+          "slug": "swimfan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d96954ca9185bbbe04d7.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d96954ca9185bbbe04d7.webp",
+          "year": 2002,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:48:59.000Z"
+        },
+        {
+          "id": "69c8d94ab9fc4b542977a1ec",
+          "title": "Bingo Bongo",
+          "origin_name": "Bingo Bongo",
+          "slug": "bingo-bongo",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d94ab9fc4b542977a1ec.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d94ab9fc4b542977a1ec.webp",
+          "year": 1982,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            }
+          ],
+          "country": [
+            {
+              "id": "621674a770b58bba6858b852",
+              "name": "Ý",
+              "slug": "y"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:48:29.000Z"
+        },
+        {
+          "id": "69c8d92cd88856be7725a6eb",
+          "title": "Buffaloed",
+          "origin_name": "Buffaloed",
+          "slug": "buffaloed",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d92cd88856be7725a6eb.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d92cd88856be7725a6eb.webp",
+          "year": 2020,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:47:58.000Z"
+        }
+      ]
+    },
+    {
+      "id": "6ed86af8-f531-4a2d-972e-2569d9291d70",
+      "title": "Phim hay chiếu rạp",
+      "display_type": "grid",
+      "source_type": "status",
+      "source_value": "theater",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/chu-de/phim-chieu-rap",
+      "sort_order": 7,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [],
+      "movies": []
+    },
+    {
+      "id": "6af08f1b-af33-4320-a60e-76760d2a0cd9",
+      "title": "TV Shows",
+      "display_type": "slider",
+      "source_type": "type",
+      "source_value": "tvshows",
+      "filter_config": null,
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/shows/",
+      "sort_order": 8,
+      "is_active": true,
+      "ids": [],
+      "movies": []
+    },
+    {
+      "id": "342c70a5-c426-4ac0-8975-efc517b46991",
+      "title": "Phim Hoạt hình",
+      "display_type": "grid_featured",
+      "source_type": "type",
+      "source_value": "hoathinh",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 3,
+        "featured_span_md": 2,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 1,
+        "featured_count_md": 1,
+        "featured_count_sm": 1,
+        "featured_count_xs": 1
+      },
+      "manual_movies": null,
+      "limit_count": 13,
+      "more_link": "/hoat-hinh/",
+      "sort_order": 9,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 3,
+      "featured_span_md": 2,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 1,
+      "featured_count_md": 1,
+      "featured_count_sm": 1,
+      "featured_count_xs": 1,
+      "ids": [],
+      "movies": []
+    },
+    {
+      "id": "7170d3ba-2a4b-4f02-97c5-6d9ff1cb42ba",
+      "title": "Phim Lồng tiếng",
+      "display_type": "slider",
+      "source_type": "longtieng",
+      "source_value": "/chu-de/phim-long-tieng",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-long-tieng",
+      "sort_order": 10,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [],
+      "movies": []
+    },
+    {
+      "id": "39f33745-b623-4295-8d22-544aff094247",
+      "title": "Phim Thuyết minh",
+      "display_type": "slider",
+      "source_type": "thuyetminh",
+      "source_value": "/chu-de/phim-thuyet-minh",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-thuyet-minh",
+      "sort_order": 11,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [
+        "69b9275e32adc86a1e815cde"
+      ],
+      "movies": [
+        {
+          "id": "69b9275e32adc86a1e815cde",
+          "title": "Xin Chào 1983",
+          "origin_name": "Dream of Golden Years",
+          "slug": "xin-chao-1983",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub + Thuyết Minh",
+          "episode_current": "Tập 27",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:16:54.000Z"
+        }
+      ]
+    },
+    {
+      "id": "9b332ecd-f248-4e0b-9c2c-26e44eee9e59",
+      "title": "Phim Vietsub",
+      "display_type": "slider",
+      "source_type": "vietsub",
+      "source_value": "/chu-de/phim-vietsub",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/chu-de/phim-vietsub",
+      "sort_order": 12,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [
+        "692ead4fca27378366af81b0",
+        "69b9275e32adc86a1e815cde",
+        "69bfc6ce400bf394bd942519",
+        "69c7aab9e263b2a946273f02",
+        "697f03db124287e08252ff23",
+        "69c8dd53f07c400a86d65f08",
+        "69c8dd160a0114095c859c7e",
+        "69c8dc42ccc6cea26886edbe",
+        "69c8dbad4da3bf6eb3463c5d",
+        "69c8da5a400bf394bd95e620",
+        "69c8da41da6ce23e8eaa271f",
+        "69c8da0f0a0114095c859ae4",
+        "69c8d9d21d0b515454b88977",
+        "69c8d998f063d23bbbd72075",
+        "69c8d96954ca9185bbbe04d7",
+        "69c8d94ab9fc4b542977a1ec"
+      ],
+      "movies": [
+        {
+          "id": "692ead4fca27378366af81b0",
+          "title": "Mộ Tư Từ",
+          "origin_name": "Love Beyond the Grave",
+          "slug": "mo-tu-tu",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/692ead4fca27378366af81b0.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692ead4fca27378366af81b0.webp",
+          "year": 2025,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 6",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:17:10.000Z"
+        },
+        {
+          "id": "69b9275e32adc86a1e815cde",
+          "title": "Xin Chào 1983",
+          "origin_name": "Dream of Golden Years",
+          "slug": "xin-chao-1983",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub + Thuyết Minh",
+          "episode_current": "Tập 27",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:16:54.000Z"
+        },
+        {
+          "id": "69bfc6ce400bf394bd942519",
+          "title": "Săn Tội Huyết Oán",
+          "origin_name": "Hunting For Crime · Red Deep Grudge",
+          "slug": "san-toi-huyet-oan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bfc6ce400bf394bd942519.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 18",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:53.000Z"
+        },
+        {
+          "id": "69c7aab9e263b2a946273f02",
+          "title": "Minh Châu Kỳ Đàm (Phần 2)",
+          "origin_name": "The Secret of the Lost Pearl (Season 2)",
+          "slug": "minh-chau-ky-dam-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c7aab9e263b2a946273f02.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c7aab9e263b2a946273f02.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 8",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:39.000Z"
+        },
+        {
+          "id": "697f03db124287e08252ff23",
+          "title": "Soda Master",
+          "origin_name": "Soda Master",
+          "slug": "soda-master",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/697f03db124287e08252ff23.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/697f03db124287e08252ff23.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2307e0fc277084dfd726",
+              "name": "Nhật Bản",
+              "slug": "nhat-ban"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 9",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:24.000Z"
+        },
+        {
+          "id": "69c8dd53f07c400a86d65f08",
+          "title": "Eva mãi mãi (Phần 4)",
+          "origin_name": "Eva Lasting (Season 4)",
+          "slug": "eva-mai-mai-phan-4",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dd53f07c400a86d65f08.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd53f07c400a86d65f08.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "625ff28adb43524328afc13f",
+              "name": "Colombia",
+              "slug": "colombia"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:06:04.000Z"
+        },
+        {
+          "id": "69c8dd160a0114095c859c7e",
+          "title": "Homicide: Án mạng (Phần 3)",
+          "origin_name": "Homicide (Season 3)",
+          "slug": "homicide-an-mang-phan-3",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dd160a0114095c859c7e.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd160a0114095c859c7e.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620e0e64d9648f114cde7728",
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:04:40.000Z"
+        },
+        {
+          "id": "69c8dc42ccc6cea26886edbe",
+          "title": "Cám Dỗ Chết Chóc (Phần 3)",
+          "origin_name": "Fatal Seduction (Season 3)",
+          "slug": "cam-do-chet-choc-phan-3",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dc42ccc6cea26886edbe.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dc42ccc6cea26886edbe.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "621f64bca666e8a57f65c51a",
+              "name": "Nam Phi",
+              "slug": "nam-phi"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:01:30.000Z"
+        },
+        {
+          "id": "69c8dbad4da3bf6eb3463c5d",
+          "title": "Thế giới ngầm Paris (Phần 2)",
+          "origin_name": "Furies (Season 2)",
+          "slug": "the-gioi-ngam-paris-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dbad4da3bf6eb3463c5d.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dbad4da3bf6eb3463c5d.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2378e0fc277084dfd972",
+              "name": "Pháp",
+              "slug": "phap"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:58:49.000Z"
+        },
+        {
+          "id": "69c8da5a400bf394bd95e620",
+          "title": "Defenseless",
+          "origin_name": "Defenseless",
+          "slug": "defenseless",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da5a400bf394bd95e620.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da5a400bf394bd95e620.webp",
+          "year": 1991,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:53:00.000Z"
+        },
+        {
+          "id": "69c8da41da6ce23e8eaa271f",
+          "title": "Kẻ giết người huyết thống",
+          "origin_name": "Bloodline Killer",
+          "slug": "ke-giet-nguoi-huyet-thong",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da41da6ce23e8eaa271f.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da41da6ce23e8eaa271f.webp",
+          "year": 2024,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:52:35.000Z"
+        },
+        {
+          "id": "69c8da0f0a0114095c859ae4",
+          "title": "Những kẻ giết người",
+          "origin_name": "The Killers",
+          "slug": "nhung-ke-giet-nguoi",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da0f0a0114095c859ae4.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da0f0a0114095c859ae4.webp",
+          "year": 1946,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:51:45.000Z"
+        },
+        {
+          "id": "69c8d9d21d0b515454b88977",
+          "title": "Khủng long ăn thịt 2",
+          "origin_name": "Carnosaur 2",
+          "slug": "khung-long-an-thit-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d9d21d0b515454b88977.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d9d21d0b515454b88977.webp",
+          "year": 1995,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:50:44.000Z"
+        },
+        {
+          "id": "69c8d998f063d23bbbd72075",
+          "title": "Sự kỳ lạ",
+          "origin_name": "The Unearthly",
+          "slug": "su-ky-la",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d998f063d23bbbd72075.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d998f063d23bbbd72075.webp",
+          "year": 1957,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:49:47.000Z"
+        },
+        {
+          "id": "69c8d96954ca9185bbbe04d7",
+          "title": "Swimfan",
+          "origin_name": "Swimfan",
+          "slug": "swimfan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d96954ca9185bbbe04d7.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d96954ca9185bbbe04d7.webp",
+          "year": 2002,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:48:59.000Z"
+        },
+        {
+          "id": "69c8d94ab9fc4b542977a1ec",
+          "title": "Bingo Bongo",
+          "origin_name": "Bingo Bongo",
+          "slug": "bingo-bongo",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d94ab9fc4b542977a1ec.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d94ab9fc4b542977a1ec.webp",
+          "year": 1982,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            }
+          ],
+          "country": [
+            {
+              "id": "621674a770b58bba6858b852",
+              "name": "Ý",
+              "slug": "y"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:48:29.000Z"
+        }
+      ]
+    },
+    {
+      "id": "8dcc5fda-ddfd-4c5f-8276-6128643405c1",
+      "title": "Phim Trung Quốc",
+      "display_type": "slider",
+      "source_type": "country",
+      "source_value": "trung-quoc",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/quoc-gia/trung-quoc",
+      "sort_order": 13,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [
+        "692ead4fca27378366af81b0",
+        "69b9275e32adc86a1e815cde",
+        "69bfc6ce400bf394bd942519",
+        "69c7aab9e263b2a946273f02"
+      ],
+      "movies": [
+        {
+          "id": "692ead4fca27378366af81b0",
+          "title": "Mộ Tư Từ",
+          "origin_name": "Love Beyond the Grave",
+          "slug": "mo-tu-tu",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/692ead4fca27378366af81b0.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692ead4fca27378366af81b0.webp",
+          "year": 2025,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 6",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:17:10.000Z"
+        },
+        {
+          "id": "69b9275e32adc86a1e815cde",
+          "title": "Xin Chào 1983",
+          "origin_name": "Dream of Golden Years",
+          "slug": "xin-chao-1983",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69b9275e32adc86a1e815cde.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub + Thuyết Minh",
+          "episode_current": "Tập 27",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T17:16:54.000Z"
+        },
+        {
+          "id": "69bfc6ce400bf394bd942519",
+          "title": "Săn Tội Huyết Oán",
+          "origin_name": "Hunting For Crime · Red Deep Grudge",
+          "slug": "san-toi-huyet-oan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69bfc6ce400bf394bd942519.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 18",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:53.000Z"
+        },
+        {
+          "id": "69c7aab9e263b2a946273f02",
+          "title": "Minh Châu Kỳ Đàm (Phần 2)",
+          "origin_name": "The Secret of the Lost Pearl (Season 2)",
+          "slug": "minh-chau-ky-dam-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c7aab9e263b2a946273f02.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c7aab9e263b2a946273f02.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 8",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:39.000Z"
+        }
+      ]
+    },
+    {
+      "id": "6cf3b5d0-deef-440a-862f-5e073f59bc03",
+      "title": "Phim Hàn Quốc",
+      "display_type": "slider",
+      "source_type": "country",
+      "source_value": "han-quoc",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/quoc-gia/han-quoc",
+      "sort_order": 14,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [
+        "69c8d7def063d23bbbd71f21"
+      ],
+      "movies": [
+        {
+          "id": "69c8d7def063d23bbbd71f21",
+          "title": "Chiếc bật lửa huyền thoại",
+          "origin_name": "The Legendary Lighter",
+          "slug": "chiec-bat-lua-huyen-thoai",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d7def063d23bbbd71f21.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d7def063d23bbbd71f21.webp",
+          "year": 2019,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2300e0fc277084dfd6d2",
+              "name": "Hàn Quốc",
+              "slug": "han-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:42:24.000Z"
+        }
+      ]
+    },
+    {
+      "id": "be9f2f08-194f-4c8e-b89f-ab8f325c723b",
+      "title": "Phim Âu Mỹ",
+      "display_type": "slider",
+      "source_type": "country",
+      "source_value": "au-my",
+      "filter_config": {
+        "use_poster": true,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 2,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 16,
+      "more_link": "/quoc-gia/au-my",
+      "sort_order": 15,
+      "is_active": true,
+      "use_poster": true,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 2,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [
+        "69c8dd160a0114095c859c7e",
+        "69c8da5a400bf394bd95e620",
+        "69c8da41da6ce23e8eaa271f",
+        "69c8da0f0a0114095c859ae4",
+        "69c8d9d21d0b515454b88977",
+        "69c8d998f063d23bbbd72075",
+        "69c8d96954ca9185bbbe04d7",
+        "69c8d92cd88856be7725a6eb",
+        "69c8d90cf65d22d617b95e4d",
+        "69c8d8c846046a8eb69850dd",
+        "69c8d83c4da3bf6eb34639db"
+      ],
+      "movies": [
+        {
+          "id": "69c8dd160a0114095c859c7e",
+          "title": "Homicide: Án mạng (Phần 3)",
+          "origin_name": "Homicide (Season 3)",
+          "slug": "homicide-an-mang-phan-3",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dd160a0114095c859c7e.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd160a0114095c859c7e.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620e0e64d9648f114cde7728",
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T15:04:40.000Z"
+        },
+        {
+          "id": "69c8da5a400bf394bd95e620",
+          "title": "Defenseless",
+          "origin_name": "Defenseless",
+          "slug": "defenseless",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da5a400bf394bd95e620.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da5a400bf394bd95e620.webp",
+          "year": 1991,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:53:00.000Z"
+        },
+        {
+          "id": "69c8da41da6ce23e8eaa271f",
+          "title": "Kẻ giết người huyết thống",
+          "origin_name": "Bloodline Killer",
+          "slug": "ke-giet-nguoi-huyet-thong",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da41da6ce23e8eaa271f.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da41da6ce23e8eaa271f.webp",
+          "year": 2024,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:52:35.000Z"
+        },
+        {
+          "id": "69c8da0f0a0114095c859ae4",
+          "title": "Những kẻ giết người",
+          "origin_name": "The Killers",
+          "slug": "nhung-ke-giet-nguoi",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8da0f0a0114095c859ae4.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da0f0a0114095c859ae4.webp",
+          "year": 1946,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:51:45.000Z"
+        },
+        {
+          "id": "69c8d9d21d0b515454b88977",
+          "title": "Khủng long ăn thịt 2",
+          "origin_name": "Carnosaur 2",
+          "slug": "khung-long-an-thit-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d9d21d0b515454b88977.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d9d21d0b515454b88977.webp",
+          "year": 1995,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:50:44.000Z"
+        },
+        {
+          "id": "69c8d998f063d23bbbd72075",
+          "title": "Sự kỳ lạ",
+          "origin_name": "The Unearthly",
+          "slug": "su-ky-la",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d998f063d23bbbd72075.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d998f063d23bbbd72075.webp",
+          "year": 1957,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a2282e0fc277084dfd435",
+              "name": "Viễn Tưởng",
+              "slug": "vien-tuong"
+            },
+            {
+              "id": "620a229be0fc277084dfd4dd",
+              "name": "Khoa Học",
+              "slug": "khoa-hoc"
+            },
+            {
+              "id": "620a22ace0fc277084dfd531",
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:49:47.000Z"
+        },
+        {
+          "id": "69c8d96954ca9185bbbe04d7",
+          "title": "Swimfan",
+          "origin_name": "Swimfan",
+          "slug": "swimfan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d96954ca9185bbbe04d7.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d96954ca9185bbbe04d7.webp",
+          "year": 2002,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            },
+            {
+              "id": "620f84d291fa4af90ab6b3f4",
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:48:59.000Z"
+        },
+        {
+          "id": "69c8d92cd88856be7725a6eb",
+          "title": "Buffaloed",
+          "origin_name": "Buffaloed",
+          "slug": "buffaloed",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d92cd88856be7725a6eb.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d92cd88856be7725a6eb.webp",
+          "year": 2020,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a221de0fc277084dfd1c1",
+              "name": "Hài Hước",
+              "slug": "hai-huoc"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:47:58.000Z"
+        },
+        {
+          "id": "69c8d90cf65d22d617b95e4d",
+          "title": "Rage",
+          "origin_name": "Rage",
+          "slug": "rage",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d90cf65d22d617b95e4d.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d90cf65d22d617b95e4d.webp",
+          "year": 1972,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:47:28.000Z"
+        },
+        {
+          "id": "69c8d8c846046a8eb69850dd",
+          "title": "Texasville",
+          "origin_name": "Texasville",
+          "slug": "texasville",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d8c846046a8eb69850dd.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d8c846046a8eb69850dd.webp",
+          "year": 1990,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:46:20.000Z"
+        },
+        {
+          "id": "69c8d83c4da3bf6eb34639db",
+          "title": "Sundutan",
+          "origin_name": "Sundutan",
+          "slug": "sundutan",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d83c4da3bf6eb34639db.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d83c4da3bf6eb34639db.webp",
+          "year": 2026,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:44:09.000Z"
+        }
+      ]
+    },
+    {
+      "id": "027bcf08-3335-4109-9d31-9c761eb18313",
+      "title": "Phim Cổ trang",
+      "display_type": "grid",
+      "source_type": "genre",
+      "source_value": "co-trang",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 4,
+        "grid_columns_xs": 3,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/the-loai/co-trang",
+      "sort_order": 16,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 4,
+      "grid_columns_xs": 3,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [],
+      "movies": []
+    },
+    {
+      "id": "91aab5f2-0bf7-4dc1-92f3-f3aa65144501",
+      "title": "Phim Hành động",
+      "display_type": "grid",
+      "source_type": "genre",
+      "source_value": "hanh-dong",
+      "filter_config": {
+        "use_poster": false,
+        "grid_columns_lg": 6,
+        "grid_columns_md": 4,
+        "grid_columns_sm": 3,
+        "grid_columns_xs": 3,
+        "featured_span_lg": 4,
+        "featured_span_md": 4,
+        "featured_span_sm": 3,
+        "featured_span_xs": 2,
+        "featured_count_lg": 0,
+        "featured_count_md": 0,
+        "featured_count_sm": 0,
+        "featured_count_xs": 0
+      },
+      "manual_movies": null,
+      "limit_count": 12,
+      "more_link": "/the-loai/hanh-dong",
+      "sort_order": 17,
+      "is_active": true,
+      "use_poster": false,
+      "grid_columns_lg": 6,
+      "grid_columns_md": 4,
+      "grid_columns_sm": 3,
+      "grid_columns_xs": 3,
+      "featured_span_lg": 4,
+      "featured_span_md": 4,
+      "featured_span_sm": 3,
+      "featured_span_xs": 2,
+      "featured_count_lg": 0,
+      "featured_count_md": 0,
+      "featured_count_sm": 0,
+      "featured_count_xs": 0,
+      "ids": [
+        "69c7aab9e263b2a946273f02",
+        "69c8dbad4da3bf6eb3463c5d",
+        "69c8d7def063d23bbbd71f21"
+      ],
+      "movies": [
+        {
+          "id": "69c7aab9e263b2a946273f02",
+          "title": "Minh Châu Kỳ Đàm (Phần 2)",
+          "origin_name": "The Secret of the Lost Pearl (Season 2)",
+          "slug": "minh-chau-ky-dam-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c7aab9e263b2a946273f02.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c7aab9e263b2a946273f02.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Tập 8",
+          "quality": "HD",
+          "status": "ongoing",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T16:06:39.000Z"
+        },
+        {
+          "id": "69c8dbad4da3bf6eb3463c5d",
+          "title": "Thế giới ngầm Paris (Phần 2)",
+          "origin_name": "Furies (Season 2)",
+          "slug": "the-gioi-ngam-paris-phan-2",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8dbad4da3bf6eb3463c5d.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dbad4da3bf6eb3463c5d.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2249e0fc277084dfd2e5",
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2378e0fc277084dfd972",
+              "name": "Pháp",
+              "slug": "phap"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:58:49.000Z"
+        },
+        {
+          "id": "69c8d7def063d23bbbd71f21",
+          "title": "Chiếc bật lửa huyền thoại",
+          "origin_name": "The Legendary Lighter",
+          "slug": "chiec-bat-lua-huyen-thoai",
+          "thumb": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/69c8d7def063d23bbbd71f21.webp",
+          "poster": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8d7def063d23bbbd71f21.webp",
+          "year": 2019,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a2300e0fc277084dfd6d2",
+              "name": "Hàn Quốc",
+              "slug": "han-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-03-29T14:42:24.000Z"
+        }
+      ]
+    }
+  ],
+  "sliderAuto": [
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/692ead4fca27378366af81b0.webp",
+      "link_url": "/phim/mo-tu-tu.html",
+      "title": "Mộ Tư Từ",
+      "year": "2025",
+      "country": "Trung Quốc",
+      "episode_current": "Tập 6",
+      "genres": [
+        "Viễn Tưởng",
+        "Khoa Học",
+        "Chính kịch"
+      ],
+      "sort_order": 0,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69b9275e32adc86a1e815cde.webp",
+      "link_url": "/phim/xin-chao-1983.html",
+      "title": "Xin Chào 1983",
+      "year": "2026",
+      "country": "Trung Quốc",
+      "episode_current": "Tập 27",
+      "genres": [
+        "Hài Hước",
+        "Chính kịch"
+      ],
+      "sort_order": 1,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69bfc6ce400bf394bd942519.webp",
+      "link_url": "/phim/san-toi-huyet-oan.html",
+      "title": "Săn Tội Huyết Oán",
+      "year": "2026",
+      "country": "Trung Quốc",
+      "episode_current": "Tập 18",
+      "genres": [
+        "Bí ẩn"
+      ],
+      "sort_order": 2,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c7aab9e263b2a946273f02.webp",
+      "link_url": "/phim/minh-chau-ky-dam-phan-2.html",
+      "title": "Minh Châu Kỳ Đàm (Phần 2)",
+      "year": "2026",
+      "country": "Trung Quốc",
+      "episode_current": "Tập 8",
+      "genres": [
+        "Hành Động",
+        "Phiêu Lưu"
+      ],
+      "sort_order": 3,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/697f03db124287e08252ff23.webp",
+      "link_url": "/phim/soda-master.html",
+      "title": "Soda Master",
+      "year": "2026",
+      "country": "Nhật Bản",
+      "episode_current": "Tập 9",
+      "genres": [
+        "Chính kịch",
+        "Bí ẩn"
+      ],
+      "sort_order": 4,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd53f07c400a86d65f08.webp",
+      "link_url": "/phim/eva-mai-mai-phan-4.html",
+      "title": "Eva mãi mãi (Phần 4)",
+      "year": "2026",
+      "country": "Colombia",
+      "episode_current": "Trailer",
+      "genres": [
+        "Chính kịch"
+      ],
+      "sort_order": 5,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dd160a0114095c859c7e.webp",
+      "link_url": "/phim/homicide-an-mang-phan-3.html",
+      "title": "Homicide: Án mạng (Phần 3)",
+      "year": "2026",
+      "country": "Âu Mỹ",
+      "episode_current": "Trailer",
+      "genres": [
+        "Hình Sự",
+        "Tài Liệu"
+      ],
+      "sort_order": 6,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dc42ccc6cea26886edbe.webp",
+      "link_url": "/phim/cam-do-chet-choc-phan-3.html",
+      "title": "Cám Dỗ Chết Chóc (Phần 3)",
+      "year": "2026",
+      "country": "Nam Phi",
+      "episode_current": "Trailer",
+      "genres": [
+        "Hình Sự",
+        "Chính kịch",
+        "Bí ẩn"
+      ],
+      "sort_order": 7,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8dbad4da3bf6eb3463c5d.webp",
+      "link_url": "/phim/the-gioi-ngam-paris-phan-2.html",
+      "title": "Thế giới ngầm Paris (Phần 2)",
+      "year": "2026",
+      "country": "Pháp",
+      "episode_current": "Trailer",
+      "genres": [
+        "Hành Động",
+        "Hình Sự",
+        "Phiêu Lưu"
+      ],
+      "sort_order": 8,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da5a400bf394bd95e620.webp",
+      "link_url": "/phim/defenseless.html",
+      "title": "Defenseless",
+      "year": "1991",
+      "country": "Âu Mỹ",
+      "episode_current": "Trailer",
+      "genres": [
+        "Bí ẩn"
+      ],
+      "sort_order": 9,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da41da6ce23e8eaa271f.webp",
+      "link_url": "/phim/ke-giet-nguoi-huyet-thong.html",
+      "title": "Kẻ giết người huyết thống",
+      "year": "2024",
+      "country": "Âu Mỹ",
+      "episode_current": "Trailer",
+      "genres": [
+        "Kinh Dị"
+      ],
+      "sort_order": 10,
+      "enabled": true
+    },
+    {
+      "image_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/posters/69c8da0f0a0114095c859ae4.webp",
+      "link_url": "/phim/nhung-ke-giet-nguoi.html",
+      "title": "Những kẻ giết người",
+      "year": "1946",
+      "country": "Âu Mỹ",
+      "episode_current": "Trailer",
+      "genres": [
+        "Hình Sự",
+        "Bí ẩn"
+      ],
+      "sort_order": 11,
+      "enabled": true
+    }
+  ]
+}
