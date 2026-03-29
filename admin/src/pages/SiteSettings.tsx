@@ -65,9 +65,6 @@ const SITE_SETTINGS_KEYS = [
   'tmdb_attribution',
   'loading_screen_enabled',
   'loading_screen_min_seconds',
-  'ad_popup_enabled',
-  'ad_popup_delay_ms',
-  'ad_popup_cooldown_hours',
 ] as const;
 
 export default function SiteSettings() {
@@ -131,9 +128,6 @@ export default function SiteSettings() {
         tmdb_attribution: data.tmdb_attribution !== 'false',
         loading_screen_enabled: data.loading_screen_enabled !== 'false',
         loading_screen_min_seconds: data.loading_screen_min_seconds ?? '0',
-        ad_popup_enabled: data.ad_popup_enabled !== 'false',
-        ad_popup_delay_ms: data.ad_popup_delay_ms ?? '3000',
-        ad_popup_cooldown_hours: data.ad_popup_cooldown_hours ?? '12',
       });
       setLoading(false);
     });
@@ -382,33 +376,6 @@ export default function SiteSettings() {
                     <Form.Item name="supabase_user_anon_key" label="Supabase User Anon Key">
                       <Input.Password placeholder="eyJ..." />
                     </Form.Item>
-                  </>
-                ),
-              },
-              {
-                key: 'ad_popup',
-                label: 'Quảng cáo popup',
-                children: (
-                  <>
-                    <p style={{ color: '#666', fontSize: 13, marginBottom: 16 }}>
-                      Nội dung popup lấy từ <strong>Quản lý quảng cáo → Banner</strong> (một banner có vị trí{' '}
-                      <code>popup</code>, ưu tiên cao nhất nếu có nhiều bản ghi).
-                    </p>
-                    <Form.Item name="ad_popup_enabled" label="Bật popup quảng cáo" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-                    <Form.Item name="ad_popup_delay_ms" label="Độ trễ trước khi hiện popup (mili giây)">
-                      <Input type="number" min={0} max={120000} placeholder="3000" />
-                    </Form.Item>
-                    <p style={{ color: '#888', fontSize: 12, marginTop: -8, marginBottom: 16 }}>
-                      Ví dụ 3000 = 3 giây sau khi vào trang.
-                    </p>
-                    <Form.Item name="ad_popup_cooldown_hours" label="Khôi phục popup sau (giờ)">
-                      <Input type="number" min={1} max={168} placeholder="12" />
-                    </Form.Item>
-                    <p style={{ color: '#888', fontSize: 12, marginTop: -8, marginBottom: 16 }}>
-                      Sau khi người dùng đóng popup, không hiện lại trong khoảng thời gian này (lưu trên trình duyệt).
-                    </p>
                   </>
                 ),
               },

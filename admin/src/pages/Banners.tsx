@@ -190,8 +190,8 @@ export default function Banners() {
         description={
           <span>
             Chọn <strong>popup</strong>, <strong>header_strip</strong>, <strong>sticky_bottom</strong>,{' '}
-            <strong>floating_corner</strong> trong ô Vị trí khi thêm/sửa banner. Độ trễ popup / tắt hẳn popup: mục{' '}
-            <strong>Cài đặt chung</strong> → tab <strong>Quảng cáo popup</strong>.
+            <strong>floating_corner</strong> trong ô Vị trí. Hành vi popup (độ trễ, tắt): tab{' '}
+            <strong>Quảng cáo khác</strong> cùng mục menu này.
           </span>
         }
       />
