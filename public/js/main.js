@@ -9,6 +9,7 @@
   window.DAOP.ensureDataCacheBust = function () {
     window.DAOP = window.DAOP || {};
     if (window.DAOP._dataCacheBustPromise) return window.DAOP._dataCacheBustPromise;
+    if (window.DAOP._dataCacheBust) return Promise.resolve(window.DAOP._dataCacheBust);
     window.DAOP._dataCacheBustPromise = fetch(BASE + '/data/build_version.json', { cache: 'no-store' })
       .then(function (r) {
         return r.ok ? r.json() : {};
@@ -47,20 +48,26 @@
       });
     }
     if (window.DAOP._siteSettingsPromise) return window.DAOP._siteSettingsPromise;
-    window.DAOP._siteSettingsPromise = fetch(BASE + '/data/config/site-settings.json')
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (s) {
-        window.DAOP._siteSettingsFetchDone = true;
-        if (s && typeof s === 'object') {
-          window.DAOP.siteSettings = s;
-          if (s.site_name) window.DAOP.siteName = s.site_name;
-        }
-        return s || {};
-      })
-      .catch(function () {
-        window.DAOP._siteSettingsFetchDone = true;
-        return {};
-      });
+    window.DAOP._siteSettingsPromise = (typeof window.DAOP.ensureDataCacheBust === 'function'
+      ? window.DAOP.ensureDataCacheBust()
+      : Promise.resolve('')
+    ).then(function (q) {
+      var url = BASE + '/data/config/site-settings.json' + (q || '');
+      return fetch(url)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (s) {
+          window.DAOP._siteSettingsFetchDone = true;
+          if (s && typeof s === 'object') {
+            window.DAOP.siteSettings = s;
+            if (s.site_name) window.DAOP.siteName = s.site_name;
+          }
+          return s || {};
+        })
+        .catch(function () {
+          window.DAOP._siteSettingsFetchDone = true;
+          return {};
+        });
+    });
     return window.DAOP._siteSettingsPromise;
   };
 
@@ -1673,7 +1680,7 @@
     root.style.setProperty('--showtimes-color-light', settings.theme_showtimes_color_light || '#ffffff');
     var logo = document.querySelector('.site-logo');
     if (logo && settings.logo_url) {
-      logo.innerHTML = '<img src="' + (settings.logo_url || '').replace(/"/g, '&quot;') + '" alt="' + (settings.site_name || '').replace(/"/g, '&quot;') + '">';
+      logo.innerHTML = '<img src="' + (settings.logo_url || '').replace(/"/g, '&quot;') + '" alt="' + (settings.site_name || '').replace(/"/g, '&quot;') + '" width="75" height="40" decoding="async">';
       if (!logo.getAttribute('href')) logo.setAttribute('href', BASE || '/');
     } else if (logo && settings.site_name && !logo.querySelector('img')) {
       logo.textContent = settings.site_name;
@@ -1756,7 +1763,7 @@
       var logoText = 'GoTV - Trang tổng hợp phim, video, chương trình, tư liệu giải trí đỉnh cao.';
       if (settings.logo_url) {
         var alt = (settings.site_name || 'GoTV').replace(/"/g, '&quot;');
-        footerLogo.innerHTML = '<img src="' + (settings.logo_url || '').replace(/"/g, '&quot;') + '" alt="' + alt + '"><span class="footer-logo-text">' + logoText.replace(/"/g, '&quot;') + '</span>';
+        footerLogo.innerHTML = '<img src="' + (settings.logo_url || '').replace(/"/g, '&quot;') + '" alt="' + alt + '" width="75" height="40" decoding="async"><span class="footer-logo-text">' + logoText.replace(/"/g, '&quot;') + '</span>';
         if (!footerLogo.getAttribute('href')) footerLogo.setAttribute('href', BASE || '/');
       } else if (settings.site_name && !footerLogo.querySelector('img')) {
         footerLogo.innerHTML = '<span>' + (settings.site_name || 'GoTV').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span><span class="footer-logo-text">' + logoText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
