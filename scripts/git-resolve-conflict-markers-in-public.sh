@@ -2,7 +2,8 @@
 # Quét public/, tìm conflict markers do git; sửa bằng cách giữ phần sau dòng =======
 # (tương ứng bản "incoming" khi rebase commit build hoặc stash).
 # Thất bại nếu sau khi sửa vẫn còn <<<<<<< hoặc >>>>>>>.
-set -euo pipefail
+set -eu
+set -o pipefail 2>/dev/null || true
 
 if [ ! -d public ]; then
   exit 0
