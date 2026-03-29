@@ -240,6 +240,52 @@ function writeAutoSliderFile(allMovies) {
   }
 }
 
+function writeHomeBootstrapFile() {
+  try {
+    const siteSettingsPath = path.join(PUBLIC_DATA, 'config', 'site-settings.json');
+    const homepageSectionsPath = path.join(PUBLIC_DATA, 'config', 'homepage-sections.json');
+    const homeSectionsDataPath = path.join(PUBLIC_DATA, 'home', 'home-sections-data.json');
+    const sliderAutoPath = path.join(PUBLIC_DATA, 'home', 'homepage-slider-auto.json');
+    const buildVersionPath = path.join(PUBLIC_DATA, 'build_version.json');
+
+    let siteSettings = null;
+    let homepageSections = null;
+    let homeSectionsData = null;
+    let sliderAuto = null;
+    let buildVersion = null;
+
+    try {
+      if (fs.existsSync(siteSettingsPath)) siteSettings = JSON.parse(fs.readFileSync(siteSettingsPath, 'utf8')) || null;
+    } catch {}
+    try {
+      if (fs.existsSync(homepageSectionsPath)) homepageSections = JSON.parse(fs.readFileSync(homepageSectionsPath, 'utf8')) || null;
+    } catch {}
+    try {
+      if (fs.existsSync(homeSectionsDataPath)) homeSectionsData = JSON.parse(fs.readFileSync(homeSectionsDataPath, 'utf8')) || null;
+    } catch {}
+    try {
+      if (fs.existsSync(sliderAutoPath)) sliderAuto = JSON.parse(fs.readFileSync(sliderAutoPath, 'utf8')) || null;
+    } catch {}
+    try {
+      if (fs.existsSync(buildVersionPath)) buildVersion = JSON.parse(fs.readFileSync(buildVersionPath, 'utf8')) || null;
+    } catch {}
+
+    const out = {
+      buildVersion,
+      siteSettings,
+      homepageSections,
+      homeSectionsData,
+      sliderAuto,
+    };
+
+    const outPath = path.join(PUBLIC_DATA, 'home', 'home-bootstrap.json');
+    fs.ensureDirSync(path.dirname(outPath));
+    fs.writeFileSync(outPath, JSON.stringify(out, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('   writeHomeBootstrapFile failed (continue):', e && e.message ? e.message : e);
+  }
+}
+
 async function ensureR2ImagesForNewCustomMovies(_customMovies) {
   // Không ghi URL ảnh R2 ngược lại nguồn tùy chỉnh; ảnh nằm trên R2 + trong batch build.
 }
@@ -4223,6 +4269,7 @@ async function main() {
   timeBuildPhaseSync('6c. home sections + auto slider', () => {
   writeHomeSectionsData(allMovies);
   writeAutoSliderFile(allMovies);
+  writeHomeBootstrapFile();
   });
   const batchPtrById = batchRes && batchRes.batchPtrById ? batchRes.batchPtrById : null;
 

@@ -61,10 +61,8 @@
     </div>
     <p class="footer-copyright">Copyright 2018 <a href="https://gotv.top" target="_blank" rel="noopener">GoTV</a>. All rights reserved.</p>
   </footer>
-  <script src="/data/config/site-settings.json" type="application/json" id="site-settings-src"></script>
   <script src="/data/filters.js?v=2026-03-29T06%3A09%3A21.860Z" defer></script>
-  <script src="/data/config/homepage-sections.json" type="application/json" id="homepage-sections-src"></script>
-  <script src="/data/config/banners.json" type="application/json" id="banners-src"></script>
+  <script src="/data/home/home-bootstrap.json" type="application/json" id="home-bootstrap-src"></script>
   <script type="module">
     (function(){
       var base = '';
@@ -82,6 +80,8 @@
         }
       }
       function loadSiteSettings() {
+        var boot = readJsonScriptTag('home-bootstrap-src');
+        if (boot && boot.siteSettings) return Promise.resolve(boot.siteSettings);
         var embedded = readJsonScriptTag('site-settings-src');
         if (embedded) return Promise.resolve(embedded);
         return fetch(base + '/data/config/site-settings.json').then(function (r) { return r.json(); });
@@ -140,8 +140,39 @@
   <script type="module">
     (function(){
       var base = window.DAOP && window.DAOP.basePath || '';
+      function readJsonScriptTag(id) {
+        try {
+          var el = document.getElementById(id);
+          if (!el) return null;
+          var raw = (el.textContent || el.innerText || '').trim();
+          if (!raw) return null;
+          return JSON.parse(raw);
+        } catch (e) {
+          return null;
+        }
+      }
+      function loadBuildVersion() {
+        var boot0 = readJsonScriptTag('home-bootstrap-src');
+        if (boot0 && boot0.buildVersion) return Promise.resolve(boot0.buildVersion);
+        var embedded = readJsonScriptTag('build-version-src');
+        if (embedded) return Promise.resolve(embedded);
+        return fetch(base + '/data/build_version.json').then(function (r) { return r.json(); });
+      }
+      function loadHomeBootstrap() {
+        var embedded = readJsonScriptTag('home-bootstrap-src');
+        if (embedded) return Promise.resolve(embedded);
+        return fetch(base + '/data/home/home-bootstrap.json').then(function (r) { return r.ok ? r.json() : null; });
+      }
       function loadSectionsAndBanners(){
-        return fetch(base + '/data/build_version.json').then(function(r){ return r.json(); }).catch(function(){ return {}; }).then(function(v){
+        return Promise.all([
+          loadHomeBootstrap().catch(function () { return null; }),
+          loadBuildVersion().catch(function(){ return {}; })
+        ]).then(function (arr) {
+          var boot = arr[0];
+          var v = arr[1];
+          if (boot && (boot.homeSectionsData || boot.homepageSections)) {
+            return [boot.homeSectionsData || null, boot.homepageSections || []];
+          }
           var ver = (v && v.builtAt) ? encodeURIComponent(v.builtAt) : '';
           var q = ver ? '?v=' + ver : '';
           return Promise.all([
