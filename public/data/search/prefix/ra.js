@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["ra"] = [{"id":"69c8d90cf65d22d617b95e4d","title":"Rage","origin_name":"Rage","slug":"rage","thumb":"https://cdn.jsdelivr.net/gh/ophim102/cm114@main/public/thumbs/69c8d90cf65d22d617b95e4d.webp","year":1972,"episode_current":"Trailer","_t":"rage rage rage"}];
