@@ -41,6 +41,16 @@ jobs:
           cache: 'npm'
       - run: npm install
 
+      - name: Flags from IMAGES_REPO secret
+        run: |
+          if [ -n "${{ secrets.IMAGES_REPO }}" ]; then
+            echo "HAS_IMAGES_REPO=true" >> $GITHUB_ENV
+            echo "GIT_ADD_PUBLIC_IMAGES=" >> $GITHUB_ENV
+          else
+            echo "HAS_IMAGES_REPO=false" >> $GITHUB_ENV
+            echo "GIT_ADD_PUBLIC_IMAGES=public/thumbs public/posters" >> $GITHUB_ENV
+          fi
+
       - name: Load OPhim env from Supabase (auto settings)
         run: node scripts/load-ophim-env-from-supabase.js
         env:
@@ -165,7 +175,7 @@ jobs:
           REPO_IMAGE_REUPLOAD_EXISTING: ${{ inputs.reupload_existing }}
 
       - name: Push movie images to assets GitHub repo
-        if: ${{ env.UPLOAD_IMAGES == 'true' && secrets.IMAGES_REPO != '' }}
+        if: ${{ env.UPLOAD_IMAGES == 'true' && env.HAS_IMAGES_REPO == 'true' }}
         run: node scripts/push-images-to-assets-repo.js
         env:
           IMAGES_REPO: ${{ secrets.IMAGES_REPO }}
@@ -173,8 +183,6 @@ jobs:
           IMAGES_BRANCH: ${{ secrets.IMAGES_BRANCH }}
 
       - name: Commit and push
-        env:
-          GIT_ADD_PUBLIC_IMAGES: ${{ secrets.IMAGES_REPO != '' && '' || 'public/thumbs public/posters' }}
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"

@@ -58,6 +58,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # secrets không hợp lệ trong step if: — chuyển thành env qua bước run
+      - name: Flags from IMAGES_REPO secret
+        run: |
+          if [ -n "${{ secrets.IMAGES_REPO }}" ]; then
+            echo "HAS_IMAGES_REPO=true" >> $GITHUB_ENV
+            echo "GIT_ADD_PUBLIC_ROOT=" >> $GITHUB_ENV
+          else
+            echo "HAS_IMAGES_REPO=false" >> $GITHUB_ENV
+            echo "GIT_ADD_PUBLIC_ROOT=public" >> $GITHUB_ENV
+          fi
+
       - name: Download + write public/<folder>
         run: |
           node scripts/upload-images-from-urls.js \
@@ -75,7 +86,7 @@ jobs:
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Push movie images to assets GitHub repo
-        if: ${{ secrets.IMAGES_REPO != '' }}
+        if: env.HAS_IMAGES_REPO == 'true'
         run: node scripts/push-images-to-assets-repo.js
         env:
           IMAGES_REPO: ${{ secrets.IMAGES_REPO }}
@@ -83,8 +94,6 @@ jobs:
           IMAGES_BRANCH: ${{ secrets.IMAGES_BRANCH }}
 
       - name: Commit images
-        env:
-          GIT_ADD_PUBLIC_ROOT: ${{ secrets.IMAGES_REPO != '' && '' || 'public' }}
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
