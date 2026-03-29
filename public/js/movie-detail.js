@@ -32,6 +32,26 @@
     }
   }
 
+  /** Giới hạn số request song song tới id-index (tránh tải quá nhiều shard cùng lúc). */
+  function mapIdsWithPool(ids, concurrency, fn) {
+    concurrency = Math.max(1, concurrency || 8);
+    var list = ids.slice();
+    var out = [];
+    var i = 0;
+    function worker() {
+      if (i >= list.length) return Promise.resolve();
+      var id = list[i++];
+      return Promise.resolve(fn(id)).then(function (v) {
+        out.push(v);
+        return worker();
+      });
+    }
+    var starters = [];
+    var n = Math.min(concurrency, list.length);
+    for (var k = 0; k < n; k++) starters.push(worker());
+    return Promise.all(starters).then(function () { return out; });
+  }
+
   function getSimilar(movie, limit) {
     limit = limit || 16;
     var fd = window.filtersData || {};
@@ -45,7 +65,8 @@
       (arr || []).forEach(function (id) { if (id != null) idSet.add(String(id)); });
     });
     if (movie && movie.id != null) idSet.delete(String(movie.id));
-    var ids = Array.from(idSet).slice(0, Math.max(limit * 4, limit));
+    var cap = Math.min(Math.max(limit * 2, limit), 36);
+    var ids = Array.from(idSet).slice(0, cap);
 
     function getLightById(id) {
       if (window.DAOP && typeof window.DAOP.getMovieLightByIdAsync === 'function') {
@@ -54,7 +75,7 @@
       return Promise.resolve(null);
     }
 
-    return Promise.all(ids.map(function (id) { return getLightById(id); }))
+    return mapIdsWithPool(ids, 8, getLightById)
       .then(function (arr) {
         var list = (arr || []).filter(Boolean);
         list.sort(function (a, b) {
@@ -184,6 +205,27 @@
     if (!m) return null;
     var raw = decodeURIComponent(m[1]);
     return raw.replace(/\.html$/i, '') || null;
+  }
+
+  function formatCastInner(movie, namesMap) {
+    var actorNames = (movie.cast || []).slice(0, 10);
+    if (!actorNames.length) return '';
+    var base0 = (window.DAOP && window.DAOP.basePath) || '';
+    var nameToSlug = null;
+    if (namesMap && typeof namesMap === 'object') {
+      nameToSlug = {};
+      for (var ks in namesMap) {
+        if (Object.prototype.hasOwnProperty.call(namesMap, ks)) {
+          var nm = namesMap[ks];
+          if (nm) nameToSlug[nm] = ks;
+        }
+      }
+    }
+    return actorNames.map(function (name) {
+      var safe = (name || '').replace(/</g, '&lt;');
+      var slug = nameToSlug ? nameToSlug[name] : null;
+      return slug ? '<a href="' + base0 + '/dien-vien/' + slug + '.html">' + safe + '</a>' : safe;
+    }).join(', ');
   }
 
   function scrollToId(id) {
@@ -435,6 +477,7 @@
     var preloadMeta = (window.DAOP && typeof window.DAOP.preloadIndexMeta === 'function')
       ? window.DAOP.preloadIndexMeta()
       : Promise.resolve();
+    var actorsEarly = loadActorsIndexForCastLinks();
     Promise.all([getLight(slug), preloadMeta]).then(function (arr) {
       var light = arr[0];
       if (!light) {
@@ -445,7 +488,7 @@
         document.getElementById('movie-detail') && (document.getElementById('movie-detail').innerHTML = msg);
         return;
       }
-      document.title = (light.title || slug) + ' | ' + (window.DAOP?.siteName || 'DAOP Phim');
+      document.title = (light.title || slug) + ' | ' + ((window.DAOP && window.DAOP.siteName) || 'DAOP Phim');
       var metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) metaDesc.setAttribute('content', (light.description || light.title || '').slice(0, 160));
 
@@ -454,9 +497,7 @@
           renderFromLight(light);
           return;
         }
-        loadActorsIndexForCastLinks().then(function () {
-          renderFull(movie);
-        });
+        renderFull(movie, actorsEarly);
       });
     });
   }
@@ -522,7 +563,7 @@
     }
   }
 
-  function renderFull(movie) {
+  function renderFull(movie, actorsPromise) {
     var base = (window.DAOP && window.DAOP.basePath) || '';
     var defaultPoster = base + '/images/default_poster.png';
     var defaultThumb = base + '/images/default_thumb.png';
@@ -540,15 +581,8 @@
     var genreStr = buildMetaLinks(movie.genre || [], base, '/the-loai/');
     var countryStr = buildMetaLinks(movie.country || [], base, '/quoc-gia/');
     var desc = (movie.description || movie.content || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
-    var actorNames = (movie.cast || []).slice(0, 10);
-    var namesMap = (window.actorsData && window.actorsData.names) || (window.actorsIndex && window.actorsIndex.names) || {};
-    var castStr = actorNames.map(function (name) {
-      var slug = null;
-      for (var s in namesMap) if (namesMap[s] === name) { slug = s; break; }
-      var safe = (name || '').replace(/</g, '&lt;');
-      var base0 = (window.DAOP && window.DAOP.basePath) || '';
-      return slug ? '<a href="' + base0 + '/dien-vien/' + slug + '.html">' + safe + '</a>' : safe;
-    }).join(', ');
+    var namesMap = (window.actorsData && window.actorsData.names) || (window.actorsIndex && window.actorsIndex.names) || null;
+    var castStr = formatCastInner(movie, namesMap);
     var directorStr = (movie.director || []).join(', ');
     var showtimesRaw = (movie && movie.showtimes != null) ? String(movie.showtimes).trim() : '';
     var showtimes = showtimesRaw ? '<p class="meta-line meta-line--showtimes">Lịch chiếu: ' + showtimesRaw.replace(/</g, '&lt;') + '</p>' : '';
@@ -577,7 +611,7 @@
       (genreStr ? '<div class="md-info-line"><span class="md-info-key">Thể loại</span><span class="md-info-val">' + genreStr + '</span></div>' : '') +
       (countryStr ? '<div class="md-info-line"><span class="md-info-key">Quốc gia</span><span class="md-info-val">' + countryStr + '</span></div>' : '') +
       (directorStr ? '<div class="md-info-line"><span class="md-info-key">Đạo diễn</span><span class="md-info-val">' + esc(directorStr) + '</span></div>' : '') +
-      (castStr ? '<div class="md-info-line"><span class="md-info-key">Diễn viên</span><span class="md-info-val">' + castStr + '</span></div>' : '') +
+      (castStr ? '<div class="md-info-line"><span class="md-info-key">Diễn viên</span><span class="md-info-val" id="md-info-cast">' + castStr + '</span></div>' : '') +
       (yearVal ? '<div class="md-info-line"><span class="md-info-key">Năm</span><span class="md-info-val"><a href="' + esc(yearHref) + '">' + esc(yearVal) + '</a></span></div>' : '') +
       (movie.quality ? '<div class="md-info-line"><span class="md-info-key">Chất lượng</span><span class="md-info-val">' + esc(movie.quality) + '</span></div>' : '') +
       (movie.episode_current ? '<div class="md-info-line"><span class="md-info-key">Tập</span><span class="md-info-val">' + esc(movie.episode_current) + '</span></div>' : '') +
@@ -671,6 +705,15 @@
 
     if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
       window.DAOP.renderAdsInDocument(el || document);
+    }
+
+    if (actorsPromise && typeof actorsPromise.then === 'function' && !namesMap) {
+      actorsPromise.then(function () {
+        var nm = (window.actorsData && window.actorsData.names) || (window.actorsIndex && window.actorsIndex.names) || null;
+        if (!nm) return;
+        var castEl = document.getElementById('md-info-cast');
+        if (castEl) castEl.innerHTML = formatCastInner(movie, nm);
+      }).catch(function () {});
     }
   }
 
