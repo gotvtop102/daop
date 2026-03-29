@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Form, Input, InputNumber, Button, message, Select } from 'antd';
+import { Alert, Card, Form, Input, InputNumber, Button, message, Select } from 'antd';
 import { supabase } from '../lib/supabase';
 
 const METHOD_PRESETS: Array<{ value: string; label: string }> = [
@@ -44,6 +44,10 @@ export default function DonateSettings() {
     (async () => {
       try {
         const r = await supabase.from('donate_settings').select('*').limit(1).maybeSingle();
+        if (r.error) {
+          message.error(r.error.message || 'Không đọc được donate_settings');
+          return;
+        }
         if (r.data) {
           const base: any = { ...r.data };
           const methods = normalizeMethods(base.methods);
@@ -93,7 +97,18 @@ export default function DonateSettings() {
       }
       message.success('Đã lưu Donate');
     } catch (e: any) {
-      message.error(e?.message || 'Lưu thất bại');
+      const msg = String(e?.message || e || '');
+      if (
+        msg.includes('methods') &&
+        (msg.includes('does not exist') || msg.includes('schema cache'))
+      ) {
+        message.error(
+          'Database chưa có cột methods (jsonb). Trên Supabase Admin → SQL Editor, chạy file migrate-donate-settings-add-methods.sql trong repo (docs/supabase/), sau đó Reload schema nếu cần.',
+          8
+        );
+      } else {
+        message.error(msg || 'Lưu thất bại');
+      }
     }
   };
 
@@ -103,6 +118,12 @@ export default function DonateSettings() {
       <p style={{ color: '#666', marginBottom: 16 }}>
         Sau khi lưu, cần chạy Build website để áp dụng lên trang donate.
       </p>
+      <Alert
+        type="info"
+        showIcon
+        style={{ marginBottom: 16 }}
+        message="Project Supabase Admin cần bảng donate_settings đủ cột (trong repo: docs/supabase/schema-admin.sql). Nếu bảng tạo từ bản cũ thiếu cột methods, chạy docs/supabase/migrate-donate-settings-add-methods.sql — khi đó mới lưu được danh sách phương thức từ form này."
+      />
       <Card loading={loading}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item name="id" hidden><Input type="hidden" /></Form.Item>

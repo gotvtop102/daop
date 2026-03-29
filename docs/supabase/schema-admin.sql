@@ -80,6 +80,7 @@ create table if not exists public.static_pages (
 );
 
 -- Bảng donate
+-- Nếu bảng đã tạo từ schema cũ (thiếu cột methods): chạy migrate-donate-settings-add-methods.sql
 create table if not exists public.donate_settings (
   id uuid primary key default gen_random_uuid(),
   target_amount numeric default 0,

@@ -835,9 +835,26 @@ insert into public.site_settings (key, value)
 values ('movies_data_source', 'supabase')
 on conflict (key) do nothing;`;
 
+    const migrateDonateMethodsSql = `-- Bổ sung cột methods cho donate_settings (DB tạo từ schema cũ, thiếu cột)
+-- Chạy trong SQL Editor — project Supabase Admin. Repo: docs/supabase/migrate-donate-settings-add-methods.sql
+-- Sau khi chạy: Settings → API → Reload schema nếu PostgREST cache schema cũ.
+
+alter table public.donate_settings
+  add column if not exists methods jsonb;
+
+comment on column public.donate_settings.methods is
+  'Danh sách phương thức donate (PayPal, crypto, …) — đồng bộ donate.json và trang Quản lý Donate.';
+
+`;
+
     return [
       // Admin
       { key: 'schema-admin', title: '[Admin] Tạo bảng + RLS', sql: schemaAdminSql },
+      {
+        key: 'migrate-donate-methods',
+        title: '[Admin] donate_settings — thêm cột methods (migration DB cũ)',
+        sql: migrateDonateMethodsSql,
+      },
       { key: 'schema-movies', title: '[Admin] Bảng movies + movie_episodes', sql: moviesSchemaSql },
       { key: 'fix-rls', title: '[Admin] Fix RLS', sql: fixRlsSql },
       { key: 'audit', title: '[Admin] Triggers Audit Logs', sql: auditTriggersSql },
@@ -1014,7 +1031,18 @@ on conflict (key) do nothing;`;
         }
         message.success('Import thành công');
       } catch (e: any) {
-        message.error(e?.message || 'Import thất bại');
+        const msg = String(e?.message || e || '');
+        if (
+          msg.includes('methods') &&
+          (msg.includes('does not exist') || msg.includes('schema cache'))
+        ) {
+          message.error(
+            'Import thất bại: DB thiếu cột methods trên donate_settings. Tab SQL Toolkit → migration «donate_settings — thêm cột methods», chạy trên Supabase Admin rồi import lại.',
+            10
+          );
+        } else {
+          message.error(msg || 'Import thất bại');
+        }
       } finally {
         setImporting(false);
       }
@@ -1307,6 +1335,20 @@ on conflict (key) do nothing;`;
             label: 'SQL Toolkit',
             children: (
               <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Alert
+                  type="info"
+                  showIcon
+                  message="Bảng donate_settings thiếu cột methods?"
+                  description={
+                    <span>
+                      Nếu lưu trang <strong>Quản lý Donate</strong> hoặc import JSON có <Typography.Text code>methods</Typography.Text>{' '}
+                      mà lỗi cột không tồn tại: mở mục{' '}
+                      <strong>[Admin] donate_settings — thêm cột methods (migration DB cũ)</strong> bên dưới → Copy SQL → chạy trên
+                      Supabase Admin → SQL Editor. Đồng bộ với file{' '}
+                      <Typography.Text code>docs/supabase/migrate-donate-settings-add-methods.sql</Typography.Text> trong repo.
+                    </span>
+                  }
+                />
                 <Card bordered={false} style={{ borderRadius: 12 }}>
                   <Typography.Text type="secondary">
                     Chạy các lệnh dưới đây trong Supabase SQL Editor (đúng project: Admin/User). Nhấn Copy để dán và chạy.

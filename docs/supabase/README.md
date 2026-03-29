@@ -77,6 +77,7 @@ where email = 'email-admin-cua-ban@example.com';
 | **`seed-static-pages.sql`** | **Tùy chọn** — chèn nội dung mẫu cho `static_pages` (liên hệ, điều khoản, …). |
 | **`audit-logs-triggers.sql`** | **Tùy chọn** — trigger ghi `audit_logs` khi thay đổi bảng cấu hình. |
 | **`migrate-static-pages-apk-tv-link.sql`** | **Tùy chọn** — thêm cột `apk_tv_link` nếu schema cũ thiếu. |
+| **`migrate-donate-settings-add-methods.sql`** | **Khi** bảng `donate_settings` đã có từ trước nhưng **thiếu cột `methods`** (jsonb) — tránh lỗi export build / đồng bộ Admin; script `build.js` vẫn fallback select không `methods` + ghi `methods` mặc định vào `donate.json` nếu chưa migration. |
 
 Chạy **`schema-admin.sql` trước**; các file migrate/seed/fix sau tùy nhu cầu.
 

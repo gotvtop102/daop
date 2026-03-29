@@ -15,7 +15,7 @@ Các file trong thư mục này là **mẫu định dạng** cho output của `s
 | `player-settings.json` | Cài đặt player: available_players, default_player, warning_* |
 | `preroll.json` | Pre-roll ads: video_url, duration, skip_after, weight |
 | `static-pages.json` | Trang tĩnh: about, app_guide, apk_link, apk_tv_link, testflight_link |
-| `donate.json` | Cài đặt donate: target_amount, paypal_link, bank_info |
+| `donate.json` | Mục tiêu / tiến độ donate (`target_amount`, `current_amount`, `target_currency`), `paypal_link`, `bank_info`, `crypto_addresses`, **`methods`** (mảng phương thức: `type`, `custom_label`, `url`, `note`). Xem [`donate.example.json`](donate.example.json). Build gộp `methods` mặc định nếu Supabase chưa có cột `methods` — nên chạy [`../supabase/migrate-donate-settings-add-methods.sql`](../supabase/migrate-donate-settings-add-methods.sql) trên DB Admin. |
 
 ## Cách dùng
 

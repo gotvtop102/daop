@@ -1,0 +1,18 @@
+{
+  "target_amount": 0,
+  "target_currency": "VND",
+  "current_amount": 0,
+  "paypal_link": "",
+  "bank_info": [],
+  "crypto_addresses": [],
+  "methods": [
+    { "type": "paypal", "custom_label": "", "url": "", "note": "" },
+    { "type": "btc", "custom_label": "", "url": "", "note": "" },
+    { "type": "eth", "custom_label": "", "url": "", "note": "" },
+    { "type": "ltc", "custom_label": "", "url": "", "note": "" },
+    { "type": "usdt_trc20", "custom_label": "", "url": "", "note": "" },
+    { "type": "usdt_erc20", "custom_label": "", "url": "", "note": "" },
+    { "type": "bnb_bep20", "custom_label": "", "url": "", "note": "" },
+    { "type": "sol", "custom_label": "", "url": "", "note": "" }
+  ]
+}

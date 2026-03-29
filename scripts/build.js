@@ -3270,19 +3270,37 @@ async function exportConfigFromSupabase() {
   const selSections =
     'id,title,display_type,source_type,source_value,filter_config,manual_movies,limit_count,more_link,sort_order,is_active';
   const selStatic = 'page_key,content,apk_link,apk_tv_link,testflight_link';
-  const selDonate =
+  const selDonateWithMethods =
     'target_amount,target_currency,current_amount,paypal_link,methods,bank_info,crypto_addresses';
+  const selDonateLegacy =
+    'target_amount,target_currency,current_amount,paypal_link,bank_info,crypto_addresses';
   const selPreroll = 'id,name,video_url,image_url,duration,skip_after,weight,roll,is_active';
 
-  const [bannersRes, sections, settings, staticPages, donate, playerSettingsRes, prerollRes] = await Promise.all([
+  /** DB thiếu cột methods: docs/supabase/migrate-donate-settings-add-methods.sql */
+  async function fetchDonateSettingsRow() {
+    let r = await supabase.from('donate_settings').select(selDonateWithMethods).limit(1).maybeSingle();
+    if (r.error) {
+      const msg = String(r.error.message || r.error || '');
+      if (msg.includes('methods') && (msg.includes('does not exist') || msg.includes('schema cache'))) {
+        console.warn(
+          'Supabase donate_settings: cột methods chưa có — export không gồm methods (chạy migration hoặc thêm cột jsonb methods).'
+        );
+        r = await supabase.from('donate_settings').select(selDonateLegacy).limit(1).maybeSingle();
+      }
+    }
+    return r;
+  }
+
+  const [bannersRes, sections, settings, staticPages, playerSettingsRes, prerollRes] = await Promise.all([
     supabase.from('ad_banners').select(selBanners).eq('is_active', true),
     supabase.from('homepage_sections').select(selSections).eq('is_active', true).order('sort_order'),
     supabase.from('site_settings').select('key,value'),
     supabase.from('static_pages').select(selStatic),
-    supabase.from('donate_settings').select(selDonate).limit(1).maybeSingle(),
     supabase.from('player_settings').select('key,value'),
     supabase.from('ad_preroll').select(selPreroll).eq('is_active', true).order('weight', { ascending: false }),
   ]);
+
+  const donate = await fetchDonateSettingsRow();
 
   const errors = [
     [bannersRes, 'ad_banners'],
@@ -3563,7 +3581,23 @@ async function exportConfigFromSupabase() {
   }
   
   fs.writeFileSync(path.join(configDir, 'static-pages.json'), JSON.stringify(mergedStaticPages, null, 2));
-  fs.writeFileSync(path.join(configDir, 'donate.json'), JSON.stringify(donate.data || {}, null, 2));
+  const defaultDonateMethods = [
+    { type: 'paypal', custom_label: '', url: '', note: '' },
+    { type: 'btc', custom_label: '', url: '', note: '' },
+    { type: 'eth', custom_label: '', url: '', note: '' },
+    { type: 'ltc', custom_label: '', url: '', note: '' },
+    { type: 'usdt_trc20', custom_label: '', url: '', note: '' },
+    { type: 'usdt_erc20', custom_label: '', url: '', note: '' },
+    { type: 'bnb_bep20', custom_label: '', url: '', note: '' },
+    { type: 'sol', custom_label: '', url: '', note: '' },
+  ];
+  const donateRaw = donate.data && typeof donate.data === 'object' ? donate.data : {};
+  const donateOut = {
+    ...donateRaw,
+    methods:
+      Array.isArray(donateRaw.methods) && donateRaw.methods.length > 0 ? donateRaw.methods : defaultDonateMethods,
+  };
+  fs.writeFileSync(path.join(configDir, 'donate.json'), JSON.stringify(donateOut, null, 2));
   
   // Player settings: merge từ player_settings table
   const playerSettingsData = playerSettingsRes.data || [];
