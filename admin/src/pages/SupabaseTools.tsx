@@ -847,21 +847,52 @@ comment on column public.donate_settings.methods is
 
 `;
 
+    const adminInstallSql = [
+      '-- =============================================================================',
+      '-- [Admin] Khởi tạo đầy đủ — chạy một lần trên project Supabase Admin (theo thứ tự các phần)',
+      '-- =============================================================================',
+      '',
+      '-- ----- Phần A: Bảng cấu hình site, quảng cáo, donate, RLS, VIP access, ... -----',
+      schemaAdminSql,
+      '',
+      '-- ----- Phần B: Bảng movies + movie_episodes (phụ thuộc is_admin trong Phần A) -----',
+      moviesSchemaSql,
+      '',
+      '-- ----- Phần C: Triggers ghi audit_logs -----',
+      auditTriggersSql,
+      '',
+      '-- ----- Phần D: Seed trang tĩnh mẫu (tùy chọn) -----',
+      seedStaticPagesSql,
+    ].join('\n');
+
+    const adminMaintenanceSql = [
+      '-- =============================================================================',
+      '-- [Admin] Bảo trì — chỉ chạy khi cần (DB cũ hoặc lỗi quyền)',
+      '-- =============================================================================',
+      '',
+      '-- ----- Migration: DB cũ thiếu cột methods trên donate_settings -----',
+      migrateDonateMethodsSql.trim(),
+      '',
+      '-- ----- Sửa RLS: đăng nhập Admin được nhưng không đọc/ghi bảng -----',
+      fixRlsSql.trim(),
+    ].join('\n');
+
+    const userInstallSql = [
+      '-- =============================================================================',
+      '-- [User] Khởi tạo project Supabase User — bảng người dùng + gán admin',
+      '-- =============================================================================',
+      '',
+      '-- ----- Phần A: profiles, favorites, watch_history, user_changes + RLS -----',
+      schemaUserSql,
+      '',
+      '-- ----- Phần B: Gán role admin (đổi email, tạo user trong Auth trước) -----',
+      setAdminRoleSql.trim(),
+    ].join('\n');
+
     return [
-      // Admin
-      { key: 'schema-admin', title: '[Admin] Tạo bảng + RLS', sql: schemaAdminSql },
-      {
-        key: 'migrate-donate-methods',
-        title: '[Admin] donate_settings — thêm cột methods (migration DB cũ)',
-        sql: migrateDonateMethodsSql,
-      },
-      { key: 'schema-movies', title: '[Admin] Bảng movies + movie_episodes', sql: moviesSchemaSql },
-      { key: 'fix-rls', title: '[Admin] Fix RLS', sql: fixRlsSql },
-      { key: 'audit', title: '[Admin] Triggers Audit Logs', sql: auditTriggersSql },
-      { key: 'seed-static', title: '[Admin] Seed Static Pages', sql: seedStaticPagesSql },
-      { key: 'set-admin', title: '[Admin] Set user role = admin', sql: setAdminRoleSql },
-      // User
-      { key: 'schema-user', title: '[User] Tạo bảng + RLS', sql: schemaUserSql },
+      { key: 'admin-install', title: '[Admin] Khởi tạo database (bảng, RLS, phim/tập, audit, seed)', sql: adminInstallSql },
+      { key: 'admin-maint', title: '[Admin] Migration & sửa RLS (DB cũ / lỗi quyền)', sql: adminMaintenanceSql },
+      { key: 'user-install', title: '[User] Tạo bảng, RLS và gán role admin', sql: userInstallSql },
     ];
   }, []);
 
@@ -1037,7 +1068,7 @@ comment on column public.donate_settings.methods is
           (msg.includes('does not exist') || msg.includes('schema cache'))
         ) {
           message.error(
-            'Import thất bại: DB thiếu cột methods trên donate_settings. Tab SQL Toolkit → migration «donate_settings — thêm cột methods», chạy trên Supabase Admin rồi import lại.',
+            'Import thất bại: DB thiếu cột methods trên donate_settings. Tab SQL Toolkit → «[Admin] Migration & sửa RLS», copy phần migration donate_settings rồi chạy trên Supabase Admin, sau đó import lại.',
             10
           );
         } else {
@@ -1334,43 +1365,58 @@ comment on column public.donate_settings.methods is
             key: 'sql',
             label: 'SQL Toolkit',
             children: (
-              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+              <Space direction="vertical" size={8} style={{ width: '100%' }}>
                 <Alert
                   type="info"
                   showIcon
-                  message="Bảng donate_settings thiếu cột methods?"
-                  description={
+                  style={{ padding: '8px 12px' }}
+                  message={
                     <span>
-                      Nếu lưu trang <strong>Quản lý Donate</strong> hoặc import JSON có <Typography.Text code>methods</Typography.Text>{' '}
-                      mà lỗi cột không tồn tại: mở mục{' '}
-                      <strong>[Admin] donate_settings — thêm cột methods (migration DB cũ)</strong> bên dưới → Copy SQL → chạy trên
-                      Supabase Admin → SQL Editor. Đồng bộ với file{' '}
-                      <Typography.Text code>docs/supabase/migrate-donate-settings-add-methods.sql</Typography.Text> trong repo.
+                      Lỗi cột <Typography.Text code>methods</Typography.Text> trên <Typography.Text code>donate_settings</Typography.Text>? Mở mục{' '}
+                      <Typography.Text strong>[Admin] Migration &amp; sửa RLS</Typography.Text> → Copy (góc phải) → chạy phần migration trên SQL Editor. File tương ứng trong repo:{' '}
+                      <Typography.Text code>docs/supabase/migrate-donate-settings-add-methods.sql</Typography.Text>
                     </span>
                   }
                 />
-                <Card bordered={false} style={{ borderRadius: 12 }}>
-                  <Typography.Text type="secondary">
-                    Chạy các lệnh dưới đây trong Supabase SQL Editor (đúng project: Admin/User). Nhấn Copy để dán và chạy.
-                  </Typography.Text>
-                  <Divider style={{ margin: '12px 0' }} />
-                  <Collapse
-                    items={sqlBlocks.map((b: { key: string; title: string; sql: string }) => ({
-                      key: b.key,
-                      label: b.title,
-                      children: (
-                        <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                          <Space wrap>
-                            <Button icon={<CopyOutlined />} onClick={() => copyToClipboard(b.sql)}>
-                              Copy SQL
-                            </Button>
-                          </Space>
-                          <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{b.sql}</pre>
-                        </Space>
-                      ),
-                    }))}
-                  />
-                </Card>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  Chạy trong Supabase SQL Editor (đúng project Admin/User). Mở từng mục để xem SQL; Copy nằm trên dòng tiêu đề.
+                </Typography.Text>
+                <Collapse
+                  size="small"
+                  ghost
+                  defaultActiveKey={[]}
+                  items={sqlBlocks.map((b: { key: string; title: string; sql: string }) => ({
+                    key: b.key,
+                    label: <span style={{ fontSize: 13 }}>{b.title}</span>,
+                    extra: (
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<CopyOutlined />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(b.sql);
+                        }}
+                      >
+                        Copy
+                      </Button>
+                    ),
+                    children: (
+                      <pre
+                        style={{
+                          margin: 0,
+                          whiteSpace: 'pre-wrap',
+                          maxHeight: 'min(50vh, 480px)',
+                          overflow: 'auto',
+                          fontSize: 12,
+                          lineHeight: 1.45,
+                        }}
+                      >
+                        {b.sql}
+                      </pre>
+                    ),
+                  }))}
+                />
               </Space>
             ),
           },
