@@ -320,49 +320,277 @@
     return null;
   }
 
+  /** Nội dung HTML một banner (ảnh+link hoặc mã nhúng) — dùng chung cho slot và popup. */
+  function buildBannerHtml(b) {
+    if (!b) return '';
+    if (b.html_code) return String(b.html_code);
+    var norm2 = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
+      ? window.DAOP.normalizeImgUrl
+      : function (x) { return x; };
+    var img = norm2(b.image_url || '').replace(/^\/\//, 'https://');
+    var link = b.link_url || '#';
+    return '<a class="ad-banner-link" href="' + escAttr(link) + '" rel="nofollow noopener" target="_blank">' +
+      '<img class="ad-banner-img" width="1200" height="400" src="' + escAttr(img) + '" alt="" decoding="async" loading="lazy">' +
+      '</a>';
+  }
+
+  function readAdSetting(key, defaultVal) {
+    try {
+      var s = window.DAOP && window.DAOP.siteSettings;
+      if (s && s[key] != null && String(s[key]).trim() !== '') return String(s[key]).trim();
+    } catch (e0) {}
+    return defaultVal;
+  }
+
+  function adSettingBool(key, defaultTrue) {
+    var v = readAdSetting(key, defaultTrue ? 'true' : 'false').toLowerCase();
+    if (v === '0' || v === 'false' || v === 'off' || v === 'no') return false;
+    if (v === '1' || v === 'true' || v === 'on' || v === 'yes') return true;
+    return defaultTrue;
+  }
+
+  /**
+   * Chèn vị trí quảng cáo toàn trang: dải dưới header, thanh neo dưới, góc nổi.
+   * Gán banner trong Admin (bảng ad_banners) với position tương ứng: header_strip, sticky_bottom, floating_corner.
+   */
+  window.DAOP.prepareDynamicAdSlots = function () {
+    var header = document.querySelector('.site-header');
+    if (header && !document.getElementById('daop-ad-header-strip')) {
+      var strip = document.createElement('div');
+      strip.id = 'daop-ad-header-strip';
+      strip.className = 'ad-slot ad-slot--header-strip';
+      strip.setAttribute('data-ad-position', 'header_strip');
+      header.parentNode.insertBefore(strip, header.nextSibling);
+    }
+    if (!document.getElementById('daop-ad-sticky-bottom')) {
+      var sticky = document.createElement('div');
+      sticky.id = 'daop-ad-sticky-bottom';
+      sticky.className = 'ad-slot ad-slot--sticky-bottom';
+      sticky.setAttribute('data-ad-position', 'sticky_bottom');
+      document.body.appendChild(sticky);
+    }
+    if (!document.getElementById('daop-ad-floating-corner')) {
+      var fl = document.createElement('div');
+      fl.id = 'daop-ad-floating-corner';
+      fl.className = 'ad-slot ad-slot--floating-corner';
+      fl.setAttribute('data-ad-position', 'floating_corner');
+      document.body.appendChild(fl);
+    }
+  };
+
+  function closePopupAd(overlay) {
+    if (!overlay || !overlay.parentNode) return;
+    overlay.parentNode.removeChild(overlay);
+    document.body.classList.remove('daop-ad-popup-open');
+    try {
+      var h = parseInt(readAdSetting('ad_popup_cooldown_hours', '12'), 10);
+      if (!h || h < 1) h = 12;
+      localStorage.setItem('daop_popup_ad_until', String(Date.now() + h * 3600000));
+    } catch (e1) {}
+  }
+
+  function tryShowPopupAd() {
+    if (window.DAOP._popupAdDone) return;
+    window.DAOP._popupAdDone = true;
+    if (!adSettingBool('ad_popup_enabled', true)) return;
+
+    var banners = window.DAOP.banners;
+    var b = pickBannerByPosition(banners, 'popup');
+    if (!b) return;
+
+    try {
+      var until = localStorage.getItem('daop_popup_ad_until');
+      if (until && Date.now() < parseInt(until, 10)) return;
+    } catch (e2) {}
+
+    var delayMs = parseInt(readAdSetting('ad_popup_delay_ms', '3000'), 10);
+    if (isNaN(delayMs) || delayMs < 0) delayMs = 3000;
+
+    setTimeout(function () {
+      if (document.getElementById('daop-ad-popup-overlay')) return;
+      var innerHtml = buildBannerHtml(b);
+      if (!innerHtml) return;
+
+      var overlay = document.createElement('div');
+      overlay.id = 'daop-ad-popup-overlay';
+      overlay.className = 'ad-popup-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', 'Quảng cáo');
+
+      var panel = document.createElement('div');
+      panel.className = 'ad-popup-panel';
+
+      var head = document.createElement('div');
+      head.className = 'ad-popup-head';
+      var lbl = document.createElement('span');
+      lbl.className = 'ad-popup-label';
+      lbl.textContent = 'Quảng cáo';
+      var closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'ad-popup-close';
+      closeBtn.setAttribute('aria-label', 'Đóng');
+      closeBtn.innerHTML = '&times;';
+      head.appendChild(lbl);
+      head.appendChild(closeBtn);
+
+      var body = document.createElement('div');
+      body.className = 'ad-popup-body ad-slot-inner';
+      body.innerHTML = innerHtml;
+
+      panel.appendChild(head);
+      panel.appendChild(body);
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+      document.body.classList.add('daop-ad-popup-open');
+
+      function onClose() {
+        closePopupAd(overlay);
+      }
+      closeBtn.addEventListener('click', onClose);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) onClose();
+      });
+      document.addEventListener('keydown', function esc(e) {
+        if (e.key === 'Escape') {
+          onClose();
+          document.removeEventListener('keydown', esc);
+        }
+      });
+    }, delayMs);
+  }
+
   window.DAOP.renderAdSlot = function (elOrSelector, position) {
     var el = typeof elOrSelector === 'string' ? document.querySelector(elOrSelector) : elOrSelector;
     if (!el) return Promise.resolve(false);
     el.classList.add('ad-slot');
     el.setAttribute('data-bp', getBpKey());
+    var pos = String(position || el.getAttribute('data-ad-position') || '').trim();
 
     return window.DAOP.loadBannersConfig().then(function (banners) {
-      var b = pickBannerByPosition(banners, position || el.getAttribute('data-ad-position'));
+      var b = pickBannerByPosition(banners, pos);
+      if (pos === 'sticky_bottom') {
+        try {
+          if (sessionStorage.getItem('daop_sticky_dismissed') === '1') {
+            el.innerHTML = '';
+            el.style.display = 'none';
+            document.body.classList.remove('daop-sticky-ad-open');
+            return false;
+          }
+        } catch (e3) {}
+      }
+      if (pos === 'floating_corner') {
+        try {
+          if (sessionStorage.getItem('daop_float_dismissed') === '1') {
+            el.innerHTML = '';
+            el.style.display = 'none';
+            return false;
+          }
+        } catch (e4) {}
+      }
+
       if (!b) {
         el.innerHTML = '';
         el.style.display = 'none';
+        if (pos === 'sticky_bottom') document.body.classList.remove('daop-sticky-ad-open');
         return false;
       }
       el.style.display = '';
 
-      var html = '';
-      if (b.html_code) {
-        html = String(b.html_code);
+      var html = buildBannerHtml(b);
+
+      if (pos === 'sticky_bottom') {
+        el.innerHTML =
+          '<div class="ad-floating-ui ad-sticky-ui">' +
+          '<span class="ad-disclosure">Quảng cáo</span>' +
+          '<button type="button" class="ad-dismiss" aria-label="Đóng quảng cáo">&times;</button>' +
+          '</div>' +
+          '<div class="ad-slot-inner">' + html + '</div>';
+        document.body.classList.add('daop-sticky-ad-open');
+        var dismiss = el.querySelector('.ad-dismiss');
+        if (dismiss) {
+          dismiss.addEventListener('click', function () {
+            el.style.display = 'none';
+            document.body.classList.remove('daop-sticky-ad-open');
+            try {
+              sessionStorage.setItem('daop_sticky_dismissed', '1');
+            } catch (e5) {}
+          });
+        }
+      } else if (pos === 'floating_corner') {
+        el.innerHTML =
+          '<div class="ad-floating-ui">' +
+          '<span class="ad-disclosure">QC</span>' +
+          '<button type="button" class="ad-dismiss" aria-label="Đóng">&times;</button>' +
+          '</div>' +
+          '<div class="ad-slot-inner">' + html + '</div>';
+        var dismissF = el.querySelector('.ad-dismiss');
+        if (dismissF) {
+          dismissF.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            el.style.display = 'none';
+            try {
+              sessionStorage.setItem('daop_float_dismissed', '1');
+            } catch (e6) {}
+          });
+        }
+      } else if (pos === 'header_strip') {
+        el.innerHTML =
+          '<div class="ad-strip-bar">' +
+          '<span class="ad-disclosure">Quảng cáo</span>' +
+          '<div class="ad-slot-inner">' + html + '</div></div>';
       } else {
-        var norm2 = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
-          ? window.DAOP.normalizeImgUrl
-          : function (x) { return x; };
-        var img = norm2(b.image_url || '').replace(/^\/\//, 'https://');
-        var link = b.link_url || '#';
-        html = '<a class="ad-banner-link" href="' + escAttr(link) + '" rel="nofollow noopener" target="_blank">' +
-          '<img class="ad-banner-img" width="1200" height="400" src="' + escAttr(img) + '" alt="" decoding="async" loading="lazy">' +
-        '</a>';
+        el.innerHTML = '<div class="ad-slot-inner">' + html + '</div>';
       }
 
-      el.innerHTML = '<div class="ad-slot-inner">' + html + '</div>';
       return true;
     });
   };
 
   window.DAOP.renderAdsInDocument = function (root) {
     var r = root || document;
+    if (r === document) {
+      if (typeof window.DAOP.prepareDynamicAdSlots === 'function') {
+        window.DAOP.prepareDynamicAdSlots();
+      }
+    }
     var nodes = Array.prototype.slice.call(r.querySelectorAll('[data-ad-position]'));
-    if (!nodes.length) return Promise.resolve(false);
+    nodes = nodes.filter(function (el) {
+      var p = el.getAttribute('data-ad-position') || '';
+      return p !== 'popup';
+    });
+    if (!nodes.length) {
+      return window.DAOP.loadBannersConfig().then(function () {
+        if (r !== document) return false;
+        if (window.DAOP.ensureSiteSettingsLoaded) {
+          return window.DAOP.ensureSiteSettingsLoaded().then(function () {
+            tryShowPopupAd();
+            return false;
+          });
+        }
+        tryShowPopupAd();
+        return false;
+      });
+    }
     return window.DAOP.loadBannersConfig().then(function () {
+      if (r === document && window.DAOP.ensureSiteSettingsLoaded) {
+        return window.DAOP.ensureSiteSettingsLoaded().then(function () {
+          return Promise.all(nodes.map(function (el) {
+            var pos = el.getAttribute('data-ad-position') || '';
+            return window.DAOP.renderAdSlot(el, pos);
+          })).then(function () {
+            if (r === document) tryShowPopupAd();
+            return true;
+          });
+        });
+      }
       return Promise.all(nodes.map(function (el) {
-        var pos = el.getAttribute('data-ad-position') || '';
-        return window.DAOP.renderAdSlot(el, pos);
-      })).then(function () { return true; });
+        var pos2 = el.getAttribute('data-ad-position') || '';
+        return window.DAOP.renderAdSlot(el, pos2);
+      })).then(function () {
+        if (r === document) tryShowPopupAd();
+        return true;
+      });
     });
   };
 

@@ -3525,6 +3525,11 @@ async function exportConfigFromSupabase() {
     actor_detail_grid_cols_lg: '6',
     actor_detail_grid_columns_extra: '8',
     actor_detail_use_poster: 'thumb',
+
+    /** Popup quảng cáo (position popup trong ad_banners). Tắt: ad_popup_enabled = false */
+    ad_popup_enabled: 'true',
+    ad_popup_delay_ms: '3000',
+    ad_popup_cooldown_hours: '12',
   };
   const mergedSettings = { ...defaultSettings, ...settingsObj };
   fs.writeFileSync(path.join(configDir, 'site-settings.json'), JSON.stringify(mergedSettings, null, 2));

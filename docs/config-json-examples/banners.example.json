@@ -21,5 +21,60 @@
     "start_date": null,
     "end_date": null,
     "is_active": true
+  },
+  {
+    "title": "Popup toàn site (interstitial)",
+    "image_url": "https://example.com/popup.jpg",
+    "link_url": "https://example.com/offer",
+    "html_code": null,
+    "position": "popup",
+    "priority": 20,
+    "start_date": null,
+    "end_date": null,
+    "is_active": true
+  },
+  {
+    "title": "Dải dưới menu",
+    "image_url": "https://example.com/strip.jpg",
+    "link_url": "https://example.com/",
+    "html_code": null,
+    "position": "header_strip",
+    "priority": 8,
+    "start_date": null,
+    "end_date": null,
+    "is_active": true
+  },
+  {
+    "title": "Thanh neo cuối trang",
+    "image_url": "https://example.com/anchor.jpg",
+    "link_url": "https://example.com/",
+    "html_code": null,
+    "position": "sticky_bottom",
+    "priority": 7,
+    "start_date": null,
+    "end_date": null,
+    "is_active": true
+  },
+  {
+    "title": "Góc phải (MPU nhỏ)",
+    "image_url": "https://example.com/corner.jpg",
+    "link_url": "https://example.com/",
+    "html_code": null,
+    "position": "floating_corner",
+    "priority": 6,
+    "start_date": null,
+    "end_date": null,
+    "is_active": true
+  },
+  {
+    "title": "Nhiều vị trí (phân tách bằng dấu phẩy)",
+    "image_url": "https://example.com/multi.jpg",
+    "link_url": "https://example.com/",
+    "html_code": null,
+    "position": "detail_top,detail_mid",
+    "priority": 4,
+    "start_date": null,
+    "end_date": null,
+    "is_active": true
   }
 ]
