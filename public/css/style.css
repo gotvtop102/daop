@@ -1585,10 +1585,10 @@ body.site-header--collapsed .site-header {
 /* Giảm CLS: khối section chưa hydrate — cô lập reflow; trang chủ dự phòng chiều cao */
 body.page-home #home-sections {
   contain: layout style;
-  min-height: min(28vh, 24rem);
+  min-height: min(60vh, 48rem);
 }
 body.page-home #home-sections:empty {
-  min-height: min(32vh, 28rem);
+  min-height: min(100vh, 72rem);
 }
 
 /* Giảm CLS: ô lưới/list khi chỉ có placeholder "Đang tải…" / một dòng */

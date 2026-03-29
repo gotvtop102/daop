@@ -1585,6 +1585,11 @@
         .replace(/^\/\//, 'https://')
         .trim();
       if (!u) return;
+
+      try {
+        ensurePreconnectOrigin(u);
+      } catch (ePc0) {}
+
       var link = document.createElement('link');
       link.id = 'daop-preload-lcp';
       link.rel = 'preload';
@@ -1628,8 +1633,6 @@
   window.DAOP.applySiteSettings = function (settings) {
     if (!settings) return;
     window.DAOP.siteSettings = Object.assign({}, window.DAOP.siteSettings || {}, settings);
-    if (settings.r2_img_domain) ensurePreconnectOrigin(settings.r2_img_domain);
-    if (settings.ophim_img_domain) ensurePreconnectOrigin(settings.ophim_img_domain);
     window.DAOP.siteName = settings.site_name || 'DAOP Phim';
     window.DAOP.supabaseUserUrl = settings.supabase_user_url || settings.supabaseUserUrl || window.DAOP.supabaseUserUrl || '';
     window.DAOP.supabaseUserAnonKey = settings.supabase_user_anon_key || settings.supabaseUserAnonKey || window.DAOP.supabaseUserAnonKey || '';
