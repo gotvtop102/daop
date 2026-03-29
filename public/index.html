@@ -7,6 +7,7 @@
   <meta name="description" content="Xem phim online miễn phí, cập nhật nhanh.">
   <link rel="preconnect" href="https://img.ophim.live" crossorigin>
   <link rel="dns-prefetch" href="//img.ophim.live">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
   <link rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
 </head>
@@ -70,12 +71,16 @@
       var base = '';
       window.DAOP = window.DAOP || {};
       window.DAOP.basePath = base;
-      fetch(base + '/data/config/site-settings.json').then(function(r){ return r.json(); }).then(function(s){
-        window.DAOP.siteName = s.site_name || 'GoTV';
-        window.DAOP.siteSettings = s;
-        window.DAOP.supabaseUserUrl = s.supabase_user_url || '';
-        window.DAOP.supabaseUserAnonKey = s.supabase_user_anon_key || '';
-      }).catch(function(){});
+      window.DAOP._siteSettingsLoadPromise = fetch(base + '/data/config/site-settings.json')
+        .then(function(r){ return r.json(); })
+        .then(function(s){
+          window.DAOP.siteName = s.site_name || 'GoTV';
+          window.DAOP.siteSettings = s;
+          window.DAOP.supabaseUserUrl = s.supabase_user_url || '';
+          window.DAOP.supabaseUserAnonKey = s.supabase_user_anon_key || '';
+          return s;
+        })
+        .catch(function(){ return null; });
     })();
   </script>
   <script src="/js/main.js" defer></script>
@@ -95,8 +100,19 @@
           ]);
         });
       }
-      (window.DAOP && window.DAOP.siteSettings ? Promise.resolve() : fetch(base + '/data/config/site-settings.json').then(function(r){ return r.json(); }).then(function(s){ window.DAOP = window.DAOP || {}; window.DAOP.siteSettings = s; }))
-        .then(loadSectionsAndBanners)
+      (function () {
+        var p = window.DAOP && window.DAOP._siteSettingsLoadPromise;
+        if (p) return p.then(function () { return loadSectionsAndBanners(); });
+        return fetch(base + '/data/config/site-settings.json')
+          .then(function (r) { return r.json(); })
+          .then(function (s) {
+            window.DAOP = window.DAOP || {};
+            window.DAOP.siteSettings = s;
+            window.DAOP.siteName = (s && s.site_name) || 'GoTV';
+            return loadSectionsAndBanners();
+          })
+          .catch(function () { return loadSectionsAndBanners(); });
+      })()
         .then(function(res){
         var pre = res[0];
         var sections = (res[1] && res[1].length) ? res[1] : [

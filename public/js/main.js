@@ -487,12 +487,20 @@
       });
     };
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function () {
+    function scheduleAuthNav() {
+      var run = function () {
         window.DAOP.updateAuthNav();
-      });
+      };
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(run, { timeout: 4000 });
+      } else {
+        setTimeout(run, 1500);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', scheduleAuthNav);
     } else {
-      window.DAOP.updateAuthNav();
+      scheduleAuthNav();
     }
   })();
 

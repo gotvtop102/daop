@@ -1582,6 +1582,18 @@ body.site-header--collapsed .site-header {
   border-radius: 12px;
 }
 
+/* Giảm CLS: ô lưới/list khi chỉ có placeholder "Đang tải…" / một dòng */
+@supports selector(:has(*)) {
+  .home-section .movies-grid:has(> p:only-child),
+  .home-section .movies-list:has(> p:only-child),
+  .home-section .movies-featured-row:has(> p:only-child) {
+    min-height: 10rem;
+  }
+  .home-section .section-slider-track:has(> p:only-child) {
+    min-height: 8rem;
+  }
+}
+
 .slider-wrap {
   position: relative;
   margin-bottom: 1.5rem;

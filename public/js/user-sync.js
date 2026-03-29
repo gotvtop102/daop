@@ -252,11 +252,21 @@
     },
   };
 
+  function scheduleDeferredSync() {
+    var run = function () {
+      try {
+        window.DAOP.userSync.sync();
+      } catch (e) {}
+    };
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(run, { timeout: 5000 });
+    } else {
+      setTimeout(run, 2000);
+    }
+  }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      window.DAOP.userSync.sync();
-    });
+    document.addEventListener('DOMContentLoaded', scheduleDeferredSync);
   } else {
-    window.DAOP.userSync.sync();
+    scheduleDeferredSync();
   }
 })();
