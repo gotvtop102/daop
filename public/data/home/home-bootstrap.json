@@ -1,6 +1,6 @@
 {
   "buildVersion": {
-    "builtAt": "2026-03-29T19:17:59.965Z"
+    "builtAt": "2026-03-29T19:34:59.230Z"
   },
   "siteSettings": {
     "site_name": "GoTV",
@@ -141,7 +141,7 @@
     "upload_r2_concurrency": "6",
     "upload_r2_reupload_existing": "0",
     "movies_data_source": "supabase",
-    "ophim_start_page": "1400",
+    "ophim_start_page": "1390",
     "ophim_end_page": "1390",
     "ophim_auto_start_page": "1",
     "ophim_auto_end_page": "1",
@@ -1685,35 +1685,30 @@
           "slug": "satyajit-ray",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6245d495c78eb57bbfe33cbb.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/6245d495c78eb57bbfe33cbb.webp",
-          "year": 2021,
+          "year": "2021",
           "type": "series",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
-              "slug": "hanh-dong"
+              "slug": "hanh-djong"
             },
             {
-              "id": "620a2238e0fc277084dfd291",
               "name": "Tâm Lý",
               "slug": "tam-ly"
             },
             {
-              "id": "620f3d2b91fa4af90ab697fe",
               "name": "Chính kịch",
               "slug": "chinh-kich"
             },
             {
-              "id": "620f84d291fa4af90ab6b3f4",
               "name": "Bí ẩn",
               "slug": "bi-an"
             }
           ],
           "country": [
             {
-              "id": "620a2355e0fc277084dfd8ca",
               "name": "Ấn Độ",
-              "slug": "an-do"
+              "slug": "an-djo"
             }
           ],
           "lang_key": "Vietsub",
@@ -5660,23 +5655,20 @@
           "slug": "thuy-quai-2-rung-go-mun",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6246b1abc78eb57bbfe360f7.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/6246b1abc78eb57bbfe360f7.webp",
-          "year": 2021,
+          "year": "2021",
           "type": "single",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
-              "slug": "hanh-dong"
+              "slug": "hanh-djong"
             },
             {
-              "id": "620a22ace0fc277084dfd531",
               "name": "Kinh Dị",
               "slug": "kinh-di"
             }
           ],
           "country": [
             {
-              "id": "62093063196e9f4ab6b448b8",
               "name": "Trung Quốc",
               "slug": "trung-quoc"
             }
@@ -7258,23 +7250,20 @@
           "slug": "thuy-quai-2-rung-go-mun",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6246b1abc78eb57bbfe360f7.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/6246b1abc78eb57bbfe360f7.webp",
-          "year": 2021,
+          "year": "2021",
           "type": "single",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
-              "slug": "hanh-dong"
+              "slug": "hanh-djong"
             },
             {
-              "id": "620a22ace0fc277084dfd531",
               "name": "Kinh Dị",
               "slug": "kinh-di"
             }
           ],
           "country": [
             {
-              "id": "62093063196e9f4ab6b448b8",
               "name": "Trung Quốc",
               "slug": "trung-quoc"
             }
@@ -9584,9 +9573,6 @@
       "featured_count_sm": 0,
       "featured_count_xs": 0,
       "ids": [
-        "6245d495c78eb57bbfe33cbb",
-        "62468919c78eb57bbfe3551f",
-        "6246b1abc78eb57bbfe360f7",
         "6246b5bcc78eb57bbfe362ea",
         "6246c519c78eb57bbfe367b0",
         "6246dd63c78eb57bbfe37098",
@@ -9595,146 +9581,12 @@
         "624703abc78eb57bbfe37ade",
         "624703a4c78eb57bbfe37ad2",
         "624716a0c78eb57bbfe37ffd",
-        "62471cf6c78eb57bbfe38151"
+        "62471cf6c78eb57bbfe38151",
+        "62499ca3c78eb57bbfe40346",
+        "6248203fc78eb57bbfe3b50f",
+        "624980d7c78eb57bbfe3f8bf"
       ],
       "movies": [
-        {
-          "id": "6245d495c78eb57bbfe33cbb",
-          "title": "Satyajit Ray",
-          "origin_name": "Ray",
-          "slug": "satyajit-ray",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6245d495c78eb57bbfe33cbb.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/6245d495c78eb57bbfe33cbb.webp",
-          "year": 2021,
-          "type": "series",
-          "genre": [
-            {
-              "id": "620a21b2e0fc277084dfd0c5",
-              "name": "Hành Động",
-              "slug": "hanh-dong"
-            },
-            {
-              "id": "620a2238e0fc277084dfd291",
-              "name": "Tâm Lý",
-              "slug": "tam-ly"
-            },
-            {
-              "id": "620f3d2b91fa4af90ab697fe",
-              "name": "Chính kịch",
-              "slug": "chinh-kich"
-            },
-            {
-              "id": "620f84d291fa4af90ab6b3f4",
-              "name": "Bí ẩn",
-              "slug": "bi-an"
-            }
-          ],
-          "country": [
-            {
-              "id": "620a2355e0fc277084dfd8ca",
-              "name": "Ấn Độ",
-              "slug": "an-do"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Hoàn Tất (4/4)",
-          "quality": "HD",
-          "status": "completed",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2022-05-24T03:40:29.000Z"
-        },
-        {
-          "id": "62468919c78eb57bbfe3551f",
-          "title": "Post Mortem: Không ai chết ở Skarnes",
-          "origin_name": "Post Mortem: No One Dies in Skarnes",
-          "slug": "post-mortem-khong-ai-chet-o-skarnes",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/62468919c78eb57bbfe3551f.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/62468919c78eb57bbfe3551f.webp",
-          "year": 2021,
-          "type": "series",
-          "genre": [
-            {
-              "id": "620a21b2e0fc277084dfd0c5",
-              "name": "Hành Động",
-              "slug": "hanh-dong"
-            },
-            {
-              "id": "620a220de0fc277084dfd16d",
-              "name": "Tình Cảm",
-              "slug": "tinh-cam"
-            },
-            {
-              "id": "620a2238e0fc277084dfd291",
-              "name": "Tâm Lý",
-              "slug": "tam-ly"
-            },
-            {
-              "id": "620f3d2b91fa4af90ab697fe",
-              "name": "Chính kịch",
-              "slug": "chinh-kich"
-            }
-          ],
-          "country": [
-            {
-              "id": "621a2cb63fb21848d1970e39",
-              "name": "Na Uy",
-              "slug": "na-uy"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Hoàn Tất (6/6)",
-          "quality": "HD",
-          "status": "completed",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2022-05-24T03:40:02.000Z"
-        },
-        {
-          "id": "6246b1abc78eb57bbfe360f7",
-          "title": "Thủy Quái 2: Rừng Gỗ Mun",
-          "origin_name": "Water Monster 2",
-          "slug": "thuy-quai-2-rung-go-mun",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6246b1abc78eb57bbfe360f7.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/6246b1abc78eb57bbfe360f7.webp",
-          "year": 2021,
-          "type": "single",
-          "genre": [
-            {
-              "id": "620a21b2e0fc277084dfd0c5",
-              "name": "Hành Động",
-              "slug": "hanh-dong"
-            },
-            {
-              "id": "620a22ace0fc277084dfd531",
-              "name": "Kinh Dị",
-              "slug": "kinh-di"
-            }
-          ],
-          "country": [
-            {
-              "id": "62093063196e9f4ab6b448b8",
-              "name": "Trung Quốc",
-              "slug": "trung-quoc"
-            }
-          ],
-          "lang_key": "Thuyết Minh",
-          "episode_current": "Full",
-          "quality": "HD",
-          "status": "completed",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2022-05-24T03:36:39.000Z"
-        },
         {
           "id": "6246b5bcc78eb57bbfe362ea",
           "title": "Cá Mập Trên Cạn",
@@ -10140,6 +9992,118 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2022-05-24T03:26:45.000Z"
+        },
+        {
+          "id": "62499ca3c78eb57bbfe40346",
+          "title": "Thợ săn quái vật (Phần 2)",
+          "origin_name": "The Witcher (Season 2)",
+          "slug": "tho-san-quai-vat-phan-2",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/62499ca3c78eb57bbfe40346.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/62499ca3c78eb57bbfe40346.webp",
+          "year": 2021,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            },
+            {
+              "id": "620a2293e0fc277084dfd489",
+              "name": "Phiêu Lưu",
+              "slug": "phieu-luu"
+            },
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Hoàn Tất (8/8)",
+          "quality": "HD",
+          "status": "completed",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2022-05-24T03:22:53.000Z"
+        },
+        {
+          "id": "6248203fc78eb57bbfe3b50f",
+          "title": "Con Đường Băng",
+          "origin_name": "The Ice Road",
+          "slug": "con-duong-bang",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6248203fc78eb57bbfe3b50f.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/6248203fc78eb57bbfe3b50f.webp",
+          "year": 2021,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Full",
+          "quality": "HD",
+          "status": "completed",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2022-05-24T03:22:18.000Z"
+        },
+        {
+          "id": "624980d7c78eb57bbfe3f8bf",
+          "title": "Khóa Trái",
+          "origin_name": "Locked In",
+          "slug": "khoa-trai",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/624980d7c78eb57bbfe3f8bf.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/624980d7c78eb57bbfe3f8bf.webp",
+          "year": 2021,
+          "type": "single",
+          "genre": [
+            {
+              "id": "620a21b2e0fc277084dfd0c5",
+              "name": "Hành Động",
+              "slug": "hanh-dong"
+            }
+          ],
+          "country": [
+            {
+              "id": "620a231fe0fc277084dfd7ce",
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Full",
+          "quality": "HD",
+          "status": "completed",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2022-05-24T03:20:46.000Z"
         }
       ]
     }
