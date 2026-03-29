@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["fu"] = {"furioza":{"id":"6252e518b89e1095080824e9","i":129,"title":"Furioza","origin_name":"Furioza","slug":"furioza","thumb":"https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/6252e518b89e1095080824e9.webp","year":2021,"type":"single","episode_current":"Full"}};
