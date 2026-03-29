@@ -1366,18 +1366,6 @@ comment on column public.donate_settings.methods is
             label: 'SQL Toolkit',
             children: (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                <Alert
-                  type="info"
-                  showIcon
-                  style={{ padding: '8px 12px' }}
-                  message={
-                    <span>
-                      Lỗi cột <Typography.Text code>methods</Typography.Text> trên <Typography.Text code>donate_settings</Typography.Text>? Mở mục{' '}
-                      <Typography.Text strong>[Admin] Migration &amp; sửa RLS</Typography.Text> → Copy (góc phải) → chạy phần migration trên SQL Editor. File tương ứng trong repo:{' '}
-                      <Typography.Text code>docs/supabase/migrate-donate-settings-add-methods.sql</Typography.Text>
-                    </span>
-                  }
-                />
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                   Chạy trong Supabase SQL Editor (đúng project Admin/User). Mở từng mục để xem SQL; Copy nằm trên dòng tiêu đề.
                 </Typography.Text>
