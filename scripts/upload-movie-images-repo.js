@@ -351,7 +351,7 @@ async function main() {
   const state = loadState(statePath);
 
   if (!getImageCdnBase()) {
-    throw new Error('Missing IMAGE_CDN_BASE (hoặc R2_PUBLIC_URL tương thích) — base jsDelivr …/public');
+    throw new Error('Missing IMAGE_CDN_BASE (hoặc R2_PUBLIC_URL legacy) — base jsDelivr …/public');
   }
 
   logRepoImageStateStats('loaded', state, statePath);

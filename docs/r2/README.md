@@ -1,5 +1,7 @@
 # Cloudflare R2 – Lưu trữ file
 
+> **Dự án mặc định dùng ảnh trên GitHub + jsDelivr** (`IMAGE_CDN_BASE`, ví dụ `https://cdn.jsdelivr.net/gh/ophim102/cm114@main/public`). Trang này chỉ tham khảo nếu bạn tự host object storage R2.
+
 **Mục lục tổng:** [../README.md](../README.md).
 
 Tổng quan Cloudflare (Pages + token + R2 + comment): [../cloudflare/README.md](../cloudflare/README.md).

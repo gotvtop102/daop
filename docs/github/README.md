@@ -65,7 +65,7 @@ Ai có quyền **push `main`** sẽ kích hoạt **Deploy to Cloudflare Pages** 
 | File / tên hiển thị | Kích hoạt | Vai trò |
 |---------------------|-----------|---------|
 | **deploy.yml** — *Deploy to Cloudflare Pages* | Push `main`; hoặc sau khi *Build on demand* / *Update data daily* thành công | Đẩy thư mục **`public/`** lên Cloudflare Pages (Wrangler). |
-| **build-on-demand.yml** — *Build on demand* | `workflow_dispatch`; **`repository_dispatch`** (từ Vercel Admin) | Build (incremental/full/two_phase…), có thể upload R2; commit `public/data` rồi push. |
+| **build-on-demand.yml** — *Build on demand* | `workflow_dispatch`; **`repository_dispatch`** (từ Vercel Admin) | Build (incremental/full/two_phase…), có thể sync ảnh lên repo CDN; commit `public/data` rồi push. |
 | **update-data.yml** — *Update data daily* | Cron (UTC) + `workflow_dispatch` | Build theo lịch; có nhánh two-phase tùy cấu hình; deploy tùy job. |
 | **core-then-tmdb.yml** — *Core then TMDB* | `workflow_dispatch` | Luồng 2 pha (core → TMDB) + deploy. |
 | **purge-movie-data.yml** — *Purge movie data* | `workflow_dispatch` | Xóa/gom dữ liệu phim trong `public/data` (thao tác nguy hiểm — đọc kỹ workflow). |

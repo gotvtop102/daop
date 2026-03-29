@@ -192,7 +192,7 @@ export default function GitHubActions() {
   const handleGenerateR2Links = () => {
     const base = String(r2LinkBaseUrl || '').trim();
     if (!base) {
-      message.warning('Nhập domain ảnh R2 (ví dụ từ Cài đặt trang → Domain ảnh R2).');
+      message.warning('Nhập base URL ảnh (Cài đặt trang → Base URL ảnh / jsDelivr …/public).');
       return;
     }
     const ids = parseSlugList(r2LinkIdsText);
@@ -249,7 +249,7 @@ export default function GitHubActions() {
     }
     const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
     const suffix = r2LinkMode === 'by_prefix' ? 'prefix' : 'by-id';
-    const filename = `r2-image-urls_${suffix}_${stamp}.txt`;
+    const filename = `image-urls_${suffix}_${stamp}.txt`;
     const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -266,7 +266,7 @@ export default function GitHubActions() {
   const handleFetchR2UrlsFromBucket = async () => {
     const base = String(r2LinkBaseUrl || '').trim();
     if (!base) {
-      message.warning('Nhập domain ảnh R2 (ví dụ từ Cài đặt trang → Domain ảnh R2).');
+      message.warning('Nhập base URL ảnh (Cài đặt trang → Base URL ảnh / jsDelivr …/public).');
       return;
     }
     const folders = (r2LinkPrefixes || []).map((x) => normalizePresetPrefixValue(String(x))).filter(Boolean);
@@ -291,7 +291,7 @@ export default function GitHubActions() {
       }
       const urls: string[] = Array.isArray(data.urls) ? data.urls : [];
       setR2LinkOutput(urls.join('\n'));
-      let msg = `Đã lấy ${data.count} link từ bucket.`;
+      let msg = `Đã lấy ${data.count} link từ repo ảnh.`;
       if (data.capped) {
         msg += ` (dừng ở giới hạn ${data.cap}; tăng «Giới hạn» hoặc đổi REPO_LIST_MAX_KEYS trên server nếu cần.)`;
       }
@@ -320,9 +320,9 @@ export default function GitHubActions() {
         .from('site_settings')
         .upsert([{ key: R2_PREFIX_PRESETS_KEY, value: String(r2PrefixPresetsText || ''), updated_at: now }], { onConflict: 'key' });
       if (error) throw error;
-      message.success('Đã lưu danh sách prefix R2.');
+      message.success('Đã lưu danh sách prefix ảnh.');
     } catch (e: any) {
-      message.error(e?.message || 'Lưu danh sách prefix R2 thất bại.');
+      message.error(e?.message || 'Lưu danh sách prefix ảnh thất bại.');
     } finally {
       setSavingR2PrefixPresets(false);
     }
@@ -340,7 +340,7 @@ export default function GitHubActions() {
       });
       const data = await res.json().catch(async () => ({ error: await res.text() }));
       if (res.ok && data?.ok) {
-        message.success(data?.message || 'Đã kích hoạt upload R2 từ URLs.');
+        message.success(data?.message || 'Đã kích hoạt upload ảnh từ URLs.');
       } else {
         message.error(data?.error || data?.message || `Lỗi ${res.status}`);
       }
@@ -418,7 +418,7 @@ export default function GitHubActions() {
           });
           const data = await res.json().catch(async () => ({ error: await res.text() }));
           if (res.ok && data?.ok) {
-            message.success(data?.message || 'Đã kích hoạt xóa ảnh R2.');
+            message.success(data?.message || 'Đã kích hoạt xóa ảnh trong repo/CDN.');
           } else {
             message.error(data?.error || data?.message || `Lỗi ${res.status}`);
           }
@@ -1192,7 +1192,7 @@ export default function GitHubActions() {
                     children: (
                       <>
                         <Card
-                          title="Cài đặt upload ảnh R2"
+                          title="Cài đặt upload ảnh (GitHub repo + jsDelivr)"
                           extra={
                             <Button icon={<SaveOutlined />} onClick={handleSaveUploadSettings} loading={savingUploadSettings}>
                               Lưu mặc định
@@ -1271,7 +1271,7 @@ export default function GitHubActions() {
 
                         <Card
                           style={{ marginTop: 16 }}
-                          title="Danh sách prefix R2 (chọn khi upload)"
+                          title="Danh sách prefix ảnh (chọn khi upload)"
                           extra={
                             <Button icon={<SaveOutlined />} onClick={handleSaveR2PrefixPresets} loading={savingR2PrefixPresets}>
                               Lưu prefix
@@ -1490,8 +1490,8 @@ export default function GitHubActions() {
                     children: (
                       <Card title="Link ảnh (jsDelivr)">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                          Tạo URL công khai để tải trực tiếp (trình duyệt, wget, IDM…). Domain lấy từ Cài đặt trang (r2_img_domain), có thể sửa tạm bên dưới.
-                          Chế độ theo prefix gọi API liệt kê object trên R2 (cần biến môi trường R2 trên Vercel).
+                          Tạo URL công khai để tải trực tiếp (trình duyệt, wget, IDM…). Base URL lấy từ Cài đặt trang (r2_img_domain), có thể sửa tạm bên dưới.
+                          Chế độ theo prefix gọi API liệt kê file trên repo ảnh (cần cấu hình IMAGES_REPO / token trên Vercel).
                         </Text>
 
                         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -1509,10 +1509,10 @@ export default function GitHubActions() {
                           </Radio.Group>
 
                           <div>
-                            <Text strong>Domain ảnh R2</Text>
+                            <Text strong>Base URL ảnh (…/public)</Text>
                             <Input
                               style={{ marginTop: 6 }}
-                              placeholder="https://pub-....r2.dev"
+                              placeholder="https://cdn.jsdelivr.net/gh/ophim102/cm114@main/public"
                               value={r2LinkBaseUrl}
                               onChange={(e) => setR2LinkBaseUrl(e.target.value || '')}
                               allowClear
@@ -1520,7 +1520,7 @@ export default function GitHubActions() {
                           </div>
 
                           <div>
-                            <Text strong>Thư mục trên R2</Text>
+                            <Text strong>Thư mục (prefix)</Text>
                             <div style={{ marginTop: 8 }}>
                               <Checkbox.Group
                                 value={r2LinkPrefixes}
@@ -1577,7 +1577,7 @@ export default function GitHubActions() {
                                 disabled={!!triggering || r2ListUrlsLoading}
                                 onClick={handleFetchR2UrlsFromBucket}
                               >
-                                Lấy link từ R2
+                                Lấy link từ repo
                               </Button>
                             </div>
                           )}
@@ -1605,7 +1605,7 @@ export default function GitHubActions() {
                               value={r2LinkOutput}
                               placeholder={
                                 r2LinkMode === 'by_prefix'
-                                  ? 'Bấm «Lấy link từ R2»…'
+                                  ? 'Bấm «Lấy link từ repo»…'
                                   : 'Bấm «Tạo link»…'
                               }
                             />
@@ -1620,7 +1620,7 @@ export default function GitHubActions() {
                     children: (
                       <Card title="Xóa ảnh trong repo">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                          Xóa ảnh theo prefix (thư mục), theo keys, hoặc theo movie ids (đọc từ r2_upload_state.json). Mặc định chạy dry-run để an toàn.
+                          Xóa ảnh theo prefix (thư mục), theo keys, hoặc theo movie ids (đọc từ repo_image_upload_state.json). Mặc định chạy dry-run để an toàn.
                         </Text>
 
                         <Form
@@ -1669,7 +1669,7 @@ export default function GitHubActions() {
                               return (
                                 <Form.Item
                                   name="prefix"
-                                  label="Prefix (thư mục trên R2)"
+                                  label="Prefix (thư mục trong public/)"
                                   rules={[{ required: true, message: 'Chọn prefix để xóa' }]}
                                   normalize={normalizeR2PrefixForDelete}
                                 >
@@ -1739,7 +1739,7 @@ export default function GitHubActions() {
                               loading={triggering === 'delete-movie-images-r2'}
                               disabled={!!triggering}
                             >
-                              Xóa ảnh R2
+                              Xóa ảnh trong repo
                             </Button>
                           </Form.Item>
                         </Form>

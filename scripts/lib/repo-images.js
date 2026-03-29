@@ -1,5 +1,5 @@
 /**
- * Ảnh phim trong repo: public/thumbs|posters/<id>.webp — cùng cấu trúc key như R2 cũ (không có tiền tố public/).
+ * Ảnh phim trong repo: public/thumbs|posters/<id>.webp — key tương đối giống layout CDN cũ (không có tiền tố public/ trong key).
  * URL công khai: IMAGE_CDN_BASE + "/" + key (vd jsDelivr: .../gh/user/repo@branch/public).
  */
 import fs from 'fs-extra';

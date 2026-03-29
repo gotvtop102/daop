@@ -66,7 +66,7 @@ export async function uploadMovieImageById(sourceUrl: string, id: string, folder
   }
 }
 
-/** Upload ảnh lên repo (GitHub) và xóa URL khỏi payload — URL hiển thị lấy từ site_settings (r2_img_domain / CDN base). */
+/** Upload ảnh lên repo (GitHub) và xóa URL khỏi payload — URL hiển thị lấy từ site_settings.r2_img_domain (base CDN /public). */
 export async function applyMovieRepoImageUploads(movieData: any) {
   const idStr = String(movieData.id || '').trim();
   if (!idStr) return;

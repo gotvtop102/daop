@@ -88,10 +88,11 @@ jobs:
 
       - name: Export / deploy flags (repository variables → env)
         run: |
-          if [ "${{ vars.DEPLOY_AFTER_R2_UPLOAD }}" = "1" ]; then
-            echo "DEPLOY_AFTER_R2_UPLOAD=1" >> $GITHUB_ENV
+          # DEPLOY_AFTER_IMAGE_UPLOAD thay cho tên cũ DEPLOY_AFTER_R2_UPLOAD (cả hai đều được hỗ trợ)
+          if [ "${{ vars.DEPLOY_AFTER_IMAGE_UPLOAD }}" = "1" ] || [ "${{ vars.DEPLOY_AFTER_R2_UPLOAD }}" = "1" ]; then
+            echo "DEPLOY_AFTER_IMAGE_UPLOAD=1" >> $GITHUB_ENV
           else
-            echo "DEPLOY_AFTER_R2_UPLOAD=0" >> $GITHUB_ENV
+            echo "DEPLOY_AFTER_IMAGE_UPLOAD=0" >> $GITHUB_ENV
           fi
 
       - name: Build (1-phase full)
@@ -206,7 +207,7 @@ jobs:
           fi
 
       - name: Deploy CORE to Cloudflare Pages (2-phase)
-        if: ${{ env.TWO_PHASE == 'true' && env.DEPLOY_AFTER_R2_UPLOAD != '1' }}
+        if: ${{ env.TWO_PHASE == 'true' && env.DEPLOY_AFTER_IMAGE_UPLOAD != '1' }}
         continue-on-error: true
         uses: cloudflare/wrangler-action@v3
         with:

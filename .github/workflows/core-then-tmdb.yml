@@ -47,6 +47,11 @@ jobs:
             echo "HAS_IMAGES_REPO=false" >> $GITHUB_ENV
             echo "GIT_ADD_PUBLIC_IMAGES=public/thumbs public/posters" >> $GITHUB_ENV
           fi
+          if [ "${{ vars.DEPLOY_AFTER_IMAGE_UPLOAD }}" = "1" ] || [ "${{ vars.DEPLOY_AFTER_R2_UPLOAD }}" = "1" ]; then
+            echo "DEPLOY_AFTER_IMAGE_UPLOAD=1" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_AFTER_IMAGE_UPLOAD=0" >> $GITHUB_ENV
+          fi
 
       - name: Load OPhim env from Supabase (auto settings)
         run: node scripts/load-ophim-env-from-supabase.js
@@ -78,7 +83,7 @@ jobs:
           git diff --staged --quiet || (git commit -m "chore: core build (skip tmdb)" && git push)
 
       - name: Deploy CORE to Cloudflare Pages
-        if: ${{ env.DEPLOY_AFTER_R2_UPLOAD != '1' || inputs.upload_images != 'true' }}
+        if: ${{ env.DEPLOY_AFTER_IMAGE_UPLOAD != '1' || inputs.upload_images != 'true' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

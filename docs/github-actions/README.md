@@ -19,7 +19,7 @@ Tóm tắt:
 
 - `SUPABASE_ADMIN_URL`, `SUPABASE_ADMIN_SERVICE_ROLE_KEY`
 - `TMDB_API_KEY`
-- `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`
+- `IMAGE_CDN_BASE` (jsDelivr base …/public), `IMAGES_REPO` / token (repo ảnh). Legacy: biến R2 nếu fork cũ vẫn dùng object storage.
 - `GH_PAT` (khuyến nghị nếu cần push/commit từ workflow) hoặc dùng `GITHUB_TOKEN` mặc định của Actions
 - `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` cho deploy Pages
 - `OPHIM_BASE_URL` (tùy chọn)

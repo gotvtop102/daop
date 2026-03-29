@@ -83,15 +83,15 @@ Không cần trên Vercel nếu không dùng API này.
 | `SUPABASE_ADMIN_URL` hoặc fallback `VITE_SUPABASE_ADMIN_URL` | URL project Supabase (Admin). |
 | `SUPABASE_ADMIN_SERVICE_ROLE_KEY` | **Service role** — chỉ trên server; **không** dùng anon key. |
 
-Dùng khi Dashboard / MovieList / MovieEdit / EpisodeEdit gọi `/api/movies`. Ảnh phim qua R2 vẫn cần nhóm biến R2 ở mục dưới.
+Dùng khi Dashboard / MovieList / MovieEdit / EpisodeEdit gọi `/api/movies`. Upload/lưu ảnh qua **GitHub repo + CDN** cần `IMAGE_CDN_BASE` và (tuỳ chọn) `IMAGES_REPO` / token — xem mục dưới.
 
-### 3.6. Tùy chọn — R2 + upload ảnh (server)
+### 3.6. Tùy chọn — CDN ảnh + upload (GitHub / jsDelivr)
 
 | Biến | Ý nghĩa |
 |------|---------|
-| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL` | Giống Cloudflare R2; dùng cho **`/api/upload-image`** và một số luồng trong **`/api/movies`**. |
-
-Cần khi dùng **Upload R2** trên Banners, Slider, Site Settings, v.v.
+| `IMAGE_CDN_BASE` | Base URL công khai kết thúc bằng `/public` (vd. `https://cdn.jsdelivr.net/gh/ophim102/cm114@main/public`). |
+| `IMAGES_REPO`, `IMAGES_TOKEN`, `IMAGES_BRANCH` | Repo chỉ chứa ảnh (`owner/repo`); fallback `GITHUB_*` nếu bỏ trống. |
+| `R2_PUBLIC_URL` | *Legacy:* tương thích tên cũ; ưu tiên dùng `IMAGE_CDN_BASE`. |
 
 ### 3.7. Tùy chọn — Admin UI (Vite)
 
@@ -110,8 +110,8 @@ Cần khi dùng **Upload R2** trên Banners, Slider, Site Settings, v.v.
 | `trigger-build.ts` | `POST /api/trigger-build` | Kích hoạt workflow build (thiết kế đơn giản; thường gọi kèm `trigger-action`). |
 | `trigger-action.ts` | `POST/GET /api/trigger-action` | Trigger linh hoạt nhiều workflow GitHub (build-on-demand, purge, …). |
 | `github-runs.ts` | `GET /api/github-runs` | Đọc lịch sử run GitHub Actions cho UI. |
-| `movies.ts` | `/api/movies` | CRUD/phụ trợ phim (Supabase), R2 — cần env Supabase Admin + R2 tương ứng. |
-| `upload-image.ts` | `POST /api/upload-image` | Upload ảnh lên R2 (Admin). |
+| `movies.ts` | `/api/movies` | CRUD/phụ trợ phim (Supabase); upload ảnh repo cần Supabase Admin + `IMAGE_CDN_BASE` / GitHub. |
+| `upload-image.ts` | `POST /api/upload-image` | Upload ảnh lên repo GitHub (Contents API), URL CDN theo `IMAGE_CDN_BASE`. |
 | `supabase-user.ts` | `POST /api/supabase-user` | Import/export dữ liệu user — cần `SUPABASE_USER_*`. |
 
 Chỉ các biến mà từng file đọc mới **bắt buộc** khi bạn dùng đúng tính năng đó.
