@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Sau git stash pop lỗi do conflict: với file public/* lấy nội dung từ stash, còn lại báo lỗi.
-set -euo pipefail
+set -eu
+# pipefail không có trên /bin/sh; bật nếu shell hỗ trợ
+set -o pipefail 2>/dev/null || true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RESOLVE_MARKERS="$SCRIPT_DIR/git-resolve-conflict-markers-in-public.sh"

@@ -2,7 +2,9 @@
 # Commit staged changes và push lên remote, có pull --rebase + retry khi race push.
 # Dùng chung với GitHub Actions (tránh lỗi "rejected: fetch first").
 # Cách gọi: bash scripts/git-commit-staged-push-retry.sh "commit message" [remote] [branch]
-set -euo pipefail
+set -eu
+# pipefail không có trên /bin/sh; bật nếu shell hỗ trợ
+set -o pipefail 2>/dev/null || true
 
 MSG="${1:?commit message required}"
 REMOTE="${2:-origin}"

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Pull --rebase; conflict trong public/* → giữ bản từ commit đang rebase (theirs).
 # Conflict ngoài public/ → abort rebase, exit 1.
-set -euo pipefail
+set -eu
+# pipefail không có trên /bin/sh; bật nếu shell hỗ trợ
+set -o pipefail 2>/dev/null || true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RESOLVE_MARKERS="$SCRIPT_DIR/git-resolve-conflict-markers-in-public.sh"
