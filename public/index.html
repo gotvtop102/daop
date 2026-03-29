@@ -7,8 +7,6 @@
   <meta name="description" content="Xem phim online miễn phí, cập nhật nhanh.">
   <link rel="preconnect" href="https://img.ophim.live" crossorigin>
   <link rel="dns-prefetch" href="//img.ophim.live">
-  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
 </head>
@@ -72,8 +70,23 @@
       var base = '';
       window.DAOP = window.DAOP || {};
       window.DAOP.basePath = base;
-      window.DAOP._siteSettingsLoadPromise = fetch(base + '/data/config/site-settings.json')
-        .then(function(r){ return r.json(); })
+      function readJsonScriptTag(id) {
+        try {
+          var el = document.getElementById(id);
+          if (!el) return null;
+          var raw = (el.textContent || el.innerText || '').trim();
+          if (!raw) return null;
+          return JSON.parse(raw);
+        } catch (e) {
+          return null;
+        }
+      }
+      function loadSiteSettings() {
+        var embedded = readJsonScriptTag('site-settings-src');
+        if (embedded) return Promise.resolve(embedded);
+        return fetch(base + '/data/config/site-settings.json').then(function (r) { return r.json(); });
+      }
+      window.DAOP._siteSettingsLoadPromise = loadSiteSettings()
         .then(function(s){
           window.DAOP.siteName = s.site_name || 'GoTV';
           window.DAOP.siteSettings = s;
@@ -142,8 +155,7 @@
       (function () {
         var p = window.DAOP && window.DAOP._siteSettingsLoadPromise;
         if (p) return p.then(function () { return loadSectionsAndBanners(); });
-        return fetch(base + '/data/config/site-settings.json')
-          .then(function (r) { return r.json(); })
+        return loadSiteSettings()
           .then(function (s) {
             window.DAOP = window.DAOP || {};
             window.DAOP.siteSettings = s;

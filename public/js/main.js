@@ -370,11 +370,31 @@
       if (typeof window.supabase !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function') return window.supabase.createClient;
       return null;
     }
+    function ensurePreconnectJsDelivr() {
+      try {
+        if (typeof document === 'undefined' || !document.head) return;
+        var href = 'https://cdn.jsdelivr.net';
+        if (!document.head.querySelector('link[rel="preconnect"][href="' + href + '"]')) {
+          var l = document.createElement('link');
+          l.rel = 'preconnect';
+          l.href = href;
+          l.crossOrigin = '';
+          document.head.appendChild(l);
+        }
+        if (!document.head.querySelector('link[rel="dns-prefetch"][href="//cdn.jsdelivr.net"]')) {
+          var d = document.createElement('link');
+          d.rel = 'dns-prefetch';
+          d.href = '//cdn.jsdelivr.net';
+          document.head.appendChild(d);
+        }
+      } catch (e) {}
+    }
     function loadSupabaseJsIfNeeded() {
       if (getCreateClient()) return Promise.resolve();
       window.DAOP = window.DAOP || {};
       if (window.DAOP._loadSupabaseJsPromise) return window.DAOP._loadSupabaseJsPromise;
       window.DAOP._loadSupabaseJsPromise = new Promise(function (resolve) {
+        ensurePreconnectJsDelivr();
         var s = document.createElement('script');
         s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
         s.onload = function () { resolve(); };
@@ -1656,7 +1676,7 @@
           banner.insertBefore(wrap, banner.firstChild);
         }
         var src = (BASE || '') + '/images/lc.png';
-        wrap.innerHTML = '<img src="' + String(src).replace(/"/g, '&quot;') + '" alt="" loading="lazy" decoding="async">';
+        wrap.innerHTML = '<img src="' + String(src).replace(/"/g, '&quot;') + '" alt="" width="20" height="14" loading="lazy" decoding="async">';
       } catch (e1) {}
     }
 
