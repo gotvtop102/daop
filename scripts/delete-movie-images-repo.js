@@ -2,10 +2,22 @@ import 'dotenv/config';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { S3Client, ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
+import {
+  getImagesRepoEnv,
+  githubDeleteFile,
+  githubListAllBlobPaths,
+} from './lib/github-images-remote.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
+const PUBLIC_ROOT = path.join(ROOT, 'public');
+
+function toGithubContentPath(relKey) {
+  const k = String(relKey || '').trim().replace(/^\/+/, '');
+  if (!k || k.includes('..')) return '';
+  if (k.startsWith('public/')) return k;
+  return `public/${k}`;
+}
 
 function parseArgs(argv) {
   const out = {};
@@ -46,81 +58,36 @@ function parseList(raw) {
   );
 }
 
-function getR2Client() {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const key = process.env.R2_ACCESS_KEY_ID;
-  const secret = process.env.R2_SECRET_ACCESS_KEY;
-  if (!accountId || !key || !secret) return null;
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: key, secretAccessKey: secret },
-  });
+function keyToAbsolutePath(key) {
+  const k = String(key || '').trim().replace(/^\/+/, '');
+  if (!k || k.includes('..')) return '';
+  return path.join(PUBLIC_ROOT, k);
 }
 
-function chunk(arr, size) {
-  const out = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-  return out;
+function listFilesRecursive(dir, baseRel, out, limit) {
+  if (limit > 0 && out.length >= limit) return;
+  if (!fs.existsSync(dir)) return;
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const e of entries) {
+    if (limit > 0 && out.length >= limit) return;
+    const full = path.join(dir, e.name);
+    const rel = baseRel ? `${baseRel}/${e.name}` : e.name;
+    if (e.isDirectory()) {
+      listFilesRecursive(full, rel, out, limit);
+    } else if (e.isFile()) {
+      out.push(rel.replace(/\\/g, '/'));
+    }
+  }
 }
 
-async function listAllKeysByPrefix(client, bucket, prefix, limit) {
+function listAllKeysByPrefix(prefix, limit) {
+  const p = String(prefix || '').trim();
+  if (!p) return [];
+  const dir = keyToAbsolutePath(p.replace(/\/$/, ''));
+  if (!dir || !fs.existsSync(dir)) return [];
   const keys = [];
-  let token = undefined;
-  while (true) {
-    const res = await client.send(
-      new ListObjectsV2Command({
-        Bucket: bucket,
-        Prefix: prefix,
-        ContinuationToken: token,
-        MaxKeys: 1000,
-      })
-    );
-    const items = res.Contents || [];
-    for (const it of items) {
-      const k = it && it.Key ? String(it.Key) : '';
-      if (!k) continue;
-      keys.push(k);
-      if (limit > 0 && keys.length >= limit) return keys;
-    }
-    if (!res.IsTruncated) break;
-    token = res.NextContinuationToken;
-    if (!token) break;
-  }
+  listFilesRecursive(dir, p.replace(/\/$/, ''), keys, limit);
   return keys;
-}
-
-async function deleteKeys(client, bucket, keys, opts) {
-  const dryRun = !!opts.dryRun;
-  if (!keys.length) return { deleted: 0, errors: 0 };
-
-  if (dryRun) {
-    return { deleted: 0, errors: 0 };
-  }
-
-  let deleted = 0;
-  let errors = 0;
-  const chunks = chunk(keys, 1000);
-  for (const part of chunks) {
-    const res = await client.send(
-      new DeleteObjectsCommand({
-        Bucket: bucket,
-        Delete: {
-          Objects: part.map((k) => ({ Key: k })),
-          Quiet: true,
-        },
-      })
-    );
-    const del = res && res.Deleted ? res.Deleted.length : 0;
-    const err = res && res.Errors ? res.Errors.length : 0;
-    deleted += del;
-    errors += err;
-    if (err) {
-      const sample = (res.Errors || []).slice(0, 5);
-      console.warn('Delete errors sample:', sample);
-    }
-  }
-  return { deleted, errors };
 }
 
 function loadState(statePath) {
@@ -159,21 +126,30 @@ async function main() {
   const dryRun = parseBool(args.dry_run, true);
   const limit = Math.max(0, Number(args.limit || 0) || 0);
 
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-  if (!client || !bucket) {
-    throw new Error('Missing R2 credentials env (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME)');
-  }
-
-  const stateRel = String(args.state_file || 'public/data/r2_upload_state.json');
+  const stateRel = String(args.state_file || 'public/data/repo_image_upload_state.json');
   const statePath = path.isAbsolute(stateRel) ? stateRel : path.join(ROOT, stateRel);
   const state = loadState(statePath);
 
   let keysToDelete = [];
 
+  const { repo: ghRepo, branch: ghBranch, token: ghToken } = getImagesRepoEnv();
+  const deleteOnAssetsRepo = !!(ghRepo && ghToken);
+
   if (mode === 'prefix') {
     if (!prefix) throw new Error('mode=prefix requires --prefix, e.g. thumbs/ or posters/');
-    keysToDelete = await listAllKeysByPrefix(client, bucket, prefix, limit);
+    if (deleteOnAssetsRepo) {
+      const pref = String(prefix || '').trim().replace(/^\/+/, '').replace(/\/$/, '');
+      const remotePrefix = pref.startsWith('public/')
+        ? `${pref.replace(/\/$/, '')}/`
+        : `public/${pref}/`;
+      const all = await githubListAllBlobPaths(ghRepo, ghBranch, ghToken);
+      keysToDelete = all.filter(
+        (p) => p.startsWith(remotePrefix) && !p.endsWith('.gitkeep')
+      );
+      if (limit) keysToDelete = keysToDelete.slice(0, limit);
+    } else {
+      keysToDelete = listAllKeysByPrefix(prefix, limit);
+    }
   } else if (mode === 'keys') {
     const keys = parseList(args.keys);
     keysToDelete = limit ? keys.slice(0, limit) : keys;
@@ -200,16 +176,62 @@ async function main() {
     throw new Error('Invalid mode. Use prefix | keys | movie_ids');
   }
 
-  console.log('R2 delete mode=', mode, 'kind=', kind, 'dry_run=', dryRun, 'limit=', limit || 'no');
+  console.log(
+    'Repo delete mode=',
+    mode,
+    'target=',
+    deleteOnAssetsRepo ? `remote:${ghRepo}` : 'local:public/',
+    'kind=',
+    kind,
+    'dry_run=',
+    dryRun,
+    'limit=',
+    limit || 'no'
+  );
   console.log('Keys matched:', keysToDelete.length);
   if (keysToDelete.length) {
     console.log('Sample:', keysToDelete.slice(0, 10));
   }
 
-  const { deleted, errors } = await deleteKeys(client, bucket, keysToDelete, { dryRun });
+  let deleted = 0;
+  let errors = 0;
+
+  if (!dryRun) {
+    if (deleteOnAssetsRepo) {
+      for (const key of keysToDelete) {
+        const ghPath = mode === 'prefix' ? key : toGithubContentPath(key);
+        if (!ghPath) {
+          errors++;
+          continue;
+        }
+        try {
+          const r = await githubDeleteFile(ghRepo, ghPath, ghBranch, ghToken, `delete ${ghPath}`);
+          if (r.deleted) deleted++;
+        } catch {
+          errors++;
+        }
+      }
+    } else {
+      for (const key of keysToDelete) {
+        const abs = keyToAbsolutePath(key);
+        if (!abs) {
+          errors++;
+          continue;
+        }
+        try {
+          if (fs.existsSync(abs)) {
+            await fs.remove(abs);
+            deleted++;
+          }
+        } catch {
+          errors++;
+        }
+      }
+    }
+  }
 
   if (dryRun) {
-    console.log('Dry run: no objects were deleted.');
+    console.log('Dry run: no files were deleted.');
     return;
   }
 
@@ -221,7 +243,7 @@ async function main() {
     console.log('State updated:', statePath);
   }
 
-  console.log('Deleted objects:', deleted, 'errors:', errors);
+  console.log('Deleted files:', deleted, 'errors:', errors);
 }
 
 main().catch((e) => {

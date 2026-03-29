@@ -12,7 +12,12 @@ import sharp from 'sharp';
 import * as XLSX from 'xlsx';
 import { createClient } from '@supabase/supabase-js';
 import slugify from 'slugify';
-import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import {
+  getImageCdnBase,
+  repoImageKeyExists,
+  writeRepoImageFile,
+  cdnUrlByMovieId,
+} from './lib/repo-images.js';
 import {
   removeMoviesLightScriptFromHtml as libRemoveMoviesLightScriptFromHtml,
   injectSiteNameIntoHtml as libInjectSiteNameIntoHtml,
@@ -148,32 +153,6 @@ function parseBooleanFlag(v, defaultVal = false) {
   return true;
 }
 
-async function r2KeyExists(client, bucket, key) {
-  if (!client || !bucket || !key) return false;
-  try {
-    await client.send(
-      new HeadObjectCommand({
-        Bucket: bucket,
-        Key: key,
-      })
-    );
-    return true;
-  } catch (e) {
-    const status = e && e.$metadata && typeof e.$metadata.httpStatusCode === 'number'
-      ? e.$metadata.httpStatusCode
-      : undefined;
-    // Only treat true "missing" as not existing.
-    if (status === 404) return false;
-    // If HeadObject is forbidden/unauthorized, we can't reliably check existence.
-    // Assume it exists to avoid reuploading everything on every build.
-    if (status === 401 || status === 403) {
-      console.warn('WARNING: R2 HeadObject not allowed (HTTP ' + status + '). Assuming key exists to avoid mass reupload. key=' + key);
-      return true;
-    }
-    return false;
-  }
-}
-
 function buildAutoSliderSlides(allMovies, opts) {
   opts = opts || {};
   const n = Math.max(1, Math.min(50, Number(opts.count) || 5));
@@ -287,22 +266,11 @@ function writeHomeBootstrapFile() {
   }
 }
 
-async function ensureR2ImagesForNewCustomMovies(_customMovies) {
-  // Không ghi URL ảnh R2 ngược lại nguồn tùy chỉnh; ảnh nằm trên R2 + trong batch build.
+async function ensureRepoImagesForNewCustomMovies(_customMovies) {
+  // Không ghi URL ảnh ngược lại nguồn tùy chỉnh; ảnh nằm trong public/ + batch build.
 }
 
-function getR2PublicBase() {
-  return String(process.env.R2_PUBLIC_URL || '').trim().replace(/\/$/, '');
-}
-
-function r2UrlById(id, folder) {
-  const base = getR2PublicBase();
-  const idStr = String(id || '').trim();
-  if (!base || !idStr) return '';
-  return `${base}/${folder}/${idStr}.webp`;
-}
-
-async function uploadMovieImageToR2ById(url, id, folder) {
+async function uploadMovieImageToRepoById(url, id, folder) {
   const u = String(url || '').trim();
   const idStr = String(id || '').trim();
   if (!u || !idStr) return '';
@@ -314,27 +282,25 @@ async function uploadMovieImageToR2ById(url, id, folder) {
     const ext = guessExtFromContentType(ct) || guessExtFromUrl(u) || 'jpg';
     const optimized = await optimizeImageBuffer(buf, ext);
     const key = `${folder}/${idStr}.webp`;
-    const out = await uploadToR2(optimized, key, 'image/webp');
+    const out = await writeRepoImageFile(optimized, key, 'image/webp');
     return out || '';
   } catch {
     return '';
   }
 }
 
-async function ensureR2ImagesForAllMovies(movies) {
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-  const base = getR2PublicBase();
-  if (!client || !bucket || !base) {
-    console.warn('R2 not configured (missing R2_* env). Images will be broken because build is in R2-only mode.');
+async function ensureRepoImagesForAllMovies(movies) {
+  const base = getImageCdnBase();
+  if (!base) {
+    console.warn('IMAGE_CDN_BASE not configured (jsDelivr base ending with /public). Images will be broken in CDN-only mode.');
     return;
   }
   const list = Array.isArray(movies) ? movies : [];
   if (!list.length) return;
 
-  const concurrency = Math.max(1, Math.min(10, Number(process.env.R2_UPLOAD_CONCURRENCY || 6)));
+  const concurrency = Math.max(1, Math.min(10, Number(process.env.REPO_IMAGE_UPLOAD_CONCURRENCY || process.env.R2_UPLOAD_CONCURRENCY || 6)));
   let next = 0;
-  console.log('6a. Ensuring R2 images (id-based) for all movies:', list.length);
+  console.log('6a. Ensuring repo/CDN images (id-based) for all movies:', list.length);
 
   const workers = Array.from({ length: Math.min(concurrency, list.length) }, () => (async () => {
     while (true) {
@@ -345,8 +311,8 @@ async function ensureR2ImagesForAllMovies(movies) {
       const idStr = m && m.id != null ? String(m.id).trim() : '';
       if (!idStr) continue;
 
-      const desiredThumb = r2UrlById(idStr, 'thumbs');
-      const desiredPoster = r2UrlById(idStr, 'posters');
+      const desiredThumb = cdnUrlByMovieId(idStr, 'thumbs');
+      const desiredPoster = cdnUrlByMovieId(idStr, 'posters');
 
       const thumbSrc = String(m.thumb_url || m.thumb || '').trim();
       const posterSrc = String(m.poster_url || m.poster || derivePosterFromThumb(thumbSrc) || thumbSrc || '').trim();
@@ -354,17 +320,16 @@ async function ensureR2ImagesForAllMovies(movies) {
       const thumbKey = `thumbs/${idStr}.webp`;
       const posterKey = `posters/${idStr}.webp`;
 
-      // Upload best-effort, then enforce output URLs to match the R2-only structure.
       if (thumbSrc && !String(thumbSrc).includes(`/thumbs/${idStr}.webp`)) {
-        const already = await r2KeyExists(client, bucket, thumbKey);
+        const already = repoImageKeyExists(thumbKey);
         if (!already) {
-          await uploadMovieImageToR2ById(thumbSrc, idStr, 'thumbs');
+          await uploadMovieImageToRepoById(thumbSrc, idStr, 'thumbs');
         }
       }
       if (posterSrc && !String(posterSrc).includes(`/posters/${idStr}.webp`)) {
-        const already = await r2KeyExists(client, bucket, posterKey);
+        const already = repoImageKeyExists(posterKey);
         if (!already) {
-          await uploadMovieImageToR2ById(posterSrc, idStr, 'posters');
+          await uploadMovieImageToRepoById(posterSrc, idStr, 'posters');
         }
       }
 
@@ -592,38 +557,7 @@ function validateBuildOutputs(allMovies) {
   console.log('   Validation OK');
 }
 
-/** R2 client (S3 compatible) */
-function getR2Client() {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const key = process.env.R2_ACCESS_KEY_ID;
-  const secret = process.env.R2_SECRET_ACCESS_KEY;
-  if (!accountId || !key || !secret) return null;
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: key, secretAccessKey: secret },
-  });
-}
-
-/** Upload buffer to R2, return public URL */
-async function uploadToR2(buffer, key, contentType = 'image/webp') {
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-  if (!client || !bucket) return null;
-  await client.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: buffer,
-      ContentType: contentType,
-      CacheControl: 'public, max-age=31536000, immutable',
-    })
-  );
-  const base = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
-  return base ? `${base}/${key}` : null;
-}
-
-function sanitizeR2Name(name) {
+function sanitizeImageFilename(name) {
   const raw = String(name || '').trim();
   if (!raw) return '';
   const n = raw.replace(/\\/g, '/').split('/').pop() || '';
@@ -664,7 +598,7 @@ async function optimizeImageBuffer(buf, ext) {
   }
 }
 
-/** Download image, optimize/compress, optional upload R2 (keep original filename) */
+/** Download image, optimize/compress, ghi public/ + URL jsDelivr */
 async function processImage(url, slug, folder = 'thumbs') {
   if (!url) return null;
   try {
@@ -679,15 +613,15 @@ async function processImage(url, slug, folder = 'thumbs') {
     const idStr = String(slug || '').trim();
     if (!idStr) return url;
     const key = `${folder}/${idStr}.webp`;
-    const r2Url = await uploadToR2(optimized, key, 'image/webp');
-    return r2Url || url;
+    const out = await writeRepoImageFile(optimized, key, 'image/webp');
+    return out || url;
   } catch {
     return url;
   }
 }
 
-/** Upload movie image to R2 using stable key by slug (thumbs/<slug>.webp or posters/<slug>.webp) */
-async function uploadMovieImageToR2BySlug(url, slug, folder) {
+/** Upload ảnh theo slug (thumbs/<slug>.webp hoặc posters/<slug>.webp) */
+async function uploadMovieImageToRepoBySlug(url, slug, folder) {
   if (!url) return '';
   const idStr = String(slug || '').trim();
   if (!idStr) return '';
@@ -699,7 +633,7 @@ async function uploadMovieImageToR2BySlug(url, slug, folder) {
     const ext = guessExtFromContentType(ct) || guessExtFromUrl(url) || 'jpg';
     const optimized = await optimizeImageBuffer(buf, ext);
     const key = `${folder}/${idStr}.webp`;
-    const out = await uploadToR2(optimized, key, 'image/webp');
+    const out = await writeRepoImageFile(optimized, key, 'image/webp');
     return out || '';
   } catch {
     return '';
@@ -1272,7 +1206,7 @@ function parseCustomMoviesFromExcelRows(moviesRows, episodesRows) {
       title: title.toString(),
       origin_name: (row[idx('origin_name')] || '').toString(),
       slug: baseSlug,
-      // URL nguồn từ Excel. Build upload R2 và ghi đè thumb/poster bằng URL theo id.
+      // URL nguồn từ Excel. Build ghi ảnh vào public/ và ghi đè thumb/poster bằng URL CDN theo id.
       thumb: sheetThumbUrl || thumbPick,
       poster: sheetPosterUrl || posterPick,
       _from_xlsx: true,
@@ -1848,7 +1782,7 @@ async function enrichTmdb(movies) {
   await Promise.all(workers);
 }
 
-/** 4. Hợp nhất và xử lý ảnh (optional: upload R2) */
+/** 4. Hợp nhất và xử lý ảnh (optional: ghi public/ + CDN) */
 function mergeMovies(ophim, custom) {
   const getModTs = (m) => {
     if (!m) return 0;
@@ -3477,7 +3411,7 @@ async function exportConfigFromSupabase() {
     site_name: 'DAOP Phim',
     logo_url: '',
     favicon_url: '',
-    r2_img_domain: 'https://pub-62eef44669df48e4bca5388a38e69522.r2.dev',
+    r2_img_domain: '',
     ophim_img_domain: 'https://img.ophim.live',
     theme_light_bg: '#eef2f5',
     home_prebuild_enabled: 'true',
@@ -4265,8 +4199,8 @@ async function main() {
   const custom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies());
   console.log('   Custom count:', custom.length);
 
-  // NEW: upload images to R2 if missing (metadata trong DB / batch, không ghi URL ngược Excel)
-  await timeBuildPhase('2b. R2 images (custom new)', () => ensureR2ImagesForNewCustomMovies(custom));
+  // NEW: ảnh custom (metadata trong DB / batch, không ghi URL ngược Excel)
+  await timeBuildPhase('2b. Repo images (custom new)', () => ensureRepoImagesForNewCustomMovies(custom));
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');
     await timeBuildPhase('3. TMDB enrich', async () => {
@@ -4361,8 +4295,8 @@ async function main() {
   if (process.env.GENERATE_MOVIES_LIGHT === '1') {
     timeBuildPhaseSync('6. movies-light.js (optional)', () => writeMoviesLight(allMovies));
   }
-  // R2-only: upload thumb/poster for all movies and enforce id-based R2 URLs in output.
-  await timeBuildPhase('6a. R2 images (all movies)', () => ensureR2ImagesForAllMovies(allMovies));
+  // CDN: thumb/poster vào public/ + URL jsDelivr trong output.
+  await timeBuildPhase('6a. Repo/CDN images (all movies)', () => ensureRepoImagesForAllMovies(allMovies));
   const batchRes = timeBuildPhaseSync('6b. writeBatches', () =>
     writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById)
   );

@@ -1,10 +1,14 @@
 /**
- * Vercel Serverless: upload ảnh lên R2 (Banner, Slider...).
- * POST body JSON: { image: base64String, contentType?: "image/jpeg" | "image/png" | "image/webp" }
- * Trả về: { url: string } hoặc { error: string }
+ * Vercel Serverless: upload ảnh vào repo GitHub (Banner, Slider…) — public/<folder>/...
+ * POST body JSON: { image: base64String, contentType?, filename?, folder? }
+ * Cần: token + repo (IMAGES_* trên Actions; hoặc GITHUB_*), IMAGE_CDN_BASE (base jsDelivr …/public)
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  ensurePublicFolderInRemoteRepo,
+  getGithubImagesRepoConfig,
+  githubPutFileBase64,
+} from './lib/github-contents.js';
 
 const MAX_SIZE = 4 * 1024 * 1024; // 4MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -42,18 +46,6 @@ async function optimizeImage(buffer: Buffer, contentType: string) {
   } catch {
     return buffer;
   }
-}
-
-function getR2Client() {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const key = process.env.R2_ACCESS_KEY_ID;
-  const secret = process.env.R2_SECRET_ACCESS_KEY;
-  if (!accountId || !key || !secret) return null;
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: key, secretAccessKey: secret },
-  });
 }
 
 export const config = {
@@ -99,37 +91,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const optimized = await optimizeImage(buffer, contentType);
   if (ext === 'webp') contentType = 'image/webp';
 
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-  if (!client || !bucket) {
+  const { token, repo, branch } = getGithubImagesRepoConfig();
+  const cdnBase = String(process.env.IMAGE_CDN_BASE || process.env.R2_PUBLIC_URL || '').trim().replace(/\/$/, '');
+  if (!token || !repo || !cdnBase) {
     const missing = [];
-    if (!process.env.R2_ACCOUNT_ID) missing.push('R2_ACCOUNT_ID');
-    if (!process.env.R2_ACCESS_KEY_ID) missing.push('R2_ACCESS_KEY_ID');
-    if (!process.env.R2_SECRET_ACCESS_KEY) missing.push('R2_SECRET_ACCESS_KEY');
-    if (!process.env.R2_BUCKET_NAME) missing.push('R2_BUCKET_NAME');
-    if (!process.env.R2_PUBLIC_URL) missing.push('R2_PUBLIC_URL');
-    const msg = missing.length
-      ? `Chưa cấu hình R2. Thiếu biến môi trường: ${missing.join(', ')}. Vui lòng thêm vào Vercel Environment Variables.`
-      : 'Chưa cấu hình R2. Vui lòng thêm các biến R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL vào Vercel Environment Variables.';
-    res.status(503).json({ error: msg });
+    const hasTok = !!(process.env.IMAGES_TOKEN || process.env.GITHUB_IMAGES_TOKEN || process.env.GITHUB_TOKEN);
+    const hasRepo = !!(process.env.IMAGES_REPO || process.env.GITHUB_IMAGES_REPO || process.env.GITHUB_REPO);
+    if (!hasTok) missing.push('IMAGES_TOKEN / GITHUB_IMAGES_TOKEN / GITHUB_TOKEN');
+    if (!hasRepo) missing.push('IMAGES_REPO / GITHUB_IMAGES_REPO / GITHUB_REPO');
+    if (!cdnBase) missing.push('IMAGE_CDN_BASE');
+    res.status(503).json({
+      error:
+        missing.length > 0
+          ? `Chưa cấu hình: ${missing.join(', ')} (Vercel Environment Variables).`
+          : 'Chưa cấu hình GitHub + IMAGE_CDN_BASE.',
+    });
     return;
   }
+
   const key = `${folder}/${filename}`;
+  const filePath = `public/${key}`;
   try {
-    await client.send(
-      new PutObjectCommand({
-        Bucket: bucket,
-        Key: key,
-        Body: optimized,
-        ContentType: contentType,
-        CacheControl: 'public, max-age=31536000, immutable',
-      })
-    );
+    await ensurePublicFolderInRemoteRepo(repo, branch, token);
+    await githubPutFileBase64({
+      repo,
+      path: filePath,
+      branch,
+      token,
+      contentBase64: optimized.toString('base64'),
+      message: `chore: upload image ${key}`,
+    });
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || 'Upload R2 thất bại' });
+    res.status(500).json({ error: e?.message || 'Upload GitHub thất bại' });
     return;
   }
-  const baseUrl = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
-  const url = baseUrl ? `${baseUrl}/${key}` : '';
+  const url = `${cdnBase}/${key}`;
   res.status(200).json({ url });
 }

@@ -90,7 +90,7 @@ export default function SiteSettings() {
         site_url: data.site_url ?? '',
         logo_url: data.logo_url ?? '',
         favicon_url: data.favicon_url ?? '',
-        r2_img_domain: data.r2_img_domain ?? 'https://pub-62eef44669df48e4bca5388a38e69522.r2.dev',
+        r2_img_domain: data.r2_img_domain ?? '',
         ophim_img_domain: data.ophim_img_domain ?? 'https://img.ophim.live',
         home_prebuild_enabled: data.home_prebuild_enabled !== 'false',
         home_prebuild_limit: data.home_prebuild_limit ?? '24',
@@ -213,7 +213,7 @@ export default function SiteSettings() {
                                       message.error(data.error || 'Upload thất bại');
                                     }
                                   } catch {
-                                    message.error('Lỗi kết nối API upload. Cần deploy Admin lên Vercel và cấu hình R2.');
+                                    message.error('Lỗi kết nối API upload. Cần deploy Admin lên Vercel và cấu hình GITHUB_* + IMAGE_CDN_BASE.');
                                   }
                                 };
                                 reader.readAsDataURL(file);
@@ -266,7 +266,7 @@ export default function SiteSettings() {
                                       message.error(data.error || 'Upload thất bại');
                                     }
                                   } catch {
-                                    message.error('Lỗi kết nối API upload. Cần deploy Admin lên Vercel và cấu hình R2.');
+                                    message.error('Lỗi kết nối API upload. Cần deploy Admin lên Vercel và cấu hình GITHUB_* + IMAGE_CDN_BASE.');
                                   }
                                 };
                                 reader.readAsDataURL(file);
@@ -280,8 +280,8 @@ export default function SiteSettings() {
                         }
                       />
                     </Form.Item>
-                    <Form.Item name="r2_img_domain" label="Domain ảnh R2 (ưu tiên)">
-                      <Input placeholder="https://... (để trống = không dùng R2)" />
+                    <Form.Item name="r2_img_domain" label="Base URL ảnh (jsDelivr …/public)">
+                      <Input placeholder="https://cdn.jsdelivr.net/gh/user/repo@main/public" />
                     </Form.Item>
                     <Form.Item name="ophim_img_domain" label="Domain ảnh OPhim (fallback)">
                       <Input placeholder="https://img.ophim.live" />

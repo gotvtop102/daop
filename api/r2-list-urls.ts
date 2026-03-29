@@ -1,19 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { getGithubImagesRepoConfig, githubFetchTreeRecursive } from './lib/github-contents.js';
 
 const MAX_KEYS_DEFAULT = 200_000;
-
-function getR2Client() {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const key = process.env.R2_ACCESS_KEY_ID;
-  const secret = process.env.R2_SECRET_ACCESS_KEY;
-  if (!accountId || !key || !secret) return null;
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: key, secretAccessKey: secret },
-  });
-}
 
 function normalizeFolderToPrefix(folder: string): string {
   const s = String(folder || '')
@@ -24,36 +12,6 @@ function normalizeFolderToPrefix(folder: string): string {
   return s.endsWith('/') ? s : `${s}/`;
 }
 
-async function listKeysUnderPrefix(
-  client: S3Client,
-  bucket: string,
-  prefix: string,
-  cap: number
-): Promise<string[]> {
-  const keys: string[] = [];
-  let token: string | undefined;
-  while (true) {
-    const res = await client.send(
-      new ListObjectsV2Command({
-        Bucket: bucket,
-        Prefix: prefix,
-        ContinuationToken: token,
-        MaxKeys: 1000,
-      })
-    );
-    for (const it of res.Contents || []) {
-      const k = it && it.Key ? String(it.Key) : '';
-      if (!k || k.endsWith('/')) continue;
-      keys.push(k);
-      if (cap > 0 && keys.length >= cap) return keys;
-    }
-    if (!res.IsTruncated) break;
-    token = res.NextContinuationToken;
-    if (!token) break;
-  }
-  return keys;
-}
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') {
@@ -61,12 +19,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-  if (!client || !bucket) {
+  const { token, repo, branch } = getGithubImagesRepoConfig();
+  if (!token || !repo) {
     res.status(500).json({
       ok: false,
-      error: 'R2 chưa cấu hình (thiếu R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME).',
+      error: 'Thiếu token/repo ảnh (IMAGES_* hoặc GITHUB_*).',
     });
     return;
   }
@@ -93,35 +50,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const publicBaseRaw = String((body as any).public_base || process.env.R2_PUBLIC_URL || '').trim();
+  const publicBaseRaw = String((body as any).public_base || process.env.IMAGE_CDN_BASE || process.env.R2_PUBLIC_URL || '').trim();
   const publicBase = publicBaseRaw.replace(/\/$/, '');
   if (!publicBase) {
     res.status(400).json({
       ok: false,
-      error: 'Thiếu public_base hoặc biến môi trường R2_PUBLIC_URL để dựng URL.',
+      error: 'Thiếu public_base hoặc biến môi trường IMAGE_CDN_BASE để dựng URL.',
     });
     return;
   }
 
   const limitRaw = Number((body as any).limit);
-  const maxEnv = Math.max(0, Number(process.env.R2_LIST_MAX_KEYS || '') || 0);
+  const maxEnv = Math.max(0, Number(process.env.REPO_LIST_MAX_KEYS || process.env.R2_LIST_MAX_KEYS || '') || 0);
   const defaultCap = MAX_KEYS_DEFAULT;
   const cap = Number.isFinite(limitRaw) && limitRaw > 0 ? limitRaw : maxEnv > 0 ? maxEnv : defaultCap;
 
   try {
+    const blobs = await githubFetchTreeRecursive(repo, branch, token);
+    const prefixes = folders.map((f) => {
+      const p = normalizeFolderToPrefix(f);
+      return p.startsWith('public/') ? p : `public/${p}`;
+    });
+
     const allKeys: string[] = [];
     const seen = new Set<string>();
 
-    for (const folder of folders) {
-      const prefix = normalizeFolderToPrefix(folder);
-      if (!prefix) continue;
-      const keys = await listKeysUnderPrefix(client, bucket, prefix, cap - allKeys.length);
-      for (const k of keys) {
-        if (seen.has(k)) continue;
-        seen.add(k);
-        allKeys.push(k);
-        if (allKeys.length >= cap) break;
+    for (const item of blobs) {
+      const p = item.path;
+      if (!p || p.endsWith('/')) continue;
+      let rel = '';
+      for (const prefix of prefixes) {
+        if (p.startsWith(prefix) && p.length > prefix.length) {
+          rel = p.slice('public/'.length);
+          break;
+        }
       }
+      if (!rel) continue;
+      if (seen.has(rel)) continue;
+      seen.add(rel);
+      allKeys.push(rel);
       if (allKeys.length >= cap) break;
     }
 
@@ -138,7 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (e: any) {
     res.status(500).json({
       ok: false,
-      error: e && e.message ? String(e.message) : 'ListObjects R2 thất bại.',
+      error: e && e.message ? String(e.message) : 'Liệt kê file repo thất bại.',
     });
   }
 }

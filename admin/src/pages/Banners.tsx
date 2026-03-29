@@ -323,7 +323,7 @@ export default function Banners() {
                     e.target.value = '';
                   }}
                 />
-                <Button type="default" size="small">Upload R2</Button>
+                <Button type="default" size="small">Upload</Button>
               </label>
             </div>
           </Form.Item>

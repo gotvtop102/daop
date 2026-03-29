@@ -26,9 +26,9 @@ const ACTIONS: { id: ActionId; name: string; description: string }[] = [
     name: 'Export to Supabase',
     description: 'Đẩy public/data/batches lên bảng movies + movie_episodes.',
   },
-  { id: 'upload-movie-images-r2', name: 'Upload movie images to R2', description: 'Tải + nén + upload thumb/poster lên R2, rồi commit upload state.' },
-  { id: 'delete-movie-images-r2', name: 'Delete movie images on R2', description: 'Xóa ảnh trên R2 theo prefix/keys/movie_ids. Mặc định dry-run để an toàn.' },
-  { id: 'upload-r2-from-urls', name: 'Upload R2 from URLs', description: 'Upload ảnh lên R2 theo danh sách URL + movie IDs (đúng chuẩn key folder/<id>.webp).' },
+  { id: 'upload-movie-images-r2', name: 'Upload movie images to repo', description: 'Tải + nén + ghi thumb/poster vào public/, commit state.' },
+  { id: 'delete-movie-images-r2', name: 'Delete movie images in repo', description: 'Xóa file ảnh trong public/ theo prefix/keys/movie_ids. Mặc định dry-run.' },
+  { id: 'upload-r2-from-urls', name: 'Upload images from URLs', description: 'Ghi ảnh vào public/ theo URL + id (folder/<id>.webp).' },
 ];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -309,7 +309,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const r = await fetch(
-        `https://api.github.com/repos/${repo}/actions/workflows/upload-movie-images-r2.yml/dispatches`,
+        `https://api.github.com/repos/${repo}/actions/workflows/upload-movie-images-repo.yml/dispatches`,
         {
           method: 'POST',
           headers,
@@ -321,7 +321,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const t = await r.text();
         let errMsg = t;
         if (r.status === 404) {
-          errMsg = 'Workflow upload-movie-images-r2.yml không tìm thấy hoặc repo chưa có Actions.';
+          errMsg = 'Workflow upload-movie-images-repo.yml không tìm thấy hoặc repo chưa có Actions.';
         }
         if (r.status === 401) {
           errMsg = 'GITHUB_TOKEN không hợp lệ hoặc hết hạn.';
@@ -330,7 +330,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return;
       }
 
-      res.status(200).json({ ok: true, message: 'Upload movie images to R2 triggered' });
+      res.status(200).json({ ok: true, message: 'Upload movie images to repo triggered' });
       return;
     }
 
@@ -354,7 +354,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const r = await fetch(
-        `https://api.github.com/repos/${repo}/actions/workflows/delete-movie-images-r2.yml/dispatches`,
+        `https://api.github.com/repos/${repo}/actions/workflows/delete-movie-images-repo.yml/dispatches`,
         {
           method: 'POST',
           headers,
@@ -366,7 +366,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const t = await r.text();
         let errMsg = t;
         if (r.status === 404) {
-          errMsg = 'Workflow delete-movie-images-r2.yml không tìm thấy hoặc repo chưa có Actions.';
+          errMsg = 'Workflow delete-movie-images-repo.yml không tìm thấy hoặc repo chưa có Actions.';
         }
         if (r.status === 401) {
           errMsg = 'GITHUB_TOKEN không hợp lệ hoặc hết hạn.';
@@ -375,7 +375,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return;
       }
 
-      res.status(200).json({ ok: true, message: 'Delete movie images on R2 triggered' });
+      res.status(200).json({ ok: true, message: 'Delete movie images in repo triggered' });
       return;
     }
 
@@ -390,7 +390,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const r = await fetch(
-        `https://api.github.com/repos/${repo}/actions/workflows/upload-r2-from-urls.yml/dispatches`,
+        `https://api.github.com/repos/${repo}/actions/workflows/upload-images-from-urls.yml/dispatches`,
         {
           method: 'POST',
           headers,
@@ -402,7 +402,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const t = await r.text();
         let errMsg = t;
         if (r.status === 404) {
-          errMsg = 'Workflow upload-r2-from-urls.yml không tìm thấy hoặc repo chưa có Actions.';
+          errMsg = 'Workflow upload-images-from-urls.yml không tìm thấy hoặc repo chưa có Actions.';
         }
         if (r.status === 401) {
           errMsg = 'GITHUB_TOKEN không hợp lệ hoặc hết hạn.';
@@ -411,7 +411,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return;
       }
 
-      res.status(200).json({ ok: true, message: 'Upload R2 from URLs triggered' });
+      res.status(200).json({ ok: true, message: 'Upload images from URLs triggered' });
       return;
     }
 

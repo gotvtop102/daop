@@ -4,13 +4,18 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 import sharp from 'sharp';
-import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import {
+  getImageCdnBase,
+  repoImageKeyExists,
+  writeRepoImageFile,
+  isCdnRepoImageUrl,
+} from './lib/repo-images.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
 
-/** State: R2_STATE_PRETTY=1 → JSON đẹp; R2_STATE_WARN_MB / R2_STATE_WARN_ENTRIES → ngưỡng cảnh báo file lớn. */
+/** State: REPO_IMAGE_STATE_PRETTY=1 (hoặc R2_STATE_PRETTY) → JSON đẹp; cảnh báo file state lớn. */
 
 function parseArgs(argv) {
   const out = {};
@@ -29,63 +34,9 @@ function parseArgs(argv) {
   return out;
 }
 
-function sanitizeR2Name(name) {
-  const raw = String(name || '').trim();
-  if (!raw) return '';
-  const n = raw.replace(/\\/g, '/').split('/').pop() || '';
-  return n.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 180);
-}
-
-function getR2Client() {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const key = process.env.R2_ACCESS_KEY_ID;
-  const secret = process.env.R2_SECRET_ACCESS_KEY;
-  if (!accountId || !key || !secret) return null;
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: key, secretAccessKey: secret },
-  });
-}
-
-/** Giống build.js: tránh upload trùng khi object id-based đã có trên R2 (kể cả mất/corrupt state file). */
-async function r2KeyExists(client, bucket, key) {
-  if (!client || !bucket || !key) return false;
-  try {
-    await client.send(
-      new HeadObjectCommand({
-        Bucket: bucket,
-        Key: key,
-      })
-    );
-    return true;
-  } catch (e) {
-    const status = e && e.$metadata && typeof e.$metadata.httpStatusCode === 'number'
-      ? e.$metadata.httpStatusCode
-      : undefined;
-    if (status === 404) return false;
-    if (status === 401 || status === 403) {
-      console.warn('WARNING: R2 HeadObject not allowed (HTTP ' + status + '). Không thể xác nhận key, tiếp tục upload. key=' + key);
-      return false;
-    }
-    return false;
-  }
-}
-
-async function uploadToR2(buffer, key, contentType) {
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-  if (!client || !bucket) return false;
-  await client.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: buffer,
-      ContentType: contentType,
-      CacheControl: 'public, max-age=31536000, immutable',
-    })
-  );
-  return true;
+async function uploadToRepo(buffer, key, contentType) {
+  const url = await writeRepoImageFile(buffer, key, contentType);
+  return !!url;
 }
 
 function guessExtFromContentType(ct) {
@@ -238,7 +189,7 @@ function formatBytes(n) {
   return `${(n / (1024 * 1024)).toFixed(2)} MiB`;
 }
 
-function logR2StateStats(label, state, statePath) {
+function logRepoImageStateStats(label, state, statePath) {
   const entries = state && state.uploaded && typeof state.uploaded === 'object'
     ? Object.keys(state.uploaded).length
     : 0;
@@ -248,19 +199,19 @@ function logR2StateStats(label, state, statePath) {
   } catch {
     /* ignore */
   }
-  const warnMb = Math.max(1, Number(process.env.R2_STATE_WARN_MB || 40) || 40);
-  const warnN = Math.max(1000, Number(process.env.R2_STATE_WARN_ENTRIES || 400000) || 400000);
-  console.log(`   [r2_upload_state] ${label}: ${entries} movie id(s), file ~${formatBytes(bytes)} (${statePath})`);
+  const warnMb = Math.max(1, Number(process.env.REPO_IMAGE_STATE_WARN_MB || process.env.R2_STATE_WARN_MB || 40) || 40);
+  const warnN = Math.max(1000, Number(process.env.REPO_IMAGE_STATE_WARN_ENTRIES || process.env.R2_STATE_WARN_ENTRIES || 400000) || 400000);
+  console.log(`   [repo_image_upload_state] ${label}: ${entries} movie id(s), file ~${formatBytes(bytes)} (${statePath})`);
   if (bytes > warnMb * 1024 * 1024) {
-    console.warn(`   [r2_upload_state] Cảnh báo: file state > ~${warnMb} MiB — xem xóa key cũ (delete-movie-images-r2) hoặc tách repo.`);
+    console.warn(`   [repo_image_upload_state] Cảnh báo: file state > ~${warnMb} MiB — xem xóa key cũ (delete-movie-images-repo) hoặc tách repo.`);
   }
   if (entries > warnN) {
-    console.warn(`   [r2_upload_state] Cảnh báo: > ${warnN} id trong state — theo dõi dung lượng file.`);
+    console.warn(`   [repo_image_upload_state] Cảnh báo: > ${warnN} id trong state — theo dõi dung lượng file.`);
   }
 }
 
 function stringifyState(state) {
-  const pretty = /^1|true|yes$/i.test(String(process.env.R2_STATE_PRETTY || '').trim());
+  const pretty = /^1|true|yes$/i.test(String(process.env.REPO_IMAGE_STATE_PRETTY || process.env.R2_STATE_PRETTY || '').trim());
   return pretty ? JSON.stringify(state, null, 2) : JSON.stringify(state);
 }
 
@@ -319,13 +270,6 @@ function parseBool(raw, fallback) {
   return !!fallback;
 }
 
-function isR2PublicUrl(u) {
-  const base = String(process.env.R2_PUBLIC_URL || '').trim().replace(/\/$/, '');
-  if (!base) return false;
-  const s = String(u || '').trim();
-  if (!s) return false;
-  return s.startsWith(base + '/');
-}
 
 async function fetchOphimDetailBySlug(base, slug) {
   const b = String(base || '').replace(/\/$/, '');
@@ -373,7 +317,9 @@ async function main() {
   const posterH = Number(args.poster_height || 274);
 
   const forceSlugSet = normalizeSlugSet(parseSlugList(args.force_slugs));
-  const reuploadExisting = parseBool(args.reupload_existing, false) || parseBool(process.env.R2_REUPLOAD_EXISTING, false);
+  const reuploadExisting = parseBool(args.reupload_existing, false)
+    || parseBool(process.env.REPO_IMAGE_REUPLOAD_EXISTING, false)
+    || parseBool(process.env.R2_REUPLOAD_EXISTING, false);
 
   const ophimBase = String(args.ophim_base || process.env.OPHIM_BASE_URL || 'https://ophim1.com/v1/api').replace(/\/$/, '');
   const fallbackOphim = parseBool(args.fallback_ophim, true);
@@ -385,7 +331,7 @@ async function main() {
       {
         mode,
         reupload_existing_arg: args.reupload_existing != null ? String(args.reupload_existing) : null,
-        R2_REUPLOAD_EXISTING_env: process.env.R2_REUPLOAD_EXISTING != null ? String(process.env.R2_REUPLOAD_EXISTING) : null,
+        REPO_IMAGE_REUPLOAD_EXISTING_env: process.env.REPO_IMAGE_REUPLOAD_EXISTING != null ? String(process.env.REPO_IMAGE_REUPLOAD_EXISTING) : null,
         reuploadExisting,
         fallbackOphim,
         forceSlugs: forceSlugSet ? forceSlugSet.size : 0,
@@ -400,21 +346,15 @@ async function main() {
   const limit = args.limit != null ? Math.max(0, Number(args.limit)) : 0;
   const concurrency = Math.max(1, Math.min(32, Number(args.concurrency || 6)));
 
-  const stateRel = args.state_file || 'public/data/r2_upload_state.json';
+  const stateRel = args.state_file || 'public/data/repo_image_upload_state.json';
   const statePath = path.isAbsolute(stateRel) ? stateRel : path.join(ROOT, stateRel);
   const state = loadState(statePath);
 
-  const missing = [];
-  if (!process.env.R2_ACCOUNT_ID) missing.push('R2_ACCOUNT_ID');
-  if (!process.env.R2_ACCESS_KEY_ID) missing.push('R2_ACCESS_KEY_ID');
-  if (!process.env.R2_SECRET_ACCESS_KEY) missing.push('R2_SECRET_ACCESS_KEY');
-  if (!process.env.R2_BUCKET_NAME) missing.push('R2_BUCKET_NAME');
-  if (!process.env.R2_PUBLIC_URL) missing.push('R2_PUBLIC_URL');
-  if (missing.length) throw new Error('Missing env: ' + missing.join(', '));
+  if (!getImageCdnBase()) {
+    throw new Error('Missing IMAGE_CDN_BASE (hoặc R2_PUBLIC_URL tương thích) — base jsDelivr …/public');
+  }
 
-  const r2Client = getR2Client();
-  const r2Bucket = process.env.R2_BUCKET_NAME;
-  logR2StateStats('loaded', state, statePath);
+  logRepoImageStateStats('loaded', state, statePath);
 
   let moviesToProcess = [];
   if (forceSlugSet) {
@@ -508,23 +448,20 @@ async function main() {
 
       const folderEarly = kind === 'thumb' ? 'thumbs' : 'posters';
       const objectKeyEarly = `${folderEarly}/${idStr}.webp`;
-      if (!reuploadExisting && r2Client && r2Bucket) {
-        const existsOnR2 = await r2KeyExists(r2Client, r2Bucket, objectKeyEarly);
-        if (existsOnR2) {
-          state.uploaded[idStr] = state.uploaded[idStr] || {};
-          state.uploaded[idStr][kind] = { ok: true, at: Date.now(), key: objectKeyEarly, skip: 'r2_head' };
-          skipped++;
-          skippedAlready++;
-          continue;
-        }
+      if (!reuploadExisting && repoImageKeyExists(objectKeyEarly)) {
+        state.uploaded[idStr] = state.uploaded[idStr] || {};
+        state.uploaded[idStr][kind] = { ok: true, at: Date.now(), key: objectKeyEarly, skip: 'file_exists' };
+        skipped++;
+        skippedAlready++;
+        continue;
       }
 
       let rawUrl = kind === 'thumb'
         ? (m.thumb_url || m.thumb || '')
         : (m.poster_url || m.poster || derivePosterFromThumb(m.thumb_url || m.thumb || '') || '');
 
-      // If source is missing or points to R2 public url, try fallback to OPhim by slug.
-      if (!rawUrl || isR2PublicUrl(rawUrl)) {
+      // If source is missing or points to CDN url, try fallback to OPhim by slug.
+      if (!rawUrl || isCdnRepoImageUrl(rawUrl)) {
         const ophim = await getOphimSource();
         if (ophim) {
           rawUrl = kind === 'thumb'
@@ -583,7 +520,7 @@ async function main() {
       const key = `${folder}/${idStr}.webp`;
 
       try {
-        await uploadToR2(optimized, key, 'image/webp');
+        await uploadToRepo(optimized, key, 'image/webp');
         uploaded++;
         state.uploaded[idStr] = state.uploaded[idStr] || {};
         state.uploaded[idStr][kind] = { ok: true, at: Date.now(), key, bytes: optimized.length };
@@ -617,7 +554,7 @@ async function main() {
 
   await enqueueStateWrite();
   await writeQueue;
-  logR2StateStats('saved', state, statePath);
+  logRepoImageStateStats('saved', state, statePath);
 
   if (failureSamples.length) {
     console.log('Failure samples (first ' + failureSamples.length + '):');

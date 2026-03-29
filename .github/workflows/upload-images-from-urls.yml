@@ -1,4 +1,4 @@
-name: Upload R2 From URLs
+name: Upload repo images from URLs
 
 on:
   workflow_dispatch:
@@ -46,6 +46,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -56,9 +58,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Upload to R2
+      - name: Download + write public/<folder>
         run: |
-          node scripts/upload-r2-from-urls.js \
+          node scripts/upload-images-from-urls.js \
             --folder "${{ inputs.folder }}" \
             --pairs "${{ inputs.pairs }}" \
             --ids "${{ inputs.ids }}" \
@@ -68,15 +70,29 @@ jobs:
             --height "${{ inputs.height }}" \
             --limit "${{ inputs.limit }}" \
             --concurrency "${{ inputs.concurrency }}" \
-            --out_log "tmp/r2_upload_from_urls.json"
+            --out_log "tmp/repo_upload_from_urls.json"
         env:
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
+
+      - name: Push movie images to assets GitHub repo
+        if: ${{ secrets.IMAGES_REPO != '' }}
+        run: node scripts/push-images-to-assets-repo.js
+        env:
+          IMAGES_REPO: ${{ secrets.IMAGES_REPO }}
+          IMAGES_TOKEN: ${{ secrets.IMAGES_TOKEN || secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          IMAGES_BRANCH: ${{ secrets.IMAGES_BRANCH }}
+
+      - name: Commit images
+        env:
+          GIT_ADD_PUBLIC_ROOT: ${{ secrets.IMAGES_REPO != '' && '' || 'public' }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add tmp/repo_upload_from_urls.json $GIT_ADD_PUBLIC_ROOT
+          git diff --staged --quiet || (git commit -m "chore: images from urls" && git push)
 
       - name: Upload log artifact
         uses: actions/upload-artifact@v4
         with:
-          name: r2_upload_from_urls_log
-          path: tmp/r2_upload_from_urls.json
+          name: repo_upload_from_urls_log
+          path: tmp/repo_upload_from_urls.json

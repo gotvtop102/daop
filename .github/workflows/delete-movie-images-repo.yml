@@ -1,4 +1,4 @@
-name: Delete movie images on R2
+name: Delete movie images in repo
 on:
   workflow_dispatch:
     inputs:
@@ -15,7 +15,7 @@ on:
         required: false
         default: ""
       movie_ids:
-        description: "Movie IDs to delete from r2_upload_state.json (newline/comma separated)"
+        description: "Movie IDs to delete from repo_image_upload_state.json (newline/comma separated)"
         required: false
         default: ""
       kind:
@@ -45,9 +45,9 @@ jobs:
 
       - run: npm install
 
-      - name: Delete images on R2
+      - name: Delete images under public/
         run: |
-          node scripts/delete-movie-images-r2.js \
+          node scripts/delete-movie-images-repo.js \
             --mode "${{ inputs.mode }}" \
             --prefix "${{ inputs.prefix }}" \
             --keys "${{ inputs.keys }}" \
@@ -56,14 +56,13 @@ jobs:
             --dry_run "${{ inputs.dry_run }}" \
             --limit "${{ inputs.limit }}"
         env:
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          IMAGES_REPO: ${{ secrets.IMAGES_REPO }}
+          IMAGES_TOKEN: ${{ secrets.IMAGES_TOKEN || secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          IMAGES_BRANCH: ${{ secrets.IMAGES_BRANCH }}
 
       - name: Commit delete state
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add public/data/r2_upload_state.json
-          git diff --staged --quiet || (git commit -m "chore: update R2 upload state (delete)" && git push)
+          git add public/data/repo_image_upload_state.json
+          git diff --staged --quiet || (git commit -m "chore: repo image upload state (delete)" && git push)

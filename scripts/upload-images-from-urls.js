@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs-extra';
 import sharp from 'sharp';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { writeRepoImageFile, getImageCdnBase } from './lib/repo-images.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -91,18 +91,6 @@ function normalizeFolder(folder) {
   return out;
 }
 
-function getR2Client() {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const key = process.env.R2_ACCESS_KEY_ID;
-  const secret = process.env.R2_SECRET_ACCESS_KEY;
-  if (!accountId || !key || !secret) return null;
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: key, secretAccessKey: secret },
-  });
-}
-
 function isHttpUrl(u) {
   try {
     const x = new URL(String(u));
@@ -116,7 +104,7 @@ async function fetchBuffer(url) {
   const r = await fetch(url, {
     redirect: 'follow',
     headers: {
-      'User-Agent': 'daop-movie-upload-r2-from-urls',
+      'User-Agent': 'daop-movie-upload-images-from-urls',
       Accept: 'image/*,*/*;q=0.8',
     },
   });
@@ -142,18 +130,6 @@ async function toWebp(buf, opts) {
   return await img.webp({ quality: q }).toBuffer();
 }
 
-async function uploadToR2(client, bucket, key, body) {
-  await client.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: body,
-      ContentType: 'image/webp',
-      CacheControl: 'public, max-age=31536000, immutable',
-    })
-  );
-}
-
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const folder = normalizeFolder(args.folder || 'thumbs');
@@ -174,10 +150,8 @@ async function main() {
     }
   }
 
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-  if (!client || !bucket) {
-    throw new Error('Missing R2 credentials env (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME)');
+  if (!getImageCdnBase()) {
+    throw new Error('Missing IMAGE_CDN_BASE (jsDelivr base …/public)');
   }
 
   const items = usePairs
@@ -191,11 +165,11 @@ async function main() {
     throw new Error(`Invalid item: name="${bad.name}" url="${bad.url}"`);
   }
 
-  const outRel = String(args.out_log || 'tmp/r2_upload_from_urls.json');
+  const outRel = String(args.out_log || 'tmp/repo_upload_from_urls.json');
   const outLog = path.isAbsolute(outRel) ? outRel : path.join(ROOT, outRel);
   fs.ensureDirSync(path.dirname(outLog));
 
-  console.log('Upload R2 from URLs', { folder, count: chosen.length, concurrency, mode: usePairs ? 'pairs' : 'ids_urls' });
+  console.log('Upload repo images from URLs', { folder, count: chosen.length, concurrency, mode: usePairs ? 'pairs' : 'ids_urls' });
 
   let next = 0;
   const results = [];
@@ -215,7 +189,7 @@ async function main() {
           width: args.width,
           height: args.height,
         });
-        await uploadToR2(client, bucket, key, webp);
+        await writeRepoImageFile(webp, key, 'image/webp');
         results.push({ ok: true, name: item.name, url: item.url, key, bytes: webp.length });
       } catch (e) {
         results.push({ ok: false, name: item.name, url: item.url, key, error: e && e.message ? e.message : String(e) });

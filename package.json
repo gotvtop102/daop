@@ -12,7 +12,6 @@
     "check-public": "node scripts/check-public-conflict-markers.mjs"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.490.0",
     "@supabase/supabase-js": "^2.39.0",
     "dotenv": "^16.3.1",
     "fs-extra": "^11.2.0",

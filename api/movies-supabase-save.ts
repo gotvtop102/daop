@@ -1,5 +1,5 @@
 /**
- * Tách khỏi movies-supabase.ts để bundle /api/movies không kéo movies-media (sharp, @aws-sdk/s3).
+ * Tách khỏi movies-supabase.ts để bundle /api/movies không kéo movies-media (sharp, GitHub API).
  * Chỉ được import động từ api/movies.ts khi action=save.
  */
 import { movieExistsByIdRest, moviePayloadToRow, upsertMovieRowRest } from './movies-supabase.js';

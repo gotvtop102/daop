@@ -293,7 +293,7 @@ export default function GitHubActions() {
       setR2LinkOutput(urls.join('\n'));
       let msg = `Đã lấy ${data.count} link từ bucket.`;
       if (data.capped) {
-        msg += ` (dừng ở giới hạn ${data.cap}; tăng «Giới hạn» hoặc đổi R2_LIST_MAX_KEYS trên server nếu cần.)`;
+        msg += ` (dừng ở giới hạn ${data.cap}; tăng «Giới hạn» hoặc đổi REPO_LIST_MAX_KEYS trên server nếu cần.)`;
       }
       message.success(msg);
     } catch (e: any) {
@@ -383,19 +383,19 @@ export default function GitHubActions() {
   };
 
   const handleTriggerDeleteR2 = async () => {
-    const PHRASE = 'XOA ANH R2';
+    const PHRASE = 'XOA ANH REPO';
     const values = await deleteForm.validateFields();
     const dryRun = !!values.dry_run;
     let typed = '';
     Modal.confirm({
-      title: dryRun ? 'Xác nhận chạy thử xóa ảnh R2 (dry-run)' : 'Xác nhận XÓA ảnh hàng loạt trên R2',
+      title: dryRun ? 'Xác nhận chạy thử xóa ảnh (dry-run)' : 'Xác nhận XÓA ảnh hàng loạt trong repo',
       okText: dryRun ? 'Chạy dry-run' : 'XÓA ảnh',
       okType: 'danger',
       cancelText: 'Hủy',
       content: (
         <div>
           <div style={{ marginBottom: 8 }}>
-            Thao tác này sẽ {dryRun ? 'chỉ liệt kê đối tượng khớp điều kiện (không xóa thật).' : 'xóa ảnh hàng loạt trên R2 và không thể hoàn tác.'}
+            Thao tác này sẽ {dryRun ? 'chỉ liệt kê đối tượng khớp điều kiện (không xóa thật).' : 'xóa file ảnh trong public/ và không thể hoàn tác.'}
           </div>
           <div style={{ marginBottom: 8 }}>
             Nhập chính xác cụm sau để xác nhận: <b>{PHRASE}</b>
@@ -1093,7 +1093,7 @@ export default function GitHubActions() {
                     <Form.Item style={{ marginBottom: 8 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
                         <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                          Tự động upload ảnh lên R2 sau khi Update data:
+                          Tự động ghi ảnh vào repo sau khi Update data:
                         </Text>
                         <Switch checked={autoUploadImagesAfterBuild} onChange={setAutoUploadImagesAfterBuild} />
                       </div>
@@ -1102,7 +1102,7 @@ export default function GitHubActions() {
                     <Form.Item style={{ marginBottom: 8 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
                         <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                          Chỉ deploy Cloudflare sau khi upload ảnh R2 xong (khi chạy 2 pha):
+                          Chỉ deploy Cloudflare sau khi ghi ảnh xong (khi chạy 2 pha):
                         </Text>
                         <Switch checked={deployAfterR2Upload} onChange={setDeployAfterR2Upload} />
                       </div>
@@ -1182,7 +1182,7 @@ export default function GitHubActions() {
           },
           {
             key: 'r2-manager',
-            label: 'Quản lý ảnh R2',
+            label: 'Quản lý ảnh (repo + CDN)',
             children: (
               <Tabs
                 items={[
@@ -1295,7 +1295,7 @@ export default function GitHubActions() {
                     key: 'r2-upload',
                     label: 'Upload',
                     children: (
-                      <Card title="Upload ảnh lên R2">
+                      <Card title="Upload ảnh vào repo">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
                           Upload hàng loạt bằng GitHub Actions. Hỗ trợ force slugs (OPhim).
                         </Text>
@@ -1488,7 +1488,7 @@ export default function GitHubActions() {
                     key: 'r2-download',
                     label: 'Link ảnh',
                     children: (
-                      <Card title="Link ảnh R2">
+                      <Card title="Link ảnh (jsDelivr)">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
                           Tạo URL công khai để tải trực tiếp (trình duyệt, wget, IDM…). Domain lấy từ Cài đặt trang (r2_img_domain), có thể sửa tạm bên dưới.
                           Chế độ theo prefix gọi API liệt kê object trên R2 (cần biến môi trường R2 trên Vercel).
@@ -1618,7 +1618,7 @@ export default function GitHubActions() {
                     key: 'r2-delete',
                     label: 'Delete',
                     children: (
-                      <Card title="Delete ảnh trên R2">
+                      <Card title="Xóa ảnh trong repo">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
                           Xóa ảnh theo prefix (thư mục), theo keys, hoặc theo movie ids (đọc từ r2_upload_state.json). Mặc định chạy dry-run để an toàn.
                         </Text>

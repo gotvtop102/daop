@@ -1,4 +1,9 @@
-import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import {
+  ensurePublicFolderInRemoteRepo,
+  getGithubImagesRepoConfig,
+  githubGetFileSha,
+  githubPutFileBase64,
+} from './lib/github-contents.js';
 
 /** Lazy-load sharp (native) — import tĩnh hay gây FUNCTION_INVOCATION_FAILED trên Vercel. */
 async function getSharp() {
@@ -6,14 +11,10 @@ async function getSharp() {
   return m.default;
 }
 
-export function isR2Configured() {
-  return !!(
-    process.env.R2_ACCOUNT_ID &&
-    process.env.R2_ACCESS_KEY_ID &&
-    process.env.R2_SECRET_ACCESS_KEY &&
-    process.env.R2_BUCKET_NAME &&
-    process.env.R2_PUBLIC_URL
-  );
+export function isRepoImageCdnConfigured() {
+  const base = String(process.env.IMAGE_CDN_BASE || process.env.R2_PUBLIC_URL || '').trim();
+  const { token, repo } = getGithubImagesRepoConfig();
+  return !!(token && repo && base);
 }
 
 function normalizeSourceImageUrl(u: string) {
@@ -22,58 +23,6 @@ function normalizeSourceImageUrl(u: string) {
   if (s.startsWith('/uploads/')) return `https://img.ophim.live${s}`;
   if (s.startsWith('//')) return `https:${s}`;
   return s;
-}
-
-function getR2Client() {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const key = process.env.R2_ACCESS_KEY_ID;
-  const secret = process.env.R2_SECRET_ACCESS_KEY;
-  if (!accountId || !key || !secret) return null;
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: key, secretAccessKey: secret },
-  });
-}
-
-async function r2KeyExists(key: string): Promise<boolean> {
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-  if (!client || !bucket || !key) return false;
-  try {
-    await client.send(
-      new HeadObjectCommand({
-        Bucket: bucket,
-        Key: key,
-      })
-    );
-    return true;
-  } catch (e: any) {
-    const status = e?.$metadata?.httpStatusCode;
-    if (status === 404) return false;
-    if (status === 401 || status === 403) {
-      console.warn('[movies-media] R2 HeadObject denied (HTTP ' + status + '). Không bỏ qua upload. key=' + key);
-      return false;
-    }
-    return false;
-  }
-}
-
-async function uploadToR2(buffer: Buffer, key: string, contentType = 'image/webp') {
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-  if (!client || !bucket) return null;
-  await client.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: buffer,
-      ContentType: contentType,
-      CacheControl: 'public, max-age=31536000, immutable',
-    })
-  );
-  const base = String(process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
-  return base ? `${base}/${key}` : null;
 }
 
 async function optimizeToWebp(input: Buffer) {
@@ -88,26 +37,37 @@ export async function uploadMovieImageById(sourceUrl: string, id: string, folder
   const url = normalizeSourceImageUrl(String(sourceUrl || '').trim());
   const idStr = String(id || '').trim();
   if (!url || !idStr) return '';
-  const base = String(process.env.R2_PUBLIC_URL || '').trim();
+  const base = String(process.env.IMAGE_CDN_BASE || process.env.R2_PUBLIC_URL || '').trim().replace(/\/$/, '');
   if (!base) return '';
   const key = `${folder}/${idStr}.webp`;
-  if (await r2KeyExists(key)) {
-    return `${base.replace(/\/$/, '')}/${key}`;
+  const filePath = `public/${key}`;
+  const { token, repo, branch } = getGithubRepoConfig();
+  if (!token || !repo) return '';
+
+  if (await githubGetFileSha(repo, filePath, branch, token)) {
+    return `${base}/${key}`;
   }
   try {
     const res = await fetch(url);
     if (!res.ok) return '';
     const buf = Buffer.from(await res.arrayBuffer());
     const optimized = await optimizeToWebp(buf);
-    const out = await uploadToR2(optimized, key, 'image/webp');
-    return out || '';
+    await githubPutFileBase64({
+      repo,
+      path: filePath,
+      branch,
+      token,
+      contentBase64: optimized.toString('base64'),
+      message: `chore: upload movie image ${folder}/${idStr}.webp`,
+    });
+    return `${base}/${key}`;
   } catch {
     return '';
   }
 }
 
-/** Upload ảnh lên R2 và xóa URL khỏi payload. */
-export async function applyMovieR2Uploads(movieData: any) {
+/** Upload ảnh lên repo (GitHub) và xóa URL khỏi payload — URL hiển thị lấy từ site_settings (r2_img_domain / CDN base). */
+export async function applyMovieRepoImageUploads(movieData: any) {
   const idStr = String(movieData.id || '').trim();
   if (!idStr) return;
 
@@ -115,10 +75,9 @@ export async function applyMovieR2Uploads(movieData: any) {
   const posterSrc = String(movieData.poster_url || movieData.poster || '').trim() || thumbSrc;
 
   const hasAnyImage = !!(thumbSrc || posterSrc);
-  if (hasAnyImage && !isR2Configured()) {
+  if (hasAnyImage && !isRepoImageCdnConfigured()) {
     throw new Error(
-      'R2 chưa cấu hình (thiếu R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET_NAME/R2_PUBLIC_URL). ' +
-        'Không thể lưu vì hệ thống đang chạy chế độ R2-only.'
+      'Chưa cấu hình đủ token/repo ảnh (IMAGES_TOKEN+IMAGES_REPO hoặc GITHUB_TOKEN+GITHUB_REPO), nhánh tuỳ chọn, IMAGE_CDN_BASE (jsDelivr …/public).'
     );
   }
 
@@ -126,14 +85,19 @@ export async function applyMovieR2Uploads(movieData: any) {
   const r2Poster = posterSrc ? await uploadMovieImageById(posterSrc, idStr, 'posters') : '';
 
   if (thumbSrc && !r2Thumb) {
-    throw new Error('Upload R2 thumb thất bại. Kiểm tra quyền bucket, R2_PUBLIC_URL, và link ảnh nguồn.');
+    throw new Error('Upload thumb thất bại. Kiểm tra quyền token, IMAGE_CDN_BASE, và link ảnh nguồn.');
   }
   if (posterSrc && !r2Poster) {
-    throw new Error('Upload R2 poster thất bại. Kiểm tra quyền bucket, R2_PUBLIC_URL, và link ảnh nguồn.');
+    throw new Error('Upload poster thất bại. Kiểm tra quyền token, IMAGE_CDN_BASE, và link ảnh nguồn.');
   }
 
   movieData.thumb_url = '';
   movieData.poster_url = '';
   movieData.thumb = '';
   movieData.poster = '';
+}
+
+/** @deprecated dùng applyMovieRepoImageUploads */
+export async function applyMovieR2Uploads(movieData: any) {
+  return applyMovieRepoImageUploads(movieData);
 }

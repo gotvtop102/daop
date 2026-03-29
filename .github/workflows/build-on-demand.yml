@@ -7,11 +7,11 @@ on:
         required: false
         default: 'incremental'
       upload_images:
-        description: 'Sau khi build xong thì tải/nén/upload ảnh thumb/poster lên R2 (true/false)'
+        description: 'Sau khi build xong thì ghi ảnh thumb/poster vào repo (public/) (true/false)'
         required: false
         default: 'false'
       reupload_existing:
-        description: 'Upload lại ảnh đã upload (bỏ qua r2_upload_state.json) (true/false)'
+        description: 'Upload lại ảnh đã upload (bỏ qua repo_image_upload_state.json) (true/false)'
         required: false
         default: 'false'
       start_page:
@@ -109,11 +109,7 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
-          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Build (full)
         if: ${{ env.BUILD_MODE == 'full' }}
@@ -127,11 +123,7 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
-          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Build CORE (two_phase)
         if: ${{ env.BUILD_MODE == 'two_phase' }}
@@ -146,11 +138,7 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
-          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Build TMDB ONLY (two_phase)
         if: ${{ env.BUILD_MODE == 'two_phase' }}
@@ -165,28 +153,32 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
-          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
-      - name: Upload movie images to R2 (after build)
+      - name: Upload movie images to repo (after build)
         if: ${{ env.UPLOAD_IMAGES == 'true' }}
         run: |
-          node scripts/upload-movie-images-r2.js \
+          node scripts/upload-movie-images-repo.js \
             --reupload_existing "${{ inputs.reupload_existing }}"
         env:
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
-          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
+          REPO_IMAGE_REUPLOAD_EXISTING: ${{ inputs.reupload_existing }}
+
+      - name: Push movie images to assets GitHub repo
+        if: ${{ env.UPLOAD_IMAGES == 'true' && secrets.IMAGES_REPO != '' }}
+        run: node scripts/push-images-to-assets-repo.js
+        env:
+          IMAGES_REPO: ${{ secrets.IMAGES_REPO }}
+          IMAGES_TOKEN: ${{ secrets.IMAGES_TOKEN || secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          IMAGES_BRANCH: ${{ secrets.IMAGES_BRANCH }}
+
       - name: Commit and push
+        env:
+          GIT_ADD_PUBLIC_IMAGES: ${{ secrets.IMAGES_REPO != '' && '' || 'public/thumbs public/posters' }}
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add public/data public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
+          git add public/data $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if git diff --staged --quiet; then
