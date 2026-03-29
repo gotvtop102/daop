@@ -1,23 +1,23 @@
-name = "daop-movie"
-compatibility_date = "2026-03-27"
+name = "daop"
+compatibility_date = "2026-03-29"
 pages_build_output_dir = "public"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "ophimcomment"
-database_id = "da00788d-f9ee-49bf-86ad-e8324cf85ed4"
+database_id = "18c4ed3a-ba65-496a-9400-d01337c6d0e7"
 
 [[kv_namespaces]]
 binding = "COMMENT_CACHE"
-id = "1319cdb360d3415b8556629f81fedc4e"
+id = "c5ed3fedc921460f9a407c82739b64e4"
 
 [[kv_namespaces]]
 binding = "COMMENT_RATE_LIMIT"
-id = "2cf2aedc25d643b88e3b427daf4a5622"
+id = "3cf12d0fd4874a1a9682f262fd3edb0d"
 
 [vars]
 # Khai báo trên Cloudflare Pages > Settings > Environment variables (không commit secret thật vào Git)
-SUPABASE_JWT_SECRET = "8Jq9a1K/WeKNKnhAqtQiMVG0npk9lMmhq4Eg+fTpd01VEKbMAMmJGMPnbCgMsPFczKeEs2krZyO/lyECOATuwA=="
+SUPABASE_JWT_SECRET = ""
 # COMMENTS_ADMIN_SECRET — KHÔNG đặt trong [vars] (plaintext). Chỉ thêm qua Secrets (mã hóa) trên Dashboard
 # hoặc: npx wrangler pages secret put COMMENTS_ADMIN_SECRET --project-name=<tên-project-Pages>
 
