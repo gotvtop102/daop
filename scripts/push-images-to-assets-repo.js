@@ -13,8 +13,84 @@ import { ensurePublicFolderInRemoteRepo } from './lib/github-images-remote.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 
-function sh(cmd, cwd = ROOT) {
-  execSync(cmd, { stdio: 'inherit', encoding: 'utf8', cwd });
+function sh(cmd, cwd = ROOT, { inherit = true } = {}) {
+  try {
+    if (inherit) {
+      execSync(cmd, { stdio: 'inherit', encoding: 'utf8', cwd });
+      return { ok: true, out: '' };
+    }
+    const out = execSync(cmd, { stdio: 'pipe', encoding: 'utf8', cwd });
+    return { ok: true, out: String(out || '') };
+  } catch (e) {
+    const stderr = e?.stderr ? String(e.stderr) : '';
+    const stdout = e?.stdout ? String(e.stdout) : '';
+    const msg = [stdout, stderr].filter(Boolean).join('\n');
+    const err = new Error(msg || String(e?.message || e));
+    err.cause = e;
+    throw err;
+  }
+}
+
+function isAuthOrPermissionError(text) {
+  const t = String(text || '').toLowerCase();
+  return (
+    t.includes('permission to') ||
+    t.includes('access denied') ||
+    t.includes('authentication failed') ||
+    t.includes('could not read username') ||
+    t.includes('fatal: unable to access') ||
+    t.includes('http basic: access denied') ||
+    t.includes('403')
+  );
+}
+
+function isNonFastForwardError(text) {
+  const t = String(text || '').toLowerCase();
+  return (
+    t.includes('rejected') && (t.includes('fetch first') || t.includes('non-fast-forward')) ||
+    t.includes('failed to push some refs') ||
+    t.includes('remote contains work that you do not have locally')
+  );
+}
+
+function pushWithRebaseRetry({ cloneDir, branch, maxAttempts = 5 }) {
+  for (let i = 1; i <= maxAttempts; i++) {
+    try {
+      sh(`git push origin "HEAD:${branch}"`, cloneDir, { inherit: true });
+      return;
+    } catch (e) {
+      const msg = String(e?.message || e);
+      if (isAuthOrPermissionError(msg)) {
+        throw new Error(
+          [
+            'Không push được lên repo ảnh do thiếu quyền (403/permission denied).',
+            '- Hãy tạo PAT có quyền `Contents: Read and write` cho repo ảnh (IMAGES_REPO).',
+            '- Lưu PAT vào GitHub Secret `IMAGES_TOKEN` ở repo dự án (KHÔNG dùng prefix GITHUB_*).',
+            '',
+            'Chi tiết lỗi:',
+            msg.slice(0, 800),
+          ].join('\n')
+        );
+      }
+      if (!isNonFastForwardError(msg) || i === maxAttempts) {
+        throw e;
+      }
+      console.log(`git push bị reject (fetch first) — retry ${i}/${maxAttempts}...`);
+      sh(`git fetch origin "${branch}" --depth 50`, cloneDir, { inherit: true });
+      try {
+        // Ưu tiên giữ nội dung local (đang sync từ repo dự án).
+        sh(`git rebase "origin/${branch}"`, cloneDir, { inherit: true });
+      } catch (rebaseErr) {
+        // Nếu conflict (hiếm), abort để tránh repo rơi vào trạng thái dở.
+        try {
+          sh('git rebase --abort', cloneDir, { inherit: true });
+        } catch {}
+        throw rebaseErr;
+      }
+      sh('git status', cloneDir, { inherit: true });
+      // tiếp tục vòng lặp push lại
+    }
+  }
 }
 
 async function dirHasWebp(dir) {
@@ -116,7 +192,7 @@ async function main() {
       console.log('Không có thay đổi để commit trên repo ảnh.');
       return;
     }
-    sh(`git push origin "HEAD:${branch}"`, cloneDir);
+    pushWithRebaseRetry({ cloneDir, branch, maxAttempts: 5 });
     console.log('Đã push ảnh lên repo:', repo, 'nhánh:', branch);
   } finally {
     await fs.remove(tmp).catch(() => {});

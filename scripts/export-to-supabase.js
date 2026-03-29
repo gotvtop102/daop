@@ -209,6 +209,37 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/**
+ * Tránh lỗi Postgres: "ON CONFLICT DO UPDATE command cannot affect row a second time"
+ * xảy ra khi cùng key conflict (id) xuất hiện 2+ lần trong cùng 1 request upsert.
+ * Giữ bản "mới hơn" theo modified (nếu parse được), fallback lấy bản sau.
+ */
+function dedupeMoviesById(movies) {
+  const map = new Map();
+  for (const m of movies || []) {
+    if (!m || m.id == null) continue;
+    const id = String(m.id);
+    const prev = map.get(id);
+    if (!prev) {
+      map.set(id, m);
+      continue;
+    }
+    const a = batchModifiedComparable(prev);
+    const b = batchModifiedComparable(m);
+    const ta = a == null ? NaN : Date.parse(String(a));
+    const tb = b == null ? NaN : Date.parse(String(b));
+    if (!Number.isNaN(ta) && !Number.isNaN(tb)) {
+      map.set(id, tb >= ta ? m : prev);
+    } else if (!Number.isNaN(tb)) {
+      map.set(id, m);
+    } else {
+      // Không parse được time → ưu tiên bản sau (deterministic theo thứ tự input)
+      map.set(id, m);
+    }
+  }
+  return [...map.values()];
+}
+
 /** Lỗi PostgREST/edge thường gặp khi volume lớn — đáng retry. */
 function isRetryableSupabaseError(err) {
   if (!err) return false;
@@ -311,8 +342,14 @@ async function main() {
   const all = loadMoviesFromBatches();
   console.log('   Loaded from batches:', all.length, 'movies');
 
-  const movies = filterByScope(all, scope);
-  console.log('   After scope filter:', movies.length, 'movies');
+  const scoped = filterByScope(all, scope);
+  console.log('   After scope filter:', scoped.length, 'movies');
+
+  const movies = dedupeMoviesById(scoped);
+  const dupRemoved = scoped.length - movies.length;
+  if (dupRemoved > 0) {
+    console.log('   Dedupe by id: removed', dupRemoved, 'duplicates');
+  }
 
   if (!movies.length) {
     const hint =
