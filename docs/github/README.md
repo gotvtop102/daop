@@ -70,7 +70,7 @@ Ai có quyền **push `main`** sẽ kích hoạt **Deploy to Cloudflare Pages** 
 | **core-then-tmdb.yml** — *Core then TMDB* | `workflow_dispatch` | Luồng 2 pha (core → TMDB) + deploy. |
 | **purge-movie-data.yml** — *Purge movie data* | `workflow_dispatch` | Xóa/gom dữ liệu phim trong `public/data` (thao tác nguy hiểm — đọc kỹ workflow). |
 | **export-to-supabase.yml** — *Export to Supabase* | `workflow_dispatch`; **`repository_dispatch`** (`export-to-supabase`) | Chạy `npm run export-to-supabase`: đẩy `public/data/batches` → bảng `movies` / `movie_episodes` (Secrets: Supabase Admin). |
-| **upload-movie-images-r2.yml**, **delete-movie-images-r2.yml**, **upload-r2-from-urls.yml**, **download-r2-files.yml** | `workflow_dispatch` (hoặc theo từng file) | Thao tác ảnh / object trên R2. |
+| **upload-movie-images-r2.yml**, **delete-movie-images-r2.yml**, **upload-r2-from-urls.yml** | `workflow_dispatch` (hoặc theo từng file) | Thao tác ảnh / object trên R2. |
 
 Tên workflow trong **`workflow_run`** của `deploy.yml` phải **khớp** `name:` trong file YAML (vd. *Build on demand*, *Update data daily*).
 

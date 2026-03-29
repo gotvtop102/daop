@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Card, Button, List, message, Spin, Typography, InputNumber, Input, Form, Space, Modal, Radio, Switch, Tag, Tabs, Select } from 'antd';
+import { useState, useEffect, useMemo } from 'react';
+import { Card, Button, List, message, Spin, Typography, InputNumber, Input, Form, Space, Modal, Radio, Switch, Tag, Tabs, Select, Checkbox } from 'antd';
 import type { RadioChangeEvent } from 'antd';
-import { PlayCircleOutlined, InfoCircleOutlined, SaveOutlined, DeleteOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, InfoCircleOutlined, SaveOutlined, DeleteOutlined, DatabaseOutlined, CopyOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
 
@@ -22,6 +22,7 @@ const UPLOAD_IMAGES_AFTER_BUILD_KEY = 'upload_images_after_build';
 const DEPLOY_AFTER_R2_UPLOAD_KEY = 'deploy_after_r2_upload';
 
 const R2_PREFIX_PRESETS_KEY = 'r2_prefix_presets';
+const R2_IMG_DOMAIN_KEY = 'r2_img_domain';
 
 const UPLOAD_R2_KEYS = {
   mode: 'upload_r2_mode',
@@ -104,8 +105,12 @@ export default function GitHubActions() {
   const [form] = Form.useForm();
   const [uploadForm] = Form.useForm();
   const [deleteForm] = Form.useForm();
-  const [downloadForm] = Form.useForm();
   const [uploadUrlsForm] = Form.useForm();
+
+  const [r2LinkBaseUrl, setR2LinkBaseUrl] = useState('');
+  const [r2LinkIdsText, setR2LinkIdsText] = useState('');
+  const [r2LinkOutput, setR2LinkOutput] = useState('');
+  const [r2LinkPrefixes, setR2LinkPrefixes] = useState<string[]>(['thumbs', 'posters']);
 
   const [sbMovieCount, setSbMovieCount] = useState<number | null>(null);
   const [sbEpisodeCount, setSbEpisodeCount] = useState<number | null>(null);
@@ -143,6 +148,86 @@ export default function GitHubActions() {
     const base = normalizePresetPrefixValue(p);
     if (!base) return '';
     return base.endsWith('/') ? base : base + '/';
+  };
+
+  const buildR2ImageUrlById = (base: string, folder: string, id: string) => {
+    const b = String(base || '').replace(/\/$/, '');
+    const f = normalizePresetPrefixValue(folder);
+    const idStr = String(id || '').trim();
+    if (!b || !f || !idStr) return '';
+    return `${b}/${f}/${idStr}.webp`;
+  };
+
+  const r2LinkPrefixOptions = useMemo(() => {
+    const presets = parseR2PrefixPresets(r2PrefixPresetsText);
+    const seen = new Set<string>();
+    const opts: { label: string; value: string }[] = [];
+    const push = (label: string, value: string) => {
+      const v = normalizePresetPrefixValue(value);
+      if (!v || seen.has(v)) return;
+      seen.add(v);
+      opts.push({ label: `${label} → ${v}/`, value: v });
+    };
+    push('Thumb', 'thumbs');
+    push('Poster', 'posters');
+    for (const p of presets) {
+      const v = normalizePresetPrefixValue(p.prefix);
+      if (!v) continue;
+      if (!seen.has(v)) push(p.label || v, v);
+    }
+    return opts;
+  }, [r2PrefixPresetsText]);
+
+  const handleGenerateR2Links = () => {
+    const base = String(r2LinkBaseUrl || '').trim();
+    if (!base) {
+      message.warning('Nhập domain ảnh R2 (ví dụ từ Cài đặt trang → Domain ảnh R2).');
+      return;
+    }
+    const ids = parseSlugList(r2LinkIdsText);
+    if (!ids.length) {
+      message.warning('Nhập ít nhất một movie id.');
+      return;
+    }
+    const rawFolders = (r2LinkPrefixes || []).map((x) => normalizePresetPrefixValue(String(x))).filter(Boolean);
+    const folderRank = (f: string) => {
+      if (f === 'thumbs') return 0;
+      if (f === 'posters') return 1;
+      return 2;
+    };
+    const folders = [...rawFolders].sort((a, b) => {
+      const ra = folderRank(a);
+      const rb = folderRank(b);
+      if (ra !== rb) return ra - rb;
+      return a.localeCompare(b);
+    });
+    if (!folders.length) {
+      message.warning('Chọn ít nhất một prefix (thư mục).');
+      return;
+    }
+    const lines: string[] = [];
+    for (const id of ids) {
+      for (const folder of folders) {
+        const u = buildR2ImageUrlById(base, folder, id);
+        if (u) lines.push(u);
+      }
+    }
+    setR2LinkOutput(lines.join('\n'));
+    message.success(`Đã tạo ${lines.length} link.`);
+  };
+
+  const handleCopyR2Links = async () => {
+    const t = String(r2LinkOutput || '').trim();
+    if (!t) {
+      message.warning('Chưa có nội dung để copy.');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(t);
+      message.success('Đã copy vào clipboard.');
+    } catch {
+      message.error('Không copy được (trình duyệt chặn clipboard).');
+    }
   };
 
   const readTextFile = (file: File) => {
@@ -183,29 +268,6 @@ export default function GitHubActions() {
       const data = await res.json().catch(async () => ({ error: await res.text() }));
       if (res.ok && data?.ok) {
         message.success(data?.message || 'Đã kích hoạt upload R2 từ URLs.');
-      } else {
-        message.error(data?.error || data?.message || `Lỗi ${res.status}`);
-      }
-    } catch (e: any) {
-      message.error(e?.message || 'Không kết nối được API.');
-    } finally {
-      setTriggering(null);
-    }
-  };
-
-  const handleTriggerDownloadR2 = async () => {
-    setTriggering('download-r2-files');
-    try {
-      const values = await downloadForm.validateFields();
-      const payload: any = { ...values };
-      const res = await fetch(`${getApiBaseUrl()}/api/trigger-action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'download-r2-files', ...payload }),
-      });
-      const data = await res.json().catch(async () => ({ error: await res.text() }));
-      if (res.ok && data?.ok) {
-        message.success(data?.message || 'Đã kích hoạt download file R2. Vào Workflow Runs để tải artifact.');
       } else {
         message.error(data?.error || data?.message || `Lỗi ${res.status}`);
       }
@@ -367,6 +429,7 @@ export default function GitHubActions() {
         UPDATE_DATA_MANUAL_TWO_PHASE_KEY,
         UPLOAD_IMAGES_AFTER_BUILD_KEY,
         DEPLOY_AFTER_R2_UPLOAD_KEY,
+        R2_IMG_DOMAIN_KEY,
         UPLOAD_R2_KEYS.mode,
         UPLOAD_R2_KEYS.quality,
         UPLOAD_R2_KEYS.thumb_quality,
@@ -440,6 +503,15 @@ export default function GitHubActions() {
           'Banners|banners|Upload tức thời (giữ tên file gốc)',
         ].join('\n');
     setR2PrefixPresetsText(defaultPresets);
+
+    const r2Domain = (map[R2_IMG_DOMAIN_KEY] || '').toString().trim();
+    setR2LinkBaseUrl(r2Domain);
+
+    const presetFolders = parseR2PrefixPresets(defaultPresets)
+      .map((p) => normalizePresetPrefixValue(p.prefix))
+      .filter(Boolean);
+    const folderSet = new Set<string>(['thumbs', 'posters', ...presetFolders]);
+    setR2LinkPrefixes(Array.from(folderSet));
   };
 
   const fetchActions = async () => {
@@ -1341,61 +1413,71 @@ export default function GitHubActions() {
                   },
                   {
                     key: 'r2-download',
-                    label: 'Download',
+                    label: 'Link ảnh',
                     children: (
-                      <Card title="Download ảnh từ R2">
+                      <Card title="Link ảnh R2 (theo ID)">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                          Download theo folder (prefix) hoặc theo danh sách key. Kết quả sẽ được đóng gói thành artifact trong GitHub Actions run.
+                          Không chạy GitHub Action. Tạo URL công khai theo chuẩn{' '}
+                          <Text code>{'{domain}'}/{'{thư mục}'}/{'{id}'}.webp</Text> — dùng để tải trực tiếp (trình duyệt, wget, IDM…). Domain lấy từ Cài đặt
+                          trang (r2_img_domain); có thể sửa tạm bên dưới. Các thư mục thumb/poster và prefix khác lấy từ mục Danh sách prefix R2 phía trên.
                         </Text>
 
-                        <Form
-                          form={downloadForm}
-                          layout="vertical"
-                          initialValues={{
-                            mode: 'prefix',
-                            prefix: 'thumbs/',
-                            keys: '',
-                            limit: 0,
-                            concurrency: 6,
-                          }}
-                        >
-                          <Space wrap align="start">
-                            <Form.Item name="mode" label="Mode">
-                              <Radio.Group optionType="button" buttonStyle="solid">
-                                <Radio.Button value="prefix">prefix</Radio.Button>
-                                <Radio.Button value="keys">keys</Radio.Button>
-                              </Radio.Group>
-                            </Form.Item>
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                          <div>
+                            <Text strong>Domain ảnh R2</Text>
+                            <Input
+                              style={{ marginTop: 6 }}
+                              placeholder="https://pub-....r2.dev"
+                              value={r2LinkBaseUrl}
+                              onChange={(e) => setR2LinkBaseUrl(e.target.value || '')}
+                              allowClear
+                            />
+                          </div>
 
-                            <Form.Item name="limit" label="Limit (0 = no limit)">
-                              <InputNumber min={0} style={{ width: 190 }} />
-                            </Form.Item>
+                          <div>
+                            <Text strong>Movie ID</Text>
+                            <Input.TextArea
+                              style={{ marginTop: 6 }}
+                              rows={5}
+                              placeholder={'Mỗi dòng một id, hoặc cách nhau bởi dấu phẩy / khoảng trắng\n62a4f2...\n626577...'}
+                              value={r2LinkIdsText}
+                              onChange={(e) => setR2LinkIdsText(e.target.value || '')}
+                            />
+                          </div>
 
-                            <Form.Item name="concurrency" label="Concurrency (1-16)">
-                              <InputNumber min={1} max={16} style={{ width: 190 }} />
-                            </Form.Item>
+                          <div>
+                            <Text strong>Thư mục trên R2</Text>
+                            <div style={{ marginTop: 8 }}>
+                              <Checkbox.Group
+                                value={r2LinkPrefixes}
+                                onChange={(v) => setR2LinkPrefixes((v as string[]) || [])}
+                                style={{ width: '100%' }}
+                              >
+                                <Space direction="vertical" size={6}>
+                                  {r2LinkPrefixOptions.map((o) => (
+                                    <Checkbox key={o.value} value={o.value}>
+                                      {o.label}
+                                    </Checkbox>
+                                  ))}
+                                </Space>
+                              </Checkbox.Group>
+                            </div>
+                          </div>
+
+                          <Space wrap>
+                            <Button type="primary" onClick={handleGenerateR2Links}>
+                              Tạo link
+                            </Button>
+                            <Button icon={<CopyOutlined />} onClick={handleCopyR2Links}>
+                              Copy toàn bộ
+                            </Button>
                           </Space>
 
-                          <Form.Item name="prefix" label="Prefix (ví dụ: thumbs/ hoặc posters/)">
-                            <Input placeholder="thumbs/" />
-                          </Form.Item>
-
-                          <Form.Item name="keys" label="Keys (mỗi dòng 1 key)">
-                            <Input.TextArea rows={4} placeholder="thumbs/123.webp\nposters/123.webp" />
-                          </Form.Item>
-
-                          <Form.Item>
-                            <Button
-                              type="primary"
-                              icon={triggering === 'download-r2-files' ? <Spin size="small" /> : <PlayCircleOutlined />}
-                              onClick={handleTriggerDownloadR2}
-                              loading={triggering === 'download-r2-files'}
-                              disabled={!!triggering}
-                            >
-                              Download
-                            </Button>
-                          </Form.Item>
-                        </Form>
+                          <div>
+                            <Text strong>Kết quả (mỗi dòng một URL)</Text>
+                            <Input.TextArea style={{ marginTop: 6 }} rows={12} readOnly value={r2LinkOutput} placeholder="Bấm «Tạo link»…" />
+                          </div>
+                        </Space>
                       </Card>
                     ),
                   },

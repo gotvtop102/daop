@@ -14,7 +14,6 @@ type ActionId =
   | 'core-then-tmdb'
   | 'upload-movie-images-r2'
   | 'delete-movie-images-r2'
-  | 'download-r2-files'
   | 'upload-r2-from-urls';
 
 const ACTIONS: { id: ActionId; name: string; description: string }[] = [
@@ -29,7 +28,6 @@ const ACTIONS: { id: ActionId; name: string; description: string }[] = [
   },
   { id: 'upload-movie-images-r2', name: 'Upload movie images to R2', description: 'Tải + nén + upload thumb/poster lên R2, rồi commit upload state.' },
   { id: 'delete-movie-images-r2', name: 'Delete movie images on R2', description: 'Xóa ảnh trên R2 theo prefix/keys/movie_ids. Mặc định dry-run để an toàn.' },
-  { id: 'download-r2-files', name: 'Download R2 files', description: 'Tải file từ R2 theo prefix/keys và xuất artifact (zip).' },
   { id: 'upload-r2-from-urls', name: 'Upload R2 from URLs', description: 'Upload ảnh lên R2 theo danh sách URL + movie IDs (đúng chuẩn key folder/<id>.webp).' },
 ];
 
@@ -378,42 +376,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       res.status(200).json({ ok: true, message: 'Delete movie images on R2 triggered' });
-      return;
-    }
-
-    if (action === 'download-r2-files') {
-      const inputs: Record<string, string> = {};
-      const pick = (k: string) => (req.body?.[k] ?? req.query?.[k]);
-
-      const keys = ['mode', 'prefix', 'keys', 'limit', 'concurrency'];
-      for (const k of keys) {
-        const v = pick(k);
-        if (v != null && String(v).trim() !== '') inputs[k] = String(v);
-      }
-
-      const r = await fetch(
-        `https://api.github.com/repos/${repo}/actions/workflows/download-r2-files.yml/dispatches`,
-        {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ ref: GITHUB_REF, inputs: Object.keys(inputs).length ? inputs : undefined }),
-        }
-      );
-
-      if (!r.ok) {
-        const t = await r.text();
-        let errMsg = t;
-        if (r.status === 404) {
-          errMsg = 'Workflow download-r2-files.yml không tìm thấy hoặc repo chưa có Actions.';
-        }
-        if (r.status === 401) {
-          errMsg = 'GITHUB_TOKEN không hợp lệ hoặc hết hạn.';
-        }
-        res.status(r.status).json({ error: errMsg });
-        return;
-      }
-
-      res.status(200).json({ ok: true, message: 'Download R2 files triggered' });
       return;
     }
 

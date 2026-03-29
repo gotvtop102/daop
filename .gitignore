@@ -1,2 +1,5 @@
 node_modules
 admin/dist/
+
+# TMDB API cache khi build — tái tạo được, không nên commit (P1-2 / quy mô lớn).
+public/data/cache/
