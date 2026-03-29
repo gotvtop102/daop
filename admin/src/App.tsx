@@ -6,7 +6,6 @@ import { AccessProvider } from './context/AccessContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Ads from './pages/Ads';
-import Banners from './pages/Banners';
 import HomepageSections from './pages/HomepageSections';
 import SiteSettings from './pages/SiteSettings';
 import DonateSettings from './pages/DonateSettings';
@@ -33,7 +32,7 @@ export default function App() {
         <Route path="/" element={<AuthGuard><AccessProvider><Layout /></AccessProvider></AuthGuard>}>
           <Route index element={<Dashboard />} />
           <Route path="ads" element={<AccessRouteGuard><Ads /></AccessRouteGuard>} />
-          <Route path="banners" element={<AccessRouteGuard><Banners /></AccessRouteGuard>} />
+          <Route path="banners" element={<Navigate to="/ads" replace />} />
           <Route path="slider" element={<Slider />} />
           <Route path="menu-background" element={<MenuBackground />} />
           <Route path="filter-order" element={<FilterOrder />} />
@@ -44,7 +43,7 @@ export default function App() {
           <Route path="player-settings" element={<PlayerSettings />} />
           <Route path="donate" element={<DonateSettings />} />
           <Route path="static-pages" element={<StaticPages />} />
-          <Route path="preroll" element={<AccessRouteGuard><PrerollAds /></AccessRouteGuard>} />
+          <Route path="preroll" element={<Navigate to={{ pathname: '/ads', search: '?tab=preroll' }} replace />} />
           <Route path="audit-logs" element={<AuditLogs />} />
           <Route path="supabase-tools" element={<AccessRouteGuard><SupabaseTools /></AccessRouteGuard>} />
           <Route path="github-actions" element={<GitHubActions />} />

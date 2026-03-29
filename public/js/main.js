@@ -549,46 +549,82 @@
 
   window.DAOP.renderAdsInDocument = function (root) {
     var r = root || document;
-    if (r === document) {
-      if (typeof window.DAOP.prepareDynamicAdSlots === 'function') {
-        window.DAOP.prepareDynamicAdSlots();
-      }
-    }
-    var nodes = Array.prototype.slice.call(r.querySelectorAll('[data-ad-position]'));
-    nodes = nodes.filter(function (el) {
-      var p = el.getAttribute('data-ad-position') || '';
-      return p !== 'popup';
-    });
-    if (!nodes.length) {
-      return window.DAOP.loadBannersConfig().then(function () {
-        if (r !== document) return false;
-        if (window.DAOP.ensureSiteSettingsLoaded) {
-          return window.DAOP.ensureSiteSettingsLoaded().then(function () {
-            tryShowPopupAd();
-            return false;
-          });
-        }
-        tryShowPopupAd();
-        return false;
+
+    function collectAdNodes() {
+      var nodes = Array.prototype.slice.call(r.querySelectorAll('[data-ad-position]'));
+      return nodes.filter(function (el) {
+        var p = el.getAttribute('data-ad-position') || '';
+        return p !== 'popup';
       });
     }
-    return window.DAOP.loadBannersConfig().then(function () {
+
+    function finishPopupAds() {
+      if (r !== document) return Promise.resolve();
+      if (window.DAOP.ensureSiteSettingsLoaded) {
+        return window.DAOP.ensureSiteSettingsLoaded().then(function () {
+          tryShowPopupAd();
+        });
+      }
+      tryShowPopupAd();
+      return Promise.resolve();
+    }
+
+    return window.DAOP.loadBannersConfig().then(function (banners) {
+      if (r === document) {
+        try {
+          if (sessionStorage.getItem('daop_sticky_dismissed') !== '1') {
+            if (pickBannerByPosition(banners, 'sticky_bottom')) {
+              document.body.classList.add('daop-sticky-ad-open');
+            }
+          }
+        } catch (eSticky) {}
+
+        if (typeof window.DAOP.prepareDynamicAdSlots === 'function') {
+          window.DAOP.prepareDynamicAdSlots();
+        }
+
+        try {
+          var stripEl = document.getElementById('daop-ad-header-strip');
+          if (stripEl && pickBannerByPosition(banners, 'header_strip')) {
+            stripEl.style.minHeight = 'min(100px, 18vh)';
+          }
+        } catch (eStrip) {}
+      }
+
+      var nodes = collectAdNodes();
+
+      if (!nodes.length) {
+        return finishPopupAds().then(function () {
+          return false;
+        });
+      }
+
       if (r === document && window.DAOP.ensureSiteSettingsLoaded) {
         return window.DAOP.ensureSiteSettingsLoaded().then(function () {
-          return Promise.all(nodes.map(function (el) {
-            var pos = el.getAttribute('data-ad-position') || '';
-            return window.DAOP.renderAdSlot(el, pos);
-          })).then(function () {
-            if (r === document) tryShowPopupAd();
-            return true;
+          return Promise.all(
+            nodes.map(function (el) {
+              var pos = el.getAttribute('data-ad-position') || '';
+              return window.DAOP.renderAdSlot(el, pos);
+            })
+          ).then(function () {
+            return finishPopupAds().then(function () {
+              return true;
+            });
           });
         });
       }
-      return Promise.all(nodes.map(function (el) {
-        var pos2 = el.getAttribute('data-ad-position') || '';
-        return window.DAOP.renderAdSlot(el, pos2);
-      })).then(function () {
-        if (r === document) tryShowPopupAd();
+
+      return Promise.all(
+        nodes.map(function (el) {
+          var pos2 = el.getAttribute('data-ad-position') || '';
+          return window.DAOP.renderAdSlot(el, pos2);
+        })
+      ).then(function () {
+        if (r === document) {
+          return finishPopupAds().then(function () {
+            return true;
+          });
+        }
         return true;
       });
     });

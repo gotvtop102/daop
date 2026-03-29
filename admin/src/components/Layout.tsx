@@ -47,16 +47,22 @@ function buildMenuItems(hasAccess: boolean): MenuProps['items'] {
       label: L('/ads', 'Quảng cáo', !hasAccess),
       children: [
         {
-          key: '/banners',
+          key: 'ads-banners',
           icon: <PictureOutlined />,
           disabled: !hasAccess,
-          label: L('/banners', 'Banner', !hasAccess),
+          label: L('/ads', 'Banner', !hasAccess),
         },
         {
-          key: '/preroll',
+          key: 'ads-other',
+          icon: <PictureOutlined />,
+          disabled: !hasAccess,
+          label: L('/ads?tab=ad-other', 'Quảng cáo khác', !hasAccess),
+        },
+        {
+          key: 'ads-preroll',
           icon: <PlaySquareOutlined />,
           disabled: !hasAccess,
-          label: L('/preroll', 'Video Ads (Pre/Mid/Post)', !hasAccess),
+          label: L('/ads?tab=preroll', 'Video Ads (Pre/Mid/Post)', !hasAccess),
         },
       ],
     },
@@ -120,6 +126,18 @@ export default function Layout() {
 
   const items = useMemo(() => buildMenuItems(hasAccess), [hasAccess]);
 
+  const menuSelectedKeys = useMemo(() => {
+    const p = location.pathname;
+    const search = location.search || '';
+    if (p === '/ads') {
+      const tab = new URLSearchParams(search).get('tab');
+      if (tab === 'ad-other') return ['ads-other'];
+      if (tab === 'preroll') return ['ads-preroll'];
+      return ['ads-banners'];
+    }
+    return [p];
+  }, [location.pathname, location.search]);
+
   useEffect(() => {
     setDrawerOpen(false);
   }, [location.pathname]);
@@ -167,7 +185,7 @@ export default function Layout() {
     <>
       <Menu
         theme="dark"
-        selectedKeys={[location.pathname === '/ads' || location.pathname === '/giao-dien' || location.pathname.startsWith('/movies') ? location.pathname : location.pathname]}
+        selectedKeys={menuSelectedKeys}
         openKeys={openKeys}
         onOpenChange={(keys) => setOpenKeys(keys as string[])}
         mode="inline"

@@ -1,4 +1,9 @@
 /* DAOP - Website phim tĩnh */
+/* Giảm CLS khi thanh cuộn xuất hiện / biến mất (đặc biệt khi sticky ad đổi padding) */
+html {
+  scrollbar-gutter: stable;
+}
+
 :root {
   --bg: #0d1117;
   --card: #161b22;
@@ -50,6 +55,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 body.hide-header .site-header {
@@ -1656,8 +1662,10 @@ body.site-header--collapsed .site-header {
   object-fit: cover;
 }
 
+/* Padding dự trữ sớm từ JS (renderAdsInDocument) trước khi iframe/ảnh QC tải — tránh nhảy layout */
 body.daop-sticky-ad-open {
   padding-bottom: clamp(5rem, 22vh, 12rem);
+  transition: none;
 }
 body.daop-sticky-ad-open .scroll-to-top {
   bottom: clamp(5.5rem, 24vh, 13rem);
@@ -3967,11 +3975,13 @@ body.theme-light .watch-actions .movie-fav-btn:hover {
   align-items: center;
   justify-content: center;
   transition: opacity 0.25s ease, visibility 0.25s ease;
+  contain: paint;
 }
 .loading-screen.loading-screen-hidden {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  transition: opacity 0.12s ease, visibility 0.12s ease;
 }
 .loading-screen-inner {
   text-align: center;
