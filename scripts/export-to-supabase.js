@@ -9,6 +9,7 @@
  *
  * EXPORT_TO_SUPABASE_ALWAYS_FULL=1: luôn upsert mọi phim + đồng bộ lại toàn bộ tập (bỏ qua tối ưu).
  * Mặc định: chỉ ghi phim mới hoặc khi trường modified trên batch khác với DB (bỏ qua upsert + tập nếu không đổi).
+ * Ngoại lệ: phim có _from_supabase (Admin) luôn được upsert + đồng bộ tập — batch sau build là chuẩn merge với OPhim.
  *
  * EXPORT_TO_SUPABASE_BATCH: kích thước chunk upsert movies (mặc định 120, max 500).
  * EXPORT_TO_SUPABASE_UPSERT_RETRIES: số lần thử lại khi timeout/lỗi mạng (mặc định 4).
@@ -212,7 +213,8 @@ function sleep(ms) {
 /**
  * Tránh lỗi Postgres: "ON CONFLICT DO UPDATE command cannot affect row a second time"
  * xảy ra khi cùng key conflict (id) xuất hiện 2+ lần trong cùng 1 request upsert.
- * Giữ bản "mới hơn" theo modified (nếu parse được), fallback lấy bản sau.
+ * Ưu tiên bản từ Supabase/Admin (_from_supabase) nếu trùng id (tránh giữ nhầm bản OPhim thuần có modified mới hơn).
+ * Sau đó mới so modified (mới hơn thắng), fallback lấy bản sau.
  */
 function dedupeMoviesById(movies) {
   const map = new Map();
@@ -222,6 +224,15 @@ function dedupeMoviesById(movies) {
     const prev = map.get(id);
     if (!prev) {
       map.set(id, m);
+      continue;
+    }
+    const prevSb = !!prev._from_supabase;
+    const curSb = !!m._from_supabase;
+    if (curSb && !prevSb) {
+      map.set(id, m);
+      continue;
+    }
+    if (prevSb && !curSb) {
       continue;
     }
     const a = batchModifiedComparable(prev);
@@ -304,6 +315,9 @@ async function upsertMoviesChunked(supabase, rows, minSplit = 8) {
 
 function movieNeedsDbWrite(m, existingModifiedMap) {
   const id = String(m.id);
+  // Phim có nguồn Supabase/Admin: batch sau build là nguồn đúng (đã merge OPhim trong build.js).
+  // Chỉ so modified sẽ bỏ sót khi DB còn metadata cũ (OPhim) nhưng modified trùng — không upsert → DB sai.
+  if (m && m._from_supabase) return true;
   const batchMod = batchModifiedComparable(m);
   if (batchMod == null) return true;
   if (!existingModifiedMap.has(id)) return true;
