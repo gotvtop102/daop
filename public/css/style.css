@@ -1574,6 +1574,14 @@ body.site-header--collapsed .site-header {
  }
 
 /* Slider homepage kiểu ONFLIX: hero với overlay, tiêu đề, meta, thể loại, mô tả, CTA */
+/* Trước khi JS render slider — tránh nhảy layout (CLS) */
+.slider-wrap:empty {
+  min-height: clamp(180px, 56vw, 420px);
+  aspect-ratio: 4 / 2.5;
+  background: var(--card);
+  border-radius: 12px;
+}
+
 .slider-wrap {
   position: relative;
   margin-bottom: 1.5rem;

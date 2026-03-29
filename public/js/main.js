@@ -1474,6 +1474,38 @@
     }
   };
 
+  /** Preload ảnh hero/LCP (slide đầu) — gọi trước renderSlider để trình duyệt tải sớm. */
+  function preloadHeroImageUrl(imageUrlRaw) {
+    if (!imageUrlRaw || typeof document === 'undefined') return;
+    try {
+      if (document.getElementById('daop-preload-lcp')) return;
+      var norm =
+        window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function'
+          ? window.DAOP.normalizeImgUrl(imageUrlRaw)
+          : imageUrlRaw;
+      var u = String(norm || '')
+        .replace(/^\/\//, 'https://')
+        .trim();
+      if (!u) return;
+      var link = document.createElement('link');
+      link.id = 'daop-preload-lcp';
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = u;
+      try {
+        link.setAttribute('fetchpriority', 'high');
+      } catch (eFp) {}
+      document.head.appendChild(link);
+    } catch (e) {}
+  }
+
+  function preloadFirstSliderSlide(arr) {
+    if (!Array.isArray(arr) || !arr.length) return;
+    var s = arr[0];
+    if (!s || s.enabled === false) return;
+    preloadHeroImageUrl(s.image_url || '');
+  }
+
   /** Thêm preconnect tới origin CDN (một lần) — không thay đổi logic tải ảnh. */
   function ensurePreconnectOrigin(raw) {
     if (!raw || typeof document === 'undefined') return;
@@ -1499,6 +1531,7 @@
     if (!settings) return;
     window.DAOP.siteSettings = Object.assign({}, window.DAOP.siteSettings || {}, settings);
     if (settings.r2_img_domain) ensurePreconnectOrigin(settings.r2_img_domain);
+    if (settings.ophim_img_domain) ensurePreconnectOrigin(settings.ophim_img_domain);
     window.DAOP.siteName = settings.site_name || 'DAOP Phim';
     window.DAOP.supabaseUserUrl = settings.supabase_user_url || settings.supabaseUserUrl || window.DAOP.supabaseUserUrl || '';
     window.DAOP.supabaseUserAnonKey = settings.supabase_user_anon_key || settings.supabaseUserAnonKey || window.DAOP.supabaseUserAnonKey || '';
@@ -1660,6 +1693,7 @@
             if (!Array.isArray(arr) || arr.length === 0) return;
             arr = arr.filter(function (s) { return s && s.enabled !== false; });
             arr.sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+            preloadFirstSliderSlide(arr);
             window.DAOP.renderSlider(sliderWrap, arr);
             var bannerWrap = document.getElementById('banner-wrap');
             if (bannerWrap) bannerWrap.style.display = 'none';
@@ -1670,6 +1704,7 @@
           if (Array.isArray(arr) && arr.length > 0) {
             arr = arr.filter(function (s) { return s.enabled !== false; });
             arr.sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+            preloadFirstSliderSlide(arr);
             window.DAOP.renderSlider(sliderWrap, arr);
             var bannerWrap = document.getElementById('banner-wrap');
             if (bannerWrap) bannerWrap.style.display = 'none';
