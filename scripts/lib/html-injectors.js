@@ -201,3 +201,142 @@ export function injectLoadingScreenIntoHtml(opts) {
   if (opts && opts.log !== false) console.log('   Injected loading screen into HTML files (' + count + ' files)');
   return count;
 }
+
+function escapeHtmlAttr(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;');
+}
+
+/**
+ * Gắn <link rel="preconnect"> + <link rel="preload" as="image"> cho slide đầu trang chủ trong <head>,
+ * để Lighthouse “LCP request discovery” thấy ngay (không phụ thuộc JS injectPreloadLcp).
+ * Chạy sau khi đã có site-settings.json + homepage-slider-auto.json (ví dụ sau writeHomeBootstrapFile).
+ */
+export function injectHomeLcpPreloadIntoHtml(opts) {
+  const publicDir = opts && opts.publicDir ? opts.publicDir : path.join(opts.rootDir, 'public');
+  const indexPath = path.join(publicDir, 'index.html');
+  if (!fs.existsSync(indexPath)) return 0;
+
+  const stripInjected = (html) =>
+    html
+      .replace(/\s*<link[^>]*\bid=["']daop-head-preconnect-lcp["'][^>]*>\s*/gi, '')
+      .replace(/\s*<link[^>]*\bid=["']daop-head-lcp-preload["'][^>]*>\s*/gi, '');
+
+  const siteSettingsPath = path.join(publicDir, 'data', 'config', 'site-settings.json');
+  const sliderAutoPath = path.join(publicDir, 'data', 'home', 'homepage-slider-auto.json');
+
+  let settings = {};
+  try {
+    if (fs.existsSync(siteSettingsPath)) {
+      settings = JSON.parse(fs.readFileSync(siteSettingsPath, 'utf8')) || {};
+    }
+  } catch {
+    let content = fs.readFileSync(indexPath, 'utf8');
+    const stripped = stripInjected(content);
+    if (stripped !== content) {
+      fs.writeFileSync(indexPath, stripped, 'utf8');
+    }
+    return 0;
+  }
+
+  let sliderAuto = null;
+  try {
+    if (fs.existsSync(sliderAutoPath)) {
+      sliderAuto = JSON.parse(fs.readFileSync(sliderAutoPath, 'utf8'));
+    }
+  } catch {
+    sliderAuto = null;
+  }
+
+  const ophimDomain = String(settings.ophim_img_domain || 'https://img.ophim.live').replace(/\/$/, '');
+
+  function normalizeUploads(u) {
+    if (!u) return '';
+    const s = String(u).trim();
+    if (!s) return '';
+    if (s.startsWith('//')) return 'https:' + s;
+    if (s.startsWith('/uploads/')) return ophimDomain + s;
+    if (s.startsWith('http://') || s.startsWith('https://')) {
+      try {
+        const pu = new URL(s);
+        if (pu.pathname && String(pu.pathname).startsWith('/uploads/')) {
+          return ophimDomain + pu.pathname;
+        }
+      } catch {
+        /* ignore */
+      }
+      return s;
+    }
+    return s;
+  }
+
+  function firstSliderImageUrl() {
+    const mode = String(settings.homepage_slider_display_mode || 'manual').trim().toLowerCase();
+    if (mode === 'auto' && Array.isArray(sliderAuto)) {
+      const arr = sliderAuto
+        .filter((x) => x && x.enabled !== false)
+        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      if (arr[0] && arr[0].image_url) return normalizeUploads(arr[0].image_url);
+      return '';
+    }
+    let raw = settings.homepage_slider;
+    let arr = [];
+    try {
+      if (typeof raw === 'string') arr = raw ? JSON.parse(raw) : [];
+      else if (Array.isArray(raw)) arr = raw;
+    } catch {
+      arr = [];
+    }
+    arr = arr.filter((x) => x && x.enabled !== false).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    if (arr[0] && arr[0].image_url) return normalizeUploads(arr[0].image_url);
+    return '';
+  }
+
+  let imgUrl = firstSliderImageUrl();
+  if (imgUrl && imgUrl.indexOf('http') !== 0) {
+    imgUrl = (imgUrl[0] === '/' ? '' : 'https://') + String(imgUrl).replace(/^\/{2}/, '');
+  }
+
+  let content = fs.readFileSync(indexPath, 'utf8');
+  content = stripInjected(content);
+
+  if (!imgUrl) {
+    fs.writeFileSync(indexPath, content, 'utf8');
+    if (opts && opts.log !== false) console.log('   Home LCP preload: không có ảnh slider, đã gỡ thẻ cũ (nếu có)');
+    return 0;
+  }
+
+  let preconnectOrigin = '';
+  try {
+    preconnectOrigin = new URL(imgUrl).origin;
+  } catch {
+    preconnectOrigin = '';
+  }
+
+  const esc = escapeHtmlAttr(imgUrl);
+  const escOrigin = escapeHtmlAttr(preconnectOrigin);
+  const injectLines =
+    (preconnectOrigin
+      ? `\n  <link rel="preconnect" href="${escOrigin}" crossorigin id="daop-head-preconnect-lcp">`
+      : '') +
+    `\n  <link rel="preload" as="image" href="${esc}" fetchpriority="high" id="daop-head-lcp-preload">`;
+
+  const descNeedle = '<meta name="description"';
+  const dIdx = content.indexOf(descNeedle);
+  if (dIdx !== -1) {
+    const endMeta = content.indexOf('>', dIdx);
+    if (endMeta !== -1) {
+      content = content.slice(0, endMeta + 1) + injectLines + content.slice(endMeta + 1);
+    } else {
+      content = content.replace('</title>', '</title>' + injectLines);
+    }
+  } else {
+    content = content.replace('</title>', '</title>' + injectLines);
+  }
+
+  fs.writeFileSync(indexPath, content, 'utf8');
+  if (opts && opts.log !== false) console.log('   Injected home LCP preload + preconnect into index.html');
+  return 1;
+}

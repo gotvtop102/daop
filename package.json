@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.js",
+    "build:release": "cross-env MINIFY_ASSETS=1 node scripts/build.js",
     "build:incremental": "node scripts/build.js --incremental",
     "regenerate-actors": "node scripts/regenerate-actors-shards.js",
     "export-to-supabase": "node scripts/export-to-supabase.js",
@@ -21,6 +22,8 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@vercel/node": "^3.0.0"
+    "@vercel/node": "^3.0.0",
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.25.0"
   }
 }

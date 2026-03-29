@@ -19,6 +19,7 @@ import {
   injectFooterIntoHtml as libInjectFooterIntoHtml,
   injectNavIntoHtml as libInjectNavIntoHtml,
   injectLoadingScreenIntoHtml as libInjectLoadingScreenIntoHtml,
+  injectHomeLcpPreloadIntoHtml as libInjectHomeLcpPreloadIntoHtml,
 } from './lib/html-injectors.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -2814,6 +2815,46 @@ function injectLoadingScreenIntoHtml() {
   });
 }
 
+/** Preload + preconnect ảnh LCP slider trang chủ (sau khi có site-settings + homepage-slider-auto). */
+function injectHomeLcpPreloadIntoHtml() {
+  return libInjectHomeLcpPreloadIntoHtml({
+    rootDir: ROOT,
+    publicDir: path.join(ROOT, 'public'),
+  });
+}
+
+/**
+ * Minify public/js/main.js và public/css/style.css (PageSpeed: unminified CSS/JS).
+ * Bật khi deploy: MINIFY_ASSETS=1 — cần devDependency esbuild.
+ */
+async function maybeMinifyPublicAssets() {
+  const v = process.env.MINIFY_ASSETS;
+  if (v === '0' || v === 'false' || v === 'no') return;
+  if (v !== '1' && v !== 'true' && v !== 'yes') return;
+  let esbuild;
+  try {
+    esbuild = await import('esbuild');
+  } catch (e) {
+    console.warn('   MINIFY_ASSETS bị bỏ qua: cài esbuild (npm i -D esbuild).', e && e.message ? e.message : e);
+    return;
+  }
+  const jsPath = path.join(ROOT, 'public', 'js', 'main.js');
+  const cssPath = path.join(ROOT, 'public', 'css', 'style.css');
+  if (!(await fs.pathExists(jsPath)) || !(await fs.pathExists(cssPath))) return;
+  const t0 = Date.now();
+  try {
+    const jsIn = await fs.readFile(jsPath, 'utf8');
+    const jsOut = await esbuild.transform(jsIn, { minify: true, target: 'es2017', legalComments: 'none' });
+    await fs.writeFile(jsPath, jsOut.code, 'utf8');
+    const cssIn = await fs.readFile(cssPath, 'utf8');
+    const cssOut = await esbuild.transform(cssIn, { loader: 'css', minify: true });
+    await fs.writeFile(cssPath, cssOut.code, 'utf8');
+    console.log('   Minified public/js/main.js + public/css/style.css (' + fmtBuildMs(Date.now() - t0) + ')');
+  } catch (e) {
+    console.warn('   Minify thất bại (giữ bản gốc):', e && e.message ? e.message : e);
+  }
+}
+
 /**
  * Gắn ?v=<builtAt> vào mọi thẻ script /data/filters.js trong HTML.
  * Trang chủ đã dùng build_version để bust cache JSON; các trang danh mục trước đây load filters.js
@@ -3995,6 +4036,8 @@ async function main() {
     const buildVersion = { builtAt: new Date().toISOString() };
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
     injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
+    injectHomeLcpPreloadIntoHtml();
+    await maybeMinifyPublicAssets();
     console.log('Incremental build xong.');
     console.log('[TIMING] Total (incremental):', fmtBuildMs(Date.now() - buildT0));
     return;
@@ -4270,6 +4313,7 @@ async function main() {
   writeHomeSectionsData(allMovies);
   writeAutoSliderFile(allMovies);
   writeHomeBootstrapFile();
+  injectHomeLcpPreloadIntoHtml();
   });
   const batchPtrById = batchRes && batchRes.batchPtrById ? batchRes.batchPtrById : null;
 
@@ -4305,6 +4349,7 @@ async function main() {
   fs.writeFileSync(path.join(PUBLIC_DATA, 'last_build.json'), JSON.stringify(lastBuild, null, 2));
   const lastModifiedOut = newLastModified || {};
   fs.writeFileSync(lastModifiedPath, JSON.stringify(lastModifiedOut, null, 2));
+  await maybeMinifyPublicAssets();
   console.log('Build done.');
   console.log('[TIMING] Total (full build):', fmtBuildMs(Date.now() - buildT0));
 }

@@ -1610,6 +1610,7 @@ body.page-home #home-sections:empty {
   overflow: hidden;
   background: var(--card);
   box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  contain: layout style;
 }
 .slider-viewport {
   overflow: hidden;
