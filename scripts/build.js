@@ -1805,16 +1805,29 @@ function mergeMovies(ophim, custom) {
     const cTs = getModTs(customMovie);
     const oTs = getModTs(ophimMovie);
 
-    // Custom is primary by default.
-    // If OPhim is newer, use OPhim as base (to reflect upstream changes) but preserve custom-only fields.
-    const base = (oTs > cTs) ? { ...ophimMovie } : { ...customMovie };
-    const secondary = (oTs > cTs) ? customMovie : ophimMovie;
+    // Phim có bản Supabase/Admin: toàn bộ trường bạn chỉnh luôn là nguồn chính.
+    const base = { ...customMovie };
 
-    // Merge: fill missing/empty fields from secondary.
-    // When base is OPhim (newer), this effectively preserves custom overrides for fields that OPhim doesn't have.
-    for (const [k, v] of Object.entries(secondary)) {
-      if (!(k in base) || isEmptyVal(base[k])) {
-        base[k] = v;
+    if (oTs > cTs) {
+      // OPhim mới hơn: giữ metadata Supabase; đồng bộ phần phát sóng từ OPhim.
+      const cur = ophimMovie.episode_current;
+      if (cur != null && String(cur).trim() !== '') {
+        base.episode_current = String(cur).trim();
+      }
+      const oEps = ophimMovie.episodes;
+      if (Array.isArray(oEps) && oEps.length > 0) {
+        try {
+          base.episodes = structuredClone(oEps);
+        } catch {
+          base.episodes = JSON.parse(JSON.stringify(oEps));
+        }
+      }
+    } else {
+      // OPhim cũ hơn hoặc bằng: điền chỗ trống từ OPhim (giữ hành vi cũ).
+      for (const [k, v] of Object.entries(ophimMovie)) {
+        if (!(k in base) || isEmptyVal(base[k])) {
+          base[k] = v;
+        }
       }
     }
 
