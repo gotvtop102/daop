@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://img.ophim.live" crossorigin>
   <link rel="dns-prefetch" href="//img.ophim.live">
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
 </head>
@@ -123,7 +124,6 @@
     })();
   </script>
   <script src="/js/main.js" defer></script>
-  <script src="/js/user-sync.js" defer></script>
   <script type="module">
     (function(){
       var base = window.DAOP && window.DAOP.basePath || '';
@@ -263,9 +263,8 @@
           return String(html).replace('class="movie-card', 'class="movie-card is-featured');
         }
         var insertedMidAd = false;
-        sections.forEach(function(sec, secIndex){
-          var ids = [];
-          var limit = sec.limit_count || 24;
+        var htmlChunks = [];
+        sections.forEach(function (sec, secIndex) {
           var moreLink = sec.more_link ? '<a href="' + sec.more_link + '">Xem thêm</a>' : '';
           var layout = (sec.display_type || 'grid').toLowerCase();
           var xs = [2,3,4,6,8].indexOf(Number(sec.grid_columns_xs)) >= 0 ? Number(sec.grid_columns_xs) : 2;
@@ -301,17 +300,39 @@
             html += '<div class="movies-grid"><p>Đang tải...</p></div>';
           }
           html += '</section>';
-          container.insertAdjacentHTML('beforeend', html);
-
-          var secEl = container.lastElementChild;
-
+          htmlChunks.push(html);
           if (!insertedMidAd && secIndex >= 0) {
             insertedMidAd = true;
-            container.insertAdjacentHTML('beforeend', '<div class="ad-slot" data-ad-position="home_mid"></div>');
-            if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
-              window.DAOP.renderAdsInDocument(container);
-            }
+            htmlChunks.push('<div class="ad-slot" data-ad-position="home_mid"></div>');
           }
+        });
+        container.insertAdjacentHTML('beforeend', htmlChunks.join(''));
+        if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+          window.DAOP.renderAdsInDocument(container);
+        }
+        var sectionEls = container.querySelectorAll('.home-section');
+        sections.forEach(function(sec, secIndex){
+          var secEl = sectionEls[secIndex];
+          var limit = sec.limit_count || 24;
+          var layout = (sec.display_type || 'grid').toLowerCase();
+          var xs = [2,3,4,6,8].indexOf(Number(sec.grid_columns_xs)) >= 0 ? Number(sec.grid_columns_xs) : 2;
+          var sm = [2,3,4,6,8].indexOf(Number(sec.grid_columns_sm)) >= 0 ? Number(sec.grid_columns_sm) : 3;
+          var md = [2,3,4,6,8].indexOf(Number(sec.grid_columns_md)) >= 0 ? Number(sec.grid_columns_md) : 4;
+          var lg = [2,3,4,6,8].indexOf(Number(sec.grid_columns_lg)) >= 0 ? Number(sec.grid_columns_lg) : 6;
+          var fxs = Number(sec.featured_span_xs);
+          var fsm = Number(sec.featured_span_sm);
+          var fmd = Number(sec.featured_span_md);
+          var flg = Number(sec.featured_span_lg);
+          if (!Number.isFinite(fxs) || fxs <= 0) fxs = 2;
+          if (!Number.isFinite(fsm) || fsm <= 0) fsm = 2;
+          if (!Number.isFinite(fmd) || fmd <= 0) fmd = 3;
+          if (!Number.isFinite(flg) || flg <= 0) flg = 4;
+          var mdMax = Math.max(1, Math.floor(md / 2));
+          var lgMax = Math.max(1, Math.floor(lg / 2));
+          if (fmd > mdMax) fmd = mdMax;
+          if (flg > lgMax) flg = lgMax;
+          var defaultPoster = (ss.default_use_poster === true || ss.default_use_poster === 'true' || ss.default_use_poster === 'poster');
+          var cardOrientation = (sec.use_poster === true || sec.use_poster === 'true' || defaultPoster) ? 'horizontal' : 'vertical';
           var preMovies = null;
           var preIds = null;
           if (pre && Array.isArray(pre)) {
@@ -475,6 +496,27 @@
           if (next) next.addEventListener('click', function(){ track.scrollBy({ left: step, behavior: 'smooth' }); });
         });
       }).catch(function(){});
+    })();
+  </script>
+  <script>
+    (function () {
+      function loadUserSync() {
+        if (document.getElementById('daop-user-sync')) return;
+        var s = document.createElement('script');
+        s.id = 'daop-user-sync';
+        s.src = '/js/user-sync.js';
+        s.defer = true;
+        document.body.appendChild(s);
+      }
+      if (document.body && document.body.classList.contains('page-home')) {
+        if (typeof requestIdleCallback !== 'undefined') {
+          requestIdleCallback(function () { loadUserSync(); }, { timeout: 8000 });
+        } else {
+          window.addEventListener('load', function () { setTimeout(loadUserSync, 2500); });
+        }
+      } else {
+        loadUserSync();
+      }
     })();
   </script>
 </body>
