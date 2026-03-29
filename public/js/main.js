@@ -323,7 +323,21 @@
   /** Nội dung HTML một banner (ảnh+link hoặc mã nhúng) — dùng chung cho slot và popup. */
   function buildBannerHtml(b) {
     if (!b) return '';
-    if (b.html_code) return String(b.html_code);
+    if (b.html_code) {
+      var raw = String(b.html_code);
+      var embedMin = (function () {
+        try {
+          if (/<iframe(\s|>)/i.test(raw)) return 'min(280px, 42vh)';
+          if (/<ins(\s|>)/i.test(raw) || /<embed(\s|>)/i.test(raw)) return 'min(200px, 30vh)';
+        } catch (eI) {}
+        return 'min(120px, 18vh)';
+      })();
+      return (
+        '<div class="ad-embed-wrap" style="min-height:' + embedMin + '">' +
+        raw +
+        '</div>'
+      );
+    }
     var norm2 = (window.DAOP && typeof window.DAOP.normalizeImgUrl === 'function')
       ? window.DAOP.normalizeImgUrl
       : function (x) { return x; };

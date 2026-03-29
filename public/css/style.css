@@ -1322,6 +1322,12 @@ body.site-header--collapsed .site-header {
 .home-section {
   margin-bottom: 2rem;
 }
+/* Section lazy (từ index >= home_lazy_sections_eager_count): giảm paint/layout khi còn xa viewport */
+.home-section.home-section--deferred-render {
+  content-visibility: auto;
+  /* Ước lượng chiều cao khi trình duyệt bỏ qua paint — giảm CLS khi scroll tới */
+  contain-intrinsic-size: 280px;
+}
 .home-section h2 {
   margin: 0 0 1rem;
   padding-bottom: 0.6rem;
@@ -1558,6 +1564,15 @@ body.site-header--collapsed .site-header {
  .ad-slot-inner ins,
  .ad-slot-inner embed,
  .ad-slot-inner object {
+   max-width: 100%;
+ }
+
+ .ad-embed-wrap {
+   width: 100%;
+   contain: layout style;
+ }
+ .ad-embed-wrap iframe {
+   display: block;
    max-width: 100%;
  }
 

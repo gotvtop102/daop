@@ -2824,35 +2824,87 @@ function injectHomeLcpPreloadIntoHtml() {
 }
 
 /**
- * Minify public/js/main.js và public/css/style.css (PageSpeed: unminified CSS/JS).
- * Bật khi deploy: MINIFY_ASSETS=1 — cần devDependency esbuild.
+ * Minify JS/CSS trang public + data/filters.js, actors.js, movies-light.js (PageSpeed).
+ * Bật khi: MINIFY_ASSETS=1 | true | yes, hoặc mặc định trên GitHub Actions (GITHUB_ACTIONS=true).
+ * Tắt: MINIFY_ASSETS=0 | false | no — cần devDependency esbuild.
  */
-async function maybeMinifyPublicAssets() {
+function shouldMinifyPublicAssets() {
   const v = process.env.MINIFY_ASSETS;
-  if (v === '0' || v === 'false' || v === 'no') return;
-  if (v !== '1' && v !== 'true' && v !== 'yes') return;
+  if (v === '0' || v === 'false' || v === 'no') return false;
+  if (v === '1' || v === 'true' || v === 'yes') return true;
+  return process.env.GITHUB_ACTIONS === 'true';
+}
+
+async function maybeMinifyPublicAssets() {
+  if (!shouldMinifyPublicAssets()) return;
   let esbuild;
   try {
     esbuild = await import('esbuild');
   } catch (e) {
-    console.warn('   MINIFY_ASSETS bị bỏ qua: cài esbuild (npm i -D esbuild).', e && e.message ? e.message : e);
+    console.warn('   Minify bị bỏ qua: cài esbuild (npm i -D esbuild).', e && e.message ? e.message : e);
     return;
   }
-  const jsPath = path.join(ROOT, 'public', 'js', 'main.js');
-  const cssPath = path.join(ROOT, 'public', 'css', 'style.css');
-  if (!(await fs.pathExists(jsPath)) || !(await fs.pathExists(cssPath))) return;
-  const t0 = Date.now();
-  try {
-    const jsIn = await fs.readFile(jsPath, 'utf8');
-    const jsOut = await esbuild.transform(jsIn, { minify: true, target: 'es2017', legalComments: 'none' });
-    await fs.writeFile(jsPath, jsOut.code, 'utf8');
-    const cssIn = await fs.readFile(cssPath, 'utf8');
-    const cssOut = await esbuild.transform(cssIn, { loader: 'css', minify: true });
-    await fs.writeFile(cssPath, cssOut.code, 'utf8');
-    console.log('   Minified public/js/main.js + public/css/style.css (' + fmtBuildMs(Date.now() - t0) + ')');
-  } catch (e) {
-    console.warn('   Minify thất bại (giữ bản gốc):', e && e.message ? e.message : e);
+
+  const targets = [];
+  const jsDir = path.join(ROOT, 'public', 'js');
+  if (await fs.pathExists(jsDir)) {
+    for (const name of await fs.readdir(jsDir)) {
+      if (name.endsWith('.js')) targets.push(path.join(jsDir, name));
+    }
   }
+  const cssDir = path.join(ROOT, 'public', 'css');
+  if (await fs.pathExists(cssDir)) {
+    for (const name of await fs.readdir(cssDir)) {
+      if (name.endsWith('.css')) targets.push(path.join(cssDir, name));
+    }
+  }
+  for (const baseName of ['filters.js', 'actors.js', 'movies-light.js']) {
+    const p = path.join(PUBLIC_DATA, baseName);
+    if (await fs.pathExists(p)) targets.push(p);
+  }
+
+  if (!targets.length) return;
+
+  const t0 = Date.now();
+  let bytesIn = 0;
+  let bytesOut = 0;
+  let ok = 0;
+  for (const filePath of targets) {
+    try {
+      const stat = await fs.stat(filePath);
+      if (stat.size > 3_500_000) {
+        console.warn('   Minify bỏ qua (file quá lớn):', path.relative(ROOT, filePath));
+        continue;
+      }
+      const input = await fs.readFile(filePath, 'utf8');
+      bytesIn += input.length;
+      const ext = path.extname(filePath).toLowerCase();
+      const loader = ext === '.css' ? 'css' : 'js';
+      const out = await esbuild.transform(input, {
+        minify: true,
+        target: 'es2017',
+        legalComments: 'none',
+        loader,
+      });
+      await fs.writeFile(filePath, out.code, 'utf8');
+      bytesOut += out.code.length;
+      ok++;
+    } catch (e) {
+      console.warn('   Minify bỏ qua file:', path.relative(ROOT, filePath), e && e.message ? e.message : e);
+    }
+  }
+  console.log(
+    '   Minified ' +
+      ok +
+      '/' +
+      targets.length +
+      ' file(s) (~' +
+      Math.round(bytesIn / 1024) +
+      ' KiB → ~' +
+      Math.round(bytesOut / 1024) +
+      ' KiB) ' +
+      fmtBuildMs(Date.now() - t0)
+  );
 }
 
 /**
@@ -4079,6 +4131,7 @@ async function main() {
   if (tmdbOnly) {
     if (skipTmdb) {
       console.log('TMDB_ONLY: SKIP_TMDB đang bật, không có gì để làm.');
+      await maybeMinifyPublicAssets();
       console.log('[TIMING] Total (TMDB_ONLY skip):', fmtBuildMs(Date.now() - buildT0));
       return;
     }
@@ -4196,6 +4249,7 @@ async function main() {
     const buildVersion = { builtAt: new Date().toISOString() };
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
     injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
+    await maybeMinifyPublicAssets();
     console.log('TMDB_ONLY build done.');
     console.log('[TIMING] Total (TMDB_ONLY):', fmtBuildMs(Date.now() - buildT0));
     return;

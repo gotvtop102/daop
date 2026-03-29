@@ -248,6 +248,7 @@
         );
         var eagerCountRaw = parseInt(ss.home_lazy_sections_eager_count, 10);
         var eagerCount = (Number.isFinite(eagerCountRaw) && eagerCountRaw >= 0) ? eagerCountRaw : 2;
+        /* Admin: home_lazy_sections_enabled (mặc định bật), home_lazy_sections_eager_count (mặc định 2) — chỉ N section đầu fetch+render ngay; phần còn lại khi gần viewport */
         var io = null;
         if (lazySectionsEnabled && typeof IntersectionObserver !== 'undefined') {
           try {
@@ -341,7 +342,9 @@
           var defaultPoster = (ss.default_use_poster === true || ss.default_use_poster === 'true' || ss.default_use_poster === 'poster');
           var cardOrientation = (sec.use_poster === true || sec.use_poster === 'true' || defaultPoster) ? 'horizontal' : 'vertical';
           var isGridLike = (layout === 'grid' || layout === 'grid_featured');
-          var html = '<section class="home-section home-section-' + layout + (isGridLike ? ' home-section--grid-cols' : '') + (layout === 'grid_featured' ? ' home-section--featured' : '') + '"' + (isGridLike ? ' style="' + gridVars + '"' : '') + '><h2>' + (sec.title || '') + ' ' + moreLink + '</h2>';
+          var deferClass =
+            lazySectionsEnabled && secIndex >= eagerCount ? ' home-section--deferred-render' : '';
+          var html = '<section class="home-section home-section-' + layout + (isGridLike ? ' home-section--grid-cols' : '') + (layout === 'grid_featured' ? ' home-section--featured' : '') + deferClass + '"' + (isGridLike ? ' style="' + gridVars + '"' : '') + '><h2>' + (sec.title || '') + ' ' + moreLink + '</h2>';
           if (layout === 'slider') {
             html += '<div class="section-slider-wrap"><div class="section-slider-track"><p>Đang tải...</p></div><button type="button" class="section-slider-prev" aria-label="Trước">‹</button><button type="button" class="section-slider-next" aria-label="Sau">›</button></div>';
           } else if (layout === 'list') {
@@ -522,6 +525,9 @@
           function loadAndRender() {
             if (loaded) return;
             loaded = true;
+            try {
+              if (secEl) secEl.classList.remove('home-section--deferred-render');
+            } catch (eRm) {}
             p.then(function (movies) {
               renderSectionMovies(movies);
             });
