@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["fr"] = {"fresh":{"id":"623c6d7e80a88d9a484be75f","i":45,"title":"Fresh","origin_name":"Fresh","slug":"fresh","thumb":"https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/623c6d7e80a88d9a484be75f.webp","year":2022,"type":"single","episode_current":"Full"}};
