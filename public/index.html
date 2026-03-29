@@ -11,7 +11,7 @@
   <link rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
 </head>
-<body>
+<body class="page-home">
   <div id="loading-screen" class="loading-screen" aria-hidden="false"><div class="loading-screen-inner"><div class="loading-screen-logo">GoTV</div><p class="loading-screen-text">Loading...</p></div></div>
   <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Bật/tắt nền sáng" aria-pressed="false">
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -78,9 +78,48 @@
           window.DAOP.siteSettings = s;
           window.DAOP.supabaseUserUrl = s.supabase_user_url || '';
           window.DAOP.supabaseUserAnonKey = s.supabase_user_anon_key || '';
+          try {
+            var rawSlider = s && s.homepage_slider;
+            var mode = (s && s.homepage_slider_display_mode) ? String(s.homepage_slider_display_mode).trim().toLowerCase() : 'manual';
+            var arr = [];
+            if (mode === 'auto') {
+              fetch((base || '') + '/data/home/homepage-slider-auto.json')
+                .then(function (r) { return r && r.ok ? r.json() : []; })
+                .then(function (a) {
+                  if (!Array.isArray(a) || !a.length) return;
+                  a = a.filter(function (x) { return x && x.enabled !== false; });
+                  a.sort(function (x, y) { return (x.sort_order || 0) - (y.sort_order || 0); });
+                  if (a[0] && a[0].image_url) injectPreloadLcp(a[0].image_url);
+                })
+                .catch(function () {});
+            } else {
+              arr = typeof rawSlider === 'string' ? (rawSlider ? JSON.parse(rawSlider) : []) : (Array.isArray(rawSlider) ? rawSlider : []);
+              if (Array.isArray(arr) && arr.length) {
+                arr = arr.filter(function (x) { return x && x.enabled !== false; });
+                arr.sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+                if (arr[0] && arr[0].image_url) injectPreloadLcp(arr[0].image_url);
+              }
+            }
+          } catch (e) {}
           return s;
         })
         .catch(function(){ return null; });
+      function injectPreloadLcp(imageUrlRaw) {
+        if (!imageUrlRaw || document.getElementById('daop-preload-lcp')) return;
+        var u = String(imageUrlRaw).trim().replace(/^\/\//, 'https://');
+        if (!u) return;
+        if (u.indexOf('http') !== 0) {
+          if (u[0] === '/') u = (window.location.origin || '') + u;
+          else u = 'https://' + u;
+        }
+        var link = document.createElement('link');
+        link.id = 'daop-preload-lcp';
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = u;
+        try { link.setAttribute('fetchpriority', 'high'); } catch (e) {}
+        document.head.appendChild(link);
+      }
     })();
   </script>
   <script src="/js/main.js" defer></script>

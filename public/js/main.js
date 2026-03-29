@@ -363,7 +363,6 @@
   };
 
   (function () {
-    var _authNavLoading = null;
     var _authNavSettingsPromise = null;
     var _authNavSubscribed = false;
     function getCreateClient() {
@@ -373,16 +372,18 @@
     }
     function loadSupabaseJsIfNeeded() {
       if (getCreateClient()) return Promise.resolve();
-      if (_authNavLoading) return _authNavLoading;
-      _authNavLoading = new Promise(function (resolve) {
+      window.DAOP = window.DAOP || {};
+      if (window.DAOP._loadSupabaseJsPromise) return window.DAOP._loadSupabaseJsPromise;
+      window.DAOP._loadSupabaseJsPromise = new Promise(function (resolve) {
         var s = document.createElement('script');
         s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
         s.onload = function () { resolve(); };
         s.onerror = function () { resolve(); };
         document.head.appendChild(s);
       });
-      return _authNavLoading;
+      return window.DAOP._loadSupabaseJsPromise;
     }
+    window.DAOP.loadSupabaseJsShared = loadSupabaseJsIfNeeded;
     function findAuthLink() {
       var links = Array.prototype.slice.call(document.querySelectorAll('a[href]'));
       for (var i = 0; i < links.length; i++) {

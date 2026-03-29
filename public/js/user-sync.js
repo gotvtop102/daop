@@ -6,19 +6,22 @@
   var STORAGE_KEY = 'daop_user_data';
   var version = 1;
 
-  var _supabaseScriptLoading = null;
   function loadSupabaseJsIfNeeded() {
     if (typeof createClient !== 'undefined') return Promise.resolve();
     if (typeof window.supabase !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function') return Promise.resolve();
-    if (_supabaseScriptLoading) return _supabaseScriptLoading;
-    _supabaseScriptLoading = new Promise(function (resolve, reject) {
+    if (window.DAOP && typeof window.DAOP.loadSupabaseJsShared === 'function') {
+      return window.DAOP.loadSupabaseJsShared();
+    }
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._loadSupabaseJsPromise) return window.DAOP._loadSupabaseJsPromise;
+    window.DAOP._loadSupabaseJsPromise = new Promise(function (resolve) {
       var s = document.createElement('script');
       s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
       s.onload = function () { resolve(); };
       s.onerror = function () { resolve(); };
       document.head.appendChild(s);
     });
-    return _supabaseScriptLoading;
+    return window.DAOP._loadSupabaseJsPromise;
   }
 
   function getCreateClient() {
