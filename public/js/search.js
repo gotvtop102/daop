@@ -163,10 +163,12 @@
   }
 
   function loadSettings() {
-    return fetch(((window.DAOP && window.DAOP.basePath) || '') + '/data/config/site-settings.json')
-      .then(function (r) { return r.json(); })
-      .catch(function () { return {}; })
-      .then(function (s) {
+    var p = (window.DAOP && typeof window.DAOP.ensureSiteSettingsLoaded === 'function')
+      ? window.DAOP.ensureSiteSettingsLoaded()
+      : fetch(((window.DAOP && window.DAOP.basePath) || '') + '/data/config/site-settings.json')
+        .then(function (r) { return r.json(); })
+        .catch(function () { return {}; });
+    return p.then(function (s) {
         var extra = parseInt(s.category_grid_columns_extra || s.grid_columns_extra || '8', 10);
         if ([6, 8, 10, 12, 14, 16].indexOf(extra) < 0) extra = 8;
         gridColumnsExtra = extra;

@@ -170,6 +170,16 @@
         ]).then(function (arr) {
           var boot = arr[0];
           var v = arr[1];
+          try {
+            var builtAt = v && v.builtAt;
+            if (!builtAt && boot && boot.buildVersion && boot.buildVersion.builtAt) builtAt = boot.buildVersion.builtAt;
+            if (builtAt) {
+              var qBust = '?v=' + encodeURIComponent(builtAt);
+              window.DAOP = window.DAOP || {};
+              window.DAOP._dataCacheBust = qBust;
+              window.DAOP._dataCacheBustPromise = Promise.resolve(qBust);
+            }
+          } catch (eBust) {}
           if (boot && (boot.homeSectionsData || boot.homepageSections)) {
             return [boot.homeSectionsData || null, boot.homepageSections || []];
           }

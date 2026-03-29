@@ -37,6 +37,14 @@
 
   function loadSettings() {
     if (window.DAOP && window.DAOP.siteSettings) return Promise.resolve(window.DAOP.siteSettings);
+    if (window.DAOP && typeof window.DAOP.ensureSiteSettingsLoaded === 'function') {
+      return window.DAOP.ensureSiteSettingsLoaded().then(function (s) {
+        window.DAOP = window.DAOP || {};
+        window.DAOP.siteSettings = s || {};
+        if (window.DAOP.applySiteSettings) window.DAOP.applySiteSettings(window.DAOP.siteSettings);
+        return window.DAOP.siteSettings;
+      });
+    }
     if (window.DAOP && window.DAOP.loadConfig) {
       return window.DAOP.loadConfig('site-settings').then(function (s) {
         window.DAOP = window.DAOP || {};

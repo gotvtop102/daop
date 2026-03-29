@@ -49,9 +49,14 @@
     var titleEl = document.getElementById('page-title');
     if (titleEl) titleEl.textContent = this.title;
 
-    fetch(((window.DAOP && window.DAOP.basePath) || '') + '/data/config/site-settings.json')
-      .then(function (r) { return r.json(); })
-      .catch(function () { return {}; })
+    (function loadCategorySettings() {
+      if (window.DAOP && typeof window.DAOP.ensureSiteSettingsLoaded === 'function') {
+        return window.DAOP.ensureSiteSettingsLoaded();
+      }
+      return fetch(((window.DAOP && window.DAOP.basePath) || '') + '/data/config/site-settings.json')
+        .then(function (r) { return r.json(); })
+        .catch(function () { return {}; });
+    })()
       .then(function (settings) {
         self.settings = settings || {};
         window.DAOP = window.DAOP || {};

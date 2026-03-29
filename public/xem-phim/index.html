@@ -80,24 +80,26 @@
           });
       }
       getVersionQuery().then(function (q) {
-        return fetch('/data/config/site-settings.json' + q).then(function (r) { return r.json(); }).then(function (s) {
+        var qs = q || '';
+        window.DAOP._dataCacheBust = qs;
+        window.DAOP._dataCacheBustPromise = Promise.resolve(qs);
+        return Promise.all([
+          fetch('/data/config/site-settings.json' + qs).then(function (r) { return r.ok ? r.json() : {}; }),
+          fetch('/data/config/player-settings.json' + qs).then(function (r) { return r && r.ok ? r.json() : null; }),
+          fetch('/data/config/preroll.json' + qs).then(function (r) { return r && r.ok ? r.json() : []; }),
+          fetch('/data/config/midroll.json' + qs).then(function (r) { return r && r.ok ? r.json() : []; }),
+          fetch('/data/config/postroll.json' + qs).then(function (r) { return r && r.ok ? r.json() : []; })
+        ]).then(function (results) {
+          var s = results[0] || {};
           window.DAOP.siteName = s.site_name || 'GoTV';
           window.DAOP.siteSettings = s;
           window.DAOP.supabaseUserUrl = s.supabase_user_url || '';
           window.DAOP.supabaseUserAnonKey = s.supabase_user_anon_key || '';
-          return fetch('/data/config/player-settings.json' + q);
-        }).then(function (r) { return r && r.ok ? r.json() : null; }).then(function (p) {
-          window.DAOP.playerSettings = p || {};
+          window.DAOP.playerSettings = results[1] || {};
           try { window.dispatchEvent(new Event('daop:playerSettingsLoaded')); } catch (e) {}
-          return fetch('/data/config/preroll.json' + q);
-        }).then(function (r) { return r && r.ok ? r.json() : []; }).then(function (arr) {
-          window.DAOP.prerollList = Array.isArray(arr) ? arr : [];
-          return fetch('/data/config/midroll.json' + q);
-        }).then(function (r) { return r && r.ok ? r.json() : []; }).then(function (arr) {
-          window.DAOP.midrollList = Array.isArray(arr) ? arr : [];
-          return fetch('/data/config/postroll.json' + q);
-        }).then(function (r) { return r && r.ok ? r.json() : []; }).then(function (arr) {
-          window.DAOP.postrollList = Array.isArray(arr) ? arr : [];
+          window.DAOP.prerollList = Array.isArray(results[2]) ? results[2] : [];
+          window.DAOP.midrollList = Array.isArray(results[3]) ? results[3] : [];
+          window.DAOP.postrollList = Array.isArray(results[4]) ? results[4] : [];
         });
       }).catch(function () { });
     })();

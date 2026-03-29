@@ -25,6 +25,45 @@
     return window.DAOP._dataCacheBustPromise;
   };
 
+  /** Một lần fetch site-settings cho toàn trang (tránh trùng giữa loading screen, CategoryPage, search…). */
+  window.DAOP.ensureSiteSettingsLoaded = function (skipHomeBootstrapPromise) {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._siteSettingsFetchDone) {
+      return Promise.resolve(window.DAOP.siteSettings || {});
+    }
+    try {
+      if (window.DAOP.siteSettings && typeof window.DAOP.siteSettings === 'object' && Object.keys(window.DAOP.siteSettings).length > 0) {
+        window.DAOP._siteSettingsFetchDone = true;
+        return Promise.resolve(window.DAOP.siteSettings);
+      }
+    } catch (e0) {}
+    if (!skipHomeBootstrapPromise && window.DAOP._siteSettingsLoadPromise) {
+      return window.DAOP._siteSettingsLoadPromise.then(function (s) {
+        if (s && typeof s === 'object' && Object.keys(s).length > 0) {
+          window.DAOP._siteSettingsFetchDone = true;
+          return s;
+        }
+        return window.DAOP.ensureSiteSettingsLoaded(true);
+      });
+    }
+    if (window.DAOP._siteSettingsPromise) return window.DAOP._siteSettingsPromise;
+    window.DAOP._siteSettingsPromise = fetch(BASE + '/data/config/site-settings.json')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (s) {
+        window.DAOP._siteSettingsFetchDone = true;
+        if (s && typeof s === 'object') {
+          window.DAOP.siteSettings = s;
+          if (s.site_name) window.DAOP.siteName = s.site_name;
+        }
+        return s || {};
+      })
+      .catch(function () {
+        window.DAOP._siteSettingsFetchDone = true;
+        return {};
+      });
+    return window.DAOP._siteSettingsPromise;
+  };
+
   function initThemeToggle() {
     if (!document.body) return;
     var btn = document.getElementById('theme-toggle');
@@ -131,6 +170,9 @@
       el.setAttribute('aria-hidden', 'true');
     }
     var loadSiteSettings = function () {
+      if (window.DAOP && typeof window.DAOP.ensureSiteSettingsLoaded === 'function') {
+        return window.DAOP.ensureSiteSettingsLoaded();
+      }
       try {
         if (window.DAOP && window.DAOP.siteSettings && typeof window.DAOP.siteSettings === 'object') {
           return Promise.resolve(window.DAOP.siteSettings);
@@ -215,6 +257,23 @@
         return [];
       });
     return window.DAOP._bannersPromise;
+  };
+
+  /** Một lần fetch static-pages.json (trang Giới thiệu, Liên hệ, …) — có ?v= theo build. */
+  window.DAOP.ensureStaticPagesLoaded = function () {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._staticPagesPromise) return window.DAOP._staticPagesPromise;
+    window.DAOP._staticPagesPromise = (typeof window.DAOP.ensureDataCacheBust === 'function'
+      ? window.DAOP.ensureDataCacheBust()
+      : Promise.resolve('')
+    ).then(function (q) {
+      var url = BASE + '/data/config/static-pages.json' + (q || '');
+      return fetch(url)
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (arr) { return Array.isArray(arr) ? arr : []; })
+        .catch(function () { return []; });
+    });
+    return window.DAOP._staticPagesPromise;
   };
 
   function escAttr(s) {
@@ -422,6 +481,9 @@
       if (_authNavSettingsPromise) return _authNavSettingsPromise;
       _authNavSettingsPromise = Promise.resolve()
         .then(function () {
+          if (window.DAOP && typeof window.DAOP.ensureSiteSettingsLoaded === 'function') {
+            return window.DAOP.ensureSiteSettingsLoaded();
+          }
           if (!window.DAOP || !window.DAOP.loadConfig) return null;
           return window.DAOP.loadConfig('site-settings');
         })
@@ -1750,7 +1812,9 @@
   /** Inject tracking from site-settings */
   window.DAOP.injectTracking = async function () {
     try {
-      const settings = await window.DAOP.loadConfig('site-settings');
+      const settings = await (typeof window.DAOP.ensureSiteSettingsLoaded === 'function'
+        ? window.DAOP.ensureSiteSettingsLoaded()
+        : window.DAOP.loadConfig('site-settings'));
       if (!settings) return;
       window.DAOP.applySiteSettings(settings);
       if (settings.google_analytics_id) {

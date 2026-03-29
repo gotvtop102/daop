@@ -14,6 +14,21 @@
     try {
       window.DAOP = window.DAOP || {};
       if (window.DAOP.siteSettings) return done && done();
+      if (typeof window.DAOP.ensureSiteSettingsLoaded === 'function') {
+        window.DAOP.ensureSiteSettingsLoaded()
+          .then(function (s) {
+            if (s) {
+              window.DAOP.siteSettings = window.DAOP.siteSettings || s;
+              if (window.DAOP.applySiteSettings) {
+                try { window.DAOP.applySiteSettings(s); } catch (e) {}
+              }
+              applyDefaultHeaderVisibility();
+            }
+          })
+          .catch(function () {})
+          .finally(function () { if (done) done(); });
+        return;
+      }
       if (typeof window.DAOP.loadConfig !== 'function') return done && done();
       window.DAOP.loadConfig('site-settings')
         .then(function (s) {

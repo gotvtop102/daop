@@ -284,7 +284,7 @@
     // Hiển thị nội dung mặc định ban đầu
     document.getElementById('app-guide-default').style.display = 'block';
     
-    fetch('/data/config/static-pages.json').then(function(r){ return r.json(); }).then(function(pages){
+    window.DAOP.ensureStaticPagesLoaded().then(function(pages){
       var app = Array.isArray(pages) ? pages.find(function(p){ return p.page_key === 'app_guide'; }) : null;
       var el = document.getElementById('app-guide-content');
       var defaultEl = document.getElementById('app-guide-default');
