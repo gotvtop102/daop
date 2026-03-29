@@ -65,4 +65,4 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add public/data/repo_image_upload_state.json
-          git diff --staged --quiet || (git commit -m "chore: repo image upload state (delete)" && git push)
+          bash scripts/git-commit-staged-push-retry.sh "chore: repo image upload state (delete)"

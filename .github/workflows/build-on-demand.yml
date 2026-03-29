@@ -192,5 +192,5 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes — không có gì để push."
           else
-            git commit -m "chore: build on demand (${BUILD_MODE})" && git push
+            bash scripts/git-commit-staged-push-retry.sh "chore: build on demand (${BUILD_MODE})"
           fi

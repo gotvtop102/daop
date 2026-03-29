@@ -80,7 +80,7 @@ jobs:
           git add public/data $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
-          git diff --staged --quiet || (git commit -m "chore: core build (skip tmdb)" && git push)
+          bash scripts/git-commit-staged-push-retry.sh "chore: core build (skip tmdb)"
 
       - name: Deploy CORE to Cloudflare Pages
         if: ${{ env.DEPLOY_AFTER_IMAGE_UPLOAD != '1' || inputs.upload_images != 'true' }}
@@ -129,7 +129,7 @@ jobs:
           git add public/data $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
-          git diff --staged --quiet || (git commit -m "chore: tmdb build (tmdb only)" && git push)
+          bash scripts/git-commit-staged-push-retry.sh "chore: tmdb build (tmdb only)"
 
       - name: Deploy TMDB to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

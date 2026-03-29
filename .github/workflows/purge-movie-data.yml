@@ -25,4 +25,4 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add public/data
-          git diff --staged --quiet || (git commit -m "chore: purge movie data" && git push)
+          bash scripts/git-commit-staged-push-retry.sh "chore: purge movie data"

@@ -139,19 +139,7 @@ jobs:
           # HTML (chu-de/, index.html, …) có ?v= sau injectFiltersJsCacheBustIntoHtml — phải commit cùng filters.js
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
-          if ! git diff --staged --quiet; then
-            # Commit trước để tránh lỗi "cannot pull with rebase: Your index contains uncommitted changes"
-            git commit -m "chore: update data"
-            STASH_BEFORE=$(git stash list | wc -l)
-            git stash push -m "temp" || true
-            bash scripts/git-pull-rebase-prefer-public.sh origin main
-            STASH_AFTER=$(git stash list | wc -l)
-            if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
-              bash scripts/git-stash-pop-prefer-public.sh
-            fi
-            npm run check-public
-            git push
-          fi
+          GIT_COMMIT_PUSH_RETRY_CHECK_PUBLIC=1 bash scripts/git-commit-staged-push-retry.sh "chore: update data"
 
       - name: Build CORE (2-phase, skip TMDB)
         if: ${{ env.TWO_PHASE == 'true' }}
@@ -186,24 +174,7 @@ jobs:
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if ! git diff --staged --quiet; then
-            git commit -m "chore: update data (core)"
-            STASH_BEFORE=$(git stash list | wc -l)
-            git stash push -m "temp" || true
-            for i in 1 2 3; do
-              bash scripts/git-pull-rebase-prefer-public.sh origin main
-              STASH_AFTER=$(git stash list | wc -l)
-              if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
-                bash scripts/git-stash-pop-prefer-public.sh
-              fi
-              npm run check-public
-              if git push; then
-                break
-              fi
-              if [ "$i" -eq 3 ]; then
-                exit 1
-              fi
-              sleep 2
-            done
+            GIT_COMMIT_PUSH_RETRY_CHECK_PUBLIC=1 bash scripts/git-commit-staged-push-retry.sh "chore: update data (core)"
           fi
 
       - name: Deploy CORE to Cloudflare Pages (2-phase)
@@ -274,24 +245,7 @@ jobs:
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if ! git diff --staged --quiet; then
-            git commit -m "chore: update data (tmdb only)"
-            STASH_BEFORE=$(git stash list | wc -l)
-            git stash push -m "temp" || true
-            for i in 1 2 3; do
-              bash scripts/git-pull-rebase-prefer-public.sh origin main
-              STASH_AFTER=$(git stash list | wc -l)
-              if [ "$STASH_AFTER" -gt "$STASH_BEFORE" ]; then
-                bash scripts/git-stash-pop-prefer-public.sh
-              fi
-              npm run check-public
-              if git push; then
-                break
-              fi
-              if [ "$i" -eq 3 ]; then
-                exit 1
-              fi
-              sleep 2
-            done
+            GIT_COMMIT_PUSH_RETRY_CHECK_PUBLIC=1 bash scripts/git-commit-staged-push-retry.sh "chore: update data (tmdb only)"
           fi
 
       - name: Deploy TMDB to Cloudflare Pages (2-phase)
