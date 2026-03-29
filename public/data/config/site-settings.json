@@ -2,7 +2,7 @@
   "site_name": "GoTV",
   "logo_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/site/logo/gotv.webp",
   "favicon_url": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/banners/1771769477571-2nqdpe9u.png",
-  "r2_img_domain": "https://pub-62eef44669df48e4bca5388a38e69522.r2.dev",
+  "r2_img_domain": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public",
   "ophim_img_domain": "https://img.ophim.live",
   "theme_light_bg": "#f3eee6",
   "home_prebuild_enabled": "true",
@@ -157,9 +157,9 @@
   "theme_section_title_light": "#1f2328",
   "theme_link_light": "#2563eb",
   "theme_slider_desc_light": "rgba(255,255,255,0.7)",
-  "site_url": "",
   "update_data_two_phase": "1",
   "update_data_manual_two_phase": "1",
   "upload_images_after_build": "1",
-  "deploy_after_r2_upload": "1"
+  "deploy_after_r2_upload": "1",
+  "site_url": ""
 }
