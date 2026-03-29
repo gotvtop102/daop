@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["iq"] = [{"id":"62e768ce425c8969e5ea41d8","title":"I.Q.","origin_name":"I.Q.","slug":"iq","thumb":"https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/62e768ce425c8969e5ea41d8.webp","year":1994,"episode_current":"Full","_t":"i q i q iq"}];

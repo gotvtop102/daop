@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["bn"] = {"bna":{"id":"628b2d3c9e983cdfde3dd281","i":2523,"title":"BNA","origin_name":"BNA","slug":"bna","thumb":"https://pub-62eef44669df48e4bca5388a38e69522.r2.dev/thumbs/628b2d3c9e983cdfde3dd281.webp","year":2020,"type":"hoathinh","episode_current":"Hoàn Tất (12/12)"}};
