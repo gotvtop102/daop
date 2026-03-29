@@ -13,6 +13,7 @@ import {
   InputNumber,
   Switch,
   message,
+  Alert,
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
@@ -58,6 +59,10 @@ const POSITION_PRESETS: Array<{ value: string; label: string }> = [
   { value: 'watch_top', label: 'Xem phim - Top (watch_top)' },
   { value: 'watch_mid', label: 'Xem phim - Giữa (watch_mid)' },
   { value: 'watch_bottom', label: 'Xem phim - Cuối (watch_bottom)' },
+  { value: 'popup', label: 'Toàn site - Popup / interstitial (popup)' },
+  { value: 'header_strip', label: 'Toàn site - Dải dưới menu (header_strip)' },
+  { value: 'sticky_bottom', label: 'Toàn site - Thanh neo đáy (sticky_bottom)' },
+  { value: 'floating_corner', label: 'Toàn site - Góc phải dưới (floating_corner)' },
 ];
 
 export default function Banners() {
@@ -177,6 +182,19 @@ export default function Banners() {
       <p style={{ color: '#666', marginBottom: 16 }}>
         Sau khi lưu, cần chạy Build website để áp dụng banner lên site.
       </p>
+      <Alert
+        type="info"
+        showIcon
+        style={{ marginBottom: 16 }}
+        message="Vị trí quảng cáo toàn site"
+        description={
+          <span>
+            Chọn <strong>popup</strong>, <strong>header_strip</strong>, <strong>sticky_bottom</strong>,{' '}
+            <strong>floating_corner</strong> trong ô Vị trí khi thêm/sửa banner. Độ trễ popup / tắt hẳn popup: mục{' '}
+            <strong>Cài đặt chung</strong> → tab <strong>Quảng cáo popup</strong>.
+          </span>
+        }
+      />
       <div style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={openAdd}>
           Thêm banner
