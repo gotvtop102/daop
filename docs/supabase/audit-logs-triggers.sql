@@ -59,6 +59,15 @@ begin
     v_ip
   );
 
+  -- Giữ tối đa 1000 dòng log mới nhất (dọn log cũ).
+  delete from public.audit_logs
+  where id in (
+    select id
+    from public.audit_logs
+    order by created_at desc
+    offset 1000
+  );
+
   return coalesce(new, old);
 end;
 $$;
