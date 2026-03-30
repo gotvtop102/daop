@@ -107,7 +107,19 @@ function loadState(statePath) {
 function markDeletedInState(state, movieId, kind) {
   if (!state || !state.uploaded) return;
   const row = state.uploaded[movieId];
-  if (!row || typeof row !== 'object') return;
+  if (!row) return;
+  // v2 (bitmask) state: just clear bits for deleted kinds.
+  if (typeof row === 'number') {
+    const THUMB = 1;
+    const POSTER = 2;
+    const mask = kind === 'both'
+      ? (THUMB | POSTER)
+      : (kind === 'thumb' ? THUMB : POSTER);
+    state.uploaded[movieId] = (row & (~mask));
+    if (!state.uploaded[movieId]) delete state.uploaded[movieId];
+    return;
+  }
+  if (typeof row !== 'object') return;
   const kinds = kind === 'both' ? ['thumb', 'poster'] : [kind];
   for (const k of kinds) {
     if (row[k] && typeof row[k] === 'object') {
@@ -160,8 +172,21 @@ async function main() {
       const row = state.uploaded && state.uploaded[id] ? state.uploaded[id] : null;
       if (!row) continue;
       const addKey = (k) => {
-        const v = row && row[k] && row[k].ok && row[k].key ? String(row[k].key) : '';
+        // v2 state (bitmask): derive deterministic key
+        if (typeof row === 'number') {
+          const THUMB = 1;
+          const POSTER = 2;
+          const bit = k === 'thumb' ? THUMB : POSTER;
+          if ((row & bit) === bit) {
+            out.push((k === 'thumb' ? `thumbs/${id}.webp` : `posters/${id}.webp`));
+          }
+          return;
+        }
+        // v1 state: key may be absent in minimal/older runs; derive if ok==true but key missing
+        const ok = !!(row && row[k] && row[k].ok);
+        const v = row && row[k] && row[k].key ? String(row[k].key) : '';
         if (v) out.push(v);
+        else if (ok) out.push((k === 'thumb' ? `thumbs/${id}.webp` : `posters/${id}.webp`));
       };
       if (kind === 'both') {
         addKey('thumb');

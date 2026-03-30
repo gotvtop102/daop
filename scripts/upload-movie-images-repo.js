@@ -7,6 +7,7 @@ import sharp from 'sharp';
 import {
   getImageCdnBase,
   repoImageKeyExists,
+  cdnUrlForImageKey,
   writeRepoImageFile,
   isCdnRepoImageUrl,
 } from './lib/repo-images.js';
@@ -37,6 +38,21 @@ function parseArgs(argv) {
 async function uploadToRepo(buffer, key, contentType) {
   const url = await writeRepoImageFile(buffer, key, contentType);
   return !!url;
+}
+
+async function headUrlOk(url, timeoutMs = 8000) {
+  const u = String(url || '').trim();
+  if (!u) return false;
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), timeoutMs);
+  try {
+    const res = await fetch(u, { method: 'HEAD', signal: ac.signal });
+    return !!res && res.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 function guessExtFromContentType(ct) {
@@ -171,16 +187,75 @@ function loadMovieListFromBatches() {
 
 function loadState(statePath) {
   try {
-    if (!fs.existsSync(statePath)) return { version: 1, uploaded: {} };
+    if (!fs.existsSync(statePath)) return { version: 2, uploaded: {} };
     const raw = fs.readFileSync(statePath, 'utf8');
     const j = JSON.parse(raw);
-    if (!j || typeof j !== 'object') return { version: 1, uploaded: {} };
+    if (!j || typeof j !== 'object') return { version: 2, uploaded: {} };
     if (!j.uploaded || typeof j.uploaded !== 'object') j.uploaded = {};
     if (!j.version) j.version = 1;
     return j;
   } catch {
-    return { version: 1, uploaded: {} };
+    return { version: 2, uploaded: {} };
   }
+}
+
+const STATE_MASK_THUMB = 1;
+const STATE_MASK_POSTER = 2;
+
+function kindToMask(kind) {
+  return kind === 'thumb' ? STATE_MASK_THUMB : (kind === 'poster' ? STATE_MASK_POSTER : 0);
+}
+
+function isStateOk(state, idStr, kind) {
+  if (!state || !state.uploaded || !idStr) return false;
+  const row = state.uploaded[idStr];
+  if (row == null) return false;
+  const mask = kindToMask(kind);
+  if (!mask) return false;
+  // v2: number bitmask
+  if (typeof row === 'number') return (row & mask) === mask;
+  // v1: object { thumb:{ok}, poster:{ok} }
+  if (typeof row === 'object') return !!(row[kind] && row[kind].ok);
+  return false;
+}
+
+function markStateOk(state, idStr, kind, meta) {
+  if (!state || !state.uploaded || !idStr) return;
+  const mask = kindToMask(kind);
+  if (!mask) return;
+  const minimal = /^1|true|yes$/i.test(String(process.env.REPO_IMAGE_STATE_MINIMAL || '').trim());
+  const row = state.uploaded[idStr];
+
+  if (minimal) {
+    const prevMask = typeof row === 'number'
+      ? row
+      : (typeof row === 'object'
+        ? ((row.thumb && row.thumb.ok) ? STATE_MASK_THUMB : 0) | ((row.poster && row.poster.ok) ? STATE_MASK_POSTER : 0)
+        : 0);
+    state.version = 2;
+    state.uploaded[idStr] = (prevMask | mask);
+    return;
+  }
+
+  // Legacy verbose mode (keeps metadata for debugging)
+  if (typeof row !== 'object' || row == null || typeof row === 'number') {
+    state.uploaded[idStr] = {};
+  }
+  state.uploaded[idStr][kind] = { ok: true, at: Date.now(), ...(meta || {}) };
+}
+
+function markStateFail(state, idStr, kind, reason) {
+  const keepFailed = /^1|true|yes$/i.test(String(process.env.REPO_IMAGE_STATE_KEEP_FAILED || '').trim());
+  if (!keepFailed) return;
+  if (!state || !state.uploaded || !idStr) return;
+  if (typeof state.uploaded[idStr] === 'number') {
+    // v2 minimal: don't store failure details
+    return;
+  }
+  state.uploaded[idStr] = state.uploaded[idStr] && typeof state.uploaded[idStr] === 'object'
+    ? state.uploaded[idStr]
+    : {};
+  state.uploaded[idStr][kind] = { ok: false, at: Date.now(), reason: String(reason || 'failed') };
 }
 
 function formatBytes(n) {
@@ -212,6 +287,23 @@ function logRepoImageStateStats(label, state, statePath) {
 
 function stringifyState(state) {
   const pretty = /^1|true|yes$/i.test(String(process.env.REPO_IMAGE_STATE_PRETTY || process.env.R2_STATE_PRETTY || '').trim());
+  const minimal = /^1|true|yes$/i.test(String(process.env.REPO_IMAGE_STATE_MINIMAL || '').trim());
+  if (minimal) {
+    // Ensure v2 bitmask format to keep file small.
+    const out = { version: 2, uploaded: {} };
+    for (const [id, row] of Object.entries((state && state.uploaded) || {})) {
+      if (!id) continue;
+      if (typeof row === 'number') {
+        if (row) out.uploaded[id] = row;
+        continue;
+      }
+      if (row && typeof row === 'object') {
+        const mask = ((row.thumb && row.thumb.ok) ? STATE_MASK_THUMB : 0) | ((row.poster && row.poster.ok) ? STATE_MASK_POSTER : 0);
+        if (mask) out.uploaded[id] = mask;
+      }
+    }
+    return pretty ? JSON.stringify(out, null, 2) : JSON.stringify(out);
+  }
   return pretty ? JSON.stringify(state, null, 2) : JSON.stringify(state);
 }
 
@@ -387,6 +479,24 @@ async function main() {
     moviesToProcess = limit ? moviesFiltered.slice(0, limit) : moviesFiltered;
   }
 
+  // Prune state to current movie ids to prevent unbounded growth.
+  const prune = /^1|true|yes$/i.test(String(process.env.REPO_IMAGE_STATE_PRUNE || '').trim());
+  if (prune) {
+    const keep = new Set();
+    for (const m of moviesToProcess) {
+      const idStr = m && m.id != null ? String(m.id) : '';
+      if (idStr) keep.add(idStr);
+    }
+    const before = Object.keys(state.uploaded || {}).length;
+    for (const id of Object.keys(state.uploaded || {})) {
+      if (!keep.has(id)) delete state.uploaded[id];
+    }
+    const after = Object.keys(state.uploaded || {}).length;
+    if (after !== before) {
+      console.log(`   [repo_image_upload_state] pruned: ${before} -> ${after} (keep current batches only)`);
+    }
+  }
+
   let done = 0;
   let skipped = 0;
   let skippedAlready = 0;
@@ -419,7 +529,7 @@ async function main() {
 
     const slugStr = normalizeSlugLike(m && (m.slug || '') ? String(m.slug) : '');
     const inForceList = !!(forceSlugSet && slugStr && forceSlugSet.has(slugStr));
-    const row = state.uploaded[idStr] || {};
+    const row = state.uploaded[idStr];
 
     const getOphimSource = async () => {
       if (!fallbackOphim) return null;
@@ -437,7 +547,7 @@ async function main() {
     };
 
     for (const kind of tasks) {
-      const already = row && row[kind] && row[kind].ok;
+      const already = isStateOk(state, idStr, kind);
       // reupload_existing should force reupload regardless of force_slugs.
       // force_slugs is only for selecting movies, not for enabling reupload.
       if (already && !reuploadExisting) {
@@ -449,11 +559,27 @@ async function main() {
       const folderEarly = kind === 'thumb' ? 'thumbs' : 'posters';
       const objectKeyEarly = `${folderEarly}/${idStr}.webp`;
       if (!reuploadExisting && repoImageKeyExists(objectKeyEarly)) {
-        state.uploaded[idStr] = state.uploaded[idStr] || {};
-        state.uploaded[idStr][kind] = { ok: true, at: Date.now(), key: objectKeyEarly, skip: 'file_exists' };
+        markStateOk(state, idStr, kind, { key: objectKeyEarly, skip: 'file_exists' });
         skipped++;
         skippedAlready++;
         continue;
+      }
+
+      // If images are stored in a different repo/CDN, local file may not exist.
+      // When enabled, do a cheap HEAD check against the public CDN and skip uploads when already present.
+      const remoteHeadCheck =
+        (process.env.REPO_IMAGE_REMOTE_HEAD_CHECK === '1' || process.env.REPO_IMAGE_REMOTE_HEAD_CHECK === 'true');
+      if (!reuploadExisting && remoteHeadCheck && !row?.[kind]?.ok) {
+        const remoteUrl = cdnUrlForImageKey(objectKeyEarly);
+        if (remoteUrl) {
+          const ok = await headUrlOk(remoteUrl, Number(process.env.REPO_IMAGE_REMOTE_HEAD_TIMEOUT_MS || '8000'));
+          if (ok) {
+            markStateOk(state, idStr, kind, { key: objectKeyEarly, skip: 'remote_exists' });
+            skipped++;
+            skippedAlready++;
+            continue;
+          }
+        }
       }
 
       let rawUrl = kind === 'thumb'
@@ -476,8 +602,7 @@ async function main() {
         // treat as a failure so it's visible (instead of being silently skipped).
         if (reuploadExisting || inForceList) {
           failed++;
-          state.uploaded[idStr] = state.uploaded[idStr] || {};
-          state.uploaded[idStr][kind] = { ok: false, at: Date.now(), reason: 'no_source_url' };
+          markStateFail(state, idStr, kind, 'no_source_url');
           if (failureSamples.length < 8) failureSamples.push({ id: idStr, kind, url: '', reason: 'no_source_url' });
         } else {
           skipped++;
@@ -491,18 +616,16 @@ async function main() {
         res = await fetch(url);
       } catch (e) {
         failed++;
-        state.uploaded[idStr] = state.uploaded[idStr] || {};
         const reason = e && e.message ? `fetch_failed:${e.message}` : 'fetch_failed';
-        state.uploaded[idStr][kind] = { ok: false, at: Date.now(), reason };
+        markStateFail(state, idStr, kind, reason);
         if (failureSamples.length < 8) failureSamples.push({ id: idStr, kind, url, reason });
         continue;
       }
 
       if (!res.ok) {
         failed++;
-        state.uploaded[idStr] = state.uploaded[idStr] || {};
         const reason = `http_${res.status}`;
-        state.uploaded[idStr][kind] = { ok: false, at: Date.now(), reason };
+        markStateFail(state, idStr, kind, reason);
         if (failureSamples.length < 8) failureSamples.push({ id: idStr, kind, url, reason });
         continue;
       }
@@ -522,13 +645,11 @@ async function main() {
       try {
         await uploadToRepo(optimized, key, 'image/webp');
         uploaded++;
-        state.uploaded[idStr] = state.uploaded[idStr] || {};
-        state.uploaded[idStr][kind] = { ok: true, at: Date.now(), key, bytes: optimized.length };
+        markStateOk(state, idStr, kind, { key, bytes: optimized.length });
       } catch (e) {
         failed++;
-        state.uploaded[idStr] = state.uploaded[idStr] || {};
         const reason = e && e.message ? e.message : 'upload_failed';
-        state.uploaded[idStr][kind] = { ok: false, at: Date.now(), reason };
+        markStateFail(state, idStr, kind, reason);
         if (failureSamples.length < 8) failureSamples.push({ id: idStr, kind, url, reason });
       }
     }
