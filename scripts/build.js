@@ -991,7 +991,9 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
         if (fetchedIds.has(idStr)) continue;
         if (!prevIndex[idStr]) continue; // chỉ preserve phim OPhim
         if (!prevMovie) continue;
-        list.push({ ...prevMovie, _skip_tmdb: true });
+        // Preserve movies outside the current fetch range.
+        // Mark them so the image uploader can avoid force-reuploading them when reupload_existing is enabled.
+        list.push({ ...prevMovie, _skip_tmdb: true, _image_preserved: true });
         preserved++;
       }
       if (preserved > 0) {
@@ -4079,6 +4081,7 @@ async function main() {
         'filters.json',
         'actors.js',
         'actors-index.json',
+        'repo_image_upload_state.json',
         'last_modified.json',
         'last_build.json',
         'build_version.json',

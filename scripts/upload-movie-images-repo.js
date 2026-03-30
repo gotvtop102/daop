@@ -527,6 +527,10 @@ async function main() {
       return;
     }
 
+    // When build is a partial page-range without clean, CORE batches may preserve older movies.
+    // If user asks to reupload existing images, we only force reupload for movies from the current fetch range.
+    const forceThisMovie = !!reuploadExisting && !(m && m._image_preserved);
+
     const slugStr = normalizeSlugLike(m && (m.slug || '') ? String(m.slug) : '');
     const inForceList = !!(forceSlugSet && slugStr && forceSlugSet.has(slugStr));
     const row = state.uploaded[idStr];
@@ -547,18 +551,19 @@ async function main() {
     };
 
     for (const kind of tasks) {
+      const folderEarly = kind === 'thumb' ? 'thumbs' : 'posters';
+      const objectKeyEarly = `${folderEarly}/${idStr}.webp`;
+
       const already = isStateOk(state, idStr, kind);
-      // reupload_existing should force reupload regardless of force_slugs.
-      // force_slugs is only for selecting movies, not for enabling reupload.
-      if (already && !reuploadExisting) {
+      // Reupload existing: only force for current-range movies.
+      // For preserved movies, don't skip if the file is actually missing.
+      if (already && !forceThisMovie && repoImageKeyExists(objectKeyEarly)) {
         skipped++;
         skippedAlready++;
         continue;
       }
 
-      const folderEarly = kind === 'thumb' ? 'thumbs' : 'posters';
-      const objectKeyEarly = `${folderEarly}/${idStr}.webp`;
-      if (!reuploadExisting && repoImageKeyExists(objectKeyEarly)) {
+      if (!forceThisMovie && repoImageKeyExists(objectKeyEarly)) {
         markStateOk(state, idStr, kind, { key: objectKeyEarly, skip: 'file_exists' });
         skipped++;
         skippedAlready++;
@@ -569,7 +574,7 @@ async function main() {
       // When enabled, do a cheap HEAD check against the public CDN and skip uploads when already present.
       const remoteHeadCheck =
         (process.env.REPO_IMAGE_REMOTE_HEAD_CHECK === '1' || process.env.REPO_IMAGE_REMOTE_HEAD_CHECK === 'true');
-      if (!reuploadExisting && remoteHeadCheck && !row?.[kind]?.ok) {
+      if (!forceThisMovie && remoteHeadCheck && !row?.[kind]?.ok) {
         const remoteUrl = cdnUrlForImageKey(objectKeyEarly);
         if (remoteUrl) {
           const ok = await headUrlOk(remoteUrl, Number(process.env.REPO_IMAGE_REMOTE_HEAD_TIMEOUT_MS || '8000'));
@@ -600,7 +605,7 @@ async function main() {
       if (!url) {
         // If we're reuploading (or forcing uploads) and still have no source URL,
         // treat as a failure so it's visible (instead of being silently skipped).
-        if (reuploadExisting || inForceList) {
+        if (forceThisMovie || inForceList) {
           failed++;
           markStateFail(state, idStr, kind, 'no_source_url');
           if (failureSamples.length < 8) failureSamples.push({ id: idStr, kind, url: '', reason: 'no_source_url' });
