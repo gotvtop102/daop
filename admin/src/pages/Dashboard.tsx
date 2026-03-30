@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Row, Col, Table, Statistic, Typography, Space, Tag } from 'antd';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Card, Row, Col, Statistic, Typography, Space } from 'antd';
 import {
   VideoCameraOutlined,
   UnorderedListOutlined,
@@ -7,167 +7,57 @@ import {
   AppstoreOutlined,
   SmileOutlined,
   DesktopOutlined,
-  ClockCircleOutlined,
   ReloadOutlined,
 } from '@ant-design/icons';
-import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<Record<string, number>>({});
-  const [logs, setLogs] = useState<any[]>([]);
+  const statsRef = useRef<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  const loadDashboard = useMemo(() => {
-    return async () => {
-      setLoading(true);
-      try {
-        const [s, l] = await Promise.all([
-          supabase.from('homepage_sections').select('id', { count: 'exact', head: true }),
-          supabase
-            .from('audit_logs')
-            .select('id, created_at, action, entity_type, entity_id')
-            .order('created_at', { ascending: false })
-            .limit(10),
-        ]);
+  const refreshMovieStats = async (force: boolean) => {
+    const base = getApiBaseUrl();
+    const statsUrl = new URL(`${base}/api/movies`);
+    statsUrl.searchParams.append('action', 'dashboardStats');
 
-        setStats((prev) => ({
-          ...prev,
-          sections: (s as any).count ?? 0,
-        }));
-        setLogs((l as any).data ?? []);
+    const res = await fetch(statsUrl.toString(), { cache: 'no-store' });
+    const data = await res.json().catch(async () => ({ error: await res.text() }));
+    if (!res.ok) return;
 
-        const base = getApiBaseUrl();
+    const changed = !!data?.changed;
+    const nextStats = data?.stats;
+    if (!nextStats || typeof nextStats !== 'object') return;
 
-        try {
-          const unbuiltUrl = new URL(`${base}/api/movies`);
-          unbuiltUrl.searchParams.append('action', 'list');
-          unbuiltUrl.searchParams.append('type', 'all');
-          unbuiltUrl.searchParams.append('unbuilt', '1');
-          unbuiltUrl.searchParams.append('page', '1');
-          unbuiltUrl.searchParams.append('limit', '1');
+    const hasStats = Object.keys(statsRef.current || {}).length > 0;
+    if (force || changed || !hasStats) {
+      const merged = { ...statsRef.current, ...(nextStats as Record<string, number>) };
+      statsRef.current = merged;
+      setStats(merged);
+      if (force || changed || !hasStats) setLastUpdatedAt(Date.now());
+    }
+  };
 
-          const duplicatesUrl = new URL(`${base}/api/movies`);
-          duplicatesUrl.searchParams.append('action', 'list');
-          duplicatesUrl.searchParams.append('type', 'all');
-          duplicatesUrl.searchParams.append('duplicates', '1');
-          duplicatesUrl.searchParams.append('page', '1');
-          duplicatesUrl.searchParams.append('limit', '1');
-
-          const [unbuiltRes, duplicatesRes] = await Promise.all([
-            fetch(unbuiltUrl.toString(), { cache: 'no-store' }),
-            fetch(duplicatesUrl.toString(), { cache: 'no-store' }),
-          ]);
-
-          const unbuiltData = await unbuiltRes.json().catch(async () => ({ error: await unbuiltRes.text() }));
-          const duplicatesData = await duplicatesRes
-            .json()
-            .catch(async () => ({ error: await duplicatesRes.text() }));
-
-          setStats((prev) => ({
-            ...prev,
-            movies_unbuilt: Number(unbuiltData?.total || 0),
-            movies_duplicates: Number(duplicatesData?.total || 0),
-          }));
-        } catch {
-          setStats((prev) => ({
-            ...prev,
-            movies_unbuilt: prev.movies_unbuilt ?? 0,
-            movies_duplicates: prev.movies_duplicates ?? 0,
-          }));
-        }
-
-        try {
-          const totalUrl = new URL(`${base}/api/movies`);
-          totalUrl.searchParams.append('action', 'list');
-          totalUrl.searchParams.append('type', 'all');
-          totalUrl.searchParams.append('page', '1');
-          totalUrl.searchParams.append('limit', '1');
-
-          const seriesUrl = new URL(`${base}/api/movies`);
-          seriesUrl.searchParams.append('action', 'list');
-          seriesUrl.searchParams.append('type', 'series');
-          seriesUrl.searchParams.append('page', '1');
-          seriesUrl.searchParams.append('limit', '1');
-
-          const singleUrl = new URL(`${base}/api/movies`);
-          singleUrl.searchParams.append('action', 'list');
-          singleUrl.searchParams.append('type', 'single');
-          singleUrl.searchParams.append('page', '1');
-          singleUrl.searchParams.append('limit', '1');
-
-          const hoathinhUrl = new URL(`${base}/api/movies`);
-          hoathinhUrl.searchParams.append('action', 'list');
-          hoathinhUrl.searchParams.append('type', 'hoathinh');
-          hoathinhUrl.searchParams.append('page', '1');
-          hoathinhUrl.searchParams.append('limit', '1');
-
-          const tvshowsUrl = new URL(`${base}/api/movies`);
-          tvshowsUrl.searchParams.append('action', 'list');
-          tvshowsUrl.searchParams.append('type', 'tvshows');
-          tvshowsUrl.searchParams.append('page', '1');
-          tvshowsUrl.searchParams.append('limit', '1');
-
-          const [totalRes, seriesRes, singleRes, hoathinhRes, tvshowsRes] = await Promise.all([
-            fetch(totalUrl.toString(), { cache: 'no-store' }),
-            fetch(seriesUrl.toString(), { cache: 'no-store' }),
-            fetch(singleUrl.toString(), { cache: 'no-store' }),
-            fetch(hoathinhUrl.toString(), { cache: 'no-store' }),
-            fetch(tvshowsUrl.toString(), { cache: 'no-store' }),
-          ]);
-
-          const totalData = await totalRes.json().catch(() => ({}));
-          const seriesData = await seriesRes.json().catch(() => ({ total: 0 }));
-          const singleData = await singleRes.json().catch(() => ({ total: 0 }));
-          const hoathinhData = await hoathinhRes.json().catch(() => ({ total: 0 }));
-          const tvshowsData = await tvshowsRes.json().catch(() => ({ total: 0 }));
-
-          const moviesTotal =
-            !totalRes.ok || (totalData as any)?.error ? 0 : Number((totalData as any)?.total || 0);
-          const moviesSeries = Number(seriesData?.total || 0);
-          const moviesSingle = Number(singleData?.total || 0);
-          const moviesHoathinh = Number(hoathinhData?.total || 0);
-          const moviesTvshows = Number(tvshowsData?.total || 0);
-
-          setStats((prev) => ({
-            ...prev,
-            movies_total: moviesTotal,
-            movies_series: moviesSeries,
-            movies_single: moviesSingle,
-            movies_hoathinh: moviesHoathinh,
-            movies_tvshows: moviesTvshows,
-          }));
-        } catch {
-          setStats((prev) => ({
-            ...prev,
-            movies_total: prev.movies_total ?? 0,
-            movies_series: prev.movies_series ?? 0,
-            movies_single: prev.movies_single ?? 0,
-            movies_hoathinh: prev.movies_hoathinh ?? 0,
-            movies_tvshows: prev.movies_tvshows ?? 0,
-          }));
-        }
-
-        setLastUpdatedAt(Date.now());
-      } finally {
-        setLoading(false);
-      }
-    };
-  }, []);
+  const loadDashboard = async () => {
+    setLoading(true);
+    try {
+      await refreshMovieStats(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    loadDashboard();
+    refreshMovieStats(true);
 
     const intervalMs = 60_000;
-    const t = window.setInterval(() => {
-      loadDashboard();
-    }, intervalMs);
+    const tMovies = window.setInterval(() => refreshMovieStats(false), intervalMs);
 
     return () => {
-      window.clearInterval(t);
+      window.clearInterval(tMovies);
     };
   }, []);
 
@@ -248,14 +138,6 @@ export default function Dashboard() {
     },
   ];
 
-  function actionColor(a: any): string {
-    const s = String(a || '').toLowerCase();
-    if (s.includes('delete') || s.includes('remove') || s.includes('xóa')) return 'red';
-    if (s.includes('update') || s.includes('edit') || s.includes('sửa')) return 'blue';
-    if (s.includes('create') || s.includes('add') || s.includes('thêm')) return 'green';
-    return 'default';
-  }
-
   return (
     <>
       <Space direction="vertical" size={4} style={{ width: '100%', marginBottom: 16 }}>
@@ -328,60 +210,6 @@ export default function Dashboard() {
           </Col>
         ))}
       </Row>
-
-      <Card
-        bordered={false}
-        style={{ borderRadius: 12 }}
-        title={
-          <Space>
-            <ClockCircleOutlined />
-            <span>Audit log gần đây</span>
-          </Space>
-        }
-      >
-        <Table
-          dataSource={logs}
-          rowKey="id"
-          columns={[
-            {
-              title: 'Thời gian',
-              dataIndex: 'created_at',
-              key: 'created_at',
-              width: 180,
-              render: (t: string) => (
-                <span style={{ whiteSpace: 'nowrap' }}>{new Date(t).toLocaleString()}</span>
-              ),
-            },
-            {
-              title: 'Hành động',
-              dataIndex: 'action',
-              key: 'action',
-              width: 140,
-              render: (a: any) => <Tag color={actionColor(a)}>{String(a || '-')}</Tag>,
-            },
-            {
-              title: 'Đối tượng',
-              dataIndex: 'entity_type',
-              key: 'entity_type',
-              width: 160,
-              render: (t: any) => <Tag>{String(t || '-')}</Tag>,
-            },
-            {
-              title: 'Chi tiết',
-              dataIndex: 'entity_id',
-              key: 'entity_id',
-              render: (id: any) => {
-                const s = String(id || '');
-                if (!s) return '-';
-                return <span title={s}>{s.length > 28 ? s.slice(0, 28) + '…' : s}</span>;
-              },
-            },
-          ]}
-          pagination={false}
-          size="small"
-          scroll={{ x: 400 }}
-        />
-      </Card>
     </>
   );
 }

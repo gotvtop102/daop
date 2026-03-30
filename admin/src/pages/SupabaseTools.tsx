@@ -412,9 +412,18 @@ create table if not exists public.ad_preroll (
   created_at timestamptz default now()
 );
 
-alter table public.ad_preroll
-add constraint if not exists ad_preroll_roll_check
-check (roll in ('pre','mid','post'));
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'ad_preroll_roll_check'
+  ) then
+    alter table public.ad_preroll
+      add constraint ad_preroll_roll_check
+      check (roll in ('pre','mid','post'));
+  end if;
+end $$;
 
 -- Bảng homepage sections
 create table if not exists public.homepage_sections (
@@ -674,6 +683,15 @@ begin
     v_old,
     v_new,
     v_ip
+  );
+
+  -- Giữ tối đa 1000 dòng log mới nhất (dọn log cũ).
+  delete from public.audit_logs
+  where id in (
+    select id
+    from public.audit_logs
+    order by created_at desc
+    offset 1000
   );
 
   return coalesce(new, old);
