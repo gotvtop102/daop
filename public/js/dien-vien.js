@@ -4,6 +4,11 @@
 (function () {
   var PAGE_SIZE_ACTORS = 24;
   var PAGE_SIZE_MOVIES = 24;
+  var SHARD_KEYS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'other'];
+  var _shardCache = {};
+  var _shardPromises = {};
+  var _lastSearchToken = 0;
+  var _searchDebounceTimer = null;
 
   function ensureSiteSettings(done) {
     try {
@@ -180,10 +185,11 @@
       var p = new URLSearchParams(window.location.search || '');
       return {
         q: (p.get('q') || ''),
+        k: (p.get('k') || ''),
         page: Math.max(1, parseInt(p.get('page') || '1', 10) || 1),
       };
     } catch (e) {
-      return { q: '', page: 1 };
+      return { q: '', k: '', page: 1 };
     }
   }
 
@@ -195,6 +201,11 @@
         if (q.trim()) p.set('q', q);
         else p.delete('q');
       }
+      if (next.k != null) {
+        var k = String(next.k || '').toLowerCase();
+        if (k && SHARD_KEYS.indexOf(k) >= 0) p.set('k', k);
+        else p.delete('k');
+      }
       if (next.page != null) {
         var pg = Math.max(1, parseInt(String(next.page), 10) || 1);
         if (pg > 1) p.set('page', String(pg));
@@ -203,6 +214,87 @@
       var base = window.location.pathname + (p.toString() ? ('?' + p.toString()) : '');
       window.history.replaceState({}, '', base);
     } catch (e) {}
+  }
+
+  function loadActorsShardByKey(key, q0) {
+    var k = String(key || '').toLowerCase();
+    if (SHARD_KEYS.indexOf(k) < 0) k = 'other';
+    if (_shardCache[k]) return Promise.resolve(_shardCache[k]);
+    if (_shardPromises[k]) return _shardPromises[k];
+    var base = (window.DAOP && window.DAOP.basePath) || '';
+    var jsUrl = base + '/data/actors-' + k + '.js' + (q0 || '');
+    var jsonUrl = base + '/data/actors-' + k + '.json' + (q0 || '');
+    _shardPromises[k] = new Promise(function (resolve, reject) {
+      // Prefer JSON (smaller + faster parse when gz/brotli enabled). Fallback to legacy JS shard.
+      fetch(jsonUrl, { cache: 'force-cache' })
+        .then(function (r) { return r && r.ok ? r.json() : Promise.reject(new Error('HTTP ' + (r ? r.status : 0))); })
+        .then(function (data) {
+          var out = {
+            names: (data && data.names) ? data.names : {},
+            map: (data && data.map) ? data.map : {},
+            meta: (data && data.meta) ? data.meta : {},
+            movies: (data && data.movies) ? data.movies : {},
+          };
+          _shardCache[k] = out;
+          resolve(out);
+        })
+        .catch(function () {
+          try {
+            var s = document.createElement('script');
+            s.src = jsUrl;
+            s.onload = function () {
+              try {
+                var data2 = window.actorsData || {};
+                // Copy out to avoid being overwritten by later shard loads.
+                var out2 = {
+                  names: data2.names || {},
+                  map: data2.map || {},
+                  meta: data2.meta || {},
+                  movies: data2.movies || {},
+                };
+                _shardCache[k] = out2;
+                resolve(out2);
+              } catch (e2) {
+                reject(e2);
+              }
+            };
+            s.onerror = function () { reject(new Error('Failed to load shard: ' + k)); };
+            document.head.appendChild(s);
+          } catch (e3) {
+            reject(e3);
+          }
+        });
+    }).finally(function () {
+      // Keep cache; clear promise to allow retry if needed.
+      _shardPromises[k] = null;
+    });
+    return _shardPromises[k];
+  }
+
+  function renderAlphabetPicker(container, activeKey) {
+    if (!container) return;
+    var k0 = String(activeKey || '').toLowerCase();
+    var html =
+      '<div class="actor-alpha">' +
+      '<div class="actor-alpha-title">Chọn chữ cái:</div>' +
+      '<div class="actor-alpha-grid">' +
+      SHARD_KEYS.map(function (k) {
+        var label = k === 'other' ? '#' : k.toUpperCase();
+        var cls = 'actor-alpha-btn' + (k0 === k ? ' active' : '');
+        return '<button type="button" class="' + cls + '" data-key="' + k + '">' + label + '</button>';
+      }).join('') +
+      '</div>' +
+      '</div>';
+    container.innerHTML = html;
+    container.style.display = '';
+    container.querySelectorAll('button[data-key]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var k = btn.getAttribute('data-key') || '';
+        setQuery({ k: k, page: 1, q: '' });
+        init(0);
+        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+      });
+    });
   }
 
   function paginate(arr, page, pageSize) {
@@ -277,7 +369,7 @@
 
   function getShardUrl(slug) {
     var base = (window.DAOP && window.DAOP.basePath) || '';
-    if (!slug) return base + '/data/actors-index.js';
+    if (!slug) return base + '/data/actors-index.json';
     var c = (slug[0] || '').toLowerCase();
     var key = (c >= 'a' && c <= 'z') ? c : 'other';
     return base + '/data/actors-' + key + '.js';
@@ -290,9 +382,125 @@
     var map = {};
     var meta = {};
     if (!slug) {
-      var idx = window.actorsIndex;
-      if (idx && idx.names) names = idx.names;
-      if (idx && idx.meta) meta = idx.meta;
+      // List page: do NOT depend on actors-index.js. Load shards on demand.
+      var q0 = getQuery();
+      var q = normalizeText(q0.q || '');
+      var k0 = String(q0.k || '').toLowerCase();
+      if (SHARD_KEYS.indexOf(k0) < 0) k0 = '';
+
+      document.title = 'Diễn viên | ' + (window.DAOP && window.DAOP.siteName ? window.DAOP.siteName : 'DAOP Phim');
+      var titleEl0 = document.getElementById('actor-name');
+      if (titleEl0) titleEl0.textContent = 'Diễn viên';
+
+      var profileWrap0 = document.getElementById('actor-profile');
+      renderAlphabetPicker(profileWrap0, k0);
+
+      var toolbar0 = document.getElementById('actor-grid-toolbar');
+      var state0 = getGridSettings();
+      state0.cols = [2, 3, 4, state0.extra].indexOf(state0.cols) >= 0 ? state0.cols : 4;
+
+      var grid0 = document.getElementById('movies-grid');
+      if (grid0) {
+        grid0.className = 'movies-grid';
+        applyMoviesGridClass(grid0, state0.cols);
+        grid0.innerHTML = '<p>Chọn chữ cái để xem danh sách diễn viên.</p>';
+      }
+
+      // Search input behavior (debounced) for list page.
+      var search0 = document.getElementById('actor-search');
+      if (search0) {
+        search0.value = q0.q || '';
+        search0.placeholder = 'Tìm diễn viên';
+        search0.oninput = function () {
+          try { if (_searchDebounceTimer) clearTimeout(_searchDebounceTimer); } catch (e) {}
+          _searchDebounceTimer = setTimeout(function () {
+            setQuery({ q: search0.value, page: 1, k: '' });
+            init(0);
+          }, 250);
+        };
+      }
+
+      // Pagination placeholders (hidden until we have data).
+      var pagTop0 = document.getElementById('actor-pagination');
+      var pagBot0 = document.getElementById('actor-pagination-bottom');
+      if (pagTop0) pagTop0.style.display = 'none';
+      if (pagBot0) pagBot0.style.display = 'none';
+
+      // If user is searching, progressively load shards until enough results.
+      if (q) {
+        var token = ++_lastSearchToken;
+        if (grid0) grid0.innerHTML = '<p>Đang tìm kiếm…</p>';
+
+        var all = [];
+        function collectFromCache() {
+          var out = [];
+          for (var i = 0; i < SHARD_KEYS.length; i++) {
+            var kk = SHARD_KEYS[i];
+            var cached = _shardCache[kk];
+            if (!cached || !cached.names) continue;
+            var keys = Object.keys(cached.names || {});
+            for (var j = 0; j < keys.length; j++) {
+              var s = keys[j];
+              var n = cached.names[s] || s;
+              var nn = normalizeText(n);
+              var ss = normalizeText(s);
+              if (nn.indexOf(q) >= 0 || ss.indexOf(q) >= 0) out.push({ slug: s, name: n, meta: (cached.meta && cached.meta[s]) ? cached.meta[s] : null, map: cached.map || {} });
+            }
+          }
+          return out;
+        }
+
+        var want = PAGE_SIZE_ACTORS * 6; // enough to paginate a few pages without loading everything
+        var idxKey = 0;
+        (function loadMore() {
+          if (token !== _lastSearchToken) return;
+          all = collectFromCache();
+          if (all.length >= want || idxKey >= SHARD_KEYS.length) {
+            renderActorListFromMatches(all, state0, q0, pagTop0, pagBot0);
+            return;
+          }
+          var nextKey = SHARD_KEYS[idxKey++];
+          var bustP0 =
+            window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function'
+              ? window.DAOP.ensureDataCacheBust()
+              : Promise.resolve('');
+          bustP0.then(function (bq) {
+            return loadActorsShardByKey(nextKey, bq || '');
+          }).then(function () {
+            // Continue until we have enough or exhausted.
+            loadMore();
+          }).catch(function () {
+            loadMore();
+          });
+        })();
+
+        return;
+      }
+
+      // If user picked a letter, load that shard and render list + real pagination.
+      if (k0) {
+        var bustP =
+          window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function'
+            ? window.DAOP.ensureDataCacheBust()
+            : Promise.resolve('');
+        bustP.then(function (bq) {
+          return loadActorsShardByKey(k0, bq || '');
+        }).then(function (data0) {
+          if (!data0) data0 = {};
+          var names0 = data0.names || {};
+          var meta0 = data0.meta || {};
+          var map0 = data0.map || {};
+          renderActorListFromShard(names0, meta0, map0, state0, q0, pagTop0, pagBot0);
+        }).catch(function () {
+          if (grid0) grid0.innerHTML = '<p>Không tải được dữ liệu diễn viên.</p>';
+        });
+      }
+
+      buildGridToolbar(toolbar0, state0, function () {
+        init(0);
+      }, { showPosterToggle: false });
+
+      return;
     } else {
       var data = window.actorsData;
       if (data) {
@@ -302,98 +510,7 @@
       }
     }
     if (!slug) {
-      var q0 = getQuery();
-      var actorSlugs = Object.keys(names || {});
-      actorSlugs.sort(function (a, b) { return String(names[a] || a).localeCompare(String(names[b] || b)); });
-
-      var q = normalizeText(q0.q || '');
-      if (q) {
-        actorSlugs = actorSlugs.filter(function (s) {
-          var n = normalizeText(names[s] || s);
-          var ss = normalizeText(s);
-          return n.indexOf(q) >= 0 || ss.indexOf(q) >= 0;
-        });
-      }
-
-      var paged = paginate(actorSlugs, q0.page, PAGE_SIZE_ACTORS);
-      setQuery({ page: paged.page });
-
-      document.title = 'Diễn viên | ' + (window.DAOP && window.DAOP.siteName ? window.DAOP.siteName : 'DAOP Phim');
-      var titleEl = document.getElementById('actor-name');
-      if (titleEl) titleEl.textContent = 'Diễn viên';
-      var grid = document.getElementById('movies-grid');
-
-      var toolbar0 = document.getElementById('actor-grid-toolbar');
-      var state0 = getGridSettings();
-      state0.cols = [2, 3, 4, state0.extra].indexOf(state0.cols) >= 0 ? state0.cols : 4;
-
-      function renderActors() {
-        if (!grid) return;
-        grid.className = 'movies-grid';
-        applyMoviesGridClass(grid, state0.cols);
-        if (!actorSlugs.length) {
-          grid.innerHTML = '<p>Chưa có dữ liệu diễn viên.</p>';
-          return;
-        }
-        grid.innerHTML = paged.slice.map(function (s) {
-          var n2 = names[s] || s;
-          var cnt = (map && map[s] && map[s].length) ? map[s].length : null;
-          var m2 = meta && meta[s] ? meta[s] : null;
-          var img = m2 && m2.profile ? normalizeTmdbImg(m2.profile, state0.usePoster) : '';
-          var baseUrl0 = (window.DAOP && window.DAOP.basePath) || '';
-          var defaultImg0 = baseUrl0 + '/images/default_thumb.png';
-          if (!defaultImg0) defaultImg0 = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="96" height="64"%3E%3Crect fill="%2321262d" width="96" height="64"/%3E%3C/svg%3E';
-          var title = esc(n2);
-          var href = encodeURIComponent(s) + '.html';
-          return (
-            '<div class="movie-card movie-card--vertical">' +
-            '<a href="' + href + '">' +
-            '<div class="thumb-wrap">' +
-            (img
-              ? '<img loading="lazy" decoding="async" src="' + esc(img) + '" onerror="this.onerror=null;this.src=\'' + String(defaultImg0).replace(/'/g, '%27') + '\';" alt="' + title + '">'
-              : '<img loading="lazy" decoding="async" src="' + esc(defaultImg0) + '" alt="' + title + '">') +
-            '</div>' +
-            '<div class="movie-info">' +
-            '<h3 class="title">' + title + '</h3>' +
-            '<p class="meta">' + (cnt != null ? (cnt + ' phim') : '') + '</p>' +
-            '</div></a></div>'
-          );
-        }).join('');
-      }
-
-      renderActors();
-      buildGridToolbar(toolbar0, state0, function () {
-        renderActors();
-      }, { showPosterToggle: false });
-
-      var profileWrap0 = document.getElementById('actor-profile');
-      if (profileWrap0) {
-        profileWrap0.style.display = 'none';
-        profileWrap0.innerHTML = '';
-      }
-
-      var search = document.getElementById('actor-search');
-      if (search) {
-        search.value = q0.q || '';
-        search.placeholder = 'Tìm diễn viên';
-        search.oninput = function () {
-          setQuery({ q: search.value, page: 1 });
-          init(0);
-        };
-      }
-      var pagTop = document.getElementById('actor-pagination');
-      var pagBot = document.getElementById('actor-pagination-bottom');
-      renderPagination(pagTop, paged.page, paged.totalPages, function (p) {
-        setQuery({ page: p });
-        init(0);
-        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
-      });
-      renderPagination(pagBot, paged.page, paged.totalPages, function (p) {
-        setQuery({ page: p });
-        init(0);
-        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
-      });
-
+      // list page handled above
       return;
     }
     var ids = (map[slug] || []).map(function (x) { return String(x); });
@@ -508,6 +625,118 @@
 
   }
 
+  function renderActorListFromShard(names, meta, map, state0, q0, pagTop, pagBot) {
+    var actorSlugs = Object.keys(names || {});
+    actorSlugs.sort(function (a, b) { return String(names[a] || a).localeCompare(String(names[b] || b)); });
+    var paged = paginate(actorSlugs, q0.page, PAGE_SIZE_ACTORS);
+    setQuery({ page: paged.page });
+
+    var grid = document.getElementById('movies-grid');
+    function renderActors() {
+      if (!grid) return;
+      grid.className = 'movies-grid';
+      applyMoviesGridClass(grid, state0.cols);
+      if (!actorSlugs.length) {
+        grid.innerHTML = '<p>Chưa có dữ liệu diễn viên.</p>';
+        return;
+      }
+      grid.innerHTML = paged.slice.map(function (s) {
+        var n2 = names[s] || s;
+        var cnt = (map && map[s] && map[s].length) ? map[s].length : null;
+        var m2 = meta && meta[s] ? meta[s] : null;
+        var img = m2 && m2.profile ? normalizeTmdbImg(m2.profile, state0.usePoster) : '';
+        var baseUrl0 = (window.DAOP && window.DAOP.basePath) || '';
+        var defaultImg0 = baseUrl0 + '/images/default_thumb.png';
+        if (!defaultImg0) defaultImg0 = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="96" height="64"%3E%3Crect fill="%2321262d" width="96" height="64"/%3E%3C/svg%3E';
+        var title = esc(n2);
+        var href = encodeURIComponent(s) + '.html';
+        return (
+          '<div class="movie-card movie-card--vertical">' +
+          '<a href="' + href + '">' +
+          '<div class="thumb-wrap">' +
+          (img
+            ? '<img loading="lazy" decoding="async" src="' + esc(img) + '" onerror="this.onerror=null;this.src=\'' + String(defaultImg0).replace(/'/g, '%27') + '\';" alt="' + title + '">'
+            : '<img loading="lazy" decoding="async" src="' + esc(defaultImg0) + '" alt="' + title + '">') +
+          '</div>' +
+          '<div class="movie-info">' +
+          '<h3 class="title">' + title + '</h3>' +
+          '<p class="meta">' + (cnt != null ? (cnt + ' phim') : '') + '</p>' +
+          '</div></a></div>'
+        );
+      }).join('');
+    }
+
+    renderActors();
+    if (pagTop) pagTop.style.display = '';
+    if (pagBot) pagBot.style.display = '';
+    renderPagination(pagTop, paged.page, paged.totalPages, function (p) {
+      setQuery({ page: p });
+      init(0);
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+    });
+    renderPagination(pagBot, paged.page, paged.totalPages, function (p) {
+      setQuery({ page: p });
+      init(0);
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+    });
+  }
+
+  function renderActorListFromMatches(matches, state0, q0, pagTop, pagBot) {
+    var grid = document.getElementById('movies-grid');
+    var arr = (matches || []).slice(0);
+    arr.sort(function (a, b) { return String(a.name || a.slug).localeCompare(String(b.name || b.slug)); });
+    var total = arr.length;
+    var paged = paginate(arr, q0.page, PAGE_SIZE_ACTORS);
+    setQuery({ page: paged.page });
+
+    if (!grid) return;
+    grid.className = 'movies-grid';
+    applyMoviesGridClass(grid, state0.cols);
+    if (!total) {
+      grid.innerHTML = '<p>Không tìm thấy diễn viên.</p>';
+    } else {
+      grid.innerHTML = paged.slice.map(function (x) {
+        var s = x.slug;
+        var n2 = x.name || s;
+        var m2 = x.meta || null;
+        var map0 = x.map || {};
+        var cnt = (map0 && map0[s] && map0[s].length) ? map0[s].length : null;
+        var img = m2 && m2.profile ? normalizeTmdbImg(m2.profile, state0.usePoster) : '';
+        var baseUrl0 = (window.DAOP && window.DAOP.basePath) || '';
+        var defaultImg0 = baseUrl0 + '/images/default_thumb.png';
+        if (!defaultImg0) defaultImg0 = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="96" height="64"%3E%3Crect fill="%2321262d" width="96" height="64"/%3E%3C/svg%3E';
+        var title = esc(n2);
+        var href = encodeURIComponent(s) + '.html';
+        return (
+          '<div class="movie-card movie-card--vertical">' +
+          '<a href="' + href + '">' +
+          '<div class="thumb-wrap">' +
+          (img
+            ? '<img loading="lazy" decoding="async" src="' + esc(img) + '" onerror="this.onerror=null;this.src=\'' + String(defaultImg0).replace(/'/g, '%27') + '\';" alt="' + title + '">'
+            : '<img loading="lazy" decoding="async" src="' + esc(defaultImg0) + '" alt="' + title + '">') +
+          '</div>' +
+          '<div class="movie-info">' +
+          '<h3 class="title">' + title + '</h3>' +
+          '<p class="meta">' + (cnt != null ? (cnt + ' phim') : '') + '</p>' +
+          '</div></a></div>'
+        );
+      }).join('');
+    }
+
+    if (pagTop) pagTop.style.display = '';
+    if (pagBot) pagBot.style.display = '';
+    renderPagination(pagTop, paged.page, paged.totalPages, function (p) {
+      setQuery({ page: p });
+      init(0);
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+    });
+    renderPagination(pagBot, paged.page, paged.totalPages, function (p) {
+      setQuery({ page: p });
+      init(0);
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+    });
+  }
+
   function run() {
     ensureSiteSettings(function () {
       var slug = getSlug();
@@ -518,32 +747,45 @@
           : Promise.resolve('');
       bustP.then(function (q) {
         var q0 = q || '';
-        var url = getShardUrl(slug) + q0;
-        var script = document.createElement('script');
-        script.src = url;
-        script.onload = init;
-        script.onerror = function () {
-          var fallback = base + '/data/actors.js' + q0;
-          if (fallback === url) {
-            var grid = document.getElementById('movies-grid');
-            if (grid) grid.innerHTML = '<p>Không tải được dữ liệu diễn viên.</p>';
-            return;
-          }
-          var s2 = document.createElement('script');
-          s2.src = fallback;
-          s2.onload = function () {
-            if (!slug && window.actorsData && window.actorsData.names) {
-              window.actorsIndex = { names: window.actorsData.names };
-            }
+        // Detail page (/dien-vien/{slug}.html): load the required shard up-front.
+        // List page (/dien-vien/): render immediately and only load shards on demand (no actors-index.js).
+        if (!slug) {
+          init(0);
+          return;
+        }
+        // Prefer JSON shard for detail page too.
+        var c = (slug[0] || '').toLowerCase();
+        var key = (c >= 'a' && c <= 'z') ? c : 'other';
+        var jsonUrl = base + '/data/actors-' + key + '.json' + q0;
+        fetch(jsonUrl, { cache: 'force-cache' })
+          .then(function (r) { return r && r.ok ? r.json() : Promise.reject(new Error('HTTP ' + (r ? r.status : 0))); })
+          .then(function (data) {
+            window.actorsData = data || {};
             init();
-          };
-          s2.onerror = function () {
-            var grid = document.getElementById('movies-grid');
-            if (grid) grid.innerHTML = '<p>Không tải được dữ liệu diễn viên.</p>';
-          };
-          document.head.appendChild(s2);
-        };
-        document.head.appendChild(script);
+          })
+          .catch(function () {
+            var url = getShardUrl(slug) + q0;
+            var script = document.createElement('script');
+            script.src = url;
+            script.onload = init;
+            script.onerror = function () {
+              var fallback = base + '/data/actors.js' + q0;
+              if (fallback === url) {
+                var grid = document.getElementById('movies-grid');
+                if (grid) grid.innerHTML = '<p>Không tải được dữ liệu diễn viên.</p>';
+                return;
+              }
+              var s2 = document.createElement('script');
+              s2.src = fallback;
+              s2.onload = function () { init(); };
+              s2.onerror = function () {
+                var grid = document.getElementById('movies-grid');
+                if (grid) grid.innerHTML = '<p>Không tải được dữ liệu diễn viên.</p>';
+              };
+              document.head.appendChild(s2);
+            };
+            document.head.appendChild(script);
+          });
       });
     });
   }

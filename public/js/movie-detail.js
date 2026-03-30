@@ -67,6 +67,65 @@
     return Promise.all(starters).then(function () { return out; });
   }
 
+  function ensureFiltersLoaded() {
+    try {
+      if (window.filtersData && (window.filtersData.genreMap || window.filtersData.countryMap)) return Promise.resolve(true);
+      var base = (window.DAOP && window.DAOP.basePath) || '';
+      // Prefer JSON if available, fallback to legacy JS
+      return fetch(base + '/data/filters.json' + ((window.DAOP && window.DAOP._dataCacheBust) || ''), { cache: 'force-cache' })
+        .then(function (r) { return r && r.ok ? r.json() : Promise.reject(new Error('HTTP ' + (r ? r.status : 0))); })
+        .then(function (data) { window.filtersData = data || {}; return true; })
+        .catch(function () {
+          return new Promise(function (resolve) {
+            var url = base + '/data/filters.js' + ((window.DAOP && window.DAOP._dataCacheBust) || '');
+            try {
+              window.DAOP = window.DAOP || {};
+              window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+              if (window.DAOP._loadedScripts[url]) return resolve(true);
+              var s = document.createElement('script');
+              s.src = url;
+              s.onload = function () { window.DAOP._loadedScripts[url] = true; resolve(true); };
+              s.onerror = function () { resolve(false); };
+              document.head.appendChild(s);
+            } catch (e) {
+              resolve(false);
+            }
+          });
+        });
+    } catch (e2) {
+      return Promise.resolve(false);
+    }
+  }
+
+  function ensureCommentsLibsLoaded() {
+    try {
+      if (window.DAOP && typeof window.DAOP.mountComments === 'function') return Promise.resolve(true);
+      var base = (window.DAOP && window.DAOP.basePath) || '';
+      function loadScript(src) {
+        return new Promise(function (resolve) {
+          try {
+            window.DAOP = window.DAOP || {};
+            window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+            var key = String(src);
+            if (window.DAOP._loadedScripts[key]) return resolve(true);
+            var s = document.createElement('script');
+            s.src = src;
+            s.onload = function () { window.DAOP._loadedScripts[key] = true; resolve(true); };
+            s.onerror = function () { resolve(false); };
+            document.head.appendChild(s);
+          } catch (e) { resolve(false); }
+        });
+      }
+      // DOMPurify is optional; comments.js should handle absence gracefully, but we try to load it.
+      var purify = 'https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js';
+      return loadScript(purify).then(function () {
+        return loadScript(base + '/js/comments.js' + ((window.DAOP && window.DAOP._dataCacheBust) || ''));
+      });
+    } catch (e2) {
+      return Promise.resolve(false);
+    }
+  }
+
   function getSimilar(movie, limit) {
     limit = limit || 16;
     var fd = window.filtersData || {};
@@ -222,24 +281,46 @@
     return raw.replace(/\.html$/i, '') || null;
   }
 
-  function formatCastInner(movie, namesMap) {
-    var actorNames = (movie.cast || []).slice(0, 10);
-    if (!actorNames.length) return '';
+  function slugifyActorName(input) {
+    var s = String(input || '').trim().toLowerCase();
+    if (!s) return '';
+    try {
+      if (s.normalize) s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    } catch (e) {}
+    s = s.replace(/đ/g, 'd');
+    s = s.replace(/[^a-z0-9\s-]/g, ' ');
+    s = s.replace(/\s+/g, '-').replace(/-+/g, '-');
+    s = s.replace(/^-+/, '').replace(/-+$/, '');
+    return s;
+  }
+
+  function formatCastInner(movie) {
     var base0 = (window.DAOP && window.DAOP.basePath) || '';
-    var nameToSlug = null;
-    if (namesMap && typeof namesMap === 'object') {
-      nameToSlug = {};
-      for (var ks in namesMap) {
-        if (Object.prototype.hasOwnProperty.call(namesMap, ks)) {
-          var nm = namesMap[ks];
-          if (nm) nameToSlug[nm] = ks;
-        }
+    var list = [];
+    try {
+      if (Array.isArray(movie && movie.cast_meta) && movie.cast_meta.length) {
+        list = movie.cast_meta.slice(0, 10).map(function (c) {
+          var display = (c && (c.name_vi || c.name)) ? String(c.name_vi || c.name) : '';
+          var slugSource = (c && (c.name_original || c.name)) ? String(c.name_original || c.name) : display;
+          return { display: display, slug: slugifyActorName(slugSource) };
+        }).filter(function (x) { return x && x.display; });
+      } else if (Array.isArray(movie && movie.cast) && movie.cast.length) {
+        list = movie.cast.slice(0, 10).map(function (name) {
+          var display2 = name != null ? String(name) : '';
+          return { display: display2, slug: slugifyActorName(display2) };
+        }).filter(function (x) { return x && x.display; });
       }
+    } catch (e) {
+      list = [];
     }
-    return actorNames.map(function (name) {
-      var safe = (name || '').replace(/</g, '&lt;');
-      var slug = nameToSlug ? nameToSlug[name] : null;
-      return slug ? '<a href="' + base0 + '/dien-vien/' + slug + '.html">' + safe + '</a>' : safe;
+    if (!list.length) return '';
+
+    return list.map(function (x) {
+      var safe = String(x.display || '').replace(/</g, '&lt;');
+      var slug = x.slug || '';
+      return slug
+        ? '<a href="' + base0 + '/dien-vien/' + slug + '.html">' + safe + '</a>'
+        : safe;
     }).join(', ');
   }
 
@@ -451,35 +532,6 @@
     }
   }
 
-  /** actors-index.js (~vài MB): tải lazy khi render chi tiết để link cast → /dien-vien/ — không chặn first paint. */
-  function loadActorsIndexForCastLinks() {
-    if (window.actorsIndex && window.actorsIndex.names) return Promise.resolve();
-    var base = (window.DAOP && window.DAOP.basePath) || '';
-    return (window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function'
-      ? window.DAOP.ensureDataCacheBust()
-      : Promise.resolve('')
-    ).then(function (q) {
-      return new Promise(function (resolve) {
-        var url = base + '/data/actors-index.js' + (q || '');
-        try {
-          window.DAOP = window.DAOP || {};
-          window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
-          if (window.DAOP._loadedScripts[url]) return resolve();
-          var s = document.createElement('script');
-          s.src = url;
-          s.onload = function () {
-            window.DAOP._loadedScripts[url] = true;
-            resolve();
-          };
-          s.onerror = function () { resolve(); };
-          document.head.appendChild(s);
-        } catch (e) {
-          resolve();
-        }
-      });
-    });
-  }
-
   function init() {
     var slug = getSlug();
     if (!slug) {
@@ -492,7 +544,6 @@
     var preloadMeta = (window.DAOP && typeof window.DAOP.preloadIndexMeta === 'function')
       ? window.DAOP.preloadIndexMeta()
       : Promise.resolve();
-    var actorsEarly = loadActorsIndexForCastLinks();
     Promise.all([getLight(slug), preloadMeta]).then(function (arr) {
       var light = arr[0];
       if (!light) {
@@ -512,7 +563,7 @@
           renderFromLight(light);
           return;
         }
-        renderFull(movie, actorsEarly);
+        renderFull(movie);
       });
     });
   }
@@ -578,7 +629,7 @@
     }
   }
 
-  function renderFull(movie, actorsPromise) {
+  function renderFull(movie) {
     var base = (window.DAOP && window.DAOP.basePath) || '';
     var defaultPoster = base + '/images/default_poster.png';
     var defaultThumb = base + '/images/default_thumb.png';
@@ -596,8 +647,7 @@
     var genreStr = buildMetaLinks(movie.genre || [], base, '/the-loai/');
     var countryStr = buildMetaLinks(movie.country || [], base, '/quoc-gia/');
     var desc = (movie.description || movie.content || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
-    var namesMap = (window.actorsData && window.actorsData.names) || (window.actorsIndex && window.actorsIndex.names) || null;
-    var castStr = formatCastInner(movie, namesMap);
+    var castStr = formatCastInner(movie);
     var directorStr = (movie.director || []).join(', ');
     var showtimesRaw = (movie && movie.showtimes != null) ? String(movie.showtimes).trim() : '';
     var showtimes = showtimesRaw ? '<p class="meta-line meta-line--showtimes">Lịch chiếu: ' + showtimesRaw.replace(/</g, '&lt;') + '</p>' : '';
@@ -699,37 +749,79 @@
 
     var listRef = { list: [] };
     var toolbarEl = document.getElementById('md-rec-toolbar');
-    getSimilar(movie, cfg.limit).then(function (list) {
-      listRef.list = Array.isArray(list) ? list : [];
-      setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef);
-    }).catch(function () {
-      listRef.list = [];
-      setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef);
-    });
+    // Lazy-load similar: only fetch filters + id-index when user scrolls near the section.
+    (function mountSimilarLazy() {
+      if (!grid) return;
+      grid.innerHTML = '<p>Đang tải...</p>';
+      var started = false;
+      function start() {
+        if (started) return;
+        started = true;
+        ensureFiltersLoaded()
+          .then(function () { return getSimilar(movie, cfg.limit); })
+          .then(function (list) {
+            listRef.list = Array.isArray(list) ? list : [];
+            setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef);
+          })
+          .catch(function () {
+            listRef.list = [];
+            setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef);
+          });
+      }
+      try {
+        if ('requestIdleCallback' in window) window.requestIdleCallback(start, { timeout: 1500 });
+      } catch (e0) {}
+      try {
+        if ('IntersectionObserver' in window) {
+          var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) {
+              if (en && en.isIntersecting) {
+                try { io.disconnect(); } catch (e1) {}
+                start();
+              }
+            });
+          }, { rootMargin: '400px' });
+          io.observe(grid);
+          return;
+        }
+      } catch (e2) {}
+      // Fallback: start soon anyway
+      setTimeout(start, 800);
+    })();
 
     setupActions(movie);
     try {
       if (window.DAOP && typeof window.DAOP.refreshQuickFavorites === 'function') window.DAOP.refreshQuickFavorites();
     } catch (e2) {}
 
-    try {
-      if (window.DAOP && typeof window.DAOP.mountComments === 'function') {
-        window.DAOP.mountComments('#comments-container', { postSlug: movie.slug || '' });
+    // Lazy-load comments libs + mount only when user opens comments.
+    (function mountCommentsLazy() {
+      var btnComments = document.getElementById('btn-scroll-comments');
+      var btnCollapseComments = document.getElementById('btn-collapse-comments');
+      var mounted = false;
+      function mountOnce() {
+        if (mounted) return;
+        mounted = true;
+        ensureCommentsLibsLoaded().then(function () {
+          try {
+            if (window.DAOP && typeof window.DAOP.mountComments === 'function') {
+              window.DAOP.mountComments('#comments-container', { postSlug: movie.slug || '' });
+            }
+          } catch (e0) {}
+        });
       }
-    } catch (e3) {}
+      function attach(el) {
+        if (!el) return;
+        el.addEventListener('click', function () { mountOnce(); }, { once: true });
+      }
+      attach(btnComments);
+      attach(btnCollapseComments);
+    })();
 
     if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
       window.DAOP.renderAdsInDocument(el || document);
     }
 
-    if (actorsPromise && typeof actorsPromise.then === 'function' && !namesMap) {
-      actorsPromise.then(function () {
-        var nm = (window.actorsData && window.actorsData.names) || (window.actorsIndex && window.actorsIndex.names) || null;
-        if (!nm) return;
-        var castEl = document.getElementById('md-info-cast');
-        if (castEl) castEl.innerHTML = formatCastInner(movie, nm);
-      }).catch(function () {});
-    }
   }
 
   function attachEpisodeButtons(movie) {

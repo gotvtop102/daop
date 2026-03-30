@@ -39,56 +39,119 @@
     }
   };
 
+  /**
+   * Load filtersData once per page (prefer JSON).
+   * Helps avoid loading `data/filters.js` heavy JS in every HTML template.
+   */
+  CategoryPage.ensureFiltersDataLoaded = function () {
+    window.DAOP = window.DAOP || {};
+    if (window.filtersData && (window.filtersData.genreMap || window.filtersData.yearMap)) {
+      return Promise.resolve(window.filtersData);
+    }
+    if (CategoryPage._filtersLoadedPromise) return CategoryPage._filtersLoadedPromise;
+    CategoryPage._filtersLoadedPromise = Promise.resolve()
+      .then(function () {
+        return typeof window.DAOP.ensureDataCacheBust === 'function' ? window.DAOP.ensureDataCacheBust() : '';
+      })
+      .then(function (q) {
+        var base = (window.DAOP && window.DAOP.basePath) ? window.DAOP.basePath : '';
+        var jsonUrl = base + '/data/filters.json' + (q || '');
+        return fetch(jsonUrl, { cache: 'force-cache' })
+          .then(function (r) { return r && r.ok ? r.json() : Promise.reject(new Error('HTTP ' + (r ? r.status : 0))); })
+          .then(function (data) {
+            window.filtersData = data || {};
+            return window.filtersData;
+          })
+          .catch(function () {
+            // Fallback to legacy filters.js (if JSON not generated yet)
+            var jsUrl = base + '/data/filters.js' + (q || '');
+            return new Promise(function (resolve) {
+              try {
+                window.DAOP = window.DAOP || {};
+                window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+                if (window.DAOP._loadedScripts[jsUrl]) {
+                  resolve(window.filtersData || {});
+                  return;
+                }
+                var s = document.createElement('script');
+                s.src = jsUrl;
+                s.onload = function () {
+                  window.DAOP._loadedScripts[jsUrl] = true;
+                  resolve(window.filtersData || {});
+                };
+                s.onerror = function () { resolve(window.filtersData || {}); };
+                document.head.appendChild(s);
+              } catch (e0) {
+                resolve(window.filtersData || {});
+              }
+            });
+          });
+      });
+    return CategoryPage._filtersLoadedPromise;
+  };
+
   CategoryPage.prototype.init = function () {
     var self = this;
-    var filtersData = window.filtersData || {};
-    var baseSet = this.baseFilter();
-    if (typeof baseSet === 'array') baseSet = new Set(baseSet);
-    if (!(baseSet instanceof Set)) baseSet = new Set(Array.isArray(baseSet) ? baseSet : []);
-
     var titleEl = document.getElementById('page-title');
     if (titleEl) titleEl.textContent = this.title;
+    if (titleEl) titleEl.textContent = this.title;
+    var grid0 = document.getElementById(this.gridId || 'movies-grid');
+    if (grid0) grid0.innerHTML = '<p>Đang tải...</p>';
 
-    (function loadCategorySettings() {
-      if (window.DAOP && typeof window.DAOP.ensureSiteSettingsLoaded === 'function') {
-        return window.DAOP.ensureSiteSettingsLoaded();
-      }
-      return fetch(((window.DAOP && window.DAOP.basePath) || '') + '/data/config/site-settings.json')
-        .then(function (r) { return r.json(); })
-        .catch(function () { return {}; });
-    })()
-      .then(function (settings) {
-        self.settings = settings || {};
-        window.DAOP = window.DAOP || {};
-        if (settings && Object.keys(settings).length && window.DAOP.applySiteSettings) {
-          try {
-            window.DAOP.applySiteSettings(settings);
-          } catch (eApply) {}
-        } else if (settings && Object.keys(settings).length) {
-          window.DAOP.siteSettings = Object.assign({}, window.DAOP.siteSettings || {}, settings);
-        }
-        var extra = parseInt(settings.category_grid_columns_extra || settings.grid_columns_extra || '8', 10);
-        if ([6, 8, 10, 12, 14, 16].indexOf(extra) < 0) extra = 8;
-        self.gridColumnsOptions = [2, 3, 4, extra];
-        var w = window.innerWidth || document.documentElement.clientWidth;
-        var xs = parseInt(settings.category_grid_cols_xs || settings.default_grid_cols_xs || '2', 10);
-        var sm = parseInt(settings.category_grid_cols_sm || settings.default_grid_cols_sm || '3', 10);
-        var md = parseInt(settings.category_grid_cols_md || settings.default_grid_cols_md || '4', 10);
-        var lg = parseInt(settings.category_grid_cols_lg || settings.default_grid_cols_lg || '6', 10);
-        self.gridCols = w >= 1024 ? lg : w >= 768 ? md : w >= 480 ? sm : xs;
-        if (self.gridColumnsOptions.indexOf(self.gridCols) < 0) self.gridCols = self.gridColumnsOptions[0];
-        self.gridColumnsExtra = extra;
-        self.usePoster = (settings.category_use_poster || settings.default_use_poster || 'thumb') === 'poster';
-        window.DAOP = window.DAOP || {};
-        window.DAOP.siteName = settings.site_name || 'DAOP Phim';
-        document.title = self.title + ' | ' + window.DAOP.siteName;
-        self.buildFilterUI(baseSet, filtersData);
-        self.ensureCategoryAdSlots();
-        self.buildGridToolbar();
-        self.applyFilters(baseSet, filtersData);
-        self.applyGridClass();
-        self.renderPage();
-        self.attachEvents(baseSet, filtersData);
+    CategoryPage.ensureFiltersDataLoaded()
+      .then(function (fd) {
+        var filtersData = fd || {};
+        var baseSet = self.baseFilter();
+        if (typeof baseSet === 'array') baseSet = new Set(baseSet);
+        if (!(baseSet instanceof Set)) baseSet = new Set(Array.isArray(baseSet) ? baseSet : []);
+
+        (function loadCategorySettings() {
+          if (window.DAOP && typeof window.DAOP.ensureSiteSettingsLoaded === 'function') {
+            return window.DAOP.ensureSiteSettingsLoaded();
+          }
+          return fetch(((window.DAOP && window.DAOP.basePath) || '') + '/data/config/site-settings.json')
+            .then(function (r) { return r.json(); })
+            .catch(function () { return {}; });
+        })()
+          .then(function (settings) {
+            self.settings = settings || {};
+            window.DAOP = window.DAOP || {};
+            if (settings && Object.keys(settings).length && window.DAOP.applySiteSettings) {
+              try {
+                window.DAOP.applySiteSettings(settings);
+              } catch (eApply) {}
+            } else if (settings && Object.keys(settings).length) {
+              window.DAOP.siteSettings = Object.assign({}, window.DAOP.siteSettings || {}, settings);
+            }
+            var extra = parseInt(settings.category_grid_columns_extra || settings.grid_columns_extra || '8', 10);
+            if ([6, 8, 10, 12, 14, 16].indexOf(extra) < 0) extra = 8;
+            self.gridColumnsOptions = [2, 3, 4, extra];
+            var w = window.innerWidth || document.documentElement.clientWidth;
+            var xs = parseInt(settings.category_grid_cols_xs || settings.default_grid_cols_xs || '2', 10);
+            var sm = parseInt(settings.category_grid_cols_sm || settings.default_grid_cols_sm || '3', 10);
+            var md = parseInt(settings.category_grid_cols_md || settings.default_grid_cols_md || '4', 10);
+            var lg = parseInt(settings.category_grid_cols_lg || settings.default_grid_cols_lg || '6', 10);
+            self.gridCols = w >= 1024 ? lg : w >= 768 ? md : w >= 480 ? sm : xs;
+            if (self.gridColumnsOptions.indexOf(self.gridCols) < 0) self.gridCols = self.gridColumnsOptions[0];
+            self.gridColumnsExtra = extra;
+            self.usePoster = (settings.category_use_poster || settings.default_use_poster || 'thumb') === 'poster';
+            window.DAOP = window.DAOP || {};
+            window.DAOP.siteName = settings.site_name || 'DAOP Phim';
+            document.title = self.title + ' | ' + window.DAOP.siteName;
+            self.buildFilterUI(baseSet, filtersData);
+            self.ensureCategoryAdSlots();
+            self.buildGridToolbar();
+            self.applyFilters(baseSet, filtersData);
+            self.applyGridClass();
+            self.renderPage();
+            self.attachEvents(baseSet, filtersData);
+          })
+          .catch(function () {
+            if (grid0) grid0.innerHTML = '<p>Không thể tải dữ liệu.</p>';
+          });
+      })
+      .catch(function () {
+        if (grid0) grid0.innerHTML = '<p>Không thể tải bộ lọc.</p>';
       });
   };
 
