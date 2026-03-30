@@ -41,11 +41,11 @@
     </div>
     <p class="footer-copyright">Copyright 2018 <a href="https://gotv.top" target="_blank" rel="noopener">GoTV</a>. All rights reserved.</p>
   </footer>
-<script src="../data/filters.js?v=2026-03-30T16%3A50%3A15.560Z"></script>
   <script src="../js/main.js"></script>
   <script src="../js/category-page.js"></script>
   <script>
     (function(){
+      function run() {
       var path = window.location.pathname;
       var m = path.match(/\/nam-phat-hanh\/([^/]+)(\.html)?$/);
       if (!m) m = path.match(/.+\/nam-phat-hanh\/([^/]+)(\.html)?$/);
@@ -73,6 +73,11 @@
         filterContainerId: 'filter-bar',
         paginationId: 'pagination'
       }).init();
+      }
+      var ensure = window.CategoryPage && typeof window.CategoryPage.ensureFiltersDataLoaded === 'function'
+        ? window.CategoryPage.ensureFiltersDataLoaded()
+        : Promise.resolve(window.filtersData || {});
+      ensure.then(function () { run(); });
     })();
   </script>
 </body>
