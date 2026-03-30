@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["az"] = [{"id":"6235b4c73d016a3b6717bc8e","title":"Azor","origin_name":"Azor","slug":"azor","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6235b4c73d016a3b6717bc8e.webp","year":2021,"episode_current":"Full","_t":"azor azor azor"}];

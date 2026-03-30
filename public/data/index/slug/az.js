@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["az"] = {"azor":{"id":"6235b4c73d016a3b6717bc8e","i":223,"title":"Azor","origin_name":"Azor","slug":"azor","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6235b4c73d016a3b6717bc8e.webp","year":2021,"type":"single","episode_current":"Full"}};
