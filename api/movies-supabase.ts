@@ -94,15 +94,24 @@ export async function listMoviesSb(
     }
     const slugFilter = `slug=${encodeURIComponent(buildSlugInParam(slugs))}`;
     const typePart = type && type !== 'all' ? `&type=eq.${encodeURIComponent(type)}` : '';
-    const path = `/movies?select=${encodeURIComponent(MOVIE_LIST_SELECT)}&${slugFilter}${typePart}`;
-    const res = await restFetch(path, { method: 'GET', key, headers: authHeaders(key) });
+    const start = (page - 1) * limit;
+    const to = start + limit - 1;
+    // Dùng order + Range để chỉ fetch đúng trang cần hiển thị
+    // (giảm tải so với việc tải toàn bộ phim trùng slug rồi mới slice).
+    const path = `/movies?select=${encodeURIComponent(MOVIE_LIST_SELECT)}&${slugFilter}${typePart}&order=modified.desc,updated_at.desc`;
+    const res = await restFetch(path, {
+      method: 'GET',
+      key,
+      headers: {
+        ...authHeaders(key, 'count=exact'),
+        Range: `${start}-${to}`,
+      },
+    });
     if (!res.ok) throw await errFromRes(res);
     const rows = await restJson<any[]>(res);
-    let movies = (rows || []).map((r, i) => ({ ...rowToMovie(r), _rowIndex: i + 2 }));
-    movies = sortMoviesByModifiedDesc(movies);
-    const total = movies.length;
-    const start = (page - 1) * limit;
-    return { data: movies.slice(start, start + limit), total, page, limit };
+    const total = parseContentRangeTotal(res) ?? rows.length;
+    const movies = (rows || []).map((r, i) => ({ ...rowToMovie(r), _rowIndex: start + i + 2 }));
+    return { data: movies, total, page, limit };
   }
 
   const parts = [`select=${encodeURIComponent(MOVIE_LIST_SELECT)}`, 'order=modified.desc'];
@@ -466,5 +475,95 @@ export function authInfoSb() {
     ok: true,
     source: 'supabase',
     supabase_url: url ? `${url.slice(0, 24)}...` : '',
+  };
+}
+
+async function headCountExactSb(path: string) {
+  const { key } = getEnv();
+  const res = await restFetch(path, {
+    method: 'HEAD',
+    key,
+    headers: authHeaders(key, 'count=exact'),
+  });
+  if (!res.ok) throw await errFromRes(res);
+  return parseContentRangeTotal(res) ?? 0;
+}
+
+async function getMaxUpdatedAtSb(table: string) {
+  const { key } = getEnv();
+  const t = String(table || '').trim();
+  if (!t) return '';
+  const res = await restFetch(
+    `/${encodeURIComponent(t)}?select=updated_at&order=updated_at.desc&limit=1`,
+    {
+      method: 'GET',
+      key,
+      headers: authHeaders(key),
+    }
+  );
+  if (!res.ok) throw await errFromRes(res);
+  const rows = await restJson<any[]>(res);
+  return String(rows?.[0]?.updated_at ?? '').trim();
+}
+
+async function countMoviesByTypeSb(type?: string) {
+  const t = String(type || '').trim();
+  const typePart = t && t !== 'all' ? `&type=eq.${encodeURIComponent(t)}` : '';
+  return headCountExactSb(`/movies?select=id${typePart}`);
+}
+
+async function countMoviesUnbuiltSb() {
+  return headCountExactSb(`/movies?select=id&update=eq.${encodeURIComponent('NEW')}`);
+}
+
+async function countMoviesDuplicatesSb() {
+  const { key } = getEnv();
+  const rpcRes = await restFetch('/rpc/movies_duplicate_slugs', {
+    method: 'POST',
+    key,
+    headers: authHeaders(key),
+    body: JSON.stringify({}),
+  });
+  if (!rpcRes.ok) throw await errFromRes(rpcRes);
+  const dupSlugs = await rpcRes.json();
+  const slugs = (dupSlugs || []).map((r: any) => (typeof r === 'string' ? r : r?.slug)).filter(Boolean);
+  if (!slugs.length) return 0;
+  const slugFilter = `slug=${encodeURIComponent(buildSlugInParam(slugs))}`;
+  return headCountExactSb(`/movies?select=id&${slugFilter}`);
+}
+
+async function countHomepageSectionsSb() {
+  return headCountExactSb(`/homepage_sections?select=id`);
+}
+
+// Version để dashboard biết khi nào cần tính lại số lượng phim (tránh recompute mỗi lần poll).
+export async function getDashboardVersionSb() {
+  const [moviesV, sectionsV] = await Promise.all([getMaxUpdatedAtSb('movies'), getMaxUpdatedAtSb('homepage_sections')]);
+  // Chuỗi version chỉ cần ổn định và so sánh được giữa các lần gọi.
+  return `${moviesV || ''}|${sectionsV || ''}`;
+}
+
+export async function getDashboardStatsCountsSb(): Promise<Record<string, number>> {
+  const [sections, movies_total, movies_series, movies_single, movies_hoathinh, movies_tvshows, movies_unbuilt, movies_duplicates] =
+    await Promise.all([
+      countHomepageSectionsSb(),
+      countMoviesByTypeSb('all'),
+      countMoviesByTypeSb('series'),
+      countMoviesByTypeSb('single'),
+      countMoviesByTypeSb('hoathinh'),
+      countMoviesByTypeSb('tvshows'),
+      countMoviesUnbuiltSb(),
+      countMoviesDuplicatesSb(),
+    ]);
+
+  return {
+    sections,
+    movies_total,
+    movies_series,
+    movies_single,
+    movies_hoathinh,
+    movies_tvshows,
+    movies_unbuilt,
+    movies_duplicates,
   };
 }

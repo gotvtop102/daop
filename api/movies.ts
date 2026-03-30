@@ -1,6 +1,8 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import {
   authInfoSb,
+  getDashboardStatsCountsSb,
+  getDashboardVersionSb,
   countRowsSb,
   deleteAllMoviesSb,
   deleteMovieSb,
@@ -15,6 +17,18 @@ import {
   updateShowtimesExclusiveSb,
   updateShowtimesSb,
 } from './movies-supabase.js';
+
+type DashboardStatsCache = {
+  version: string;
+  stats: Record<string, number>;
+  ts: number;
+};
+
+let dashboardStatsCache: DashboardStatsCache | null = null;
+let dashboardVersionCacheTs = 0;
+let dashboardVersionCacheValue: string = '';
+
+const DASHBOARD_VERSION_CACHE_TTL_MS = 25_000;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -58,6 +72,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .filter(Boolean);
         const out = await countRowsSb(tableNames);
         return res.status(200).json(out);
+      }
+
+      case 'dashboardStats': {
+        // Cache theo "version" để giảm số query count exact khi DB chưa có thay đổi.
+        // Version lấy từ max(updated_at) của movies và homepage_sections.
+        const now = Date.now();
+        try {
+          if (now - dashboardVersionCacheTs < DASHBOARD_VERSION_CACHE_TTL_MS && dashboardVersionCacheValue) {
+            if (dashboardStatsCache && dashboardStatsCache.version === dashboardVersionCacheValue) {
+              return res.status(200).json({
+                ok: true,
+                changed: false,
+                version: dashboardVersionCacheValue,
+                stats: dashboardStatsCache.stats,
+              });
+            }
+          }
+        } catch {
+          /* ignore cache read errors */
+        }
+
+        const version = await getDashboardVersionSb();
+        dashboardVersionCacheTs = now;
+        dashboardVersionCacheValue = version;
+
+        if (dashboardStatsCache && dashboardStatsCache.version === version) {
+          return res.status(200).json({
+            ok: true,
+            changed: false,
+            version,
+            stats: dashboardStatsCache.stats,
+          });
+        }
+
+        const stats = await getDashboardStatsCountsSb();
+        dashboardStatsCache = { version, stats, ts: now };
+
+        return res.status(200).json({
+          ok: true,
+          changed: true,
+          version,
+          stats,
+        });
       }
 
       case 'exportFull': {
