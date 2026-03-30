@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["qo"] = {"qorin":{"id":"6437b1d7c3112f4644eb91d5","i":15058,"title":"Qorin","origin_name":"Qorin","slug":"qorin","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6437b1d7c3112f4644eb91d5.webp","year":2022,"type":"single","episode_current":"Full"}};
