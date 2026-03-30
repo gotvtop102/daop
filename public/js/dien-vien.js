@@ -284,7 +284,7 @@
         return '<button type="button" class="' + cls + '" data-key="' + k + '">' + label + '</button>';
       }).join('') +
       '</div>' +
-      '<button type="button" class="actor-alpha-toggle" data-role="alpha-toggle" aria-expanded="false" hidden>Mở rộng</button>' +
+      '<button type="button" class="actor-alpha-toggle" data-role="alpha-toggle" aria-expanded="false" aria-label="Mở rộng danh sách chữ cái" title="Mở rộng danh sách chữ cái" hidden>▾</button>' +
       '</div>';
     container.innerHTML = html;
     container.style.display = '';
@@ -310,7 +310,9 @@
       if (expanded) alphaBox.classList.add('expanded');
       else alphaBox.classList.remove('expanded');
       toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-      toggleBtn.textContent = expanded ? 'Thu gọn' : 'Mở rộng';
+      toggleBtn.setAttribute('aria-label', expanded ? 'Thu gọn danh sách chữ cái' : 'Mở rộng danh sách chữ cái');
+      toggleBtn.setAttribute('title', expanded ? 'Thu gọn danh sách chữ cái' : 'Mở rộng danh sách chữ cái');
+      toggleBtn.textContent = expanded ? '▴' : '▾';
     }
     function refreshToggleVisibility() {
       if (!isMobileAlpha()) {
