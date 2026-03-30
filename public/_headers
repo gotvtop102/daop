@@ -33,7 +33,16 @@
 /data/actors-*.js
   Cache-Control: public, max-age=3600, must-revalidate
 
+/data/actors-*.json
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/data/actors-index.json
+  Cache-Control: public, max-age=3600, must-revalidate
+
 /data/filters.js
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/data/filters.json
   Cache-Control: public, max-age=3600, must-revalidate
 
 /data/config/*.json
