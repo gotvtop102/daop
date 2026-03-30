@@ -2460,6 +2460,65 @@ body.page-home #home-sections:empty {
   text-decoration: none;
 }
 
+/* Trang diễn viên: bộ chọn chữ cái A–Z */
+.actor-alpha {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.08) 100%), var(--card);
+}
+.actor-alpha-title {
+  font-weight: 800;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+}
+.actor-alpha-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  gap: 0.5rem;
+}
+.actor-alpha-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(240,246,252,0.14);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  border-radius: 12px;
+  min-height: 40px;
+  padding: 0.45rem 0.25rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.actor-alpha-btn:hover {
+  border-color: rgba(88, 166, 255, 0.55);
+  transform: translateY(-1px);
+}
+.actor-alpha-btn:active {
+  transform: translateY(0);
+}
+.actor-alpha-btn.active {
+  border-color: var(--accent);
+  background: rgba(88, 166, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.12);
+}
+@media (max-width: 480px) {
+  .actor-alpha {
+    padding: 0.6rem;
+  }
+  .actor-alpha-grid {
+    gap: 0.4rem;
+  }
+  .actor-alpha-btn {
+    min-height: 38px;
+    border-radius: 10px;
+  }
+}
+
 /* Trang chi tiết phim */
 .md-page {
   display: block;
