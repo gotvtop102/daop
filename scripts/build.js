@@ -1016,6 +1016,16 @@ function buildMoviesFromSupabase(movieRows, epRows) {
     const updateRaw = String(row.update ?? row['update'] ?? '').trim();
     const updateStatus = updateRaw ? updateRaw.toUpperCase() : '';
     const sheetModified = String(row.modified || '').trim();
+    const updatedAtRaw = String(row.updated_at || '').trim();
+
+    // Admin thường cập nhật `updated_at` nhưng có thể không cập nhật `modified`.
+    // Home sections + nhiều logic pick theo `modified`, nên lấy `updated_at` nếu mới hơn.
+    let effectiveModified = sheetModified || updatedAtRaw || new Date().toISOString();
+    const tMod = Date.parse(String(effectiveModified));
+    const tUpd = Date.parse(String(updatedAtRaw || ''));
+    if (!Number.isNaN(tUpd) && !Number.isNaN(tMod) && tUpd > tMod) {
+      effectiveModified = updatedAtRaw;
+    }
 
     const movie = {
       id: movieId,
@@ -1032,7 +1042,7 @@ function buildMoviesFromSupabase(movieRows, epRows) {
       lang_key: String(row.lang_key || row.language || '').trim(),
       episode_current: String(row.episode_current || '1').trim(),
       quality,
-      modified: sheetModified || new Date().toISOString(),
+      modified: effectiveModified,
       is_4k: is4k,
       is_exclusive: parseBooleanFlag(row.is_exclusive, false),
       status: String(row.status || '').trim(),
