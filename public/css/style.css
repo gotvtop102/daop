@@ -2460,6 +2460,12 @@ body.page-home #home-sections:empty {
   text-decoration: none;
 }
 
+.actor-alpha-wrap {
+  display: block;
+  width: 100%;
+  margin: 0.75rem 0 0.6rem;
+}
+
 /* Trang diễn viên: bộ chọn chữ cái A–Z */
 .actor-alpha {
   margin: 0.6rem 0;
