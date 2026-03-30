@@ -277,7 +277,6 @@
     var k0 = String(activeKey || '').toLowerCase();
     var html =
       '<div class="actor-alpha">' +
-      '<div class="actor-alpha-title">Chọn chữ cái:</div>' +
       '<div class="actor-alpha-grid">' +
       SHARD_KEYS.map(function (k) {
         var label = k === 'other' ? '#' : k.toUpperCase();
@@ -285,6 +284,7 @@
         return '<button type="button" class="' + cls + '" data-key="' + k + '">' + label + '</button>';
       }).join('') +
       '</div>' +
+      '<button type="button" class="actor-alpha-toggle" data-role="alpha-toggle" aria-expanded="false" hidden>Mở rộng</button>' +
       '</div>';
     container.innerHTML = html;
     container.style.display = '';
@@ -296,6 +296,45 @@
         try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
       });
     });
+
+    // Mobile: collapse to first row by default, expand on demand.
+    var alphaBox = container.querySelector('.actor-alpha');
+    var alphaGrid = container.querySelector('.actor-alpha-grid');
+    var toggleBtn = container.querySelector('button[data-role="alpha-toggle"]');
+    if (!alphaBox || !alphaGrid || !toggleBtn) return;
+
+    function isMobileAlpha() {
+      try { return !!(window.matchMedia && window.matchMedia('(max-width: 767px)').matches); } catch (e) { return false; }
+    }
+    function setExpanded(expanded) {
+      if (expanded) alphaBox.classList.add('expanded');
+      else alphaBox.classList.remove('expanded');
+      toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      toggleBtn.textContent = expanded ? 'Thu gọn' : 'Mở rộng';
+    }
+    function refreshToggleVisibility() {
+      if (!isMobileAlpha()) {
+        alphaBox.classList.remove('expanded');
+        toggleBtn.hidden = true;
+        return;
+      }
+      alphaBox.classList.remove('expanded');
+      var needsToggle = alphaGrid.scrollHeight > (alphaGrid.clientHeight + 2);
+      toggleBtn.hidden = !needsToggle;
+      if (!needsToggle) alphaBox.classList.remove('expanded');
+      setExpanded(false);
+    }
+
+    toggleBtn.addEventListener('click', function () {
+      var expanded = alphaBox.classList.contains('expanded');
+      setExpanded(!expanded);
+    });
+    setTimeout(refreshToggleVisibility, 0);
+    try {
+      window.addEventListener('resize', refreshToggleVisibility, { passive: true });
+    } catch (e2) {
+      window.addEventListener('resize', refreshToggleVisibility);
+    }
   }
 
   function paginate(arr, page, pageSize) {
