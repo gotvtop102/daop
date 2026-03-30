@@ -80,6 +80,8 @@ function getSearchPrefixMaxTokensFromEnv() {
 }
 
 const OPHIM_DELAY_MS = 200;
+const OPHIM_DETAIL_CONCURRENCY = Math.max(1, Math.min(12, parseInt(process.env.OPHIM_DETAIL_CONCURRENCY || '1', 10) || 1));
+const OPHIM_DETAIL_DELAY_MS = Math.max(0, parseInt(process.env.OPHIM_DETAIL_DELAY_MS || String(OPHIM_DELAY_MS), 10) || 0);
 
 const OPHIM_BASE = process.env.OPHIM_BASE_URL || 'https://ophim1.com/v1/api';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
@@ -297,6 +299,78 @@ async function ensureRepoImagesForAllMovies(movies) {
   }
   const list = Array.isArray(movies) ? movies : [];
   if (!list.length) return;
+
+  async function headOk(url, timeoutMs = 12000) {
+    const u = String(url || '').trim();
+    if (!u) return false;
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), timeoutMs);
+    try {
+      const res = await fetch(u, { method: 'HEAD', signal: ac.signal });
+      return !!res && res.ok;
+    } catch {
+      return false;
+    } finally {
+      clearTimeout(t);
+    }
+  }
+
+  // Khi ảnh được lưu/đồng bộ ở repo khác (assets repo) hoặc CDN đã có sẵn,
+  // build ở repo chính không nên tải + nén lại toàn bộ ảnh (rất chậm).
+  // Chế độ này chỉ rewrite thumb/poster sang URL CDN theo id.
+  const cdnOnly = (process.env.IMAGE_CDN_ONLY === '1' || process.env.IMAGE_CDN_ONLY === 'true');
+  if (cdnOnly) {
+    for (const m of list) {
+      const idStr = m && m.id != null ? String(m.id).trim() : '';
+      if (!idStr) continue;
+      m.thumb = cdnUrlByMovieId(idStr, 'thumbs');
+      m.poster = cdnUrlByMovieId(idStr, 'posters');
+    }
+    console.log('6a. Repo/CDN images: IMAGE_CDN_ONLY=1 → rewrite URLs only (skip download/optimize).');
+
+    // Optional: verify CDN/assets repo có đủ ảnh không (HEAD request).
+    const validate =
+      (process.env.VALIDATE_CDN_IMAGES === '1' || process.env.VALIDATE_CDN_IMAGES === 'true');
+    if (validate) {
+      const sample = Math.max(0, parseInt(process.env.CDN_IMAGE_VALIDATE_SAMPLE || '200', 10) || 200);
+      const total = list.length;
+      const picks = [];
+      const n = sample <= 0 ? total : Math.min(sample, total);
+      for (let i = 0; i < n; i++) {
+        const idx = Math.floor(i * (total - 1) / Math.max(1, n - 1));
+        picks.push(list[idx]);
+      }
+      const concurrency = Math.max(1, Math.min(20, Number(process.env.CDN_IMAGE_VALIDATE_CONCURRENCY || 10)));
+      let next = 0;
+      let missingThumb = 0;
+      let missingPoster = 0;
+      const missing = [];
+      const workers = Array.from({ length: Math.min(concurrency, picks.length) }, () => (async () => {
+        while (true) {
+          const i = next++;
+          const m = picks[i];
+          if (!m) break;
+          const idStr = m && m.id != null ? String(m.id).trim() : '';
+          if (!idStr) continue;
+          const tUrl = cdnUrlByMovieId(idStr, 'thumbs');
+          const pUrl = cdnUrlByMovieId(idStr, 'posters');
+          const tOk = await headOk(tUrl);
+          const pOk = await headOk(pUrl);
+          if (!tOk) missingThumb++;
+          if (!pOk) missingPoster++;
+          if (!tOk || !pOk) {
+            if (missing.length < 30) missing.push({ id: idStr, thumb: !tOk, poster: !pOk });
+          }
+        }
+      })());
+      await Promise.all(workers);
+      console.log(`   CDN validate: checked ${picks.length}/${total} movies (sample). Missing thumbs=${missingThumb}, posters=${missingPoster}`);
+      if (missing.length) {
+        console.warn('   CDN validate: examples of missing:', missing);
+      }
+    }
+    return;
+  }
 
   const concurrency = Math.max(1, Math.min(10, Number(process.env.REPO_IMAGE_UPLOAD_CONCURRENCY || process.env.R2_UPLOAD_CONCURRENCY || 6)));
   let next = 0;
@@ -810,6 +884,7 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
     const items = data?.data?.items || [];
     if (items.length === 0) break;
     console.log('   OPhim page', page, 'items:', items.length, 'total:', list.length);
+    const detailQueue = [];
     for (const item of items) {
       const slug = item?.slug;
       const rawId = item?._id || item?.id || '';
@@ -858,22 +933,42 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
         }
       }
 
-      await sleep(OPHIM_DELAY_MS);
-      try {
-        const detail = await fetchJsonWithTimeout(`${OPHIM_BASE}/phim/${slug}`);
-        const movie = detail?.data?.item || detail?.data?.movie || detail?.data;
-        if (!movie) continue;
-        const cdnBase = (detail?.data?.APP_DOMAIN_CDN_IMAGE || '').replace(/\/$/, '') || 'https://img.ophim.live';
-        const m = normalizeOPhimMovie(movie, slug, cdnBase);
-        list.push({ ...m, _skip_tmdb: false });
-        const finalId = m && m.id != null ? String(m.id) : idStr;
-        if (finalId) {
-          nextIndex[finalId] = { slug: m.slug || slug.toString().toLowerCase(), modified: m.modified || modifiedStr || '' };
+      // Detail fetch: có thể chạy song song (pool) để giảm thời gian build.
+      detailQueue.push({
+        slug: slug.toString().toLowerCase(),
+        idStr,
+        modifiedStr,
+      });
+    }
+
+    if (detailQueue.length) {
+      const concurrency = Math.max(1, Math.min(OPHIM_DETAIL_CONCURRENCY, detailQueue.length));
+      let next = 0;
+      const workers = Array.from({ length: concurrency }, () => (async () => {
+        while (true) {
+          const i = next++;
+          const job = detailQueue[i];
+          if (!job) break;
+          if (OPHIM_DETAIL_DELAY_MS > 0) await sleep(OPHIM_DETAIL_DELAY_MS);
+          const slug = job.slug;
+          try {
+            const detail = await fetchJsonWithTimeout(`${OPHIM_BASE}/phim/${slug}`);
+            const movie = detail?.data?.item || detail?.data?.movie || detail?.data;
+            if (!movie) continue;
+            const cdnBase = (detail?.data?.APP_DOMAIN_CDN_IMAGE || '').replace(/\/$/, '') || 'https://img.ophim.live';
+            const m = normalizeOPhimMovie(movie, slug, cdnBase);
+            list.push({ ...m, _skip_tmdb: false });
+            const finalId = m && m.id != null ? String(m.id) : job.idStr;
+            if (finalId) {
+              nextIndex[finalId] = { slug: m.slug || slug, modified: m.modified || job.modifiedStr || '' };
+            }
+            fetched.count++;
+          } catch (e) {
+            console.warn('OPhim detail skip:', slug, e && e.message ? e.message : String(e));
+          }
         }
-        fetched.count++;
-      } catch (e) {
-        console.warn('OPhim detail skip:', slug, e.message);
-      }
+      })());
+      await Promise.all(workers);
     }
     fetchedPages++;
     page += step;
