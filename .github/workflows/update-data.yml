@@ -55,9 +55,13 @@ jobs:
           if [ -n "${{ secrets.IMAGES_REPO }}" ]; then
             echo "HAS_IMAGES_REPO=true" >> $GITHUB_ENV
             echo "GIT_ADD_PUBLIC_IMAGES=" >> $GITHUB_ENV
+            echo "IMAGE_CDN_ONLY=1" >> $GITHUB_ENV
+            echo "REPO_IMAGE_REMOTE_HEAD_CHECK=1" >> $GITHUB_ENV
           else
             echo "HAS_IMAGES_REPO=false" >> $GITHUB_ENV
             echo "GIT_ADD_PUBLIC_IMAGES=public/thumbs public/posters" >> $GITHUB_ENV
+            echo "IMAGE_CDN_ONLY=0" >> $GITHUB_ENV
+            echo "REPO_IMAGE_REMOTE_HEAD_CHECK=0" >> $GITHUB_ENV
           fi
 
       - name: Load OPhim env from Supabase (auto settings)
@@ -107,6 +111,8 @@ jobs:
           OPHIM_START_PAGE: ${{ inputs.start_page != '0' && inputs.start_page || env.OPHIM_START_PAGE || vars.OPHIM_START_PAGE || '1' }}
           OPHIM_END_PAGE: ${{ inputs.end_page != '0' && inputs.end_page || env.OPHIM_END_PAGE || vars.OPHIM_END_PAGE || '0' }}
           OPHIM_FETCH_TIMEOUT_MS: ${{ vars.OPHIM_FETCH_TIMEOUT_MS || '25000' }}
+          OPHIM_DETAIL_CONCURRENCY: ${{ vars.OPHIM_DETAIL_CONCURRENCY || '4' }}
+          OPHIM_DETAIL_DELAY_MS: ${{ vars.OPHIM_DETAIL_DELAY_MS || '50' }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
@@ -120,6 +126,10 @@ jobs:
         env:
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
           REPO_IMAGE_REUPLOAD_EXISTING: ${{ inputs.reupload_existing }}
+          REPO_IMAGE_REMOTE_HEAD_CHECK: ${{ env.REPO_IMAGE_REMOTE_HEAD_CHECK }}
+          REPO_IMAGE_STATE_MINIMAL: '1'
+          REPO_IMAGE_STATE_PRUNE: '1'
+          REPO_IMAGE_STATE_KEEP_FAILED: '0'
 
       - name: Push movie images to assets GitHub repo
         if: ${{ env.TWO_PHASE != 'true' && env.UPLOAD_IMAGES == 'true' && env.HAS_IMAGES_REPO == 'true' }}
@@ -151,6 +161,8 @@ jobs:
           OPHIM_START_PAGE: ${{ inputs.start_page != '0' && inputs.start_page || env.OPHIM_START_PAGE || vars.OPHIM_START_PAGE || '1' }}
           OPHIM_END_PAGE: ${{ inputs.end_page != '0' && inputs.end_page || env.OPHIM_END_PAGE || vars.OPHIM_END_PAGE || '0' }}
           OPHIM_FETCH_TIMEOUT_MS: ${{ vars.OPHIM_FETCH_TIMEOUT_MS || '25000' }}
+          OPHIM_DETAIL_CONCURRENCY: ${{ vars.OPHIM_DETAIL_CONCURRENCY || '4' }}
+          OPHIM_DETAIL_DELAY_MS: ${{ vars.OPHIM_DETAIL_DELAY_MS || '50' }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
@@ -213,6 +225,8 @@ jobs:
           OPHIM_START_PAGE: ${{ inputs.start_page != '0' && inputs.start_page || env.OPHIM_START_PAGE || vars.OPHIM_START_PAGE || '1' }}
           OPHIM_END_PAGE: ${{ inputs.end_page != '0' && inputs.end_page || env.OPHIM_END_PAGE || vars.OPHIM_END_PAGE || '0' }}
           OPHIM_FETCH_TIMEOUT_MS: ${{ vars.OPHIM_FETCH_TIMEOUT_MS || '25000' }}
+          OPHIM_DETAIL_CONCURRENCY: ${{ vars.OPHIM_DETAIL_CONCURRENCY || '4' }}
+          OPHIM_DETAIL_DELAY_MS: ${{ vars.OPHIM_DETAIL_DELAY_MS || '50' }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
@@ -226,6 +240,10 @@ jobs:
         env:
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
           REPO_IMAGE_REUPLOAD_EXISTING: ${{ inputs.reupload_existing }}
+          REPO_IMAGE_REMOTE_HEAD_CHECK: ${{ env.REPO_IMAGE_REMOTE_HEAD_CHECK }}
+          REPO_IMAGE_STATE_MINIMAL: '1'
+          REPO_IMAGE_STATE_PRUNE: '1'
+          REPO_IMAGE_STATE_KEEP_FAILED: '0'
 
       - name: Push movie images to assets GitHub repo (2-phase)
         if: ${{ env.TWO_PHASE == 'true' && env.UPLOAD_IMAGES == 'true' && env.HAS_IMAGES_REPO == 'true' }}

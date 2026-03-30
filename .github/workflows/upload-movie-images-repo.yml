@@ -93,6 +93,9 @@ jobs:
         env:
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
           REPO_IMAGE_REUPLOAD_EXISTING: ${{ inputs.reupload_existing }}
+          REPO_IMAGE_STATE_MINIMAL: '1'
+          REPO_IMAGE_STATE_PRUNE: '1'
+          REPO_IMAGE_STATE_KEEP_FAILED: '0'
 
       - name: Push movie images to assets GitHub repo
         if: env.HAS_IMAGES_REPO == 'true'
