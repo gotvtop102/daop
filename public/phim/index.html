@@ -61,7 +61,6 @@
       }
     }
   </script>
-<script src="/data/filters.js?v=2026-03-30T16%3A50%3A15.560Z"></script>
   <script>
     (function () {
       var base = '';
@@ -80,31 +79,19 @@
         window.DAOP._dataCacheBust = qs;
         window.DAOP._dataCacheBustPromise = Promise.resolve(qs);
         return Promise.all([
-          fetch('/data/config/site-settings.json' + qs).then(function (r) { return r.ok ? r.json() : {}; }),
-          fetch('/data/config/player-settings.json' + qs).then(function (r) { return r && r.ok ? r.json() : null; }),
-          fetch('/data/config/preroll.json' + qs).then(function (r) { return r && r.ok ? r.json() : []; }),
-          fetch('/data/config/midroll.json' + qs).then(function (r) { return r && r.ok ? r.json() : []; }),
-          fetch('/data/config/postroll.json' + qs).then(function (r) { return r && r.ok ? r.json() : []; })
+          fetch('/data/config/site-settings.json' + qs).then(function (r) { return r.ok ? r.json() : {}; })
         ]).then(function (results) {
           var s = results[0] || {};
           window.DAOP.siteName = s.site_name || 'GoTV';
           window.DAOP.siteSettings = s;
           window.DAOP.supabaseUserUrl = s.supabase_user_url || '';
           window.DAOP.supabaseUserAnonKey = s.supabase_user_anon_key || '';
-          window.DAOP.playerSettings = results[1] || {};
-          try { window.dispatchEvent(new Event('daop:playerSettingsLoaded')); } catch (e) {}
-          window.DAOP.prerollList = Array.isArray(results[2]) ? results[2] : [];
-          window.DAOP.midrollList = Array.isArray(results[3]) ? results[3] : [];
-          window.DAOP.postrollList = Array.isArray(results[4]) ? results[4] : [];
         });
       }).catch(function () { });
     })();
   </script>
   <script src="/js/main.js"></script>
   <script src="/js/user-sync.js"></script>
-  <script src="/js/player.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
-  <script src="/js/comments.js"></script>
   <script src="/js/movie-detail.js"></script>
 </body>
 </html>
