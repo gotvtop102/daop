@@ -273,6 +273,7 @@
 
   function renderAlphabetPicker(container, activeKey) {
     if (!container) return;
+    container.className = 'actor-alpha-wrap';
     var k0 = String(activeKey || '').toLowerCase();
     var html =
       '<div class="actor-alpha">' +
@@ -548,6 +549,7 @@
 
     var profileWrap = document.getElementById('actor-profile');
     if (profileWrap) {
+      profileWrap.className = 'actor-profile';
       var m2 = meta && meta[slug] ? meta[slug] : null;
       var img = m2 && m2.profile ? String(m2.profile) : '';
       var url = m2 && m2.tmdb_url ? String(m2.tmdb_url) : '';
