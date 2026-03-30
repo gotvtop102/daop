@@ -387,6 +387,8 @@
       var q = normalizeText(q0.q || '');
       var k0 = String(q0.k || '').toLowerCase();
       if (SHARD_KEYS.indexOf(k0) < 0) k0 = '';
+      // Default: auto-select "A" when landing on /dien-vien/ without query.
+      if (!q && !k0) k0 = 'a';
 
       document.title = 'Diễn viên | ' + (window.DAOP && window.DAOP.siteName ? window.DAOP.siteName : 'DAOP Phim');
       var titleEl0 = document.getElementById('actor-name');
