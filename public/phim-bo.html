@@ -54,9 +54,8 @@
   <script src="/js/main.js"></script>
   <script src="/js/category-page.js"></script>
   <script>
-    var fd = window.filtersData || {};
     new CategoryPage({
-      baseFilter: function(){ return new Set((fd.typeMap && fd.typeMap.series) || []); },
+      baseFilter: function(){ return new Set((window.filtersData && window.filtersData.typeMap && window.filtersData.typeMap.series) || []); },
       title: 'Phim bộ',
       gridId: 'movies-grid',
       filterContainerId: 'filter-bar',
