@@ -8,8 +8,10 @@
  *   - custom: chỉ phim có _from_supabase hoặc id bắt đầu ext_ (tránh đẩy nhầm batch lớn)
  *
  * EXPORT_TO_SUPABASE_ALWAYS_FULL=1: luôn upsert mọi phim + đồng bộ lại toàn bộ tập (bỏ qua tối ưu).
- * Mặc định: chỉ ghi phim mới hoặc khi trường modified trên batch khác với DB (bỏ qua upsert + tập nếu không đổi).
- * Ngoại lệ: phim có _from_supabase (Admin) luôn được upsert + đồng bộ tập — batch sau build là chuẩn merge với OPhim.
+ * Mặc định (incremental): chỉ ghi khi batch khác DB (so modified + episode_current + hash tập).
+ * - Phim _from_supabase + _supabaseExportEpisodesOnly (OPhim mới hơn trong build): chỉ UPDATE episode_current + movie_episodes, không upsert metadata.
+ * - Cùng mode trên: bỏ qua hoàn toàn nếu episode_current và danh sách tập (hash) trùng DB.
+ * - Phim khác: full upsert khi modified hoặc tập khác DB.
  *
  * EXPORT_TO_SUPABASE_BATCH: kích thước chunk upsert movies (mặc định 120, max 500).
  * EXPORT_TO_SUPABASE_UPSERT_RETRIES: số lần thử lại khi timeout/lỗi mạng (mặc định 4).
@@ -19,6 +21,7 @@
  * Chạy sau khi đã build (có batch-windows.json + batch_*.js).
  */
 import 'dotenv/config';
+import crypto from 'node:crypto';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -178,6 +181,25 @@ function flattenEpisodes(m) {
   return out;
 }
 
+/** Hash đồng bộ với DB: episode_code + server_slug + link_m3u8 + link_embed (đủ để phát hiện tập mới/sửa). */
+function hashEpisodeRowsForSync(rows) {
+  const lines = (rows || []).map((r) =>
+    [
+      String(r.episode_code || ''),
+      String(r.server_slug || ''),
+      String(r.link_m3u8 || ''),
+      String(r.link_embed || ''),
+    ].join('|')
+  );
+  lines.sort();
+  return crypto.createHash('sha256').update(lines.join('\n')).digest('hex');
+}
+
+function episodeSyncFingerprintFromBatch(m) {
+  const rows = flattenEpisodes(m);
+  return hashEpisodeRowsForSync(rows);
+}
+
 function filterByScope(movies, scope) {
   const s = String(scope || 'all').toLowerCase();
   if (s === 'all') return movies;
@@ -313,16 +335,41 @@ async function upsertMoviesChunked(supabase, rows, minSplit = 8) {
   await upsertMoviesChunked(supabase, rows.slice(mid), minSplit);
 }
 
-function movieNeedsDbWrite(m, existingModifiedMap) {
+function movieNeedsDbWrite(m, syncState, alwaysFull) {
+  if (alwaysFull) return true;
   const id = String(m.id);
-  // Phim có nguồn Supabase/Admin: batch sau build là nguồn đúng (đã merge OPhim trong build.js).
-  // Chỉ so modified sẽ bỏ sót khi DB còn metadata cũ (OPhim) nhưng modified trùng — không upsert → DB sai.
-  if (m && m._from_supabase) return true;
+  const st = syncState.get(id);
+  if (st === null) return true;
+
+  const fp = episodeSyncFingerprintFromBatch(m);
+  const batchEc = String(m.episode_current || '');
+
+  if (m && m._from_supabase && m._supabaseExportEpisodesOnly) {
+    return batchEc !== st.episode_current || fp !== st.episodeHash;
+  }
+
   const batchMod = batchModifiedComparable(m);
   if (batchMod == null) return true;
-  if (!existingModifiedMap.has(id)) return true;
-  const dbMod = existingModifiedMap.get(id);
-  return normalizeModified(batchMod) !== normalizeModified(dbMod);
+  return (
+    normalizeModified(batchMod) !== normalizeModified(st.modified) ||
+    batchEc !== st.episode_current ||
+    fp !== st.episodeHash
+  );
+}
+
+function isEpisodesOnlyExport(m) {
+  return !!(m && m._from_supabase && m._supabaseExportEpisodesOnly);
+}
+
+async function updateEpisodeCurrentOnly(supabase, movies) {
+  for (const m of movies) {
+    const id = String(m.id);
+    const ec = String(m.episode_current || '');
+    const { error } = await supabaseWithRetry('update episode_current (ophim sync)', () =>
+      supabase.from('movies').update({ episode_current: ec }).eq('id', id)
+    );
+    if (error) console.warn('   episode_current update failed', id, error.message);
+  }
 }
 
 async function main() {
@@ -378,18 +425,27 @@ async function main() {
   let upserted = 0;
   let epInserted = 0;
   let skippedUnchanged = 0;
+  let episodesOnlyCount = 0;
 
   let toSync = movies;
   if (!alwaysFull) {
     const ids = movies.map((m) => m.id);
-    const existingMap = await fetchExistingModifiedMap(supabase, ids);
-    toSync = movies.filter((m) => movieNeedsDbWrite(m, existingMap));
+    const syncState = await fetchExistingSyncState(supabase, ids);
+    toSync = movies.filter((m) => movieNeedsDbWrite(m, syncState, false));
     skippedUnchanged = movies.length - toSync.length;
     console.log('   Incremental: skip unchanged:', skippedUnchanged, '| will sync:', toSync.length);
   }
 
-  for (let i = 0; i < toSync.length; i += batchSize) {
-    const chunk = toSync.slice(i, i + batchSize).map(movieToRow);
+  const fullSync = toSync.filter((m) => !isEpisodesOnlyExport(m));
+  const episodesOnly = toSync.filter((m) => isEpisodesOnlyExport(m));
+  episodesOnlyCount = episodesOnly.length;
+
+  if (episodesOnlyCount > 0) {
+    console.log('   OPhim newer (metadata giữ nguyên): chỉ episode_current + tập:', episodesOnlyCount);
+  }
+
+  for (let i = 0; i < fullSync.length; i += batchSize) {
+    const chunk = fullSync.slice(i, i + batchSize).map(movieToRow);
     try {
       await upsertMoviesChunked(supabase, chunk);
     } catch (e) {
@@ -397,7 +453,11 @@ async function main() {
       process.exit(1);
     }
     upserted += chunk.length;
-    console.log('   Upserted movies:', upserted, '/', toSync.length);
+    console.log('   Upserted movies (full row):', upserted, '/', fullSync.length);
+  }
+
+  if (episodesOnly.length) {
+    await updateEpisodeCurrentOnly(supabase, episodesOnly);
   }
 
   for (let g = 0; g < toSync.length; g += epMovieBatch) {
@@ -446,8 +506,10 @@ async function main() {
   }
 
   console.log(
-    'Done. Movies upserted:',
+    'Done. Movies full upsert:',
     upserted,
+    '| OPhim-only episode sync (no metadata upsert):',
+    episodesOnlyCount,
     '| skipped (unchanged):',
     skippedUnchanged,
     '| episode rows inserted:',

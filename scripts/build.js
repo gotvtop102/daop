@@ -1810,6 +1810,7 @@ function mergeMovies(ophim, custom) {
 
     if (oTs > cTs) {
       // OPhim mới hơn: giữ metadata Supabase; đồng bộ phần phát sóng từ OPhim.
+      base._supabaseExportEpisodesOnly = true;
       const cur = ophimMovie.episode_current;
       if (cur != null && String(cur).trim() !== '') {
         base.episode_current = String(cur).trim();
@@ -1823,6 +1824,7 @@ function mergeMovies(ophim, custom) {
         }
       }
     } else {
+      base._supabaseExportEpisodesOnly = false;
       // OPhim cũ hơn hoặc bằng: điền chỗ trống từ OPhim (giữ hành vi cũ).
       for (const [k, v] of Object.entries(ophimMovie)) {
         if (!(k in base) || isEmptyVal(base[k])) {
@@ -4340,6 +4342,8 @@ async function main() {
   const buildVersion = { builtAt: new Date().toISOString() };
   fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
   injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
+  // home-bootstrap.json embed buildVersion — phải ghi lại sau build_version để trang chủ bust cache section đúng bản build mới.
+  timeBuildPhaseSync('6g. refresh home-bootstrap (build version)', () => writeHomeBootstrapFile());
 
   console.log('7. Writing sitemap.xml & robots.txt...');
   timeBuildPhaseSync('7. sitemap + robots', () => {
