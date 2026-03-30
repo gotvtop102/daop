@@ -2462,22 +2462,29 @@ body.page-home #home-sections:empty {
 
 /* Trang diễn viên: bộ chọn chữ cái A–Z */
 .actor-alpha {
-  margin: 0.75rem 0;
-  padding: 0.75rem;
+  margin: 0.6rem 0;
+  padding: 0.55rem 0.6rem;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.08) 100%), var(--card);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 .actor-alpha-title {
   font-weight: 800;
   color: var(--muted);
-  font-size: 0.9rem;
-  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  margin: 0;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 .actor-alpha-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-  gap: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .actor-alpha-btn {
   appearance: none;
@@ -2485,9 +2492,10 @@ body.page-home #home-sections:empty {
   border: 1px solid rgba(240,246,252,0.14);
   background: rgba(255,255,255,0.03);
   color: var(--text);
-  border-radius: 12px;
-  min-height: 40px;
-  padding: 0.45rem 0.25rem;
+  border-radius: 10px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 0.2rem;
   font-weight: 900;
   letter-spacing: 0.02em;
   cursor: pointer;
@@ -2508,14 +2516,15 @@ body.page-home #home-sections:empty {
 }
 @media (max-width: 480px) {
   .actor-alpha {
-    padding: 0.6rem;
+    padding: 0.5rem;
+    gap: 0.5rem;
   }
   .actor-alpha-grid {
-    gap: 0.4rem;
+    gap: 0.35rem;
   }
   .actor-alpha-btn {
-    min-height: 38px;
-    border-radius: 10px;
+    height: 32px;
+    min-width: 32px;
   }
 }
 
