@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["er"] = {"erax":{"id":"621107754ceb10432b967b53","i":9,"title":"Erax","origin_name":"Erax","slug":"erax","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/621107754ceb10432b967b53.webp","year":2022,"type":"single","episode_current":"Full"}};
