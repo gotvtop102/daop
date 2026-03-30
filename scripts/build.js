@@ -2811,7 +2811,7 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
       if (fo.langOrder && Array.isArray(fo.langOrder)) filterOrder.langOrder = fo.langOrder;
     } catch (_) {}
   }
-  const content = `window.filtersData = ${JSON.stringify({
+  const filtersData = {
     genreMap,
     countryMap,
     yearMap,
@@ -2824,8 +2824,11 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
     genreNames,
     countryNames,
     filterOrder,
-  })};`;
+  };
+  const content = `window.filtersData = ${JSON.stringify(filtersData)};`;
   fs.writeFileSync(path.join(PUBLIC_DATA, 'filters.js'), content, 'utf8');
+  // JSON version để client fetch nhanh hơn (gzip/brotli) và giảm parse/execute JS.
+  fs.writeFileSync(path.join(PUBLIC_DATA, 'filters.json'), JSON.stringify(filtersData), 'utf8');
   return { genreMap, countryMap, yearMap, genreNames, countryNames };
 }
 
@@ -2999,6 +3002,23 @@ function writeCategoryPages(filters) {
   fs.ensureDirSync(path.join(publicDir, 'the-loai'));
   fs.ensureDirSync(path.join(publicDir, 'quoc-gia'));
   fs.ensureDirSync(path.join(publicDir, 'nam-phat-hanh'));
+
+  // Cleanup stale generated pages to avoid keeping old `filters.js` heavy tags.
+  function cleanupDir(dirPath, keepFiles) {
+    try {
+      const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+      for (const ent of entries) {
+        if (!ent.isFile()) continue;
+        if (!ent.name.endsWith('.html')) continue;
+        if (keepFiles && keepFiles.indexOf(ent.name) >= 0) continue;
+        fs.removeSync(path.join(dirPath, ent.name));
+      }
+    } catch {}
+  }
+  cleanupDir(path.join(publicDir, 'the-loai'), ['index.html']);
+  cleanupDir(path.join(publicDir, 'quoc-gia'), ['index.html']);
+  cleanupDir(path.join(publicDir, 'nam-phat-hanh'), ['index.html']);
+
   const theLoaiIndex = fs.readFileSync(path.join(publicDir, 'the-loai', 'index.html'), 'utf8');
   const quocGiaIndex = fs.readFileSync(path.join(publicDir, 'quoc-gia', 'index.html'), 'utf8');
   const namPhatHanhIndex = fs.readFileSync(path.join(publicDir, 'nam-phat-hanh', 'index.html'), 'utf8');
@@ -3072,10 +3092,10 @@ function writeActors(movies) {
   }
   // Legacy: một file đầy đủ (fallback + dùng cho incremental sau này)
   fs.writeFileSync(path.join(PUBLIC_DATA, 'actors.js'), `window.actorsData = ${JSON.stringify({ map, names, meta })};`, 'utf8');
-  // Index: chỉ names (cho trang danh sách "Chọn diễn viên")
+  // JSON: nhẹ hơn JS khi host hỗ trợ gzip/brotli, dùng cho fetch trên client
   fs.writeFileSync(
-    path.join(PUBLIC_DATA, 'actors-index.js'),
-    `window.actorsIndex = ${JSON.stringify({ names, meta })};`,
+    path.join(PUBLIC_DATA, 'actors-index.json'),
+    JSON.stringify({ names, meta }),
     'utf8'
   );
   // Shard theo ký tự đầu (a-z, other), mỗi shard có thêm movies: { slug: [light objects] }
@@ -3099,6 +3119,11 @@ function writeActors(movies) {
       `window.actorsData = ${JSON.stringify(data)};`,
       'utf8'
     );
+    fs.writeFileSync(
+      path.join(PUBLIC_DATA, `actors-${key}.json`),
+      JSON.stringify(data),
+      'utf8'
+    );
   }
   const shardCount = keys.filter((k) => byFirst[k] && Object.keys(byFirst[k].map).length > 0).length;
   console.log('   Actors: index +', shardCount, 'shards (a-z, other) + movies per shard');
@@ -3108,8 +3133,8 @@ function writeActors(movies) {
 function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta = {}) {
   const slugs = Object.keys(names);
   fs.writeFileSync(
-    path.join(PUBLIC_DATA, 'actors-index.js'),
-    `window.actorsIndex = ${JSON.stringify({ names, meta })};`,
+    path.join(PUBLIC_DATA, 'actors-index.json'),
+    JSON.stringify({ names, meta }),
     'utf8'
   );
   const byFirst = {};
@@ -3132,6 +3157,11 @@ function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta 
     fs.writeFileSync(
       path.join(PUBLIC_DATA, `actors-${key}.js`),
       `window.actorsData = ${JSON.stringify(data)};`,
+      'utf8'
+    );
+    fs.writeFileSync(
+      path.join(PUBLIC_DATA, `actors-${key}.json`),
+      JSON.stringify(data),
       'utf8'
     );
   }
@@ -4046,8 +4076,9 @@ async function main() {
       const filesToRemove = [
         'movies-light.js',
         'filters.js',
+        'filters.json',
         'actors.js',
-        'actors-index.js',
+        'actors-index.json',
         'last_modified.json',
         'last_build.json',
         'build_version.json',
@@ -4055,11 +4086,14 @@ async function main() {
       for (const f of filesToRemove) {
         await fs.remove(path.join(PUBLIC_DATA, f));
       }
-      // remove actor shards actors-a.js ... actors-z.js, actors-other.js
+      // remove actor shards actors-a.js ... actors-z.js, actors-other.js (+ json variants)
       try {
         const entries = await fs.readdir(PUBLIC_DATA);
         for (const name of entries) {
           if (/^actors-[a-z]+\.js$/i.test(name) || name === 'actors-other.js') {
+            await fs.remove(path.join(PUBLIC_DATA, name));
+          }
+          if (/^actors-[a-z]+\.json$/i.test(name) || name === 'actors-other.json') {
             await fs.remove(path.join(PUBLIC_DATA, name));
           }
         }
