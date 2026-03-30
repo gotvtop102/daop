@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["8_"] = {"8-mile":{"id":"62346be43c735a9a446e24a8","i":4,"title":"8 Mile","origin_name":"8 Mile","slug":"8-mile","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/62346be43c735a9a446e24a8.webp","year":2002,"type":"single","episode_current":"Full"}};
