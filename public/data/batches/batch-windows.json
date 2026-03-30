@@ -1,7 +1,7 @@
 {
   "baseBatchSize": 120,
   "maxBytes": 300000,
-  "total": 1763,
+  "total": 1762,
   "windows": [
     {
       "start": 0,
@@ -13,99 +13,75 @@
     },
     {
       "start": 240,
-      "end": 322
+      "end": 360
     },
     {
-      "start": 322,
-      "end": 417
+      "start": 360,
+      "end": 480
     },
     {
-      "start": 417,
-      "end": 442
+      "start": 480,
+      "end": 600
     },
     {
-      "start": 442,
-      "end": 494
+      "start": 600,
+      "end": 720
     },
     {
-      "start": 494,
-      "end": 562
+      "start": 720,
+      "end": 840
     },
     {
-      "start": 562,
-      "end": 656
+      "start": 840,
+      "end": 960
     },
     {
-      "start": 656,
-      "end": 682
+      "start": 960,
+      "end": 1080
     },
     {
-      "start": 682,
-      "end": 802
+      "start": 1080,
+      "end": 1132
     },
     {
-      "start": 802,
-      "end": 922
+      "start": 1132,
+      "end": 1200
     },
     {
-      "start": 922,
-      "end": 983
+      "start": 1200,
+      "end": 1264
     },
     {
-      "start": 983,
-      "end": 1042
+      "start": 1264,
+      "end": 1320
     },
     {
-      "start": 1042,
-      "end": 1092
+      "start": 1320,
+      "end": 1382
     },
     {
-      "start": 1092,
-      "end": 1162
+      "start": 1382,
+      "end": 1440
     },
     {
-      "start": 1162,
-      "end": 1230
+      "start": 1440,
+      "end": 1532
     },
     {
-      "start": 1230,
-      "end": 1282
+      "start": 1532,
+      "end": 1560
     },
     {
-      "start": 1282,
-      "end": 1381
-    },
-    {
-      "start": 1381,
-      "end": 1402
-    },
-    {
-      "start": 1402,
-      "end": 1468
-    },
-    {
-      "start": 1468,
-      "end": 1522
-    },
-    {
-      "start": 1522,
-      "end": 1563
-    },
-    {
-      "start": 1563,
+      "start": 1560,
       "end": 1642
     },
     {
       "start": 1642,
-      "end": 1753
+      "end": 1680
     },
     {
-      "start": 1753,
+      "start": 1680,
       "end": 1762
-    },
-    {
-      "start": 1762,
-      "end": 1763
     }
   ]
 }
