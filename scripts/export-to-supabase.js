@@ -299,21 +299,56 @@ async function supabaseWithRetry(label, run, retries = 4) {
   return { data: null, error: last };
 }
 
-async function fetchExistingModifiedMap(supabase, ids) {
-  const map = new Map();
+/**
+ * Trạng thái DB để incremental: null = chưa có dòng movies (cần full upsert).
+ */
+async function fetchExistingSyncState(supabase, ids) {
   const chunkSize = 100;
   const unique = [...new Set(ids.map((id) => String(id)))];
+  const movieRows = new Map();
   for (let i = 0; i < unique.length; i += chunkSize) {
     const chunk = unique.slice(i, i + chunkSize);
-    const { data, error } = await supabaseWithRetry('select movies (modified)', () =>
-      supabase.from('movies').select('id, modified').in('id', chunk)
+    const { data, error } = await supabaseWithRetry('select movies (sync)', () =>
+      supabase.from('movies').select('id, modified, episode_current').in('id', chunk)
     );
     if (error) throw error;
     for (const row of data || []) {
-      map.set(String(row.id), row.modified);
+      movieRows.set(String(row.id), row);
     }
   }
-  return map;
+
+  const epByMovie = new Map();
+  for (let i = 0; i < unique.length; i += chunkSize) {
+    const chunk = unique.slice(i, i + chunkSize);
+    const { data, error } = await supabaseWithRetry('select movie_episodes (sync)', () =>
+      supabase
+        .from('movie_episodes')
+        .select('movie_id, episode_code, server_slug, link_m3u8, link_embed')
+        .in('movie_id', chunk)
+    );
+    if (error) throw error;
+    for (const row of data || []) {
+      const mid = String(row.movie_id);
+      if (!epByMovie.has(mid)) epByMovie.set(mid, []);
+      epByMovie.get(mid).push(row);
+    }
+  }
+
+  const out = new Map();
+  for (const id of unique) {
+    const row = movieRows.get(id);
+    if (!row) {
+      out.set(id, null);
+      continue;
+    }
+    const epRows = epByMovie.get(id) || [];
+    out.set(id, {
+      modified: row.modified,
+      episode_current: String(row.episode_current || ''),
+      episodeHash: hashEpisodeRowsForSync(epRows),
+    });
+  }
+  return out;
 }
 
 /**
@@ -339,7 +374,7 @@ function movieNeedsDbWrite(m, syncState, alwaysFull) {
   if (alwaysFull) return true;
   const id = String(m.id);
   const st = syncState.get(id);
-  if (st === null) return true;
+  if (st == null) return true;
 
   const fp = episodeSyncFingerprintFromBatch(m);
   const batchEc = String(m.episode_current || '');
