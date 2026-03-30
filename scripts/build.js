@@ -315,49 +315,18 @@ async function ensureRepoImagesForAllMovies(movies) {
     }
   }
 
-  // Khi ảnh được lưu/đồng bộ ở repo khác (assets repo) hoặc CDN đã có sẵn,
-  // build ở repo chính không nên tải + nén lại toàn bộ ảnh (rất chậm).
-  // Chế độ này chỉ rewrite thumb/poster sang URL CDN theo id.
-  //
-  // - IMAGE_CDN_ONLY=1: bật thủ công (khuyến nghị).
-  // - HAS_IMAGES_REPO/IMAGES_REPO: workflow dùng assets repo riêng → auto bật.
-  // - Auto-detect an toàn: nếu thư mục public/thumbs & public/posters trống, và catalog lớn,
-  //   coi như đang chạy trong repo build không mang theo ảnh → auto bật (có thể override).
-  const cdnOnlyExplicit = (process.env.IMAGE_CDN_ONLY === '1' || process.env.IMAGE_CDN_ONLY === 'true');
-  const hasImagesRepoEnv =
-    (process.env.HAS_IMAGES_REPO === 'true' || process.env.HAS_IMAGES_REPO === '1'
-      || !!String(process.env.IMAGES_REPO || '').trim());
+  // IMPORTANT: Không dùng build.js để tải/nén ảnh nữa.
+  // Build chỉ rewrite thumb/poster sang CDN theo id để tránh tốn thời gian (6a).
+  // Nếu bạn thực sự muốn build.js download + optimize + ghi public/ thì phải bật FORCE_REPO_IMAGE_DOWNLOAD=1.
   const forceDownload = (process.env.FORCE_REPO_IMAGE_DOWNLOAD === '1' || process.env.FORCE_REPO_IMAGE_DOWNLOAD === 'true');
-  let autoCdnOnly = false;
-  if (!cdnOnlyExplicit && !forceDownload) {
-    try {
-      const thumbsDir = path.join(ROOT, 'public', 'thumbs');
-      const postersDir = path.join(ROOT, 'public', 'posters');
-      const thumbs = fs.existsSync(thumbsDir) ? fs.readdirSync(thumbsDir).filter((n) => /\.webp$/i.test(n)).length : 0;
-      const posters = fs.existsSync(postersDir) ? fs.readdirSync(postersDir).filter((n) => /\.webp$/i.test(n)).length : 0;
-      const largeCatalog = list.length >= 500;
-      autoCdnOnly = largeCatalog && thumbs === 0 && posters === 0;
-    } catch {
-      autoCdnOnly = false;
-    }
-  }
-  const cdnOnly = !forceDownload && (cdnOnlyExplicit || hasImagesRepoEnv || autoCdnOnly);
-  if (cdnOnly) {
+  if (!forceDownload) {
     for (const m of list) {
       const idStr = m && m.id != null ? String(m.id).trim() : '';
       if (!idStr) continue;
       m.thumb = cdnUrlByMovieId(idStr, 'thumbs');
       m.poster = cdnUrlByMovieId(idStr, 'posters');
     }
-    if (cdnOnlyExplicit) {
-      console.log('6a. Repo/CDN images: IMAGE_CDN_ONLY=1 → rewrite URLs only (skip download/optimize).');
-    } else if (hasImagesRepoEnv) {
-      console.log('6a. Repo/CDN images: assets repo detected (HAS_IMAGES_REPO/IMAGES_REPO) → rewrite URLs only.');
-    } else if (autoCdnOnly) {
-      console.log('6a. Repo/CDN images: auto-detect (thumbs/posters empty) → rewrite URLs only. Set FORCE_REPO_IMAGE_DOWNLOAD=1 to override.');
-    } else {
-      console.log('6a. Repo/CDN images: rewrite URLs only.');
-    }
+    console.log('6a. Repo/CDN images: rewrite URLs only (skip download/optimize). Set FORCE_REPO_IMAGE_DOWNLOAD=1 to enable download.');
 
     // Optional: verify CDN/assets repo có đủ ảnh không (HEAD request).
     const validate =
