@@ -6,7 +6,7 @@
   <title>GoTV - Xem phim online</title>
   <meta name="description" content="Xem phim online miễn phí, cập nhật nhanh.">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin id="daop-head-preconnect-lcp">
-  <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/63393f310ee52b6834c0d262.webp" fetchpriority="high" id="daop-head-lcp-preload"><link rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/ophim102/cm114@main/public/posters/69c8dd53f07c400a86d65f08.webp" fetchpriority="high" id="daop-head-lcp-preload"><link rel="preload" href="/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
 </head>
 <body class="page-home">
@@ -60,7 +60,7 @@
     </div>
     <p class="footer-copyright">Copyright 2018 <a href="https://gotv.top" target="_blank" rel="noopener">GoTV</a>. All rights reserved.</p>
   </footer>
-  <script src="/data/filters.js?v=2026-03-30T10%3A33%3A39.408Z" defer></script>
+  <script src="/data/filters.js?v=2026-03-30T06%3A53%3A41.044Z" defer></script>
   <script src="/data/home/home-bootstrap.json" type="application/json" id="home-bootstrap-src"></script>
   <script type="module">
     (function(){
@@ -96,8 +96,16 @@
             var mode = (s && s.homepage_slider_display_mode) ? String(s.homepage_slider_display_mode).trim().toLowerCase() : 'manual';
             var arr = [];
             if (mode === 'auto') {
-              fetch((base || '') + '/data/home/homepage-slider-auto.json')
-                .then(function (r) { return r && r.ok ? r.json() : []; })
+              // Bust cache theo builtAt để slider tự động không bị chậm cập nhật.
+              var qBustPromise =
+                window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function'
+                  ? window.DAOP.ensureDataCacheBust()
+                  : Promise.resolve('');
+              qBustPromise
+                .then(function (q) {
+                  return fetch((base || '') + '/data/home/homepage-slider-auto.json' + (q || ''))
+                    .then(function (r) { return r && r.ok ? r.json() : []; });
+                })
                 .then(function (a) {
                   if (!Array.isArray(a) || !a.length) return;
                   a = a.filter(function (x) { return x && x.enabled !== false; });
@@ -155,7 +163,8 @@
         if (boot0 && boot0.buildVersion) return Promise.resolve(boot0.buildVersion);
         var embedded = readJsonScriptTag('build-version-src');
         if (embedded) return Promise.resolve(embedded);
-        return fetch(base + '/data/build_version.json').then(function (r) { return r.json(); });
+        // No-store để đảm bảo luôn nhận builtAt mới nhất sau deploy.
+        return fetch(base + '/data/build_version.json', { cache: 'no-store' }).then(function (r) { return r.json(); });
       }
       function loadHomeBootstrap() {
         var embedded = readJsonScriptTag('home-bootstrap-src');
@@ -168,9 +177,13 @@
           loadBuildVersion().catch(function(){ return {}; })
         ]).then(function (arr) {
           var boot = arr[0];
-          var v = arr[1];
+          var v = arr[1] || {};
+          var builtAt = v && v.builtAt;
+
+          // Nếu boot là bản cached cũ, dựa vào boot.buildVersion.builtAt để refetch đúng bản mới (có ?v=builtAt).
+          // Trường hợp deploy vừa xong: lần fetch đầu có thể trả về dữ liệu cũ theo cache, lần refetch chỉ xảy ra khi builtAt lệch.
+          var shouldRefetchHomeBootstrap = false;
           try {
-            var builtAt = v && v.builtAt;
             if (!builtAt && boot && boot.buildVersion && boot.buildVersion.builtAt) builtAt = boot.buildVersion.builtAt;
             if (builtAt) {
               var qBust = '?v=' + encodeURIComponent(builtAt);
@@ -178,18 +191,33 @@
               window.DAOP._dataCacheBust = qBust;
               window.DAOP._dataCacheBustPromise = Promise.resolve(qBust);
             }
+            if (v && v.builtAt && boot && boot.buildVersion && boot.buildVersion.builtAt) {
+              shouldRefetchHomeBootstrap = String(boot.buildVersion.builtAt) !== String(v.builtAt);
+            }
           } catch (eBust) {}
-          if (boot && (boot.homeSectionsData || boot.homepageSections)) {
-            return [boot.homeSectionsData || null, boot.homepageSections || []];
-          }
-          var ver = (v && v.builtAt) ? encodeURIComponent(v.builtAt) : '';
-          var q = ver ? '?v=' + ver : '';
-          return Promise.all([
-            fetch(base + '/data/home/home-sections-data.json' + q).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
-            fetch(base + '/data/config/homepage-sections.json' + q)
-              .then(function(r){ return r.ok ? r.json() : []; })
-              .catch(function(){ return []; })
-          ]);
+
+          var q = builtAt ? '?v=' + encodeURIComponent(builtAt) : '';
+          var bootPromise = shouldRefetchHomeBootstrap && q
+            ? fetch(base + '/data/home/home-bootstrap.json' + q)
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .catch(function () { return boot; })
+            : Promise.resolve(boot);
+
+          return bootPromise.then(function (boot2) {
+            boot = boot2;
+            if (boot && (boot.homeSectionsData || boot.homepageSections)) {
+              return [boot.homeSectionsData || null, boot.homepageSections || []];
+            }
+            // Dùng builtAt đã suy ra từ v hoặc boot để bust cache nhất quán.
+            var ver = builtAt ? encodeURIComponent(builtAt) : '';
+            var qq = ver ? '?v=' + ver : '';
+            return Promise.all([
+              fetch(base + '/data/home/home-sections-data.json' + qq).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
+              fetch(base + '/data/config/homepage-sections.json' + qq)
+                .then(function(r){ return r.ok ? r.json() : []; })
+                .catch(function(){ return []; })
+            ]);
+          });
         });
       }
       (function () {
