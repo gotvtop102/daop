@@ -724,11 +724,10 @@ begin
   execute 'drop trigger if exists trg_audit_player_settings on public.player_settings';
   execute 'create trigger trg_audit_player_settings after insert or update or delete on public.player_settings for each row execute function public.audit_log_write()';
 
+  -- Không ghi audit log cho phim/tập (movies, movie_episodes).
+  -- Nếu DB cũ đã từng tạo trigger thì vẫn drop để đảm bảo không còn ghi log.
   execute 'drop trigger if exists trg_audit_movies on public.movies';
-  execute 'create trigger trg_audit_movies after insert or update or delete on public.movies for each row execute function public.audit_log_write()';
-
   execute 'drop trigger if exists trg_audit_movie_episodes on public.movie_episodes';
-  execute 'create trigger trg_audit_movie_episodes after insert or update or delete on public.movie_episodes for each row execute function public.audit_log_write()';
 
   execute 'drop trigger if exists trg_audit_admin_access_state on public.admin_access_state';
   execute 'create trigger trg_audit_admin_access_state after insert or update or delete on public.admin_access_state for each row execute function public.audit_log_write()';
