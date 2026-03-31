@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["pt"] = {"ptu":{"id":"64b5f43f89254768d7670d9e","i":15734,"title":"PTU","origin_name":"PTU","slug":"ptu","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/64b5f43f89254768d7670d9e.webp","year":2003,"type":"single","episode_current":"Full"}};
