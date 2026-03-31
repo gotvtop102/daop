@@ -276,6 +276,26 @@ jobs:
         run: |
           rm -rf public/thumbs public/posters || true
 
+      - name: Diagnose file count before TMDB deploy
+        if: ${{ env.TWO_PHASE == 'true' }}
+        run: |
+          echo "Total files under public/:"
+          find public -type f | wc -l || true
+          echo ""
+          echo "Top-level breakdown:"
+          for d in public/*; do
+            [ -e "$d" ] || continue
+            if [ -d "$d" ]; then
+              echo -n "$(basename "$d") : "
+              find "$d" -type f | wc -l || true
+            else
+              echo "file : $(basename "$d")"
+            fi
+          done
+          echo ""
+          echo "Largest paths (du):"
+          du -a public 2>/dev/null | sort -nr | head -n 40 || true
+
       - name: Deploy TMDB to Cloudflare Pages (2-phase)
         if: ${{ env.TWO_PHASE == 'true' }}
         continue-on-error: true
@@ -285,6 +305,19 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4.77.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
+
+      - name: Dump Wrangler logs (if any)
+        if: ${{ always() }}
+        run: |
+          echo "Wrangler logs (if present):"
+          ls -la "$HOME/.config/.wrangler/logs" 2>/dev/null || true
+          echo "---- tail logs ----"
+          for f in "$HOME/.config/.wrangler/logs"/wrangler-*.log; do
+            [ -f "$f" ] || continue
+            echo "::group::$f"
+            tail -n 200 "$f" || true
+            echo "::endgroup::"
+          done
 
       # Cùng job + always(): deploy Pages (continue-on-error) làm success() = false nhưng vẫn phải export.
       # HAVE_BATCHES=1 chỉ ghi sau build 1-phase hoặc sau build TMDB (2-phase), không ghi sau CORE (data sẽ bị xóa).
