@@ -189,6 +189,11 @@ jobs:
             GIT_COMMIT_PUSH_RETRY_CHECK_PUBLIC=1 bash scripts/git-commit-staged-push-retry.sh "chore: update data (core)"
           fi
 
+      - name: Prune local images before Cloudflare deploy (reduce file count)
+        if: ${{ env.TWO_PHASE == 'true' && env.IMAGE_CDN_ONLY == '1' && env.DEPLOY_AFTER_IMAGE_UPLOAD != '1' }}
+        run: |
+          rm -rf public/thumbs public/posters || true
+
       - name: Deploy CORE to Cloudflare Pages (2-phase)
         if: ${{ env.TWO_PHASE == 'true' && env.DEPLOY_AFTER_IMAGE_UPLOAD != '1' }}
         continue-on-error: true
@@ -265,6 +270,11 @@ jobs:
           if ! git diff --staged --quiet; then
             GIT_COMMIT_PUSH_RETRY_CHECK_PUBLIC=1 bash scripts/git-commit-staged-push-retry.sh "chore: update data (tmdb only)"
           fi
+
+      - name: Prune local images before Cloudflare TMDB deploy (reduce file count)
+        if: ${{ env.TWO_PHASE == 'true' && env.IMAGE_CDN_ONLY == '1' }}
+        run: |
+          rm -rf public/thumbs public/posters || true
 
       - name: Deploy TMDB to Cloudflare Pages (2-phase)
         if: ${{ env.TWO_PHASE == 'true' }}
