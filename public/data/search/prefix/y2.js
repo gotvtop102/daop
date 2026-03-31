@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["y2"] = [{"id":"67f33d36130a787695bbe924","title":"Y2K","origin_name":"Y2K","slug":"y2k","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/67f33d36130a787695bbe924.webp","year":2024,"episode_current":"Full","_t":"y2k y2k y2k"}];
