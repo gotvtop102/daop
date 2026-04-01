@@ -1,18 +1,5 @@
 [
   {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/6921648941a6781d703a98e6.webp",
-    "link_url": "/phim/henry-johnson.html",
-    "title": "Henry Johnson",
-    "year": "2025",
-    "country": "Âu Mỹ",
-    "episode_current": "Full",
-    "genres": [
-      "Chính kịch"
-    ],
-    "sort_order": 0,
-    "enabled": true
-  },
-  {
     "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/68eb6f085c81ed0050c8d483.webp",
     "link_url": "/phim/10-gio.html",
     "title": "10 Giờ",
@@ -22,7 +9,7 @@
     "genres": [
       "Hình Sự"
     ],
-    "sort_order": 1,
+    "sort_order": 0,
     "enabled": true
   },
   {
@@ -35,20 +22,7 @@
     "genres": [
       "Kinh Dị"
     ],
-    "sort_order": 2,
-    "enabled": true
-  },
-  {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/68c57ffa6a1e58a3bccc4da8.webp",
-    "link_url": "/phim/nguoi-song-trung.html",
-    "title": "Người Song Trùng",
-    "year": "2025",
-    "country": "Trung Quốc",
-    "episode_current": "Hoàn tất (28/28)",
-    "genres": [
-      "Chính kịch"
-    ],
-    "sort_order": 3,
+    "sort_order": 1,
     "enabled": true
   },
   {
@@ -63,7 +37,7 @@
       "Khoa Học",
       "Chính kịch"
     ],
-    "sort_order": 4,
+    "sort_order": 2,
     "enabled": true
   },
   {
@@ -76,49 +50,7 @@
     "genres": [
       "Chính kịch"
     ],
-    "sort_order": 5,
-    "enabled": true
-  },
-  {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/67d6a33465c2bca691c91fa6.webp",
-    "link_url": "/phim/canh-bac-cuoi-cung.html",
-    "title": "Canh Bạc Cuối Cùng",
-    "year": "2025",
-    "country": "Âu Mỹ",
-    "episode_current": "Full",
-    "genres": [
-      "Hành Động",
-      "Hình Sự"
-    ],
-    "sort_order": 6,
-    "enabled": true
-  },
-  {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/67d520d5e07df3fe3696c11f.webp",
-    "link_url": "/phim/bong-dem-bi-an.html",
-    "title": "Bóng Đêm Bí Ẩn",
-    "year": "2025",
-    "country": "Hàn Quốc",
-    "episode_current": "Full",
-    "genres": [
-      "Bí ẩn"
-    ],
-    "sort_order": 7,
-    "enabled": true
-  },
-  {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/67d42273882f90f6b8cfd917.webp",
-    "link_url": "/phim/vong-xoay-thoi-gian-phan-3.html",
-    "title": "Vòng Xoay Thời Gian (Phần 3)",
-    "year": "2025",
-    "country": "Âu Mỹ",
-    "episode_current": "Hoàn tất (8/8)",
-    "genres": [
-      "Viễn Tưởng",
-      "Khoa Học",
-      "Chính kịch"
-    ],
-    "sort_order": 8,
+    "sort_order": 3,
     "enabled": true
   },
   {
@@ -135,7 +67,7 @@
       "Chính kịch",
       "Bí ẩn"
     ],
-    "sort_order": 9,
+    "sort_order": 4,
     "enabled": true
   },
   {
@@ -148,18 +80,87 @@
     "genres": [
       "Tài Liệu"
     ],
+    "sort_order": 5,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/6895c3d534938734dd6c0af5.webp",
+    "link_url": "/phim/no-le-nha-o.html",
+    "title": "Nô Lệ Nhà Ở",
+    "year": "2015",
+    "country": "Đài Loan",
+    "episode_current": "Hoàn Tất (20/20)",
+    "genres": [
+      "Tình Cảm"
+    ],
+    "sort_order": 6,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/68c57579a5eb4cc6fa642555.webp",
+    "link_url": "/phim/nu-hoang-van-phong.html",
+    "title": "Nữ Hoàng Văn Phòng",
+    "year": "2010",
+    "country": "Trung Quốc",
+    "episode_current": "Hoàn Tất (40/40)",
+    "genres": [
+      "Hài Hước",
+      "Gia Đình",
+      "Chính kịch"
+    ],
+    "sort_order": 7,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/68cd3655bb0e0b8630b8c722.webp",
+    "link_url": "/phim/dac-vu-truy-kich.html",
+    "title": "Đặc Vụ Truy Kích",
+    "year": "2009",
+    "country": "Trung Quốc",
+    "episode_current": "Hoàn Tất (30/30)",
+    "genres": [
+      "Hình Sự",
+      "Chính kịch"
+    ],
+    "sort_order": 8,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/68c5751d0e6dc506bd037763.webp",
+    "link_url": "/phim/tinh-da-voi-bay.html",
+    "title": "Tình Đã Vội Bay",
+    "year": "2001",
+    "country": "Trung Quốc",
+    "episode_current": "Hoàn Tất (20/20)",
+    "genres": [
+      "Tình Cảm"
+    ],
+    "sort_order": 9,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/68c574d8ac113ba52da70353.webp",
+    "link_url": "/phim/chu-re-mat-tich.html",
+    "title": "Chú Rể Mất Tích",
+    "year": "1990",
+    "country": "Trung Quốc",
+    "episode_current": "Hoàn Tất (20/20)",
+    "genres": [
+      "Tình Cảm"
+    ],
     "sort_order": 10,
     "enabled": true
   },
   {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/68cd368e93eac2e8f9a1c798.webp",
-    "link_url": "/phim/dai-soai-ca-2018.html",
-    "title": "Đại Soái Ca",
-    "year": "2018",
-    "country": "Trung Quốc",
-    "episode_current": "Hoàn Tất (30/30)",
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/68eb6f3ebb0e0b8630bcee69.webp",
+    "link_url": "/phim/the-heroes-of-telemark.html",
+    "title": "Những anh hùng của Telemark",
+    "year": "1965",
+    "country": "Anh",
+    "episode_current": "Full",
     "genres": [
-      "Hài Hước",
+      "Hành Động",
+      "Chiến Tranh",
       "Chính kịch"
     ],
     "sort_order": 11,
