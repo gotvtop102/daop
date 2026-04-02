@@ -427,6 +427,35 @@
     return { extra: extra, usePoster: usePoster, limit: limit, gridCols: gridCols };
   }
 
+  function ensureFiltersLoaded() {
+    try {
+      if (window.filtersData && (window.filtersData.genreMap || window.filtersData.countryMap)) return Promise.resolve(true);
+      var base = (window.DAOP && window.DAOP.basePath) || '';
+      return fetch(base + '/data/filters.json' + ((window.DAOP && window.DAOP._dataCacheBust) || ''), { cache: 'force-cache' })
+        .then(function (r) { return r && r.ok ? r.json() : Promise.reject(new Error('HTTP ' + (r ? r.status : 0))); })
+        .then(function (data) { window.filtersData = data || {}; return true; })
+        .catch(function () {
+          return new Promise(function (resolve) {
+            var url = base + '/data/filters.js' + ((window.DAOP && window.DAOP._dataCacheBust) || '');
+            try {
+              window.DAOP = window.DAOP || {};
+              window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+              if (window.DAOP._loadedScripts[url]) return resolve(true);
+              var s = document.createElement('script');
+              s.src = url;
+              s.onload = function () { window.DAOP._loadedScripts[url] = true; resolve(true); };
+              s.onerror = function () { resolve(false); };
+              document.head.appendChild(s);
+            } catch (e) {
+              resolve(false);
+            }
+          });
+        });
+    } catch (e2) {
+      return Promise.resolve(false);
+    }
+  }
+
   function setupRecommendToolbar(toolbarEl, gridEl, baseUrl, listRef) {
     if (!toolbarEl || !gridEl) return;
     var render = window.DAOP && window.DAOP.renderMovieCard;
@@ -1804,17 +1833,6 @@
         grid.className = 'movies-grid';
         grid.innerHTML = '<p>Đang tải...</p>';
 
-        var fd = window.filtersData || {};
-        var genreMap = fd.genreMap || {};
-        var genres = (movie.genre || []).map(function (g) { return g && (g.slug || g.id); }).filter(Boolean);
-        var idSet = new Set();
-        genres.forEach(function (g) {
-          var arr = genreMap[g] || [];
-          (arr || []).forEach(function (id) { if (id != null) idSet.add(String(id)); });
-        });
-        if (movie && movie.id != null) idSet.delete(String(movie.id));
-        var ids = Array.from(idSet).slice(0, Math.max(cfg.limit * 4, cfg.limit));
-
         var listRef = { list: [] };
         var toolbarEl = document.getElementById('watch-rec-toolbar');
         var getById = window.DAOP && window.DAOP.getMovieLightByIdAsync;
@@ -1822,9 +1840,26 @@
           grid.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
           setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef);
         } else {
-          Promise.all(ids.map(function (id) { return getById(id); }))
+          ensureFiltersLoaded()
+            .then(function () {
+              var fd = window.filtersData || {};
+              var genreMap = fd.genreMap || {};
+              var genres = (movie.genre || []).map(function (g) { return g && (g.slug || g.id); }).filter(Boolean);
+              var idSet = new Set();
+              genres.forEach(function (g) {
+                var arr = genreMap[g] || [];
+                (arr || []).forEach(function (id) { if (id != null) idSet.add(String(id)); });
+              });
+              if (movie && movie.id != null) idSet.delete(String(movie.id));
+              var ids = Array.from(idSet).slice(0, Math.max(cfg.limit * 4, cfg.limit));
+              return Promise.all(ids.map(function (id) { return getById(id); }));
+            })
             .then(function (arr) {
-              listRef.list = (arr || []).filter(Boolean).slice(0, cfg.limit);
+              var list = (arr || []).filter(Boolean);
+              list.sort(function (a, b) {
+                return (Number(b.year) || 0) - (Number(a.year) || 0);
+              });
+              listRef.list = list.slice(0, cfg.limit);
               setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef);
             })
             .catch(function () {
