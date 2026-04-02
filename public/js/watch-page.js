@@ -456,7 +456,7 @@
     }
   }
 
-  function setupRecommendToolbar(toolbarEl, gridEl, baseUrl, listRef) {
+  function setupRecommendToolbar(toolbarEl, gridEl, baseUrl, listRef, emptyHtml) {
     if (!toolbarEl || !gridEl) return;
     var render = window.DAOP && window.DAOP.renderMovieCard;
     if (!render) return;
@@ -465,6 +465,7 @@
     var gridCols = cfg.gridCols || 4;
     var usePoster = cfg.usePoster;
     var gridColumnsExtra = cfg.extra;
+    emptyHtml = emptyHtml || '<p>Không có phim.</p>';
 
     function applyGridClass() {
       [2, 3, 4, 6, 8, 10, 12, 14, 16].forEach(function (n) { gridEl.classList.remove('movies-grid--cols-' + n); });
@@ -478,6 +479,10 @@
 
     function rerenderCards() {
       var list = (listRef && listRef.list) ? listRef.list : [];
+      if (!list.length) {
+        gridEl.innerHTML = emptyHtml;
+        return;
+      }
       var html = '';
       var midAfter = 8;
       var midEvery = 12;
@@ -1836,21 +1841,38 @@
         var listRef = { list: [] };
         var toolbarEl = document.getElementById('watch-rec-toolbar');
         var getById = window.DAOP && window.DAOP.getMovieLightByIdAsync;
+        var currentIdStr = (movie && movie.id != null) ? String(movie.id) : '';
+        var currentGenreKeys = new Set(
+          (movie && movie.genre ? movie.genre : [])
+            .map(function (g) { return g && (g.slug || g.id); })
+            .filter(Boolean)
+            .map(function (x) { return String(x); })
+        );
+
         if (typeof getById !== 'function') {
           grid.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
-          setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef);
+          setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef, '<p>Không thể tải dữ liệu phim.</p>');
         } else {
-          ensureFiltersLoaded()
+          function withTimeout(promise, ms) {
+            return Promise.race([
+              promise,
+              new Promise(function (resolve) {
+                setTimeout(function () { resolve(false); }, ms);
+              })
+            ]);
+          }
+
+          // Tránh trường hợp fetch filters bị treo làm khung đề xuất mãi ở trạng thái "Đang tải..."
+          withTimeout(ensureFiltersLoaded(), 2500)
             .then(function () {
               var fd = window.filtersData || {};
               var genreMap = fd.genreMap || {};
-              var genres = (movie.genre || []).map(function (g) { return g && (g.slug || g.id); }).filter(Boolean);
               var idSet = new Set();
-              genres.forEach(function (g) {
+              Array.from(currentGenreKeys).forEach(function (g) {
                 var arr = genreMap[g] || [];
                 (arr || []).forEach(function (id) { if (id != null) idSet.add(String(id)); });
               });
-              if (movie && movie.id != null) idSet.delete(String(movie.id));
+              if (currentIdStr) idSet.delete(currentIdStr);
               var ids = Array.from(idSet).slice(0, Math.max(cfg.limit * 4, cfg.limit));
               return Promise.all(ids.map(function (id) { return getById(id); }));
             })
@@ -1859,13 +1881,55 @@
               list.sort(function (a, b) {
                 return (Number(b.year) || 0) - (Number(a.year) || 0);
               });
-              listRef.list = list.slice(0, cfg.limit);
-              setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef);
+
+              // Fallback: nếu ids rỗng do thiếu filtersData/genreMap, thử lấy gợi ý từ batch đang có.
+              if (!list.length && currentGenreKeys.size && Array.isArray(window.moviesBatch) && window.moviesBatch.length) {
+                var desired = currentGenreKeys;
+                list = window.moviesBatch
+                  .filter(function (m) { return m && String(m.id) !== currentIdStr; })
+                  .filter(function (m) {
+                    var mGenres = (m && Array.isArray(m.genre)) ? m.genre : [];
+                    var keys = mGenres
+                      .map(function (g) { return g && (g.slug || g.id); })
+                      .filter(Boolean)
+                      .map(function (x) { return String(x); });
+                    return keys.some(function (k) { return desired.has(k); });
+                  })
+                  .sort(function (a, b) {
+                    return (Number(b.year) || 0) - (Number(a.year) || 0);
+                  })
+                  .slice(0, cfg.limit);
+              } else {
+                list = list.slice(0, cfg.limit);
+              }
+
+              listRef.list = list;
+              setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef, '<p>Không có phim.</p>');
             })
             .catch(function () {
               listRef.list = [];
               grid.innerHTML = '<p>Không có phim.</p>';
-              setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef);
+
+              if (currentGenreKeys.size && Array.isArray(window.moviesBatch) && window.moviesBatch.length) {
+                var desired = currentGenreKeys;
+                var fallback = window.moviesBatch
+                  .filter(function (m) { return m && String(m.id) !== currentIdStr; })
+                  .filter(function (m) {
+                    var mGenres = (m && Array.isArray(m.genre)) ? m.genre : [];
+                    var keys = mGenres
+                      .map(function (g) { return g && (g.slug || g.id); })
+                      .filter(Boolean)
+                      .map(function (x) { return String(x); });
+                    return keys.some(function (k) { return desired.has(k); });
+                  })
+                  .sort(function (a, b) {
+                    return (Number(b.year) || 0) - (Number(a.year) || 0);
+                  })
+                  .slice(0, cfg.limit);
+                listRef.list = fallback;
+              }
+
+              setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef, '<p>Không có phim.</p>');
             });
         }
       }
