@@ -3056,6 +3056,27 @@ function toLightMovie(m) {
   };
 }
 
+const ACTORS_SHARD_KEYS = [
+  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'other',
+];
+
+/** Gộp map từ actors-{a-z|other}.json khi actors.js chỉ còn names+meta (tránh một file >25 MiB trên Cloudflare Pages). */
+function mergeActorsMapFromShards() {
+  const map = {};
+  for (const key of ACTORS_SHARD_KEYS) {
+    const p = path.join(PUBLIC_DATA, `actors-${key}.json`);
+    if (!fs.existsSync(p)) continue;
+    try {
+      const data = JSON.parse(fs.readFileSync(p, 'utf8'));
+      const m = data && data.map;
+      if (m && typeof m === 'object') Object.assign(map, m);
+    } catch {
+      // ignore
+    }
+  }
+  return map;
+}
+
 /** 7. Tạo actors: index (names only) + shard theo ký tự đầu, mỗi shard có thêm movies (light) để trang diễn viên không cần movies-light.js */
 function writeActors(movies) {
   const map = {};
@@ -3092,8 +3113,12 @@ function writeActors(movies) {
     ).length;
     console.warn(`Actors output is empty (0 actors). Movies=${total}, moviesWithCast=${withCast}. Common cause: TMDB enrich skipped (missing TMDB_API_KEY or SKIP_TMDB).`);
   }
-  // Legacy: một file đầy đủ (fallback + dùng cho incremental sau này)
-  fs.writeFileSync(path.join(PUBLIC_DATA, 'actors.js'), `window.actorsData = ${JSON.stringify({ map, names, meta })};`, 'utf8');
+  // actors.js chỉ names+meta; map nằm trong actors-{a-z|other}.* (một file map đầy đủ vượt 25 MiB → Cloudflare Pages từ chối deploy).
+  fs.writeFileSync(
+    path.join(PUBLIC_DATA, 'actors.js'),
+    `window.actorsData = ${JSON.stringify({ names, meta })};`,
+    'utf8'
+  );
   // JSON: nhẹ hơn JS khi host hỗ trợ gzip/brotli, dùng cho fetch trên client
   fs.writeFileSync(
     path.join(PUBLIC_DATA, 'actors-index.json'),
@@ -3113,8 +3138,7 @@ function writeActors(movies) {
       .map((id) => movieById.get(String(id)))
       .filter(Boolean);
   }
-  const keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'other'];
-  for (const key of keys) {
+  for (const key of ACTORS_SHARD_KEYS) {
     const data = byFirst[key] || { map: {}, names: {}, meta: {}, movies: {} };
     fs.writeFileSync(
       path.join(PUBLIC_DATA, `actors-${key}.js`),
@@ -3127,7 +3151,7 @@ function writeActors(movies) {
       'utf8'
     );
   }
-  const shardCount = keys.filter((k) => byFirst[k] && Object.keys(byFirst[k].map).length > 0).length;
+  const shardCount = ACTORS_SHARD_KEYS.filter((k) => byFirst[k] && Object.keys(byFirst[k].map).length > 0).length;
   console.log('   Actors: index +', shardCount, 'shards (a-z, other) + movies per shard');
 }
 
@@ -3137,6 +3161,11 @@ function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta 
   fs.writeFileSync(
     path.join(PUBLIC_DATA, 'actors-index.json'),
     JSON.stringify({ names, meta }),
+    'utf8'
+  );
+  fs.writeFileSync(
+    path.join(PUBLIC_DATA, 'actors.js'),
+    `window.actorsData = ${JSON.stringify({ names, meta })};`,
     'utf8'
   );
   const byFirst = {};
@@ -3153,8 +3182,7 @@ function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta 
         .filter(Boolean);
     }
   }
-  const keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'other'];
-  for (const key of keys) {
+  for (const key of ACTORS_SHARD_KEYS) {
     const data = byFirst[key] || { map: {}, names: {}, meta: {}, movies: {} };
     fs.writeFileSync(
       path.join(PUBLIC_DATA, `actors-${key}.js`),
@@ -3167,7 +3195,7 @@ function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta 
       'utf8'
     );
   }
-  const shardCount = keys.filter((k) => byFirst[k] && Object.keys(byFirst[k].map).length > 0).length;
+  const shardCount = ACTORS_SHARD_KEYS.filter((k) => byFirst[k] && Object.keys(byFirst[k].map).length > 0).length;
   console.log('   Actors (từ actors.js): index +', shardCount, 'shards', movieById ? '+ movies' : '');
 }
 
@@ -4160,7 +4188,12 @@ async function main() {
         const jsonStr = raw.replace(/^window\.actorsData\s*=\s*/, '').replace(/;\s*$/, '');
         try {
           const actorsData = JSON.parse(jsonStr);
-          const { map: m, names: n, meta } = actorsData;
+          let m = actorsData.map;
+          const n = actorsData.names || {};
+          const meta = actorsData.meta || {};
+          if (!m || typeof m !== 'object' || Object.keys(m).length === 0) {
+            m = mergeActorsMapFromShards();
+          }
           let movieById = null;
           const mlPath = path.join(PUBLIC_DATA, 'movies-light.js');
           if (await fs.pathExists(mlPath)) {

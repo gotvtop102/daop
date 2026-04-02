@@ -10,6 +10,26 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DATA = path.join(__dirname, '..', 'public', 'data');
 
+const ACTORS_SHARD_KEYS = [
+  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'other',
+];
+
+function mergeActorsMapFromShards() {
+  const map = {};
+  for (const key of ACTORS_SHARD_KEYS) {
+    const p = path.join(PUBLIC_DATA, `actors-${key}.json`);
+    if (!fs.existsSync(p)) continue;
+    try {
+      const data = JSON.parse(fs.readFileSync(p, 'utf8'));
+      const m = data && data.map;
+      if (m && typeof m === 'object') Object.assign(map, m);
+    } catch {
+      // ignore
+    }
+  }
+  return map;
+}
+
 function parseWindowArray(jsContent, globalName) {
   const prefix = `window.${globalName}`;
   let s = String(jsContent || '').trim();
@@ -77,7 +97,15 @@ function main() {
   const actorsRaw = fs.readFileSync(actorsPath, 'utf8');
   const actorsStr = actorsRaw.replace(/^window\.actorsData\s*=\s*/, '').replace(/;\s*$/, '');
   const actorsData = JSON.parse(actorsStr);
-  const { map: m = {}, names: n = {} } = actorsData;
+  let m = actorsData.map;
+  const n = actorsData.names || {};
+  if (!m || typeof m !== 'object' || Object.keys(m).length === 0) {
+    m = mergeActorsMapFromShards();
+  }
+  if (!m || Object.keys(m).length === 0) {
+    console.error('Không có map trong actors.js và không gộp được từ actors-*.json.');
+    process.exit(1);
+  }
 
   const movieById = loadMovieLightByIdFromBatches();
 
