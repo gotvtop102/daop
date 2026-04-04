@@ -1,1 +1,1 @@
-window.actorsData = {"map":{},"names":{},"meta":{},"movies":{}};
+window.actorsData = {"map":{"philip-hersh":["627ab74fdb9df06c65948003"]},"names":{"philip-hersh":"Philip Hersh"},"meta":{},"movies":{"philip-hersh":[{"id":"627ab74fdb9df06c65948003","title":"Ẩm Thực Đường Phố: Châu Á","origin_name":"Street Food: Asia","slug":"am-thuc-duong-pho-chau-a","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/am/am-thuc-duong-pho-chau-a.webp","year":"2019","type":"series","episode_current":"Hoàn Tất (9/9)"}]}};
