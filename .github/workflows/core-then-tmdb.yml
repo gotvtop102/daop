@@ -26,6 +26,9 @@ on:
 jobs:
   build_deploy:
     runs-on: ubuntu-latest
+    env:
+      PUBJS_CDN_BASE: ${{ vars.PUBJS_CDN_BASE }}
+      PUBJS_PATH_PREFIX: ${{ vars.PUBJS_PATH_PREFIX }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,6 +58,11 @@ jobs:
             echo "DEPLOY_AFTER_IMAGE_UPLOAD=1" >> $GITHUB_ENV
           else
             echo "DEPLOY_AFTER_IMAGE_UPLOAD=0" >> $GITHUB_ENV
+          fi
+          if [ -n "${{ secrets.PUBJS_REPO }}" ]; then
+            echo "HAS_PUBJS_REPO=true" >> $GITHUB_ENV
+          else
+            echo "HAS_PUBJS_REPO=false" >> $GITHUB_ENV
           fi
 
       - name: Load OPhim env from Supabase (auto settings)
@@ -128,13 +136,22 @@ jobs:
           REPO_IMAGE_STATE_PRUNE: '1'
           REPO_IMAGE_STATE_KEEP_FAILED: '0'
 
-      - name: Push movie images to assets GitHub repo
+      - name: Push movie images to assets GitHub repo (+ refresh URL @commit)
         if: ${{ inputs.upload_images == 'true' && env.HAS_IMAGES_REPO == 'true' }}
         run: node scripts/push-images-to-assets-repo.js
         env:
           IMAGES_REPO: ${{ secrets.IMAGES_REPO }}
           IMAGES_TOKEN: ${{ secrets.IMAGES_TOKEN || secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           IMAGES_BRANCH: ${{ secrets.IMAGES_BRANCH }}
+          IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
+
+      - name: Push pubjs JSON to pjs102 + refresh ver/cdn (sau TMDB)
+        if: ${{ env.HAS_PUBJS_REPO == 'true' }}
+        run: npm run push-pubjs-repo
+        env:
+          PUBJS_REPO: ${{ secrets.PUBJS_REPO }}
+          PUBJS_BRANCH: ${{ vars.PUBJS_BRANCH || 'main' }}
+          IMAGES_TOKEN: ${{ secrets.IMAGES_TOKEN || secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Commit & push TMDB
         run: |
@@ -153,7 +170,7 @@ jobs:
           wranglerVersion: '4.77.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
-      - name: Export batches → Supabase (movies + movie_episodes)
+      - name: Export movies (pubjs manifest) → Supabase (movies + movie_episodes)
         if: ${{ always() && !cancelled() }}
         env:
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
@@ -162,8 +179,8 @@ jobs:
           SKIP_EXPORT_TO_SUPABASE: ${{ vars.SKIP_EXPORT_TO_SUPABASE }}
         run: |
           set -e
-          if [ ! -f public/data/batches/batch-windows.json ]; then
-            echo "::warning::Thiếu batch-windows.json — bỏ qua export."
+          if [ ! -f public/data/movies-manifest.json ]; then
+            echo "::warning::Thiếu movies-manifest.json — bỏ qua export."
             exit 0
           fi
           if [ "${SKIP_EXPORT_TO_SUPABASE}" = "1" ]; then

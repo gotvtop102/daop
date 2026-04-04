@@ -16,8 +16,20 @@ import {
   getImageCdnBase,
   repoImageKeyExists,
   writeRepoImageFile,
-  cdnUrlByMovieId,
+  cdnUrlByMovieSlug,
+  repoImageKeyForSlug,
+  getImageCdnRef,
+  getImagePathPrefix,
 } from './lib/repo-images.js';
+import { getSlugShard2 } from './lib/slug-shard.js';
+import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
+import {
+  getPubjsOutputDir,
+  getPubjsCdnBase,
+  getPubjsCdnRef,
+  getPubjsPathPrefix,
+  buildPubjsFileUrl,
+} from './lib/pubjs-url.js';
 import {
   removeMoviesLightScriptFromHtml as libRemoveMoviesLightScriptFromHtml,
   injectSiteNameIntoHtml as libInjectSiteNameIntoHtml,
@@ -272,10 +284,10 @@ async function ensureRepoImagesForNewCustomMovies(_customMovies) {
   // Không ghi URL ảnh ngược lại nguồn tùy chỉnh; ảnh nằm trong public/ + batch build.
 }
 
-async function uploadMovieImageToRepoById(url, id, folder) {
+async function uploadMovieImageToRepoBySlug(url, slug, folder) {
   const u = String(url || '').trim();
-  const idStr = String(id || '').trim();
-  if (!u || !idStr) return '';
+  const slugStr = String(slug || '').trim();
+  if (!u || !slugStr) return '';
   try {
     const res = await fetch(u);
     if (!res.ok) return '';
@@ -283,7 +295,7 @@ async function uploadMovieImageToRepoById(url, id, folder) {
     const ct = res.headers.get('content-type') || '';
     const ext = guessExtFromContentType(ct) || guessExtFromUrl(u) || 'jpg';
     const optimized = await optimizeImageBuffer(buf, ext);
-    const key = `${folder}/${idStr}.webp`;
+    const key = repoImageKeyForSlug(slugStr, folder);
     const out = await writeRepoImageFile(optimized, key, 'image/webp');
     return out || '';
   } catch {
@@ -321,10 +333,10 @@ async function ensureRepoImagesForAllMovies(movies) {
   const forceDownload = (process.env.FORCE_REPO_IMAGE_DOWNLOAD === '1' || process.env.FORCE_REPO_IMAGE_DOWNLOAD === 'true');
   if (!forceDownload) {
     for (const m of list) {
-      const idStr = m && m.id != null ? String(m.id).trim() : '';
-      if (!idStr) continue;
-      m.thumb = cdnUrlByMovieId(idStr, 'thumbs');
-      m.poster = cdnUrlByMovieId(idStr, 'posters');
+      const slugStr = m && m.slug != null ? String(m.slug).trim() : '';
+      if (!slugStr) continue;
+      m.thumb = cdnUrlByMovieSlug(slugStr, 'thumbs', {});
+      m.poster = cdnUrlByMovieSlug(slugStr, 'posters', {});
     }
     console.log('6a. Repo/CDN images: rewrite URLs only (skip download/optimize). Set FORCE_REPO_IMAGE_DOWNLOAD=1 to enable download.');
 
@@ -350,10 +362,10 @@ async function ensureRepoImagesForAllMovies(movies) {
           const i = next++;
           const m = picks[i];
           if (!m) break;
-          const idStr = m && m.id != null ? String(m.id).trim() : '';
-          if (!idStr) continue;
-          const tUrl = cdnUrlByMovieId(idStr, 'thumbs');
-          const pUrl = cdnUrlByMovieId(idStr, 'posters');
+          const slugStr = m && m.slug != null ? String(m.slug).trim() : '';
+          if (!slugStr) continue;
+          const tUrl = cdnUrlByMovieSlug(slugStr, 'thumbs', {});
+          const pUrl = cdnUrlByMovieSlug(slugStr, 'posters', {});
           const tOk = await headOk(tUrl);
           const pOk = await headOk(pUrl);
           if (!tOk) missingThumb++;
@@ -382,28 +394,28 @@ async function ensureRepoImagesForAllMovies(movies) {
       next++;
       const m = list[i];
       if (!m) break;
-      const idStr = m && m.id != null ? String(m.id).trim() : '';
-      if (!idStr) continue;
+      const slugStr = m && m.slug != null ? String(m.slug).trim() : '';
+      if (!slugStr) continue;
 
-      const desiredThumb = cdnUrlByMovieId(idStr, 'thumbs');
-      const desiredPoster = cdnUrlByMovieId(idStr, 'posters');
+      const desiredThumb = cdnUrlByMovieSlug(slugStr, 'thumbs', {});
+      const desiredPoster = cdnUrlByMovieSlug(slugStr, 'posters', {});
 
       const thumbSrc = String(m.thumb_url || m.thumb || '').trim();
       const posterSrc = String(m.poster_url || m.poster || derivePosterFromThumb(thumbSrc) || thumbSrc || '').trim();
 
-      const thumbKey = `thumbs/${idStr}.webp`;
-      const posterKey = `posters/${idStr}.webp`;
+      const thumbKey = repoImageKeyForSlug(slugStr, 'thumbs');
+      const posterKey = repoImageKeyForSlug(slugStr, 'posters');
 
-      if (thumbSrc && !String(thumbSrc).includes(`/thumbs/${idStr}.webp`)) {
+      if (thumbSrc && !String(thumbSrc).includes(`/${slugStr}.webp`)) {
         const already = repoImageKeyExists(thumbKey);
         if (!already) {
-          await uploadMovieImageToRepoById(thumbSrc, idStr, 'thumbs');
+          await uploadMovieImageToRepoBySlug(thumbSrc, slugStr, 'thumbs');
         }
       }
-      if (posterSrc && !String(posterSrc).includes(`/posters/${idStr}.webp`)) {
+      if (posterSrc && !String(posterSrc).includes(`/${slugStr}.webp`)) {
         const already = repoImageKeyExists(posterKey);
         if (!already) {
-          await uploadMovieImageToRepoById(posterSrc, idStr, 'posters');
+          await uploadMovieImageToRepoBySlug(posterSrc, slugStr, 'posters');
         }
       }
 
@@ -448,6 +460,289 @@ async function fetchJsonWithTimeout(url, timeoutMs = OPHIM_FETCH_TIMEOUT_MS) {
   }
 }
 
+const DEFAULT_ASSET_VER = 'v1.0.0';
+
+function bumpSemverPatchVer(v) {
+  const s = String(v || DEFAULT_ASSET_VER).trim();
+  const m = s.match(/^v?(\d+)\.(\d+)\.(\d+)$/i);
+  if (!m) return 'v1.0.1';
+  const a = parseInt(m[1], 10);
+  const b = parseInt(m[2], 10);
+  const c = parseInt(m[3], 10);
+  return `v${a}.${b}.${c + 1}`;
+}
+
+function tmdbPayloadFingerprint(m) {
+  if (!m || typeof m !== 'object') return '';
+  const pick = {
+    tmdb: m.tmdb || null,
+    imdb: m.imdb || null,
+    cast: m.cast || [],
+    director: m.director || [],
+    cast_meta: m.cast_meta || [],
+    keywords: m.keywords || [],
+  };
+  try {
+    return JSON.stringify(pick);
+  } catch {
+    return '';
+  }
+}
+
+function loadVerStateFromDisk(verDir) {
+  const bySlug = new Map();
+  if (!fs.existsSync(verDir)) return bySlug;
+  let files = [];
+  try {
+    files = fs.readdirSync(verDir).filter((f) => f.endsWith('.json'));
+  } catch {
+    return bySlug;
+  }
+  for (const f of files) {
+    try {
+      const j = JSON.parse(fs.readFileSync(path.join(verDir, f), 'utf8'));
+      if (!j || typeof j !== 'object') continue;
+      for (const [slug, entry] of Object.entries(j)) {
+        if (!slug) continue;
+        bySlug.set(slug, entry && typeof entry === 'object' ? { ...entry } : {});
+      }
+    } catch {}
+  }
+  return bySlug;
+}
+
+function writeVerShardFiles(verDir, byShard) {
+  fs.ensureDirSync(verDir);
+  for (const [shard, obj] of byShard.entries()) {
+    if (!shard || !obj || !Object.keys(obj).length) continue;
+    fs.writeFileSync(path.join(verDir, `${shard}.json`), JSON.stringify(obj), 'utf8');
+  }
+}
+
+/**
+ * Chọn @ref jsDelivr cho pubjs / ảnh theo từng phim.
+ * - Phim mới hoặc nội dung đổi (OPhim/Admin/TMDB payload đổi → modChanged): @main tới khi push, rồi refresh-* gán SHA;
+ *   nếu đã set PUBJS_REPO_COMMIT / IMAGE_REPO_COMMIT (local) thì dùng luôn.
+ * - Phim không đổi: luôn @main (không giữ SHA cũ).
+ */
+function pickPerMovieJsDelivrRefs(prevEntry, modChanged, _defaultDataRef, _defaultImgRef) {
+  const dmCommit = normalizeCommitSha(process.env.PUBJS_REPO_COMMIT);
+  const imgCommit = normalizeCommitSha(process.env.IMAGE_REPO_COMMIT);
+  const fin = (r) => String(r || '').trim() || 'main';
+
+  const touched = modChanged || !prevEntry;
+  let dataRef;
+  let thumbRef;
+  let posterRef;
+  if (touched) {
+    dataRef = fin(dmCommit || 'main');
+    thumbRef = fin(imgCommit || 'main');
+    posterRef = fin(imgCommit || 'main');
+  } else {
+    dataRef = 'main';
+    thumbRef = 'main';
+    posterRef = 'main';
+  }
+  return { dataRef: fin(dataRef), thumbRef: fin(thumbRef), posterRef: fin(posterRef) };
+}
+
+function writeCdnConfigJson() {
+  const out = {
+    images: {
+      base: getImageCdnBase(),
+      ref: getImageCdnRef(),
+      pathPrefix: getImagePathPrefix(),
+    },
+    pubjs: {
+      base: getPubjsCdnBase(),
+      ref: getPubjsCdnRef(),
+      pathPrefix: getPubjsPathPrefix(),
+    },
+  };
+  fs.ensureDirSync(PUBLIC_DATA);
+  fs.writeFileSync(path.join(PUBLIC_DATA, 'cdn.json'), JSON.stringify(out, null, 2), 'utf8');
+}
+
+function mergeMovieWithTmdbMap(m, tmdbById) {
+  const idStr = m && m.id != null ? String(m.id) : '';
+  if (!idStr) return { ...m };
+  const t = tmdbById && typeof tmdbById.get === 'function' ? tmdbById.get(idStr) : null;
+  if (!t) return { ...m, id: idStr };
+  return {
+    ...m,
+    id: idStr,
+    tmdb: t.tmdb || m.tmdb,
+    imdb: t.imdb || m.imdb,
+    cast: Array.isArray(t.cast) && t.cast.length ? t.cast : m.cast || [],
+    director: Array.isArray(t.director) && t.director.length ? t.director : m.director || [],
+    cast_meta: Array.isArray(t.cast_meta) && t.cast_meta.length ? t.cast_meta : m.cast_meta || [],
+    keywords: Array.isArray(t.keywords) && t.keywords.length ? t.keywords : m.keywords || [],
+  };
+}
+
+/**
+ * Ghi JSON phim vào pubjs-output (không commit vào repo dự án — đồng bộ pjs102 qua npm run push-pubjs-repo),
+ * public/data/ver/*.json, movies-manifest.json, cdn.json
+ * @returns {{ newLastModified: Object, batchPtrById: null }}
+ */
+function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
+  opts = opts || {};
+  const tmdbPhase = !!opts.tmdbPhase;
+  const pubjsRoot = getPubjsOutputDir();
+  const verDir = path.join(PUBLIC_DATA, 'ver');
+  fs.ensureDirSync(pubjsRoot);
+  fs.ensureDirSync(verDir);
+
+  const prevVerBySlug = loadVerStateFromDisk(verDir);
+  const sorted = [...movies].sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  const newLastModified = {};
+  const verByShard = new Map();
+  const manifest = [];
+  /** Slug có dữ liệu đổi (OPhim/Admin modified hoặc TMDB payload đổi): sau push gán @commit cho pubjs + ảnh */
+  const dataBumpedSlugs = [];
+  const defaultDataRef = getPubjsCdnRef();
+  const defaultImgRef = getImageCdnRef();
+
+  for (const m of sorted) {
+    const idStr = m && m.id != null ? String(m.id) : '';
+    const slug = m && m.slug != null ? String(m.slug).trim() : '';
+    if (!idStr || !slug) continue;
+
+    const modified = m.modified || m.updated_at || '';
+    newLastModified[idStr] = modified;
+
+    const prevMod = prevLastModified && prevLastModified[idStr] != null ? prevLastModified[idStr] : null;
+    const curMod = modified;
+    let modChanged = prevMod == null || String(prevMod) !== String(curMod);
+
+    const merged = mergeMovieWithTmdbMap(m, tmdbById);
+    const shard = getSlugShard2(slug);
+    const fp = path.join(pubjsRoot, shard, `${slug}.json`);
+
+    if (tmdbPhase && !modChanged && fs.existsSync(fp)) {
+      try {
+        const old = JSON.parse(fs.readFileSync(fp, 'utf8'));
+        if (tmdbPayloadFingerprint(old) !== tmdbPayloadFingerprint(merged)) modChanged = true;
+      } catch {}
+    }
+
+    if (modChanged) dataBumpedSlugs.push(slug);
+
+    const prevEntry = prevVerBySlug.get(slug);
+    let dataVer;
+    let thumbVer;
+    let posterVer;
+    if (!prevEntry) {
+      dataVer = DEFAULT_ASSET_VER;
+      thumbVer = DEFAULT_ASSET_VER;
+      posterVer = DEFAULT_ASSET_VER;
+    } else if (modChanged) {
+      dataVer = bumpSemverPatchVer(prevEntry.data || DEFAULT_ASSET_VER);
+      thumbVer = bumpSemverPatchVer(prevEntry.thumb || DEFAULT_ASSET_VER);
+      posterVer = bumpSemverPatchVer(prevEntry.poster || DEFAULT_ASSET_VER);
+    } else {
+      dataVer = prevEntry.data || DEFAULT_ASSET_VER;
+      thumbVer = prevEntry.thumb || DEFAULT_ASSET_VER;
+      posterVer = prevEntry.poster || DEFAULT_ASSET_VER;
+    }
+
+    const { dataRef, thumbRef, posterRef } = pickPerMovieJsDelivrRefs(prevEntry, modChanged, defaultDataRef, defaultImgRef);
+
+    merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: thumbRef, versionQuery: thumbVer });
+    merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: posterRef, versionQuery: posterVer });
+    merged.pubjs_url = buildPubjsFileUrl(slug, dataVer, dataRef);
+
+    fs.ensureDirSync(path.dirname(fp));
+    fs.writeFileSync(fp, JSON.stringify(merged), 'utf8');
+
+    m.thumb = merged.thumb;
+    m.poster = merged.poster;
+    if (merged.pubjs_url) m.pubjs_url = merged.pubjs_url;
+
+    if (!verByShard.has(shard)) verByShard.set(shard, {});
+    verByShard.get(shard)[slug] = {
+      data: dataVer,
+      thumb: thumbVer,
+      poster: posterVer,
+      dataRef,
+      thumbRef,
+      posterRef,
+    };
+
+    manifest.push({ id: idStr, slug, shard, modified: curMod });
+  }
+
+  writeVerShardFiles(verDir, verByShard);
+  fs.writeFileSync(
+    path.join(PUBLIC_DATA, 'movies-manifest.json'),
+    JSON.stringify({ movies: manifest, updatedAt: new Date().toISOString() }),
+    'utf8'
+  );
+  writeCdnConfigJson();
+
+  try {
+    fs.writeFileSync(
+      path.join(PUBLIC_DATA, '.pubjs-slugs-data-bumped.json'),
+      JSON.stringify({ slugs: dataBumpedSlugs, updatedAt: new Date().toISOString() }, null, 2),
+      'utf8'
+    );
+  } catch {}
+
+  console.log('   Pubjs JSON:', manifest.length, 'files →', pubjsRoot);
+  console.log('   Ver:', verByShard.size, 'shards →', verDir);
+  return { newLastModified, batchPtrById: null };
+}
+
+async function loadAllMoviesFromPubjsManifest() {
+  const manifestPath = path.join(PUBLIC_DATA, 'movies-manifest.json');
+  const pubjsRoot = getPubjsOutputDir();
+  if (!(await fs.pathExists(manifestPath))) return [];
+  let list = [];
+  try {
+    const j = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+    list = j.movies || [];
+  } catch {
+    return [];
+  }
+  const out = [];
+  const chunk = 80;
+  for (let c = 0; c < list.length; c += chunk) {
+    const batch = list.slice(c, c + chunk);
+    const parts = await Promise.all(
+      batch.map(async (row) => {
+        const fp = path.join(pubjsRoot, row.shard || getSlugShard2(row.slug), `${row.slug}.json`);
+        if (!(await fs.pathExists(fp))) return null;
+        try {
+          return JSON.parse(await fs.readFile(fp, 'utf8'));
+        } catch {
+          return null;
+        }
+      })
+    );
+    for (const p of parts) if (p) out.push(p);
+  }
+  return out;
+}
+
+function validateMoviesManifestPubjs(allMovies) {
+  const p = path.join(PUBLIC_DATA, 'movies-manifest.json');
+  if (!fs.existsSync(p)) throw new Error('Missing movies-manifest.json');
+  const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+  const list = j.movies || [];
+  const n = (allMovies || []).length;
+  if (list.length !== n) {
+    console.warn('   validate: manifest movies', list.length, 'vs allMovies', n);
+  }
+  const pubjsRoot = getPubjsOutputDir();
+  const sample = Math.min(40, list.length);
+  for (let i = 0; i < sample; i++) {
+    const row = list[i];
+    if (!row || !row.slug) throw new Error('Invalid manifest row');
+    const fp = path.join(pubjsRoot, row.shard || getSlugShard2(row.slug), `${row.slug}.json`);
+    if (!fs.existsSync(fp)) throw new Error('Missing pubjs JSON: ' + fp);
+  }
+}
+
 function validateShardMetaFiles(metaPath, dirPath, filenameBuilder) {
   if (!fs.existsSync(metaPath)) throw new Error('Missing meta file: ' + metaPath);
   const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
@@ -464,45 +759,6 @@ function validateShardMetaFiles(metaPath, dirPath, filenameBuilder) {
       if (!fs.existsSync(f)) throw new Error('Missing shard part: ' + f);
     }
   }
-}
-
-function validateBatchWindowsAndFiles(allMovies, opts) {
-  opts = opts || {};
-  const validateTmdb = opts.validateTmdb !== false;
-  const batchDir = path.join(PUBLIC_DATA, 'batches');
-  const windowsPath = path.join(batchDir, 'batch-windows.json');
-  if (!fs.existsSync(windowsPath)) throw new Error('Missing batch windows: ' + windowsPath);
-  const wj = JSON.parse(fs.readFileSync(windowsPath, 'utf8'));
-  const wins = wj && Array.isArray(wj.windows) ? wj.windows : [];
-  const total = wj && typeof wj.total === 'number' ? wj.total : -1;
-  if (!wins.length) throw new Error('batch-windows.json has empty windows');
-  if (total !== (allMovies ? allMovies.length : total)) {
-    throw new Error('batch-windows.json total mismatch: ' + total + ' vs movies ' + (allMovies ? allMovies.length : 'n/a'));
-  }
-  let cur = 0;
-  for (const w of wins) {
-    if (!w || typeof w.start !== 'number' || typeof w.end !== 'number') throw new Error('Invalid window entry');
-    if (w.start !== cur) throw new Error('Non-contiguous window start: ' + w.start + ' expected ' + cur);
-    if (w.end <= w.start) throw new Error('Invalid window range: ' + w.start + ' -> ' + w.end);
-    if (w.end > total) throw new Error('Window end exceeds total: ' + w.end + ' > ' + total);
-    const core = path.join(batchDir, `batch_${w.start}_${w.end}.js`);
-    const tmdb = path.join(batchDir, `tmdb_batch_${w.start}_${w.end}.js`);
-    if (!fs.existsSync(core)) throw new Error('Missing batch file: ' + core);
-    if (validateTmdb && !fs.existsSync(tmdb)) throw new Error('Missing tmdb batch file: ' + tmdb);
-    cur = w.end;
-  }
-  if (cur !== total) throw new Error('Windows do not cover total: ' + cur + ' != ' + total);
-  return { windows: wins, total };
-}
-
-function loadBatchWindowsOrThrow() {
-  const windowsPath = path.join(PUBLIC_DATA, 'batches', 'batch-windows.json');
-  if (!fs.existsSync(windowsPath)) throw new Error('Missing batch windows: ' + windowsPath);
-  const wj = JSON.parse(fs.readFileSync(windowsPath, 'utf8'));
-  const wins = wj && Array.isArray(wj.windows) ? wj.windows : [];
-  const total = wj && typeof wj.total === 'number' ? wj.total : -1;
-  if (!wins.length || total < 0) throw new Error('Invalid batch-windows.json');
-  return { windows: wins, total };
 }
 
 function loadIdIndexShardMapFromDisk(idDir, shardKey) {
@@ -542,11 +798,9 @@ function loadIdIndexShardMapFromDisk(idDir, shardKey) {
   return merged;
 }
 
-function validateIdIndexPointersSample(allMovies, sampleCount = 200, opts) {
-  opts = opts || {};
-  const validateTmdb = opts.validateTmdb !== false;
+function validateIdIndexPointersSample(allMovies, sampleCount = 200) {
   const idDir = path.join(PUBLIC_DATA, 'index', 'id');
-  const batchDir = path.join(PUBLIC_DATA, 'batches');
+  const pubjsRoot = getPubjsOutputDir();
   if (!fs.existsSync(idDir)) throw new Error('Missing id index dir: ' + idDir);
 
   const sorted = [...(allMovies || [])].sort((a, b) => String(a.id).localeCompare(String(b.id)));
@@ -575,14 +829,10 @@ function validateIdIndexPointersSample(allMovies, sampleCount = 200, opts) {
     const map = shards.get(shard);
     const row = map ? map[idStr] : null;
     if (!row) throw new Error('idIndex missing id: ' + idStr);
-    if (!row.b) throw new Error('idIndex missing batch pointer (b) for id: ' + idStr);
-    if (validateTmdb && !row.t) throw new Error('idIndex missing tmdb batch pointer (t) for id: ' + idStr);
-    const core = path.join(batchDir, String(row.b));
-    if (!fs.existsSync(core)) throw new Error('Pointer batch missing: ' + core);
-    if (validateTmdb) {
-      const tmdb = path.join(batchDir, String(row.t));
-      if (!fs.existsSync(tmdb)) throw new Error('Pointer tmdb batch missing: ' + tmdb);
-    }
+    if (!row.slug) throw new Error('idIndex missing slug for id: ' + idStr);
+    const sShard = getSlugShard2(row.slug);
+    const fp = path.join(pubjsRoot, sShard, `${row.slug}.json`);
+    if (!fs.existsSync(fp)) throw new Error('Missing pubjs JSON for id ' + idStr + ': ' + fp);
   }
 }
 
@@ -602,9 +852,7 @@ function validateBuildOutputs(allMovies) {
   const filtersRaw = fs.readFileSync(filtersPath, 'utf8');
   if (!/\"langMap\"\s*:\s*\{/.test(filtersRaw)) throw new Error('filters.js missing langMap');
 
-  const validateTmdb = !(process.env.SKIP_TMDB === '1' || process.env.SKIP_TMDB === 'true')
-    || (process.env.VALIDATE_TMDB === '1' || process.env.VALIDATE_TMDB === 'true');
-  validateBatchWindowsAndFiles(allMovies, { validateTmdb });
+  validateMoviesManifestPubjs(allMovies);
 
   validateShardMetaFiles(
     path.join(PUBLIC_DATA, 'index', 'slug', 'meta.json'),
@@ -622,11 +870,7 @@ function validateBuildOutputs(allMovies) {
     (k, p) => (p == null ? `${k}.js` : `${k}.${p}.js`)
   );
 
-  validateIdIndexPointersSample(
-    allMovies,
-    parseInt(process.env.VALIDATE_SAMPLE_COUNT || '200', 10) || 200,
-    { validateTmdb }
-  );
+  validateIdIndexPointersSample(allMovies, parseInt(process.env.VALIDATE_SAMPLE_COUNT || '200', 10) || 200);
 
   console.log('   Validation OK');
 }
@@ -684,33 +928,13 @@ async function processImage(url, slug, folder = 'thumbs') {
     const ext = guessExtFromContentType(ct) || guessExtFromUrl(url) || 'jpg';
 
     const optimized = await optimizeImageBuffer(buf, ext);
-    const idStr = String(slug || '').trim();
-    if (!idStr) return url;
-    const key = `${folder}/${idStr}.webp`;
+    const slugStr = String(slug || '').trim();
+    if (!slugStr) return url;
+    const key = repoImageKeyForSlug(slugStr, folder);
     const out = await writeRepoImageFile(optimized, key, 'image/webp');
     return out || url;
   } catch {
     return url;
-  }
-}
-
-/** Upload ảnh theo slug (thumbs/<slug>.webp hoặc posters/<slug>.webp) */
-async function uploadMovieImageToRepoBySlug(url, slug, folder) {
-  if (!url) return '';
-  const idStr = String(slug || '').trim();
-  if (!idStr) return '';
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return '';
-    const buf = Buffer.from(await res.arrayBuffer());
-    const ct = res.headers.get('content-type') || '';
-    const ext = guessExtFromContentType(ct) || guessExtFromUrl(url) || 'jpg';
-    const optimized = await optimizeImageBuffer(buf, ext);
-    const key = `${folder}/${idStr}.webp`;
-    const out = await writeRepoImageFile(optimized, key, 'image/webp');
-    return out || '';
-  } catch {
-    return '';
   }
 }
 
@@ -737,37 +961,26 @@ function parseWindowArray(jsContent, globalName) {
 
 async function loadPreviousBuiltMoviesById() {
   try {
-    const moviesLightPath = path.join(PUBLIC_DATA, 'movies-light.js');
-    const batchDir = path.join(PUBLIC_DATA, 'batches');
-    if (!(await fs.pathExists(batchDir))) return new Map();
-    const byId = new Map();
-    const files = (await fs.readdir(batchDir)).filter((f) => /^batch_\d+_\d+\.js$/i.test(f));
-    for (const f of files) {
-      try {
-        const raw = await fs.readFile(path.join(batchDir, f), 'utf8');
-        const batch = parseWindowArray(raw, 'moviesBatch');
-        for (const bm of batch || []) {
-          const idStr = bm && bm.id != null ? String(bm.id) : '';
-          if (!idStr) continue;
-          const cur = byId.get(idStr);
-          if (cur) byId.set(idStr, { ...cur, ...bm });
-          else byId.set(idStr, bm);
-        }
-      } catch {}
+    const manifestPath = path.join(PUBLIC_DATA, 'movies-manifest.json');
+    const pubjsRoot = getPubjsOutputDir();
+    if (!(await fs.pathExists(manifestPath))) return new Map();
+    let list = [];
+    try {
+      const j = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+      list = j.movies || [];
+    } catch {
+      return new Map();
     }
-    // movies-light.js (nếu có) chỉ dùng để bổ sung field cho các phim đã tồn tại trong batch.
-    // Tránh trường hợp movies-light.js còn giữ id cũ nhưng batch/index đã bị dọn, gây lệch filters vs idIndex.
-    if (await fs.pathExists(moviesLightPath)) {
+    const byId = new Map();
+    for (const row of list) {
+      if (!row || !row.slug) continue;
+      const fp = path.join(pubjsRoot, row.shard || getSlugShard2(row.slug), `${row.slug}.json`);
+      if (!(await fs.pathExists(fp))) continue;
       try {
-        const mlRaw = await fs.readFile(moviesLightPath, 'utf8');
-        const light = parseWindowArray(mlRaw, 'moviesLight');
-        for (const m of light || []) {
-          const idStr = m && m.id != null ? String(m.id) : '';
-          if (!idStr) continue;
-          const cur = byId.get(idStr);
-          if (!cur) continue;
-          byId.set(idStr, { ...m, ...cur });
-        }
+        const m = JSON.parse(await fs.readFile(fp, 'utf8'));
+        const idStr = m && m.id != null ? String(m.id) : '';
+        if (!idStr) continue;
+        byId.set(idStr, m);
       } catch {}
     }
     return byId;
@@ -777,26 +990,37 @@ async function loadPreviousBuiltMoviesById() {
 }
 
 async function loadPreviousBuiltTmdbById() {
+  const byId = new Map();
+  const manifestPath = path.join(PUBLIC_DATA, 'movies-manifest.json');
+  const pubjsRoot = getPubjsOutputDir();
+  if (!(await fs.pathExists(manifestPath))) return byId;
+  let list = [];
   try {
-    const batchDir = path.join(PUBLIC_DATA, 'batches');
-    if (!(await fs.pathExists(batchDir))) return new Map();
-    const byId = new Map();
-    const files = (await fs.readdir(batchDir)).filter((f) => /^tmdb_batch_\d+_\d+\.js$/i.test(f));
-    for (const f of files) {
-      try {
-        const raw = await fs.readFile(path.join(batchDir, f), 'utf8');
-        const batch = parseWindowArray(raw, 'moviesTmdbBatch');
-        for (const bm of batch || []) {
-          const idStr = bm && bm.id != null ? String(bm.id) : '';
-          if (!idStr) continue;
-          byId.set(idStr, bm);
-        }
-      } catch {}
-    }
-    return byId;
+    const j = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+    list = j.movies || [];
   } catch {
-    return new Map();
+    return byId;
   }
+  for (const row of list) {
+    if (!row || !row.slug) continue;
+    const fp = path.join(pubjsRoot, row.shard || getSlugShard2(row.slug), `${row.slug}.json`);
+    if (!(await fs.pathExists(fp))) continue;
+    try {
+      const m = JSON.parse(await fs.readFile(fp, 'utf8'));
+      const idStr = m && m.id != null ? String(m.id) : '';
+      if (!idStr) continue;
+      byId.set(idStr, {
+        id: idStr,
+        tmdb: m.tmdb,
+        imdb: m.imdb,
+        cast: m.cast,
+        director: m.director,
+        cast_meta: m.cast_meta,
+        keywords: m.keywords,
+      });
+    } catch {}
+  }
+  return byId;
 }
 
 async function loadOphimIndex() {
@@ -2468,19 +2692,8 @@ function splitArrayBySize(arr, maxBytes, keySelector, debugShardKey = '') {
   return { parts: SHARD_SPLIT_MAX_PARTS, buckets };
 }
 
-function writeIndexAndSearchShards(movies, batchPtrById) {
-  let indexBatchSize = getBaseBatchSizeFromEnv();
-  const batchWindowsPath = path.join(PUBLIC_DATA, 'batches', 'batch-windows.json');
-  if (fs.existsSync(batchWindowsPath)) {
-    try {
-      const wj = JSON.parse(fs.readFileSync(batchWindowsPath, 'utf8'));
-      if (wj && typeof wj.baseBatchSize === 'number' && wj.baseBatchSize > 0) {
-        indexBatchSize = wj.baseBatchSize;
-      }
-    } catch {
-      /* keep indexBatchSize */
-    }
-  }
+function writeIndexAndSearchShards(movies, _batchPtrUnused) {
+  const indexBatchSize = getBaseBatchSizeFromEnv();
   const maxBytes = getShardMaxBytesFromEnv();
   console.log(
     '   [P2-1] Index/search shards: SHARD_MAX_BYTES =',
@@ -2521,14 +2734,9 @@ function writeIndexAndSearchShards(movies, batchPtrById) {
 
     const idShard = getShardKey2(idStr);
     if (!idIndexByShard.has(idShard)) idIndexByShard.set(idShard, {});
-    const ptr = batchPtrById ? batchPtrById.get(idStr) : null;
-    const bFile = ptr && ptr.b ? String(ptr.b) : '';
-    const tFile = ptr && ptr.t ? String(ptr.t) : '';
     idIndexByShard.get(idShard)[idStr] = {
       i,
       id: idStr,
-      b: bFile,
-      t: tFile,
       title: m.title,
       origin_name: m.origin_name || '',
       slug: slugStr,
@@ -2831,7 +3039,30 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
   fs.writeFileSync(path.join(PUBLIC_DATA, 'filters.js'), content, 'utf8');
   // JSON version để client fetch nhanh hơn (gzip/brotli) và giảm parse/execute JS.
   fs.writeFileSync(path.join(PUBLIC_DATA, 'filters.json'), JSON.stringify(filtersData), 'utf8');
+  writeListsFacetMini(filtersData);
   return { genreMap, countryMap, yearMap, genreNames, countryNames };
+}
+
+/** JSON nhẹ: thể loại ngôn ngữ / 4K / trạng chiếu — fetch nhanh hơn filters.json khi chỉ cần facet này. */
+function writeListsFacetMini(filtersData) {
+  try {
+    const dir = path.join(PUBLIC_DATA, 'lists');
+    fs.ensureDirSync(dir);
+    const sm = (filtersData && filtersData.statusMap) || {};
+    const mini = {
+      updatedAt: new Date().toISOString(),
+      langMap: filtersData.langMap,
+      quality4kIds: filtersData.quality4kIds || [],
+      exclusiveIds: filtersData.exclusiveIds || [],
+      showtimesIds: filtersData.showtimesIds || [],
+      statusCurrent: sm.current || [],
+      statusUpcoming: sm.upcoming || [],
+      statusTheater: sm.theater || [],
+    };
+    fs.writeFileSync(path.join(dir, 'facets-mini.json'), JSON.stringify(mini), 'utf8');
+  } catch (e) {
+    console.warn('   writeListsFacetMini:', e && e.message ? e.message : e);
+  }
 }
 
 function removeMoviesLightScriptFromHtml() {
@@ -3216,283 +3447,6 @@ function hydrateMoviesWithTmdbPayload(movies, tmdbById) {
       keywords: (Array.isArray(t.keywords) && t.keywords.length) ? t.keywords : (m.keywords || []),
     };
   });
-}
-
-/** 8. Tạo batch files (chỉ ghi lại batch có phim thay đổi dựa trên last_modified) */
-function writeBatches(movies, prevLastModified, tmdbById, prevTmdbById) {
-  const writeCore = !(process.env.TMDB_ONLY === '1' || process.env.TMDB_ONLY === 'true');
-  const writeTmdb = !(process.env.SKIP_TMDB === '1' || process.env.SKIP_TMDB === 'true');
-  const sorted = [...movies].sort((a, b) => String(a.id).localeCompare(String(b.id)));
-  const batchDir = path.join(PUBLIC_DATA, 'batches');
-  fs.ensureDirSync(batchDir);
-
-  let forcedWindows = null;
-  if (!writeCore && writeTmdb) {
-    forcedWindows = loadBatchWindowsOrThrow();
-    if (forcedWindows.total !== sorted.length) {
-      const windowsPath = path.join(batchDir, 'batch-windows.json');
-      throw new Error(
-        'TMDB_ONLY requires movie total to match existing batch windows: ' +
-          forcedWindows.total +
-          ' vs ' +
-          sorted.length +
-          '. This means your existing batches are out-of-sync with ' +
-          windowsPath +
-          '.\n' +
-          'Fix: run the CORE phase (TMDB_ONLY=0) to regenerate batches/windows, or ensure the TMDB_ONLY job uses the exact same public/data output (artifact) from the CORE job. ' +
-          'Do NOT mix an old batch-windows.json with a partially-updated batches folder.'
-      );
-    }
-  }
-
-  const BASE_BATCH = getBaseBatchSizeFromEnv();
-  const MAX_BATCH_BYTES = getBatchMaxBytesFromEnv();
-  const windowsPath = path.join(batchDir, 'batch-windows.json');
-
-  console.log(
-    '   [P2-1] Batch:',
-    BASE_BATCH,
-    'phim/cửa sổ (mục tiêu), tối đa',
-    MAX_BATCH_BYTES,
-    'byte/file core — BASE_BATCH_SIZE / BATCH_MAX_BYTES'
-  );
-
-  const toCoreMovie = (m) => {
-    if (!m) return m;
-    const {
-      imdb,
-      thumb,
-      poster,
-      thumb_url,
-      poster_url,
-      cast,
-      director,
-      cast_meta,
-      keywords,
-      _skip_tmdb,
-      ...rest
-    } = m;
-    return { ...rest, id: String(m.id) };
-  };
-
-  const toTmdbPayload = (idStr) => {
-    if (!tmdbById) return { id: idStr };
-    const v = tmdbById.get(String(idStr));
-    if (!v) return { id: String(idStr) };
-    const out = { ...v, id: String(idStr) };
-    return out;
-  };
-
-  const total = sorted.length;
-  const newLastModified = {};
-  const batchPtrById = new Map();
-
-  function isWindowsValid(wins, expectedTotal) {
-    if (!Array.isArray(wins) || !wins.length) return false;
-    let cur = 0;
-    for (const w of wins) {
-      if (!w || typeof w.start !== 'number' || typeof w.end !== 'number') return false;
-      if (!Number.isInteger(w.start) || !Number.isInteger(w.end)) return false;
-      if (w.start !== cur) return false;
-      if (w.end <= w.start) return false;
-      if (w.end > expectedTotal) return false;
-      cur = w.end;
-    }
-    return cur === expectedTotal;
-  }
-
-  function buildWindowsBySize(from, to) {
-    const out = [];
-    for (let baseStart = from; baseStart < to; baseStart += BASE_BATCH) {
-      const baseEnd = Math.min(baseStart + BASE_BATCH, to);
-      const slice = sorted.slice(baseStart, baseEnd);
-
-      let curStart = baseStart;
-      let cur = [];
-      for (let j = 0; j < slice.length; j++) {
-        const m = slice[j];
-        const next = cur.concat([toCoreMovie(m)]);
-        const bytes = Buffer.byteLength(JSON.stringify(next), 'utf8');
-        if (cur.length > 0 && bytes > MAX_BATCH_BYTES) {
-          out.push({ start: curStart, end: baseStart + j });
-          curStart = baseStart + j;
-          cur = [];
-        }
-        cur.push(toCoreMovie(m));
-      }
-      if (cur.length) out.push({ start: curStart, end: baseEnd });
-    }
-    return out;
-  }
-
-  // Windows strategy:
-  // - First build: create windows by size cap and persist.
-  // - Subsequent builds (updates): reuse existing windows so updates do not re-split by size;
-  //   changed batches may exceed MAX_BATCH_BYTES.
-  // - If total increases: extend windows for new tail using size cap.
-  // - If movies removed (handled below): force full regen and rebuild windows.
-  // - TMDB_ONLY: MUST reuse existing windows exactly, never rebuild or overwrite windows.
-  let windows = [];
-  if (forcedWindows && Array.isArray(forcedWindows.windows) && forcedWindows.windows.length) {
-    windows = forcedWindows.windows.slice(0);
-  } else {
-    let prevWindowsTotal = 0;
-    if (prevLastModified && fs.existsSync(windowsPath)) {
-      try {
-        const wj = JSON.parse(fs.readFileSync(windowsPath, 'utf8'));
-        const wins = wj && Array.isArray(wj.windows) ? wj.windows : [];
-        prevWindowsTotal = typeof wj.total === 'number' ? wj.total : 0;
-        if (isWindowsValid(wins, Math.min(total, prevWindowsTotal || total))) {
-          windows = wins.slice(0);
-        }
-      } catch {}
-    }
-    if (!windows.length) {
-      windows = buildWindowsBySize(0, total);
-    } else if (windows.length && windows[windows.length - 1].end < total) {
-      const from = windows[windows.length - 1].end;
-      const extra = buildWindowsBySize(from, total);
-      if (extra.length) windows = windows.concat(extra);
-    }
-  }
-
-  for (let idx = 0; idx < sorted.length; idx++) {
-    const m = sorted[idx];
-    const idStr = m.id != null ? String(m.id) : '';
-    const modified = m.modified || m.updated_at || '';
-    newLastModified[idStr] = modified;
-  }
-
-  // Nếu có phim bị xóa (có trong map cũ nhưng không còn trong map mới) → ghi lại toàn bộ để tránh lệch dữ liệu.
-  // TMDB_ONLY: không được tự rebuild windows trong phase này.
-  if (prevLastModified && !forcedWindows) {
-    for (const idStr of Object.keys(prevLastModified)) {
-      if (!newLastModified[idStr]) {
-        console.log('   Detect removed movies, regenerate toàn bộ batch files.');
-        prevLastModified = null;
-        windows = buildWindowsBySize(0, total);
-        break;
-      }
-    }
-  }
-
-  let rewrittenCore = 0;
-  let rewrittenTmdb = 0;
-  for (const w of windows) {
-    const start = w.start;
-    const end = w.end;
-    const slice = sorted.slice(start, end);
-
-    const coreFile = `batch_${start}_${end}.js`;
-    const tmdbFile = `tmdb_batch_${start}_${end}.js`;
-    const corePath = path.join(batchDir, coreFile);
-    const tmdbPath = path.join(batchDir, tmdbFile);
-
-    // 1) Xác định slice có phim thay đổi theo last_modified (dùng chung cho core + tmdb)
-    let sliceHasModifiedChange = !prevLastModified;
-    if (!sliceHasModifiedChange && prevLastModified) {
-      for (const m of slice) {
-        const idStr = m && m.id != null ? String(m.id) : '';
-        if (!idStr) continue;
-        const modified = m.modified || m.updated_at || '';
-        const old = prevLastModified ? prevLastModified[idStr] : undefined;
-        if (!old || old !== modified) {
-          sliceHasModifiedChange = true;
-          break;
-        }
-      }
-    }
-
-    // 2) Quyết định ghi core
-    let shouldWriteCore = false;
-    if (writeCore) {
-      shouldWriteCore = sliceHasModifiedChange;
-      if (!shouldWriteCore && !fs.existsSync(corePath)) shouldWriteCore = true;
-    }
-
-    // 3) Quyết định ghi tmdb
-    // - SKIP_TMDB: không ghi tmdb batch (để tránh tạo file "id-only" làm phase-2 bị skip)
-    // - TMDB_ONLY: chỉ ghi tmdb batch, và chỉ ghi các batch có payload TMDB đổi / thiếu so với build trước.
-    let shouldWriteTmdb = false;
-    if (writeTmdb) {
-      if (!fs.existsSync(tmdbPath)) {
-        shouldWriteTmdb = true;
-      } else if (!prevLastModified) {
-        // first build (hoặc không có last_modified) => ghi tất cả
-        shouldWriteTmdb = true;
-      } else if (!prevTmdbById || typeof prevTmdbById.get !== 'function') {
-        // không có dữ liệu tmdb trước đó => fallback theo last_modified
-        shouldWriteTmdb = sliceHasModifiedChange;
-      } else {
-        for (const m of slice) {
-          const idStr = m && m.id != null ? String(m.id) : '';
-          if (!idStr) continue;
-          const prevPayload = prevTmdbById.get(idStr);
-          const curPayload = tmdbById && typeof tmdbById.get === 'function' ? tmdbById.get(idStr) : undefined;
-          // Nếu trước đó chưa có payload, hoặc hiện tại có thêm dữ liệu => cần ghi lại batch
-          if (!prevPayload && curPayload) { shouldWriteTmdb = true; break; }
-          // Nếu hiện tại mất payload (hiếm) => cũng ghi để đồng bộ
-          if (prevPayload && !curPayload) { shouldWriteTmdb = true; break; }
-          // So sánh nội dung (nhẹ) để detect thay đổi TMDB
-          if (prevPayload && curPayload) {
-            try {
-              if (JSON.stringify(prevPayload) !== JSON.stringify(curPayload)) {
-                shouldWriteTmdb = true;
-                break;
-              }
-            } catch {
-              // fallback theo last_modified
-              if (sliceHasModifiedChange) { shouldWriteTmdb = true; break; }
-            }
-          }
-        }
-      }
-    }
-
-    for (const m of slice) {
-      const idStr = m && m.id != null ? String(m.id) : '';
-      if (!idStr) continue;
-      batchPtrById.set(idStr, { b: coreFile, t: tmdbFile });
-    }
-
-    if (shouldWriteCore) {
-      const batch = slice.map((m) => toCoreMovie(m));
-      const content = `window.moviesBatch = ${JSON.stringify(batch)};`;
-      fs.writeFileSync(corePath, content, 'utf8');
-      rewrittenCore++;
-    }
-
-    if (shouldWriteTmdb) {
-      const tmdbBatch = slice.map((m) => toTmdbPayload(m && m.id != null ? String(m.id) : ''));
-      const tmdbContent = `window.moviesTmdbBatch = ${JSON.stringify(tmdbBatch)};`;
-      fs.writeFileSync(tmdbPath, tmdbContent, 'utf8');
-      rewrittenTmdb++;
-    }
-  }
-
-  if (!prevLastModified) {
-    console.log('   Đã ghi lại toàn bộ batch files (lần đầu hoặc không có thông tin last_modified trước đó).');
-  } else {
-    console.log('   Đã ghi lại', rewrittenCore, 'core batch files có phim mới hoặc thay đổi.');
-    if (writeTmdb) console.log('   Đã ghi lại', rewrittenTmdb, 'tmdb batch files có TMDB thay đổi.');
-  }
-
-  // TMDB_ONLY: không ghi đè windows, vì core batch files đang theo windows của core phase.
-  if (!forcedWindows) {
-    try {
-      fs.writeFileSync(
-        windowsPath,
-        JSON.stringify({
-          baseBatchSize: BASE_BATCH,
-          maxBytes: MAX_BATCH_BYTES,
-          total,
-          windows,
-        }, null, 2)
-      );
-    } catch {}
-  }
-
-  return { newLastModified, batchPtrById };
 }
 
 /** 9. Đọc Supabase Admin và xuất config JSON */
@@ -4093,14 +4047,15 @@ async function main() {
   if (!incremental && cleanOldData) {
     console.log('Cleanup: removing old generated data in public/data (keep config).');
     try {
-      const batchDir = path.join(PUBLIC_DATA, 'batches');
-      await fs.remove(batchDir);
+      await fs.remove(path.join(PUBLIC_DATA, 'batches'));
+      await fs.remove(path.join(PUBLIC_DATA, 'ver'));
       const homeDir = path.join(PUBLIC_DATA, 'home');
       await fs.remove(homeDir);
       const indexDir = path.join(PUBLIC_DATA, 'index');
       await fs.remove(indexDir);
       const searchDir = path.join(PUBLIC_DATA, 'search');
       await fs.remove(searchDir);
+      await fs.remove(path.join(PUBLIC_DATA, 'lists'));
       const cacheDir = path.join(PUBLIC_DATA, 'cache');
       await fs.remove(cacheDir);
       const filesToRemove = [
@@ -4113,6 +4068,8 @@ async function main() {
         'last_modified.json',
         'last_build.json',
         'build_version.json',
+        'movies-manifest.json',
+        'cdn.json',
       ];
       for (const f of filesToRemove) {
         await fs.remove(path.join(PUBLIC_DATA, f));
@@ -4137,7 +4094,7 @@ async function main() {
   if (incremental) {
     await fs.ensureDir(PUBLIC_DATA);
     await fs.ensureDir(path.join(PUBLIC_DATA, 'config'));
-    console.log('Incremental: export config từ Supabase + tạo lại trang thể loại/quốc gia/năm + rebuild filters/actors từ batch hiện có.');
+    console.log('Incremental: export config từ Supabase + tạo lại trang thể loại/quốc gia/năm + rebuild filters/actors từ pubjs hiện có.');
     await exportConfigFromSupabase();
     injectSiteNameIntoHtml();
     injectFooterIntoHtml();
@@ -4147,11 +4104,11 @@ async function main() {
       try { await fs.remove(path.join(PUBLIC_DATA, 'movies-light.js')); } catch {}
     }
 
-    // Incremental: rebuild filters.js và actors.js từ dữ liệu batch hiện có để phim mới xuất hiện trên các trang danh sách
+    // Incremental: rebuild filters.js và actors.js từ pubjs hiện có
     const loadedMovies = await loadPreviousBuiltMoviesById();
     if (loadedMovies && loadedMovies.size > 0) {
       const allMovies = Array.from(loadedMovies.values());
-      console.log('   Incremental: rebuild filters từ', allMovies.length, 'phim trong batch hiện có.');
+      console.log('   Incremental: rebuild filters từ', allMovies.length, 'phim (pubjs).');
       const { genreNames, countryNames } = await fetchOPhimGenresAndCountries();
       const filters = writeFilters(allMovies, genreNames, countryNames);
       writeCategoryPages(filters);
@@ -4226,7 +4183,8 @@ async function main() {
 
   await fs.ensureDir(PUBLIC_DATA);
   await fs.ensureDir(path.join(PUBLIC_DATA, 'config'));
-  await fs.ensureDir(path.join(PUBLIC_DATA, 'batches'));
+  await fs.ensureDir(path.join(PUBLIC_DATA, 'ver'));
+  await fs.ensureDir(getPubjsOutputDir());
 
   if (process.env.GENERATE_MOVIES_LIGHT !== '1') {
     try { await fs.remove(path.join(PUBLIC_DATA, 'movies-light.js')); } catch {}
@@ -4250,8 +4208,7 @@ async function main() {
   const skipTmdb = (process.env.SKIP_TMDB === '1' || process.env.SKIP_TMDB === 'true');
   const tmdbOnly = (process.env.TMDB_ONLY === '1' || process.env.TMDB_ONLY === 'true');
 
-  // TMDB_ONLY phase (2-phase): KHÔNG được fetch lại OPhim/Custom vì có thể làm thay đổi tổng số phim,
-  // dẫn tới mismatch với batch-windows.json. Phase này chỉ enrich TMDB và ghi tmdb_batch_*.
+  // TMDB_ONLY: đọc pubjs từ manifest, enrich TMDB, ghi lại pubjs + ver (bump data khi payload TMDB đổi).
   if (tmdbOnly) {
     if (skipTmdb) {
       console.log('TMDB_ONLY: SKIP_TMDB đang bật, không có gì để làm.');
@@ -4259,55 +4216,19 @@ async function main() {
       console.log('[TIMING] Total (TMDB_ONLY skip):', fmtBuildMs(Date.now() - buildT0));
       return;
     }
-    if (!prevMoviesById || prevMoviesById.size === 0) {
-      throw new Error('TMDB_ONLY requires existing built movies in public/data/batches (prevMoviesById is empty). Run CORE/full build first.');
-    }
 
-    const tLoadBatches = Date.now();
-    let allMovies = [];
-    try {
-      const wins = loadBatchWindowsOrThrow();
-      const batchDir = path.join(PUBLIC_DATA, 'batches');
-      const loaded = [];
-      if (wins && Array.isArray(wins.windows) && wins.windows.length) {
-        for (const w of wins.windows) {
-          const start = w && typeof w.start === 'number' ? w.start : null;
-          const end = w && typeof w.end === 'number' ? w.end : null;
-          if (start == null || end == null) continue;
-          const file = path.join(batchDir, `batch_${start}_${end}.js`);
-          try {
-            const raw = await fs.readFile(file, 'utf8');
-            const batch = parseWindowArray(raw, 'moviesBatch');
-            if (Array.isArray(batch) && batch.length) {
-              for (const bm of batch) loaded.push(bm);
-            }
-          } catch {}
-        }
-      }
-      if (loaded.length) {
-        allMovies = loaded;
-      } else {
-        allMovies = Array.from(prevMoviesById.values());
-      }
-
-      if (wins && typeof wins.total === 'number' && wins.total > 0 && wins.total !== allMovies.length) {
-        const moviesLightPath = path.join(PUBLIC_DATA, 'movies-light.js');
-        if (await fs.pathExists(moviesLightPath)) {
-          try {
-            const mlRaw = await fs.readFile(moviesLightPath, 'utf8');
-            const light = parseWindowArray(mlRaw, 'moviesLight');
-            if (Array.isArray(light) && light.length === wins.total) {
-              allMovies = light;
-              console.log('TMDB_ONLY: fallback to movies-light.js:', allMovies.length);
-            }
-          } catch {}
-        }
-      }
-    } catch {
+    const tLoad = Date.now();
+    let allMovies = await loadAllMoviesFromPubjsManifest();
+    if (!allMovies.length && prevMoviesById && prevMoviesById.size) {
       allMovies = Array.from(prevMoviesById.values());
     }
-    console.log('TMDB_ONLY: loaded movies from existing batches:', allMovies.length);
-    console.log('[TIMING] ✓ TMDB_ONLY: load movies from batches:', fmtBuildMs(Date.now() - tLoadBatches));
+    if (!allMovies.length) {
+      throw new Error(
+        'TMDB_ONLY requires pubjs JSON files + movies-manifest.json (or prevMoviesById). Chạy full build trước.'
+      );
+    }
+    console.log('TMDB_ONLY: loaded movies from pubjs:', allMovies.length);
+    console.log('[TIMING] ✓ TMDB_ONLY: load pubjs:', fmtBuildMs(Date.now() - tLoad));
 
     const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
     const shouldEnrich = (m) => {
@@ -4354,13 +4275,21 @@ async function main() {
       });
     }
 
-    console.log('Writing TMDB batches only...');
-    timeBuildPhaseSync('TMDB_ONLY: writeBatches', () => {
-    writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById);
+    console.log('Writing TMDB pubjs + ver...');
+    let newLastModifiedTmdb = null;
+    timeBuildPhaseSync('TMDB_ONLY: writePubjsMoviesAndVer', () => {
+      const r = writePubjsMoviesAndVer(allMovies, prevLastModified || undefined, tmdbById, { tmdbPhase: true });
+      newLastModifiedTmdb = r && r.newLastModified ? r.newLastModified : null;
     });
+    try {
+      if (newLastModifiedTmdb) {
+        fs.writeFileSync(lastModifiedPath, JSON.stringify(newLastModifiedTmdb, null, 2));
+      }
+    } catch {}
 
-    // Rebuild actors từ TMDB payload: CORE phase (SKIP_TMDB) thường không có cast/cast_meta,
-    // và core batches còn strip các field này. Nếu không rebuild ở đây, /dien-vien sẽ rỗng.
+    timeBuildPhaseSync('TMDB_ONLY: writeIndex + search', () => writeIndexAndSearchShards(allMovies, null));
+
+    // Rebuild actors từ TMDB payload
     try {
       const tActors = Date.now();
       console.log('[TIMING] → TMDB_ONLY: writeActors');
@@ -4481,14 +4410,14 @@ async function main() {
   removeMoviesLightScriptFromHtml();
   });
 
-  console.log('6. Writing movies-light.js, filters.js, actors (index + shards), batches...');
+  console.log('6. Writing movies-light.js, filters.js, actors (index + shards), ver + pubjs indexes...');
   if (process.env.GENERATE_MOVIES_LIGHT === '1') {
     timeBuildPhaseSync('6. movies-light.js (optional)', () => writeMoviesLight(allMovies));
   }
   // CDN: thumb/poster vào public/ + URL jsDelivr trong output.
   await timeBuildPhase('6a. Repo/CDN images (all movies)', () => ensureRepoImagesForAllMovies(allMovies));
-  const batchRes = timeBuildPhaseSync('6b. writeBatches', () =>
-    writeBatches(allMovies, prevLastModified || undefined, tmdbById, prevTmdbById)
+  const batchRes = timeBuildPhaseSync('6b. writePubjsMoviesAndVer', () =>
+    writePubjsMoviesAndVer(allMovies, prevLastModified || undefined, tmdbById)
   );
   const newLastModified = batchRes && batchRes.newLastModified ? batchRes.newLastModified : batchRes;
 
@@ -4498,9 +4427,8 @@ async function main() {
   writeHomeBootstrapFile();
   injectHomeLcpPreloadIntoHtml();
   });
-  const batchPtrById = batchRes && batchRes.batchPtrById ? batchRes.batchPtrById : null;
 
-  timeBuildPhaseSync('6d. writeIndex + search shards', () => writeIndexAndSearchShards(allMovies, batchPtrById));
+  timeBuildPhaseSync('6d. writeIndex + search shards', () => writeIndexAndSearchShards(allMovies, null));
   timeBuildPhaseSync('6e. filters + category pages + actors', () => {
     const f = writeFilters(allMovies, genreNames, countryNames);
     writeCategoryPages(f);

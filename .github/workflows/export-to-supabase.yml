@@ -18,7 +18,7 @@ jobs:
           node-version: '20'
           cache: npm
       - run: npm ci
-      - name: Export batches → Supabase (movies + movie_episodes)
+      - name: Export movies (pubjs manifest) → Supabase (movies + movie_episodes)
         run: npm run export-to-supabase
         env:
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}

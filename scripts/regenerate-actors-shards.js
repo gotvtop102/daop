@@ -1,14 +1,16 @@
 /**
- * Script độc lập: đọc actors.js + movies-light.js, tạo lại actors shards có trường movies.
+ * Script độc lập: đọc actors.js + movies-manifest/pubjs-output, tạo lại actors shards có trường movies.
  * Chạy: node scripts/regenerate-actors-shards.js
  * Giúp trang diễn viên hiển thị danh sách phim mà không cần phụ thuộc movies-light.js load động.
  */
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getSlugShard2 } from './lib/slug-shard.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PUBLIC_DATA = path.join(__dirname, '..', 'public', 'data');
+const ROOT = path.join(__dirname, '..');
+const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
 
 const ACTORS_SHARD_KEYS = [
   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'other',
@@ -28,17 +30,6 @@ function mergeActorsMapFromShards() {
     }
   }
   return map;
-}
-
-function parseWindowArray(jsContent, globalName) {
-  const prefix = `window.${globalName}`;
-  let s = String(jsContent || '').trim();
-  if (!s.startsWith(prefix)) {
-    throw new Error(`Không tìm thấy prefix ${prefix} trong file.`);
-  }
-  s = s.replace(new RegExp(`^${prefix}\\s*=\\s*`), '');
-  s = s.replace(/;\s*$/, '');
-  return JSON.parse(s);
 }
 
 function toLight(m) {
@@ -61,26 +52,33 @@ function toLight(m) {
   };
 }
 
-function loadMovieLightByIdFromBatches() {
-  const batchDir = path.join(PUBLIC_DATA, 'batches');
-  if (!fs.existsSync(batchDir)) {
-    throw new Error('batches/ không tồn tại. Chạy build trước.');
+function getPubjsOutputDirRegen() {
+  const raw = String(process.env.PUBJS_OUTPUT_DIR || '').trim();
+  if (raw) return path.isAbsolute(raw) ? raw : path.join(ROOT, raw);
+  return path.join(ROOT, 'pubjs-output');
+}
+
+function loadMovieLightByIdFromManifest() {
+  const manifestPath = path.join(PUBLIC_DATA, 'movies-manifest.json');
+  const pubjsRoot = getPubjsOutputDirRegen();
+  if (!fs.existsSync(manifestPath)) {
+    throw new Error('movies-manifest.json không tồn tại. Chạy build trước.');
   }
-  const files = fs.readdirSync(batchDir).filter((f) => /^batch_\d+_\d+\.js$/i.test(f));
+  const j = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const list = j.movies || [];
   const byId = new Map();
-  for (const f of files) {
-    const raw = fs.readFileSync(path.join(batchDir, f), 'utf8');
-    let arr;
+  for (const row of list) {
+    if (!row || !row.slug) continue;
+    const shard = row.shard || getSlugShard2(row.slug);
+    const fp = path.join(pubjsRoot, shard, `${row.slug}.json`);
+    if (!fs.existsSync(fp)) continue;
     try {
-      arr = parseWindowArray(raw, 'moviesBatch');
-    } catch (e) {
-      console.warn('Skip batch file:', f, e.message);
-      continue;
-    }
-    for (const m of arr || []) {
+      const m = JSON.parse(fs.readFileSync(fp, 'utf8'));
       if (!m || m.id == null) continue;
       const light = toLight(m);
       if (light) byId.set(String(light.id), light);
+    } catch {
+      /* skip */
     }
   }
   return byId;
@@ -107,7 +105,7 @@ function main() {
     process.exit(1);
   }
 
-  const movieById = loadMovieLightByIdFromBatches();
+  const movieById = loadMovieLightByIdFromManifest();
 
   const slugs = Object.keys(n);
   const byFirst = {};

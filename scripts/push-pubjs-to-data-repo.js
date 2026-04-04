@@ -1,7 +1,7 @@
 /**
- * Đẩy public/thumbs và public/posters từ repo dự án → repo ảnh (bắt buộc IMAGES_REPO trên CI).
- * Sau push: refresh-image-jsdelivr-after-push — chỉ slug trong .pubjs-slugs-data-bumped.json nhận @commit cho ảnh.
- * Cần IMAGE_CDN_BASE trong env khi refresh. Chạy trên CI (Ubuntu) hoặc local có git.
+ * Đồng bộ thư mục pubjs-output (shard/slug.json) → repo pjs102 tại {PUBJS_PATH_PREFIX}/...
+ * Token: IMAGES_TOKEN | GITHUB_IMAGES_TOKEN | GITHUB_TOKEN | GH_PAT (chung với push ảnh)
+ * Sau push: chạy refresh-pubjs-jsdelivr-after-push.js với SHA HEAD remote.
  */
 import 'dotenv/config';
 import fs from 'fs-extra';
@@ -9,7 +9,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'node:child_process';
 import os from 'node:os';
-import { ensurePublicFolderInRemoteRepo } from './lib/github-images-remote.js';
+import { getPubjsOutputDir, getPubjsPathPrefix } from './lib/pubjs-url.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -48,7 +48,7 @@ function isAuthOrPermissionError(text) {
 function isNonFastForwardError(text) {
   const t = String(text || '').toLowerCase();
   return (
-    t.includes('rejected') && (t.includes('fetch first') || t.includes('non-fast-forward')) ||
+    (t.includes('rejected') && (t.includes('fetch first') || t.includes('non-fast-forward'))) ||
     t.includes('failed to push some refs') ||
     t.includes('remote contains work that you do not have locally')
   );
@@ -64,44 +64,31 @@ function pushWithRebaseRetry({ cloneDir, branch, maxAttempts = 5 }) {
       if (isAuthOrPermissionError(msg)) {
         throw new Error(
           [
-            'Không push được lên repo ảnh do thiếu quyền (403/permission denied).',
-            '- Hãy tạo PAT có quyền `Contents: Read and write` cho repo ảnh (IMAGES_REPO).',
-            '- Lưu PAT vào GitHub Secret `IMAGES_TOKEN` ở repo dự án (KHÔNG dùng prefix GITHUB_*).',
+            'Không push được lên repo pubjs (pjs102) do thiếu quyền.',
+            '- PAT cần Contents: Read and write cho PUBJS_REPO.',
+            '- Đặt IMAGES_TOKEN hoặc GH_PAT / GITHUB_TOKEN có quyền ghi PUBJS_REPO.',
             '',
-            'Chi tiết lỗi:',
             msg.slice(0, 800),
           ].join('\n')
         );
       }
-      if (!isNonFastForwardError(msg) || i === maxAttempts) {
-        throw e;
-      }
-      console.log(`git push bị reject (fetch first) — retry ${i}/${maxAttempts}...`);
+      if (!isNonFastForwardError(msg) || i === maxAttempts) throw e;
+      console.log(`git push pubjs bị reject — retry ${i}/${maxAttempts}...`);
       sh(`git fetch origin "${branch}" --depth 50`, cloneDir, { inherit: true });
       try {
-        // Ưu tiên giữ nội dung local (đang sync từ repo dự án).
         sh(`git rebase "origin/${branch}"`, cloneDir, { inherit: true });
       } catch (rebaseErr) {
-        // Nếu conflict (hiếm), abort để tránh repo rơi vào trạng thái dở.
         try {
           sh('git rebase --abort', cloneDir, { inherit: true });
         } catch {}
         throw rebaseErr;
       }
-      sh('git status', cloneDir, { inherit: true });
-      // tiếp tục vòng lặp push lại
     }
   }
 }
 
-async function dirHasWebp(dir) {
-  if (!(await fs.pathExists(dir))) return false;
-  const files = await fs.readdir(dir);
-  return files.some((f) => /\.webp$/i.test(f));
-}
-
 async function main() {
-  const repo = String(process.env.IMAGES_REPO || process.env.GITHUB_IMAGES_REPO || '').trim();
+  const repo = String(process.env.PUBJS_REPO || '').trim();
   const token = String(
     process.env.IMAGES_TOKEN ||
       process.env.GITHUB_IMAGES_TOKEN ||
@@ -109,31 +96,38 @@ async function main() {
       process.env.GH_PAT ||
       ''
   ).trim();
-  const branch = String(
-    process.env.IMAGES_BRANCH ||
-      process.env.GITHUB_IMAGES_BRANCH ||
-      process.env.GITHUB_BRANCH ||
-      'main'
-  ).trim();
+  const branch = String(process.env.PUBJS_BRANCH || 'main').trim();
+  const prefix = getPubjsPathPrefix();
+
   if (!repo || !token) {
-    throw new Error(
-      'Thiếu IMAGES_REPO (hoặc GITHUB_IMAGES_REPO local) hoặc token (IMAGES_TOKEN | GITHUB_TOKEN | GH_PAT)'
-    );
+    throw new Error('Thiếu PUBJS_REPO hoặc token (IMAGES_TOKEN | GITHUB_TOKEN | GH_PAT)');
   }
 
-  const srcThumbs = path.join(ROOT, 'public', 'thumbs');
-  const srcPosters = path.join(ROOT, 'public', 'posters');
-  const hasThumbs = await dirHasWebp(srcThumbs);
-  const hasPosters = await dirHasWebp(srcPosters);
-  if (!hasThumbs && !hasPosters) {
-    console.log('push-images-to-assets-repo: không có file ảnh (.webp) trong public/thumbs|posters — bỏ qua.');
+  const pubjsRoot = getPubjsOutputDir();
+  if (!(await fs.pathExists(pubjsRoot))) {
+    console.log('push-pubjs-to-data-repo: không có thư mục pubjs-output — bỏ qua.');
     return;
   }
 
-  await ensurePublicFolderInRemoteRepo(repo, branch, token);
+  const shardDirs = (await fs.readdir(pubjsRoot, { withFileTypes: true }))
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
+  let hasJson = false;
+  for (const sd of shardDirs) {
+    const p = path.join(pubjsRoot, sd);
+    const files = await fs.readdir(p).catch(() => []);
+    if (files.some((f) => f.endsWith('.json'))) {
+      hasJson = true;
+      break;
+    }
+  }
+  if (!hasJson) {
+    console.log('push-pubjs-to-data-repo: pubjs-output không có file .json — bỏ qua.');
+    return;
+  }
 
-  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'daop-img-sync-'));
-  const cloneDir = path.join(tmp, 'assets');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'daop-pubjs-sync-'));
+  const cloneDir = path.join(tmp, 'data');
   const authed = `https://x-access-token:${token}@github.com/${repo}.git`;
 
   try {
@@ -142,7 +136,6 @@ async function main() {
       sh(`git clone --depth 1 --branch "${branch}" "${authed}" "${cloneDir}"`, tmp);
       cloned = true;
     } catch {
-      console.log('Clone theo nhánh thất bại, thử clone mặc định…');
       try {
         sh(`git clone --depth 1 "${authed}" "${cloneDir}"`, tmp);
         cloned = true;
@@ -169,43 +162,41 @@ async function main() {
       }
     }
 
-    await fs.ensureDir(path.join(cloneDir, 'public', 'thumbs'));
-    await fs.ensureDir(path.join(cloneDir, 'public', 'posters'));
-
-    if (await fs.pathExists(srcThumbs)) {
-      await fs.copy(srcThumbs, path.join(cloneDir, 'public', 'thumbs'), { overwrite: true });
+    const destRoot = path.join(cloneDir, prefix);
+    await fs.ensureDir(destRoot);
+    for (const sd of shardDirs) {
+      const from = path.join(pubjsRoot, sd);
+      const to = path.join(destRoot, sd);
+      const stat = await fs.stat(from).catch(() => null);
+      if (!stat || !stat.isDirectory()) continue;
+      await fs.copy(from, to, { overwrite: true });
     }
-    if (await fs.pathExists(srcPosters)) {
-      await fs.copy(srcPosters, path.join(cloneDir, 'public', 'posters'), { overwrite: true });
-    }
 
-    const gitkeep = path.join(cloneDir, 'public', '.gitkeep');
+    const gitkeep = path.join(destRoot, '.gitkeep');
     if (!(await fs.pathExists(gitkeep))) {
       await fs.writeFile(gitkeep, '\n', 'utf8');
     }
 
     sh('git config user.email "actions@github.com"', cloneDir);
     sh('git config user.name "github-actions"', cloneDir);
-    sh('git add public', cloneDir);
+    sh(`git add "${prefix}"`, cloneDir);
     try {
-      sh(`git commit -m "chore: sync thumbs/posters from ${path.basename(ROOT)}"`, cloneDir);
+      sh(`git commit -m "chore: sync pubjs from ${path.basename(ROOT)}"`, cloneDir);
     } catch {
-      console.log('Không có thay đổi để commit trên repo ảnh.');
+      console.log('push-pubjs-to-data-repo: không có thay đổi trên repo đích.');
       return;
     }
     pushWithRebaseRetry({ cloneDir, branch, maxAttempts: 5 });
-    console.log('Đã push ảnh lên repo:', repo, 'nhánh:', branch);
 
     const { out: shaOut } = sh('git rev-parse HEAD', cloneDir, { inherit: false });
-    const shaRaw = String(shaOut || '').trim().toLowerCase();
-    if (/^[0-9a-f]{7,40}$/.test(shaRaw)) {
-      process.env.IMAGE_REPO_COMMIT = shaRaw;
-      sh(`node "${path.join(ROOT, 'scripts', 'refresh-image-jsdelivr-after-push.js')}"`, ROOT, {
-        inherit: true,
-      });
-    } else {
-      console.warn('push-images-to-assets-repo: không đọc được SHA sau push — bỏ qua refresh URL ảnh.');
+    const sha = String(shaOut || '').trim();
+    if (!/^[0-9a-f]{7,40}$/i.test(sha)) {
+      throw new Error('Không đọc được SHA sau push pubjs.');
     }
+
+    process.env.PUBJS_REPO_COMMIT = sha.toLowerCase();
+    sh(`node "${path.join(ROOT, 'scripts', 'refresh-pubjs-jsdelivr-after-push.js')}"`, ROOT, { inherit: true });
+    console.log('push-pubjs-to-data-repo: đã push', repo, branch, '→ SHA', sha);
   } finally {
     await fs.remove(tmp).catch(() => {});
   }

@@ -1,5 +1,11 @@
 node_modules
 admin/dist/
 
+# JSON phim đầy đủ — chỉ đồng bộ lên repo pjs102 (jsDelivr), không commit vào repo dự án.
+pubjs-output/
+
+# Danh sách slug vừa đổi (dùng sau push pjs102 để gán dataRef đúng SHA); không cần trong git.
+public/data/.pubjs-slugs-data-bumped.json
+
 # TMDB API cache khi build — tái tạo được, không nên commit (P1-2 / quy mô lớn).
 public/data/cache/

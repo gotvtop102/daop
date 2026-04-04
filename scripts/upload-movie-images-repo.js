@@ -10,7 +10,9 @@ import {
   cdnUrlForImageKey,
   writeRepoImageFile,
   isCdnRepoImageUrl,
+  repoImageKeyForSlug,
 } from './lib/repo-images.js';
+import { getSlugShard2 } from './lib/slug-shard.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -159,27 +161,30 @@ async function optimizeAndResize(buf, ext, opts) {
   }
 }
 
-function loadMovieListFromBatches() {
-  const batchDir = path.join(PUBLIC_DATA, 'batches');
-  const windowsPath = path.join(batchDir, 'batch-windows.json');
-  if (!fs.existsSync(windowsPath)) throw new Error('Missing batch-windows.json: ' + windowsPath);
-  const wj = JSON.parse(fs.readFileSync(windowsPath, 'utf8'));
-  const wins = wj && Array.isArray(wj.windows) ? wj.windows : [];
-  if (!wins.length) throw new Error('Invalid windows in batch-windows.json');
+function getPubjsOutputDirUpload() {
+  const raw = String(process.env.PUBJS_OUTPUT_DIR || '').trim();
+  if (raw) return path.isAbsolute(raw) ? raw : path.join(ROOT, raw);
+  return path.join(ROOT, 'pubjs-output');
+}
 
+function loadMovieListFromPubjsManifest() {
+  const manifestPath = path.join(PUBLIC_DATA, 'movies-manifest.json');
+  const pubjsRoot = getPubjsOutputDirUpload();
+  if (!fs.existsSync(manifestPath)) {
+    throw new Error('Missing movies-manifest.json (run npm run build): ' + manifestPath);
+  }
+  const j = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const list = j.movies || [];
   const all = [];
-  for (const w of wins) {
-    const f = path.join(batchDir, `batch_${w.start}_${w.end}.js`);
-    if (!fs.existsSync(f)) continue;
-    const raw = fs.readFileSync(f, 'utf8');
-    const jsonStr = raw
-      .replace(/^window\.moviesBatch\s*=\s*/i, '')
-      .replace(/;\s*$/, '');
+  for (const row of list) {
+    if (!row || !row.slug) continue;
+    const shard = row.shard || getSlugShard2(row.slug);
+    const fp = path.join(pubjsRoot, shard, `${row.slug}.json`);
+    if (!fs.existsSync(fp)) continue;
     try {
-      const arr = JSON.parse(jsonStr);
-      if (Array.isArray(arr)) all.push(...arr);
+      all.push(JSON.parse(fs.readFileSync(fp, 'utf8')));
     } catch {
-      // skip
+      /* skip */
     }
   }
   return all;
@@ -473,7 +478,7 @@ async function main() {
       throw new Error('force_slugs provided but OPhim returned no movies. Check slugs and OPHIM_BASE_URL/ophim_base.');
     }
   } else {
-    const movies = loadMovieListFromBatches();
+    const movies = loadMovieListFromPubjsManifest();
     console.log('Movies loaded:', movies.length);
     const moviesFiltered = (movies || []).filter((m) => m && m.id != null);
     moviesToProcess = limit ? moviesFiltered.slice(0, limit) : moviesFiltered;
@@ -493,7 +498,7 @@ async function main() {
     }
     const after = Object.keys(state.uploaded || {}).length;
     if (after !== before) {
-      console.log(`   [repo_image_upload_state] pruned: ${before} -> ${after} (keep current batches only)`);
+      console.log(`   [repo_image_upload_state] pruned: ${before} -> ${after} (keep current manifest movies only)`);
     }
   }
 
@@ -502,6 +507,7 @@ async function main() {
   let skippedAlready = 0;
   let skippedNoUrl = 0;
   let skippedNoId = 0;
+  let skippedNoSlug = 0;
   let uploaded = 0;
   let failed = 0;
   const failureSamples = [];
@@ -527,11 +533,16 @@ async function main() {
       return;
     }
 
-    // When build is a partial page-range without clean, CORE batches may preserve older movies.
+    const slugStr = normalizeSlugLike(m && (m.slug || '') ? String(m.slug) : '');
+    if (!slugStr) {
+      skipped++;
+      skippedNoSlug++;
+      return;
+    }
+
+    // When build is a partial page-range without clean, CORE may preserve older movies.
     // If user asks to reupload existing images, we only force reupload for movies from the current fetch range.
     const forceThisMovie = !!reuploadExisting && !(m && m._image_preserved);
-
-    const slugStr = normalizeSlugLike(m && (m.slug || '') ? String(m.slug) : '');
     const inForceList = !!(forceSlugSet && slugStr && forceSlugSet.has(slugStr));
     const row = state.uploaded[idStr];
 
@@ -552,7 +563,7 @@ async function main() {
 
     for (const kind of tasks) {
       const folderEarly = kind === 'thumb' ? 'thumbs' : 'posters';
-      const objectKeyEarly = `${folderEarly}/${idStr}.webp`;
+      const objectKeyEarly = repoImageKeyForSlug(slugStr, folderEarly);
 
       const already = isStateOk(state, idStr, kind);
       // Reupload existing: only force for current-range movies.
@@ -645,7 +656,7 @@ async function main() {
 
       const optimized = await optimizeAndResize(buf, ext, { quality: q, width: w, height: h });
       const folder = kind === 'thumb' ? 'thumbs' : 'posters';
-      const key = `${folder}/${idStr}.webp`;
+      const key = repoImageKeyForSlug(slugStr, folder);
 
       try {
         await uploadToRepo(optimized, key, 'image/webp');
@@ -700,6 +711,8 @@ async function main() {
     skippedNoUrl,
     'no_id=',
     skippedNoId,
+    'no_slug=',
+    skippedNoSlug,
     ') failed=',
     failed,
     'state=',

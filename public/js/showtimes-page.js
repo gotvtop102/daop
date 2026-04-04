@@ -56,11 +56,8 @@
     var base = baseUrl || '';
     var defaultPoster = base + '/images/default_poster.png';
     try {
-      var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
-      var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
-      r2Domain = r2Domain.replace(/\/$/, '');
-      var idStr = (m && m.id != null) ? String(m.id) : '';
-      if (r2Domain && idStr) return r2Domain + '/posters/' + idStr + '.webp';
+      if (m && m.poster) return String(m.poster);
+      if (m && m.thumb) return String(m.thumb);
     } catch (e) {}
 
     var thumb = (m && m.thumb) ? String(m.thumb) : '';

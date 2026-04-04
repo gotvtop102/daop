@@ -1882,10 +1882,9 @@
                 return (Number(b.year) || 0) - (Number(a.year) || 0);
               });
 
-              // Fallback: nếu ids rỗng do thiếu filtersData/genreMap, thử lấy gợi ý từ batch đang có.
-              if (!list.length && currentGenreKeys.size && Array.isArray(window.moviesBatch) && window.moviesBatch.length) {
+              function filterByGenre(ml) {
                 var desired = currentGenreKeys;
-                list = window.moviesBatch
+                return (ml || [])
                   .filter(function (m) { return m && String(m.id) !== currentIdStr; })
                   .filter(function (m) {
                     var mGenres = (m && Array.isArray(m.genre)) ? m.genre : [];
@@ -1897,36 +1896,52 @@
                   })
                   .sort(function (a, b) {
                     return (Number(b.year) || 0) - (Number(a.year) || 0);
-                  })
-                  .slice(0, cfg.limit);
-              } else {
-                list = list.slice(0, cfg.limit);
+                  });
               }
 
-              listRef.list = list;
-              setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef, '<p>Không có phim.</p>');
+              function applyRec(finalList) {
+                listRef.list = finalList.slice(0, cfg.limit);
+                setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef, '<p>Không có phim.</p>');
+              }
+
+              // Fallback: thiếu filtersData/genreMap → dùng movies-light.js (lazy).
+              if (!list.length && currentGenreKeys.size && window.DAOP && typeof window.DAOP.ensureMoviesLightLoaded === 'function') {
+                return window.DAOP.ensureMoviesLightLoaded().then(function (ml) {
+                  var built = filterByGenre(Array.isArray(ml) ? ml : []);
+                  applyRec(built.length ? built : list);
+                });
+              }
+
+              applyRec(list);
             })
             .catch(function () {
               listRef.list = [];
               grid.innerHTML = '<p>Không có phim.</p>';
 
-              if (currentGenreKeys.size && Array.isArray(window.moviesBatch) && window.moviesBatch.length) {
-                var desired = currentGenreKeys;
-                var fallback = window.moviesBatch
-                  .filter(function (m) { return m && String(m.id) !== currentIdStr; })
-                  .filter(function (m) {
-                    var mGenres = (m && Array.isArray(m.genre)) ? m.genre : [];
-                    var keys = mGenres
-                      .map(function (g) { return g && (g.slug || g.id); })
-                      .filter(Boolean)
-                      .map(function (x) { return String(x); });
-                    return keys.some(function (k) { return desired.has(k); });
-                  })
-                  .sort(function (a, b) {
-                    return (Number(b.year) || 0) - (Number(a.year) || 0);
-                  })
-                  .slice(0, cfg.limit);
-                listRef.list = fallback;
+              if (currentGenreKeys.size && window.DAOP && typeof window.DAOP.ensureMoviesLightLoaded === 'function') {
+                window.DAOP.ensureMoviesLightLoaded().then(function (ml) {
+                  ml = Array.isArray(ml) ? ml : [];
+                  if (ml.length) {
+                    var desired = currentGenreKeys;
+                    var fallback = ml
+                      .filter(function (m) { return m && String(m.id) !== currentIdStr; })
+                      .filter(function (m) {
+                        var mGenres = (m && Array.isArray(m.genre)) ? m.genre : [];
+                        var keys = mGenres
+                          .map(function (g) { return g && (g.slug || g.id); })
+                          .filter(Boolean)
+                          .map(function (x) { return String(x); });
+                        return keys.some(function (k) { return desired.has(k); });
+                      })
+                      .sort(function (a, b) {
+                        return (Number(b.year) || 0) - (Number(a.year) || 0);
+                      })
+                      .slice(0, cfg.limit);
+                    listRef.list = fallback;
+                  }
+                  setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef, '<p>Không có phim.</p>');
+                });
+                return;
               }
 
               setupRecommendToolbar(toolbarEl, grid, baseUrl, listRef, '<p>Không có phim.</p>');
@@ -1954,33 +1969,15 @@
         return;
       }
 
-      var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
-        ? window.DAOP.getMovieBySlugAsync
-        : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
-      getLight(slug).then(function (light) {
-        if (!light) {
-          rootEl.innerHTML = '<p>Không tìm thấy phim.</p>';
-          return;
-        }
+      function renderWatch(movie) {
+        var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
+        var defaultPoster = baseUrl + '/images/default_poster.png';
+        var poster = (movie && movie.poster) ? String(movie.poster) : '';
+        if (!poster) poster = defaultPoster;
+        var title = (movie.title || '').replace(/</g, '&lt;');
+        var slugSafe = esc(movie.slug || slug);
 
-        window.DAOP.loadMovieDetail(light.id, function (movie) {
-          if (!movie) {
-            rootEl.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
-            return;
-          }
-
-          var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
-          var defaultPoster = baseUrl + '/images/default_poster.png';
-          var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
-          var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
-          r2Domain = r2Domain.replace(/\/$/, '');
-          var idStr = (movie && movie.id != null) ? String(movie.id) : '';
-          var poster = (r2Domain && idStr) ? (r2Domain + '/posters/' + idStr + '.webp') : '';
-          if (!poster) poster = defaultPoster;
-          var title = (movie.title || '').replace(/</g, '&lt;');
-          var slugSafe = esc(movie.slug || slug);
-
-          rootEl.innerHTML =
+        rootEl.innerHTML =
             '<div class="watch-layout">' +
             '  <div class="ad-slot" data-ad-position="watch_top"></div>' +
             '  <div class="watch-main">' +
@@ -2039,24 +2036,67 @@
             '</section>' +
             '<div class="ad-slot" data-ad-position="watch_bottom"></div>';
 
-          // Default: rút gọn khung bình luận, chỉ mở khi người dùng bấm.
-          try {
-            var commentsCard0 = rootEl && rootEl.querySelector ? rootEl.querySelector('#watch-comments') : null;
-            // #watch-comments nằm trong .watch-comments-card theo markup.
-            if (commentsCard0 && commentsCard0.classList && !commentsCard0.classList.contains('watch-comments-card--collapsed')) {
-              commentsCard0.classList.add('watch-comments-card--collapsed');
-            }
-          } catch (e0) {}
-
-          var initial = pickInitialEpisode(movie, window.DAOP && window.DAOP.serverSources);
-          initEpisodesUI(movie, rootEl, initial);
-          setupActions(movie, rootEl);
-
-          if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
-            window.DAOP.renderAdsInDocument(rootEl);
+        // Default: rút gọn khung bình luận, chỉ mở khi người dùng bấm.
+        try {
+          var commentsCard0 = rootEl && rootEl.querySelector ? rootEl.querySelector('#watch-comments') : null;
+          // #watch-comments nằm trong .watch-comments-card theo markup.
+          if (commentsCard0 && commentsCard0.classList && !commentsCard0.classList.contains('watch-comments-card--collapsed')) {
+            commentsCard0.classList.add('watch-comments-card--collapsed');
           }
+        } catch (e0) {}
+
+        var initial = pickInitialEpisode(movie, window.DAOP && window.DAOP.serverSources);
+        initEpisodesUI(movie, rootEl, initial);
+        setupActions(movie, rootEl);
+
+        if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
+          window.DAOP.renderAdsInDocument(rootEl);
+        }
+      }
+
+      if (window.DAOP && typeof window.DAOP.resolveMovieForSlugPageAsync === 'function') {
+        window.DAOP.resolveMovieForSlugPageAsync(slug).then(function (res) {
+          var movie = res && res.movie;
+          var light = res && res.light;
+          if (movie) {
+            renderWatch(movie);
+            return;
+          }
+          if (!light) {
+            rootEl.innerHTML = '<p>Không tìm thấy phim.</p>';
+            return;
+          }
+          rootEl.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+        }).catch(function () {
+          rootEl.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
         });
-      });
+      } else {
+        var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
+          ? window.DAOP.getMovieBySlugAsync
+          : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
+        getLight(slug).then(function (light) {
+          if (!light) {
+            rootEl.innerHTML = '<p>Không tìm thấy phim.</p>';
+            return;
+          }
+          var slugForJson = String(light.slug || slug || '').trim();
+          var loadFull =
+            window.DAOP && typeof window.DAOP.loadMovieDetailBySlug === 'function'
+              ? window.DAOP.loadMovieDetailBySlug
+              : function (s, cb) {
+                  if (light.id != null && window.DAOP.loadMovieDetail) {
+                    window.DAOP.loadMovieDetail(light.id, cb);
+                  } else cb(null);
+                };
+          loadFull(slugForJson, function (movie) {
+            if (!movie) {
+              rootEl.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
+              return;
+            }
+            renderWatch(movie);
+          });
+        });
+      }
       });
     });
   }

@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["g2"] = [{"id":"688a2ec63aaa05b19cb6e810","title":"G20","origin_name":"G20","slug":"g20","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/688a2ec63aaa05b19cb6e810.webp","year":2025,"episode_current":"Full","_t":"g20 g20 g20"}];

@@ -1,5 +1,5 @@
 /**
- * Đẩy dữ liệu phim đã build (public/data/batches) lên Supabase.
+ * Đẩy dữ liệu phim đã build (movies-manifest + pubjs-output) lên Supabase.
  *
  * Cần: SUPABASE_ADMIN_URL (hoặc VITE_SUPABASE_ADMIN_URL), SUPABASE_ADMIN_SERVICE_ROLE_KEY
  *
@@ -18,7 +18,7 @@
  * EXPORT_TO_SUPABASE_EP_MOVIE_BATCH: gom N phim/lượt cho delete tập + insert tập (mặc định 12, max 80).
  * EXPORT_TO_SUPABASE_EP_INSERT_CHUNK: tối đa số dòng movie_episodes mỗi request insert (mặc định 400).
  *
- * Chạy sau khi đã build (có batch-windows.json + batch_*.js).
+ * Chạy sau khi đã build (có movies-manifest.json + thư mục pubjs-output).
  */
 import 'dotenv/config';
 import crypto from 'node:crypto';
@@ -26,34 +26,36 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
+import { getSlugShard2 } from './lib/slug-shard.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
 
-function loadMoviesFromBatches() {
-  const batchDir = path.join(PUBLIC_DATA, 'batches');
-  const windowsPath = path.join(batchDir, 'batch-windows.json');
-  if (!fs.existsSync(windowsPath)) {
-    throw new Error('Thiếu batch-windows.json. Chạy npm run build trước.');
-  }
-  const wj = JSON.parse(fs.readFileSync(windowsPath, 'utf8'));
-  const wins = wj && Array.isArray(wj.windows) ? wj.windows : [];
-  if (!wins.length) throw new Error('batch-windows.json không có windows hợp lệ');
+function getPubjsOutputDirExport() {
+  const raw = String(process.env.PUBJS_OUTPUT_DIR || '').trim();
+  if (raw) return path.isAbsolute(raw) ? raw : path.join(ROOT, raw);
+  return path.join(ROOT, 'pubjs-output');
+}
 
+function loadMoviesFromPubjsManifest() {
+  const manifestPath = path.join(PUBLIC_DATA, 'movies-manifest.json');
+  const pubjsRoot = getPubjsOutputDirExport();
+  if (!fs.existsSync(manifestPath)) {
+    throw new Error('Thiếu movies-manifest.json + pubjs JSON. Chạy npm run build trước.');
+  }
+  const j = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const list = j.movies || [];
   const all = [];
-  for (const w of wins) {
-    const f = path.join(batchDir, `batch_${w.start}_${w.end}.js`);
-    if (!fs.existsSync(f)) continue;
-    const raw = fs.readFileSync(f, 'utf8');
-    const jsonStr = raw
-      .replace(/^window\.moviesBatch\s*=\s*/i, '')
-      .replace(/;\s*$/, '');
+  for (const row of list) {
+    if (!row || !row.slug) continue;
+    const shard = row.shard || getSlugShard2(row.slug);
+    const fp = path.join(pubjsRoot, shard, `${row.slug}.json`);
+    if (!fs.existsSync(fp)) continue;
     try {
-      const arr = JSON.parse(jsonStr);
-      if (Array.isArray(arr)) all.push(...arr);
+      all.push(JSON.parse(fs.readFileSync(fp, 'utf8')));
     } catch {
-      // skip
+      /* skip */
     }
   }
   return all;
@@ -435,8 +437,8 @@ async function main() {
     'dòng/request'
   );
 
-  const all = loadMoviesFromBatches();
-  console.log('   Loaded from batches:', all.length, 'movies');
+  const all = loadMoviesFromPubjsManifest();
+  console.log('   Loaded from pubjs manifest:', all.length, 'movies');
 
   const scoped = filterByScope(all, scope);
   console.log('   After scope filter:', scoped.length, 'movies');

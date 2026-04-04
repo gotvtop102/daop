@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["ct"] = [{"id":"6702194d14c8e96a4a6cb4a7","title":"CTRL","origin_name":"CTRL","slug":"ctrl","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/6702194d14c8e96a4a6cb4a7.webp","year":2024,"episode_current":"Full","_t":"ctrl ctrl ctrl"}];

@@ -901,6 +901,74 @@
     return c1 + c2;
   }
 
+  /** Trùng scripts/lib/slug-shard.js — dùng cho public/data/ver/*.json (không bỏ dấu slug). */
+  window.DAOP.getSlugShard2 = function (slug) {
+    var s = String(slug || '').trim().toLowerCase();
+    if (!s) return '__';
+    function ok(c) { return c && /[a-z0-9]/.test(c); }
+    var a = s[0] || '_';
+    var b = s[1] || '_';
+    return (ok(a) ? a : '_') + (ok(b) ? b : '_');
+  };
+
+  window.DAOP.ensureCdnConfigLoaded = function () {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._cdnConfigPromise) return window.DAOP._cdnConfigPromise;
+    window.DAOP._cdnConfigPromise = fetch(BASE + '/data/cdn.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .catch(function () { return {}; });
+    return window.DAOP._cdnConfigPromise;
+  };
+
+  window.DAOP._verShardCache = window.DAOP._verShardCache || {};
+  window.DAOP.fetchVerShard = function (shard) {
+    var k = String(shard || '');
+    if (window.DAOP._verShardCache[k] != null) {
+      return Promise.resolve(window.DAOP._verShardCache[k]);
+    }
+    return fetch(BASE + '/data/ver/' + encodeURIComponent(k) + '.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .catch(function () { return {}; })
+      .then(function (j) {
+        window.DAOP._verShardCache[k] = j && typeof j === 'object' ? j : {};
+        return window.DAOP._verShardCache[k];
+      });
+  };
+
+  /** @ref an toàn cho URL jsDelivr: commit hex, main, hoặc tag hợp lệ */
+  function sanitizeCdnRef(r) {
+    var s = String(r || '').trim();
+    if (!s) return 'main';
+    if (/^[0-9a-f]{7,40}$/i.test(s)) return s.toLowerCase();
+    if (/^[a-zA-Z0-9._-]{1,120}$/.test(s)) return s;
+    return 'main';
+  }
+
+  window.DAOP.sanitizeCdnRefForFetch = sanitizeCdnRef;
+
+  /**
+   * @param {string} slug
+   * @param {{ dataVer?: string, dataRef?: string }} opts — dataRef từ ver (commit/main); thiếu → main
+   */
+  function buildPubjsMovieUrl(slug, opts) {
+    opts = opts || {};
+    var dataVer = opts.dataVer != null ? String(opts.dataVer) : 'v1.0.0';
+    var dataRefRaw = opts.dataRef != null ? String(opts.dataRef).trim() : '';
+    return window.DAOP.ensureCdnConfigLoaded().then(function (cfg) {
+      var d = (cfg && cfg.pubjs) || {};
+      var base = String(d.base || '').replace(/\/+$/, '');
+      var ref = dataRefRaw ? sanitizeCdnRef(dataRefRaw) : 'main';
+      var prefix = String(d.pathPrefix || 'pubjs').replace(/^\/+|\/+$/g, '');
+      var sh = window.DAOP.getSlugShard2(slug);
+      var safe = String(slug || '').trim();
+      if (!base || !safe) return '';
+      var path = prefix ? prefix + '/' + sh + '/' + encodeURIComponent(safe) + '.json' : sh + '/' + encodeURIComponent(safe) + '.json';
+      var url = base + '@' + ref + '/' + path;
+      url += (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(dataVer || 'v1.0.0');
+      return url;
+    });
+  }
+
   function loadScriptOnce(url) {
     return Promise.resolve()
       .then(function () {
@@ -931,6 +999,25 @@
       });
   }
 
+  /** Tải một lần movies-light.js (khi không inject trong HTML) — dùng fallback gợi ý theo thể loại. */
+  window.DAOP.ensureMoviesLightLoaded = function () {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._moviesLightPromise) return window.DAOP._moviesLightPromise;
+    try {
+      if (Array.isArray(window.moviesLight) && window.moviesLight.length) {
+        return Promise.resolve(window.moviesLight);
+      }
+    } catch (e0) {}
+    window.DAOP._moviesLightPromise = loadScriptOnce(BASE + '/data/movies-light.js').then(function () {
+      try {
+        return Array.isArray(window.moviesLight) ? window.moviesLight : [];
+      } catch (e1) {
+        return [];
+      }
+    });
+    return window.DAOP._moviesLightPromise;
+  };
+
   function applyRootIndexMeta(meta) {
     try {
       if (!meta || typeof meta !== 'object') return;
@@ -945,7 +1032,7 @@
     } catch (e) {}
   }
 
-  /** batchSize từ index/meta.json (sau preload); fallback 120 — dùng cho tính batch_*.js khi không có pointer file trong idIndex. */
+  /** batchSize từ index/meta.json (sau preload); fallback 120 — tương thích meta cũ. */
   function getEffectiveBatchSize() {
     var bs = window.DAOP && window.DAOP.batchSize;
     var n = parseInt(bs, 10);
@@ -1077,35 +1164,8 @@
     return null;
   };
 
-  window.DAOP.getBatchPathAsync = function (id) {
-    return Promise.resolve().then(function () {
-      var p0 = window.DAOP.getBatchPath(id);
-      if (p0) return p0;
-      if (id == null) return null;
-      var idStr = String(id);
-      var key = getShardKey2(idStr);
-      return loadIdIndexShardsForKey(key).then(function () {
-        try {
-          var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
-          var row = idxMap ? idxMap[idStr] : null;
-          if (row && row.b) {
-            return BASE + '/data/batches/' + String(row.b);
-          }
-          var i = row && typeof row.i === 'number' ? row.i : -1;
-          if (i < 0) return null;
-          return loadIndexMetaOnce().then(function (meta2) {
-            if (meta2) applyRootIndexMeta(meta2);
-            var BATCH = getEffectiveBatchSize();
-            var start = Math.floor(i / BATCH) * BATCH;
-            var total = meta2 && typeof meta2.total === 'number' ? meta2.total : -1;
-            var end = total > 0 ? Math.min(start + BATCH, total) : start + BATCH;
-            return BASE + '/data/batches/batch_' + start + '_' + end + '.js';
-          });
-        } catch (e) {
-          return null;
-        }
-      });
-    });
+  window.DAOP.getBatchPathAsync = function () {
+    return Promise.resolve(null);
   };
 
   window.DAOP.getMovieLightByIdAsync = function (id) {
@@ -1129,118 +1189,107 @@
     return null;
   };
 
-  window.DAOP.getTmdbBatchPathAsync = function (id) {
-    return Promise.resolve().then(function () {
-      var p0 = window.DAOP.getTmdbBatchPath(id);
-      if (p0) return p0;
-      if (id == null) return null;
-      var idStr = String(id);
-      var key = getShardKey2(idStr);
-      return loadIdIndexShardsForKey(key).then(function () {
-        try {
-          var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
-          var row = idxMap ? idxMap[idStr] : null;
-          if (row && row.t) {
-            return BASE + '/data/batches/' + String(row.t);
-          }
-          var i = row && typeof row.i === 'number' ? row.i : -1;
-          if (i < 0) return null;
-          return loadIndexMetaOnce().then(function (meta2) {
-            if (meta2) applyRootIndexMeta(meta2);
-            var BATCH = getEffectiveBatchSize();
-            var start = Math.floor(i / BATCH) * BATCH;
-            var total = meta2 && typeof meta2.total === 'number' ? meta2.total : -1;
-            var end = total > 0 ? Math.min(start + BATCH, total) : start + BATCH;
-            return BASE + '/data/batches/tmdb_batch_' + start + '_' + end + '.js';
+  window.DAOP.getTmdbBatchPathAsync = function () {
+    return Promise.resolve(null);
+  };
+
+  /** Khớp key trong ver shard (slug URL có thể khác chữ hoa/thường so với key build). */
+  function resolveVerEntryForSlug(verMap, s) {
+    if (!verMap || typeof verMap !== 'object' || !s) return null;
+    if (Object.prototype.hasOwnProperty.call(verMap, s) && verMap[s]) {
+      return { entry: verMap[s], slugForPath: s };
+    }
+    var low = String(s).toLowerCase();
+    var keys = Object.keys(verMap);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (String(k).toLowerCase() === low && verMap[k]) {
+        return { entry: verMap[k], slugForPath: k };
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Tải JSON phim đầy đủ: ver (Pages) + jsDelivr — chỉ cần slug, không qua id-index.
+   * @returns {Promise<object|null>}
+   */
+  function loadFullMovieJsonBySlug(slug) {
+    var s = String(slug || '').trim();
+    if (!s) return Promise.resolve(null);
+    var shard = window.DAOP.getSlugShard2(s);
+    return window.DAOP.fetchVerShard(shard).then(function (verMap) {
+      var resolved = resolveVerEntryForSlug(verMap, s);
+      var slugForPath = resolved ? resolved.slugForPath : s;
+      var entry = resolved ? resolved.entry : null;
+      var dataVer = (entry && entry.data) ? String(entry.data) : 'v1.0.0';
+      var dataRef = (entry && entry.dataRef) ? String(entry.dataRef).trim() : '';
+      return buildPubjsMovieUrl(slugForPath, { dataVer: dataVer, dataRef: dataRef });
+    }).then(function (url) {
+      if (!url) return null;
+      return fetch(url, { credentials: 'omit' }).then(function (r) {
+        if (!r.ok) return null;
+        return r.json();
+      });
+    }).then(function (movie) {
+      return movie || null;
+    });
+  }
+
+  /** Chi tiết / xem phim: ưu tiên — tránh id-index (đã có slug từ URL). */
+  window.DAOP.loadMovieDetailBySlug = function (slug, callback) {
+    loadFullMovieJsonBySlug(slug)
+      .then(function (movie) {
+        if (typeof callback === 'function') callback(movie);
+      })
+      .catch(function () {
+        if (typeof callback === 'function') callback(null);
+      });
+  };
+
+  /** Promise — dùng khi cần song song / async/await. */
+  window.DAOP.loadFullMovieJsonBySlugAsync = loadFullMovieJsonBySlug;
+
+  /**
+   * Chi tiết / xem phim: tải JSON đầy đủ trước; chỉ gọi slug-index nếu JSON không có
+   * (tiết kiệm request shard slug khi slug URL đúng và CDN có dữ liệu).
+   * Nếu slug URL lệch canonical: slug-index → thử lại JSON theo light.slug.
+   * @returns {Promise<{ movie: object|null, light: object|null }>}
+   */
+  window.DAOP.resolveMovieForSlugPageAsync = function (slug) {
+    var s0 = String(slug || '').trim();
+    if (!s0) return Promise.resolve({ movie: null, light: null });
+    return loadFullMovieJsonBySlug(s0).then(function (movie) {
+      if (movie) return { movie: movie, light: null };
+      return window.DAOP.getMovieBySlugAsync(s0).then(function (light) {
+        if (!light) return { movie: null, light: null };
+        var canon = String(light.slug || s0).trim();
+        if (canon && canon !== s0) {
+          return loadFullMovieJsonBySlug(canon).then(function (m2) {
+            return { movie: m2 || null, light: light };
           });
-        } catch (e) {
-          return null;
         }
+        return { movie: null, light: light };
       });
     });
   };
 
-  /** Load full movie by id (load batch then find) */
+  /** Load full movie theo id (home, đề xuất, …): id-index → cùng luồng slug. */
   window.DAOP.loadMovieDetail = function (id, callback) {
-    Promise.resolve()
-      .then(function () {
-        var gb = window.DAOP && typeof window.DAOP.getBatchPathAsync === 'function'
-          ? window.DAOP.getBatchPathAsync(id)
-          : Promise.resolve(window.DAOP && window.DAOP.getBatchPath ? window.DAOP.getBatchPath(id) : null);
-        var gt = window.DAOP && typeof window.DAOP.getTmdbBatchPathAsync === 'function'
-          ? window.DAOP.getTmdbBatchPathAsync(id)
-          : Promise.resolve((window.DAOP && typeof window.DAOP.getTmdbBatchPath === 'function') ? window.DAOP.getTmdbBatchPath(id) : null);
-        return Promise.all([gb, gt]).then(function (arr) {
-          return { path: arr[0], tmdbPath: arr[1] };
-        });
-      })
-      .then(function (p) {
-        var path = p && p.path;
-        var tmdbPath = p && p.tmdbPath;
-        if (!path) {
-          callback(null);
-          return;
-        }
-
-        var done = 0;
-        var failed = false;
-        function finish() {
-          if (failed) return;
-          var need = tmdbPath ? 2 : 1;
-          if (done < need) return;
-          const batch = window.moviesBatch || [];
-          const idStr = String(id);
-          const movie = batch.find(function (m) {
-            return String(m.id) === idStr;
-          });
-          if (!movie) {
-            callback(null);
-            return;
-          }
-          if (tmdbPath) {
-            const tb = window.moviesTmdbBatch || [];
-            const t = tb.find(function (x) { return x && String(x.id) === idStr; });
-            if (t) {
-              if (t.tmdb) movie.tmdb = t.tmdb;
-              if (t.imdb) movie.imdb = t.imdb;
-              if (t.cast) movie.cast = t.cast;
-              if (t.director) movie.director = t.director;
-              if (t.cast_meta) movie.cast_meta = t.cast_meta;
-              if (t.keywords) movie.keywords = t.keywords;
-            }
-          }
-          callback(movie);
-        }
-
-        const script = document.createElement('script');
-        script.src = path;
-        script.onload = function () {
-          done++;
-          finish();
-        };
-        script.onerror = function () {
-          failed = true;
-          callback(null);
-        };
-        document.head.appendChild(script);
-
-        if (tmdbPath) {
-          const script2 = document.createElement('script');
-          script2.src = tmdbPath;
-          script2.onload = function () {
-            done++;
-            finish();
-          };
-          script2.onerror = function () {
-            done++;
-            finish();
-          };
-          document.head.appendChild(script2);
-        }
-      })
-      .catch(function () {
-        callback(null);
+    var p = (window.DAOP && typeof window.DAOP.getMovieLightByIdAsync === 'function')
+      ? window.DAOP.getMovieLightByIdAsync(id)
+      : Promise.resolve(null);
+    p.then(function (row) {
+      if (!row || !row.slug) {
+        if (typeof callback === 'function') callback(null);
+        return;
+      }
+      return loadFullMovieJsonBySlug(row.slug).then(function (movie) {
+        if (typeof callback === 'function') callback(movie);
       });
+    }).catch(function () {
+      if (typeof callback === 'function') callback(null);
+    });
   };
 
   window.DAOP.derivePosterFromThumb = function (url) {
@@ -1303,27 +1352,17 @@
     const cardOrientation = (opts.cardOrientation === 'horizontal' || opts.cardOrientation === 'vertical')
       ? opts.cardOrientation
       : (opts.usePoster ? 'horizontal' : 'vertical');
-    var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
-    var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
-    r2Domain = r2Domain.replace(/\/$/, '');
-    const idStr = (m && m.id != null) ? String(m.id) : '';
     const thumbFromIndex = (m && m.thumb) ? window.DAOP.normalizeImgUrl(m.thumb) : '';
     const posterFromIndex = (m && m.poster) ? window.DAOP.normalizeImgUrl(m.poster) : '';
-    const primaryRaw = (cardOrientation === 'horizontal')
-      ? (r2Domain && idStr ? (r2Domain + '/posters/' + idStr + '.webp') : '')
-      : (r2Domain && idStr ? (r2Domain + '/thumbs/' + idStr + '.webp') : '');
-    const fallbackRaw = (r2Domain && idStr)
-      ? (r2Domain + '/thumbs/' + idStr + '.webp')
-      : '';
     const defaultImg = cardOrientation === 'horizontal'
       ? (baseUrl + '/images/default_poster.png')
       : (baseUrl + '/images/default_thumb.png');
     const fromIndexPrimary = cardOrientation === 'horizontal'
       ? (posterFromIndex || thumbFromIndex)
       : (thumbFromIndex || posterFromIndex);
-    const primaryResolved = (primaryRaw || '').replace(/^\/\//, 'https://') || fromIndexPrimary || '';
+    const primaryResolved = (fromIndexPrimary || '').replace(/^\/\//, 'https://');
     const imgUrl = primaryResolved || defaultImg;
-    const fallbackUrl = ((fallbackRaw || '').replace(/^\/\//, 'https://') || fromIndexPrimary || '').replace(/^\/\//, 'https://') || defaultImg;
+    const fallbackUrl = (thumbFromIndex || posterFromIndex || '').replace(/^\/\//, 'https://') || defaultImg;
     const title = (m.title || '').replace(/</g, '&lt;');
     const origin = (m.origin_name || '').replace(/</g, '&lt;');
     var thumbDims = cardOrientation === 'horizontal' ? ' width="300" height="200"' : ' width="200" height="300"';

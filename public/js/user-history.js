@@ -217,11 +217,7 @@
           var defaultImg = baseUrl + '/images/default_thumb.png';
           if (!defaultImg) defaultImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="96" height="64"%3E%3Crect fill="%2321262d" width="96" height="64"/%3E%3C/svg%3E';
 
-          var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
-          var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
-          r2Domain = r2Domain.replace(/\/$/, '');
-          var idStr = (m && m.id != null) ? String(m.id) : '';
-          var poster = (r2Domain && idStr) ? (r2Domain + '/thumbs/' + idStr + '.webp') : '';
+          var poster = (m && m.thumb) ? String(m.thumb) : ((m && m.poster) ? String(m.poster) : '');
           if (!poster) poster = defaultImg;
           var posterEsc = safeText(poster).replace(/"/g, '&quot;');
           var dEsc = String(defaultImg || '').replace(/'/g, '%27');

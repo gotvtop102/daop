@@ -9,7 +9,11 @@
     "build:incremental": "node scripts/build.js --incremental",
     "regenerate-actors": "node scripts/regenerate-actors-shards.js",
     "export-to-supabase": "node scripts/export-to-supabase.js",
-    "check-public": "node scripts/check-public-conflict-markers.mjs"
+    "push-pubjs-repo": "node scripts/push-pubjs-to-data-repo.js",
+    "refresh-pubjs-urls": "node scripts/refresh-pubjs-jsdelivr-after-push.js",
+    "refresh-image-urls": "node scripts/refresh-image-jsdelivr-after-push.js",
+    "check-public": "node scripts/check-public-conflict-markers.mjs",
+    "clean:public-data": "node scripts/clean-generated-public-data.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

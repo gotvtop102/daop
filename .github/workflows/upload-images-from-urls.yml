@@ -92,6 +92,7 @@ jobs:
           IMAGES_REPO: ${{ secrets.IMAGES_REPO }}
           IMAGES_TOKEN: ${{ secrets.IMAGES_TOKEN || secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           IMAGES_BRANCH: ${{ secrets.IMAGES_BRANCH }}
+          IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Commit images
         run: |

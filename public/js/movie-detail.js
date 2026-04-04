@@ -532,12 +532,64 @@
     }
   }
 
+  function applySeoFromLight(light, slugFallback) {
+    var t = (light && light.title) || slugFallback || '';
+    document.title = t + ' | ' + ((window.DAOP && window.DAOP.siteName) || 'DAOP Phim');
+    var metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', String((light && (light.description || light.title)) || '').slice(0, 160));
+    }
+  }
+
+  function applySeoFromMovie(movie, slugFallback) {
+    var t = (movie && movie.title) || slugFallback || '';
+    document.title = t + ' | ' + ((window.DAOP && window.DAOP.siteName) || 'DAOP Phim');
+    var metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      var d = (movie && (movie.description || movie.content || movie.title)) || '';
+      metaDesc.setAttribute('content', String(d).slice(0, 160));
+    }
+  }
+
   function init() {
     var slug = getSlug();
     if (!slug) {
       document.getElementById('movie-detail') && (document.getElementById('movie-detail').innerHTML = '<p>Không tìm thấy phim.</p>');
       return;
     }
+    if (window.DAOP && typeof window.DAOP.preloadIndexMeta === 'function') {
+      try { window.DAOP.preloadIndexMeta(); } catch (ePre) {}
+    }
+
+    var el = document.getElementById('movie-detail');
+    var base = (window.DAOP && window.DAOP.basePath) || '';
+    var notFoundHtml = '<div class="movie-not-found"><p><strong>Không tìm thấy phim</strong> với đường dẫn này.</p>' +
+      '<p>Phim có thể chưa có trong dữ liệu (do giới hạn build hoặc chưa cập nhật).</p>' +
+      '<p><a href="' + base + '/tim-kiem.html">Tìm kiếm phim</a> · <a href="' + base + '/">Trang chủ</a></p></div>';
+
+    function finishFromResolve(movie, light) {
+      if (movie) {
+        applySeoFromMovie(movie, slug);
+        renderFull(movie);
+        return;
+      }
+      if (light) {
+        applySeoFromLight(light, slug);
+        renderFromLight(light);
+        return;
+      }
+      if (el) el.innerHTML = notFoundHtml;
+    }
+
+    if (window.DAOP && typeof window.DAOP.resolveMovieForSlugPageAsync === 'function') {
+      window.DAOP.resolveMovieForSlugPageAsync(slug).then(function (res) {
+        finishFromResolve(res && res.movie, res && res.light);
+      }).catch(function () {
+        if (el) el.innerHTML = notFoundHtml;
+      });
+      return;
+    }
+
     var getLight = (window.DAOP && typeof window.DAOP.getMovieBySlugAsync === 'function')
       ? window.DAOP.getMovieBySlugAsync
       : function (s) { return Promise.resolve(window.DAOP && window.DAOP.getMovieBySlug ? window.DAOP.getMovieBySlug(s) : null); };
@@ -547,22 +599,25 @@
     Promise.all([getLight(slug), preloadMeta]).then(function (arr) {
       var light = arr[0];
       if (!light) {
-        var base = (window.DAOP && window.DAOP.basePath) || '';
-        var msg = '<div class="movie-not-found"><p><strong>Không tìm thấy phim</strong> với đường dẫn này.</p>' +
-          '<p>Phim có thể chưa có trong dữ liệu (do giới hạn build hoặc chưa cập nhật).</p>' +
-          '<p><a href="' + base + '/tim-kiem.html">Tìm kiếm phim</a> · <a href="' + base + '/">Trang chủ</a></p></div>';
-        document.getElementById('movie-detail') && (document.getElementById('movie-detail').innerHTML = msg);
+        if (el) el.innerHTML = notFoundHtml;
         return;
       }
-      document.title = (light.title || slug) + ' | ' + ((window.DAOP && window.DAOP.siteName) || 'DAOP Phim');
-      var metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) metaDesc.setAttribute('content', (light.description || light.title || '').slice(0, 160));
-
-      window.DAOP.loadMovieDetail(light.id, function (movie) {
+      applySeoFromLight(light, slug);
+      var slugForJson = String(light.slug || slug || '').trim();
+      var loadFull =
+        window.DAOP && typeof window.DAOP.loadMovieDetailBySlug === 'function'
+          ? window.DAOP.loadMovieDetailBySlug
+          : function (s, cb) {
+              if (light.id != null && window.DAOP.loadMovieDetail) {
+                window.DAOP.loadMovieDetail(light.id, cb);
+              } else cb(null);
+            };
+      loadFull(slugForJson, function (movie) {
         if (!movie) {
           renderFromLight(light);
           return;
         }
+        applySeoFromMovie(movie, slug);
         renderFull(movie);
       });
     });
@@ -572,12 +627,8 @@
     var base = (window.DAOP && window.DAOP.basePath) || '';
     var defaultPoster = base + '/images/default_poster.png';
     var defaultThumb = base + '/images/default_thumb.png';
-    var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
-    var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
-    r2Domain = r2Domain.replace(/\/$/, '');
-    var idStr = (light && light.id != null) ? String(light.id) : '';
-    var posterUrl = (r2Domain && idStr) ? (r2Domain + '/posters/' + idStr + '.webp') : '';
-    var thumbUrl = (r2Domain && idStr) ? (r2Domain + '/thumbs/' + idStr + '.webp') : '';
+    var posterUrl = (light && light.poster) ? String(light.poster) : '';
+    var thumbUrl = (light && light.thumb) ? String(light.thumb) : '';
     var posterFinal = posterUrl || defaultPoster;
     var thumbFinal = thumbUrl || defaultThumb;
     var slug = light.slug || '';
@@ -633,12 +684,8 @@
     var base = (window.DAOP && window.DAOP.basePath) || '';
     var defaultPoster = base + '/images/default_poster.png';
     var defaultThumb = base + '/images/default_thumb.png';
-    var settings = (window.DAOP && window.DAOP.siteSettings) ? window.DAOP.siteSettings : null;
-    var r2Domain = (settings && settings.r2_img_domain) ? String(settings.r2_img_domain) : '';
-    r2Domain = r2Domain.replace(/\/$/, '');
-    var idStr = (movie && movie.id != null) ? String(movie.id) : '';
-    var poster = (r2Domain && idStr) ? (r2Domain + '/posters/' + idStr + '.webp') : '';
-    var thumbMain = (r2Domain && idStr) ? (r2Domain + '/thumbs/' + idStr + '.webp') : '';
+    var poster = (movie && movie.poster) ? String(movie.poster) : '';
+    var thumbMain = (movie && movie.thumb) ? String(movie.thumb) : '';
     var posterFinal = poster || defaultPoster;
     var thumbFinal = thumbMain || defaultThumb;
     var posterBg = poster || '';
