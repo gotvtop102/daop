@@ -35,15 +35,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ? [(body as any).prefix]
       : [];
 
-  const folders = Array.from(
-    new Set(
-      foldersRaw
-        .map((x: unknown) => String(x || '').trim())
-        .filter((s): s is string => s.length > 0)
-        .map((x) => x.replace(/\\/g, '/').replace(/^\//, '').replace(/\/$/, ''))
-        .filter((s): s is string => s.length > 0)
-    )
-  );
+  const folderParts: string[] = foldersRaw
+    .map((x: unknown) => String(x || '').trim())
+    .filter((s): s is string => s.length > 0)
+    .map((x: string) => x.replace(/\\/g, '/').replace(/^\//, '').replace(/\/$/, ''))
+    .filter((s): s is string => s.length > 0);
+  const folders: string[] = Array.from(new Set<string>(folderParts));
 
   if (!folders.length) {
     res.status(400).json({ ok: false, error: 'Cần ít nhất một prefix (thư mục) trong «prefixes».' });
@@ -67,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const blobs = await githubFetchTreeRecursive(repo, branch, token);
-    const prefixes = folders.map((f) => {
+    const prefixes = folders.map((f: string) => {
       const p = normalizeFolderToPrefix(f);
       return p.startsWith('public/') ? p : `public/${p}`;
     });
