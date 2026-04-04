@@ -535,10 +535,18 @@ function pickPerMovieJsDelivrRefs(prevEntry, modChanged, _defaultDataRef, _defau
   let dataRef;
   let thumbRef;
   let posterRef;
+  const isSha = (r) => /^[0-9a-f]{7,40}$/i.test(String(r || '').trim());
   if (touched) {
     dataRef = fin(dmCommit || 'main');
     thumbRef = fin(imgCommit || 'main');
     posterRef = fin(imgCommit || 'main');
+  } else if (prevEntry && typeof prevEntry === 'object') {
+    const pd = String(prevEntry.dataRef || '').trim();
+    const pt = String(prevEntry.thumbRef || '').trim();
+    const pp = String(prevEntry.posterRef || '').trim();
+    dataRef = isSha(pd) ? pd.toLowerCase() : 'main';
+    thumbRef = isSha(pt) ? pt.toLowerCase() : 'main';
+    posterRef = isSha(pp) ? pp.toLowerCase() : 'main';
   } else {
     dataRef = 'main';
     thumbRef = 'main';
@@ -3346,12 +3354,20 @@ function writeActors(movies) {
       if (!map[s]) map[s] = [];
       map[s].push(String(m.id));
       names[s] = displayName;
-      if (!meta[s] && (c.tmdb_id || c.profile || c.tmdb_url)) {
-        meta[s] = {
-          tmdb_id: c.tmdb_id || null,
-          profile: c.profile || null,
-          tmdb_url: c.tmdb_url || (c.tmdb_id ? `https://www.themoviedb.org/person/${c.tmdb_id}` : null),
-        };
+      const pp = c && c.profile_path != null ? String(c.profile_path).trim() : '';
+      const profileAbs = c && c.profile
+        ? String(c.profile).trim()
+        : (pp ? TMDB_IMG_BASE + (pp.startsWith('/') ? pp : `/${pp}`) : null);
+      const tid = c && c.tmdb_id != null ? c.tmdb_id : null;
+      const tmdbUrl = c && c.tmdb_url ? String(c.tmdb_url) : (tid ? `https://www.themoviedb.org/person/${tid}` : null);
+      if (tid || profileAbs || tmdbUrl) {
+        const next = { tmdb_id: tid || null, profile: profileAbs || null, tmdb_url: tmdbUrl || null };
+        if (!meta[s]) meta[s] = next;
+        else {
+          if (!meta[s].profile && next.profile) meta[s].profile = next.profile;
+          if (!meta[s].tmdb_id && next.tmdb_id) meta[s].tmdb_id = next.tmdb_id;
+          if (!meta[s].tmdb_url && next.tmdb_url) meta[s].tmdb_url = next.tmdb_url;
+        }
       }
     }
   }
