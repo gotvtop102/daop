@@ -46,8 +46,8 @@ export function getPubjsPathPrefix() {
   return String(process.env.PUBJS_PATH_PREFIX || 'pubjs').replace(/^\/+|\/+$/g, '');
 }
 
-/** @param {string} dataRef jsDelivr @ref (commit, main, tag) */
-export function buildPubjsFileUrl(slug, dataVer, dataRef) {
+/** dataVer giữ trong ver/*.json; URL jsDelivr chỉ dùng @ref. */
+export function buildPubjsFileUrl(slug, _dataVer, dataRef) {
   const base = getPubjsCdnBase();
   const ref = String(dataRef || getPubjsCdnRef()).trim() || 'main';
   const prefix = getPubjsPathPrefix();
@@ -55,7 +55,5 @@ export function buildPubjsFileUrl(slug, dataVer, dataRef) {
   const safe = String(slug || '').trim();
   if (!base || !safe) return '';
   const rel = prefix ? `${prefix}/${shard}/${safe}.json` : `${shard}/${safe}.json`;
-  let u = buildJsDelivrFileUrl(base, ref, rel);
-  if (dataVer && u) u += (u.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(String(dataVer));
-  return u;
+  return buildJsDelivrFileUrl(base, ref, rel);
 }

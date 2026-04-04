@@ -22,8 +22,6 @@ const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
 const BUMP_FILE = path.join(PUBLIC_DATA, '.pubjs-slugs-data-bumped.json');
 
-const DEFAULT_VER = 'v1.0.0';
-
 function loadVerByShard(verDir) {
   const verByShard = new Map();
   if (!fs.existsSync(verDir)) return verByShard;
@@ -71,8 +69,7 @@ async function refreshMoviesLight(verByShard, sha, bumpedSet) {
     const shard = getSlugShard2(slug);
     const ent = verByShard.get(shard)?.[slug];
     if (!ent) continue;
-    const tv = ent.thumb || DEFAULT_VER;
-    const u = cdnUrlByMovieSlug(slug, 'thumbs', { ref: sha, versionQuery: tv });
+    const u = cdnUrlByMovieSlug(slug, 'thumbs', { ref: sha });
     if (u) {
       row.thumb = u;
       n++;
@@ -131,14 +128,12 @@ async function main() {
     entry.posterRef = sha;
     verTouched++;
 
-    const thumbVer = entry.thumb || DEFAULT_VER;
-    const posterVer = entry.poster || DEFAULT_VER;
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
     if (await fs.pathExists(fp)) {
       try {
         const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
-        merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: sha, versionQuery: thumbVer });
-        merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: sha, versionQuery: posterVer });
+        merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: sha });
+        merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: sha });
         await fs.writeFile(fp, JSON.stringify(merged), 'utf8');
         pubjsUpdated++;
       } catch {

@@ -133,13 +133,15 @@
       '</div>';
     }
 
-    var fd = window.filtersData || {};
-    var ids = (fd && Array.isArray(fd.showtimesIds)) ? fd.showtimesIds.slice(0) : [];
-    if (!ids.length) {
-      if (listEl) listEl.innerHTML = '<p>Không có phim nào có lịch chiếu.</p>';
-      if (pagEl) pagEl.innerHTML = '';
-      return;
-    }
+    function startWithFilters(fd) {
+      window.filtersData = fd && typeof fd === 'object' ? fd : (window.filtersData || {});
+      var fdx = window.filtersData || {};
+      var ids = (fdx && Array.isArray(fdx.showtimesIds)) ? fdx.showtimesIds.slice(0) : [];
+      if (!ids.length) {
+        if (listEl) listEl.innerHTML = '<p>Không có phim nào có lịch chiếu.</p>';
+        if (pagEl) pagEl.innerHTML = '';
+        return;
+      }
 
     var state = {
       perPage: 30,
@@ -202,9 +204,11 @@
       }
 
       Promise.all(state.ids.map(function (id) {
-        if (state.cache[id]) return Promise.resolve(state.cache[id]);
+        var idKey = String(id);
+        if (state.cache[idKey]) return Promise.resolve(state.cache[idKey]);
         return getById(id).then(function (m) {
-          if (m && m.showtimes) state.cache[id] = m;
+          var st = (m && m.showtimes != null) ? String(m.showtimes).trim() : '';
+          if (st) state.cache[idKey] = m;
           return m;
         }).catch(function () { return null; });
       }))
@@ -272,6 +276,26 @@
     }
 
     loadAll();
+    }
+
+    try {
+      var fdInline = window.filtersData;
+      if (fdInline && Array.isArray(fdInline.showtimesIds) && fdInline.showtimesIds.length) {
+        startWithFilters(fdInline);
+        return;
+      }
+    } catch (eF) {}
+
+    var bustP = (window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function')
+      ? window.DAOP.ensureDataCacheBust()
+      : Promise.resolve((window.DAOP && window.DAOP._dataCacheBust) || '');
+    bustP
+      .then(function (q) {
+        return fetch(baseUrl + '/data/filters.json' + (q || ''), { cache: 'no-store' });
+      })
+      .then(function (r) { return r && r.ok ? r.json() : null; })
+      .then(function (j) { startWithFilters(j && typeof j === 'object' ? j : {}); })
+      .catch(function () { startWithFilters({}); });
   }
 
   if (document.readyState === 'loading') {

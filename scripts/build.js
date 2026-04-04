@@ -649,8 +649,8 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
 
     const { dataRef, thumbRef, posterRef } = pickPerMovieJsDelivrRefs(prevEntry, modChanged, defaultDataRef, defaultImgRef);
 
-    merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: thumbRef, versionQuery: thumbVer });
-    merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: posterRef, versionQuery: posterVer });
+    merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: thumbRef });
+    merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: posterRef });
     merged.pubjs_url = buildPubjsFileUrl(slug, dataVer, dataRef);
 
     fs.ensureDirSync(path.dirname(fp));
@@ -2172,6 +2172,7 @@ function mergeMovies(ophim, custom) {
       }
       if (isEmptyVal(base.cast) && !isEmptyVal(ophimMovie.cast)) base.cast = ophimMovie.cast;
       if (isEmptyVal(base.director) && !isEmptyVal(ophimMovie.director)) base.director = ophimMovie.director;
+      if (isEmptyVal(base.showtimes) && !isEmptyVal(ophimMovie.showtimes)) base.showtimes = ophimMovie.showtimes;
     } else {
       base._supabaseExportEpisodesOnly = false;
       // OPhim cũ hơn hoặc bằng: điền chỗ trống từ OPhim (giữ hành vi cũ).
@@ -2932,7 +2933,7 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
     if (is4k) quality4kIds.push(m.id);
     if (m.is_exclusive) exclusiveIds.push(m.id);
     const st = (m.showtimes || '').toString().trim();
-    if (st) showtimesIds.push(m.id);
+    if (st && m.id != null) showtimesIds.push(String(m.id));
     if (m.type) {
       if (!typeMap[m.type]) typeMap[m.type] = [];
       typeMap[m.type].push(m.id);

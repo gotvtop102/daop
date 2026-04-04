@@ -954,18 +954,30 @@
   };
 
   window.DAOP._verShardCache = window.DAOP._verShardCache || {};
+  window.DAOP._verShardCacheBust = window.DAOP._verShardCacheBust || '';
   window.DAOP.fetchVerShard = function (shard) {
     var k = String(shard || '');
-    if (window.DAOP._verShardCache[k] != null) {
-      return Promise.resolve(window.DAOP._verShardCache[k]);
-    }
-    return fetch(BASE + '/data/ver/' + encodeURIComponent(k) + '.json', { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : {}; })
-      .catch(function () { return {}; })
-      .then(function (j) {
-        window.DAOP._verShardCache[k] = j && typeof j === 'object' ? j : {};
-        return window.DAOP._verShardCache[k];
-      });
+    var bustP = typeof window.DAOP.ensureDataCacheBust === 'function'
+      ? window.DAOP.ensureDataCacheBust()
+      : Promise.resolve(window.DAOP._dataCacheBust || '');
+    return bustP.then(function (q) {
+      var bust = q || '';
+      if (window.DAOP._verShardCacheBust !== bust) {
+        window.DAOP._verShardCache = {};
+        window.DAOP._verShardCacheBust = bust;
+      }
+      var cache = window.DAOP._verShardCache;
+      if (cache[k] != null) return cache[k];
+      var url = BASE + '/data/ver/' + encodeURIComponent(k) + '.json' + bust;
+      return fetch(url, { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .catch(function () { return {}; })
+        .then(function (j) {
+          var obj = j && typeof j === 'object' ? j : {};
+          cache[k] = obj;
+          return obj;
+        });
+    });
   };
 
   /** @ref an toàn cho URL jsDelivr: commit hex, main, hoặc tag hợp lệ */
@@ -981,11 +993,10 @@
 
   /**
    * @param {string} slug
-   * @param {{ dataVer?: string, dataRef?: string }} opts — dataRef từ ver (commit/main); thiếu → main
+   * @param {{ dataVer?: string, dataRef?: string }} opts — dataRef từ ver (commit/main); dataVer chỉ metadata trong ver/*.json, không gắn vào URL jsDelivr
    */
   function buildPubjsMovieUrl(slug, opts) {
     opts = opts || {};
-    var dataVer = opts.dataVer != null ? String(opts.dataVer) : 'v1.0.0';
     var dataRefRaw = opts.dataRef != null ? String(opts.dataRef).trim() : '';
     return window.DAOP.ensureCdnConfigLoaded().then(function (cfg) {
       var d = (cfg && cfg.pubjs) || {};
@@ -1007,9 +1018,7 @@
         return '';
       }
       var path = prefix ? prefix + '/' + sh + '/' + encodeURIComponent(safe) + '.json' : sh + '/' + encodeURIComponent(safe) + '.json';
-      var url = base + '@' + ref + '/' + path;
-      url += (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(dataVer || 'v1.0.0');
-      return url;
+      return base + '@' + ref + '/' + path;
     });
   }
 
@@ -1271,7 +1280,7 @@
       return buildPubjsMovieUrl(slugForPath, { dataVer: dataVer, dataRef: dataRef });
     }).then(function (url) {
       if (!url) return null;
-      return fetch(url, { credentials: 'omit' }).then(function (r) {
+      return fetch(url, { credentials: 'omit', cache: 'no-store' }).then(function (r) {
         if (!r.ok) return null;
         return r.json();
       });

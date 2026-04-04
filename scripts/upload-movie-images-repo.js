@@ -566,9 +566,8 @@ async function main() {
       const objectKeyEarly = repoImageKeyForSlug(slugStr, folderEarly);
 
       const already = isStateOk(state, idStr, kind);
-      // Reupload existing: only force for current-range movies.
-      // For preserved movies, don't skip if the file is actually missing.
-      if (already && !forceThisMovie && repoImageKeyExists(objectKeyEarly)) {
+      // Tin state đã upload (CI thường không có file local trong public/) — không tải lại trừ khi force.
+      if (already && !forceThisMovie) {
         skipped++;
         skippedAlready++;
         continue;

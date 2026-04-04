@@ -56,7 +56,7 @@ export function buildJsDelivrFileUrl(baseNoAtRef, ref, pathInRepo) {
 /**
  * @param {string} slug
  * @param {'thumbs'|'posters'} folder
- * @param {{ ref?: string, versionQuery?: string, baseOverride?: string }} opts
+ * @param {{ ref?: string, baseOverride?: string }} opts
  */
 export function cdnUrlByMovieSlug(slug, folder, opts = {}) {
   const ref = opts.ref != null ? opts.ref : getImageCdnRef();
@@ -66,11 +66,8 @@ export function cdnUrlByMovieSlug(slug, folder, opts = {}) {
   const key = repoImageKeyForSlug(slug, folder);
   if (!key) return '';
   const pathInRepo = prefix ? `${prefix}/${key}` : key;
-  let url = buildJsDelivrFileUrl(base, ref, pathInRepo);
-  if (opts.versionQuery && url) {
-    url += (url.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(String(opts.versionQuery));
-  }
-  return url;
+  // Không gắn ?v= semver: nội dung đã được định danh bởi @ref (commit/main) trên jsDelivr.
+  return buildJsDelivrFileUrl(base, ref, pathInRepo);
 }
 
 /** Key tương đối trong public/ */
