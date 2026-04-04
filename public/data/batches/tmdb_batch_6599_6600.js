@@ -1,1 +1,0 @@
-window.moviesTmdbBatch = [{"id":"6246f230c78eb57bbfe375ff","tmdb":{"type":null,"id":"","season":null,"vote_average":0,"vote_count":0},"imdb":null,"cast":[],"director":[],"cast_meta":[],"keywords":[]}];
