@@ -34,6 +34,7 @@ jobs:
     env:
       PUBJS_CDN_BASE: ${{ vars.PUBJS_CDN_BASE }}
       PUBJS_PATH_PREFIX: ${{ vars.PUBJS_PATH_PREFIX }}
+      PUBJS_REPO: ${{ secrets.PUBJS_REPO }}
     steps:
       - uses: actions/checkout@v4
         with:

@@ -53,7 +53,7 @@ async function main() {
   }
 
   if (!getPubjsCdnBase()) {
-    console.error('Thiếu PUBJS_CDN_BASE — không build được URL pubjs.');
+    console.error('Thiếu pubjs base — đặt PUBJS_CDN_BASE hoặc PUBJS_REPO (owner/repo).');
     process.exit(1);
   }
 

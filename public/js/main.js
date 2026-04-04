@@ -961,7 +961,18 @@
       var prefix = String(d.pathPrefix || 'pubjs').replace(/^\/+|\/+$/g, '');
       var sh = window.DAOP.getSlugShard2(slug);
       var safe = String(slug || '').trim();
-      if (!base || !safe) return '';
+      if (!base || !safe) {
+        try {
+          if (!base && safe && !window.__DAOP_WARNED_PUBJS_BASE__) {
+            window.__DAOP_WARNED_PUBJS_BASE__ = true;
+            console.warn(
+              '[DAOP] public/data/cdn.json → pubjs.base đang trống — không tải được JSON phim đầy đủ (trang chi tiết / xem phim). ' +
+                'Trên GitHub: đặt Actions variable PUBJS_CDN_BASE (jsDelivr …/gh/owner/repo) hoặc secret PUBJS_REPO (owner/repo) để build ghi base tự động.'
+            );
+          }
+        } catch (eW) {}
+        return '';
+      }
       var path = prefix ? prefix + '/' + sh + '/' + encodeURIComponent(safe) + '.json' : sh + '/' + encodeURIComponent(safe) + '.json';
       var url = base + '@' + ref + '/' + path;
       url += (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(dataVer || 'v1.0.0');

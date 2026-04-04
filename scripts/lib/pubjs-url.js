@@ -16,13 +16,23 @@ export function getPubjsOutputDir() {
   return path.join(ROOT, 'pubjs-output');
 }
 
+/**
+ * Base jsDelivr cho pubjs (không gồm @ref).
+ * Ưu tiên PUBJS_CDN_BASE; nếu trống và có PUBJS_REPO dạng owner/repo → https://cdn.jsdelivr.net/gh/owner/repo
+ */
 export function getPubjsCdnBase() {
   let raw = stripTrailingSlash(String(process.env.PUBJS_CDN_BASE || '').trim());
   if (raw.includes('@')) {
     const i = raw.indexOf('@');
     raw = stripTrailingSlash(raw.slice(0, i));
   }
-  return raw;
+  if (raw) return raw;
+  const repo = String(process.env.PUBJS_REPO || '').trim().replace(/\.git$/i, '');
+  const m = repo.match(/^([^/]+)\/([^/]+)$/);
+  if (m) {
+    return `https://cdn.jsdelivr.net/gh/${m[1]}/${m[2]}`;
+  }
+  return '';
 }
 
 export function getPubjsCdnRef() {

@@ -29,6 +29,8 @@ jobs:
     env:
       PUBJS_CDN_BASE: ${{ vars.PUBJS_CDN_BASE }}
       PUBJS_PATH_PREFIX: ${{ vars.PUBJS_PATH_PREFIX }}
+      # Build ghi pubjs.base vào cdn.json; nếu không đặt vars.PUBJS_CDN_BASE thì suy ra từ secret này
+      PUBJS_REPO: ${{ secrets.PUBJS_REPO }}
     steps:
       - uses: actions/checkout@v4
         with:
