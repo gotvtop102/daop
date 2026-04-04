@@ -39,9 +39,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     new Set(
       foldersRaw
         .map((x: unknown) => String(x || '').trim())
-        .filter(Boolean)
+        .filter((s): s is string => s.length > 0)
         .map((x) => x.replace(/\\/g, '/').replace(/^\//, '').replace(/\/$/, ''))
-        .filter(Boolean)
+        .filter((s): s is string => s.length > 0)
     )
   );
 

@@ -41,7 +41,7 @@ export async function uploadMovieImageById(sourceUrl: string, id: string, folder
   if (!base) return '';
   const key = `${folder}/${idStr}.webp`;
   const filePath = `public/${key}`;
-  const { token, repo, branch } = getGithubRepoConfig();
+  const { token, repo, branch } = getGithubImagesRepoConfig();
   if (!token || !repo) return '';
 
   if (await githubGetFileSha(repo, filePath, branch, token)) {
