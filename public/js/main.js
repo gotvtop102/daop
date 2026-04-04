@@ -1005,7 +1005,8 @@
   window.DAOP.sanitizeCdnRefForFetch = sanitizeCdnRef;
 
   /**
-   * URL JSON phim trên jsDelivr: chỉ `base@ref/path` — ref là commit hex hoặc `main` (tag), không gắn ?v=.
+   * URL JSON phim trên jsDelivr: `base@ref/path`. Ref là commit hex → URL cố định (CDN immutable).
+   * Không phải hex (vd. main): ghép ?v= từ build_version để tránh edge jsDelivr giữ bản cũ.
    * @param {string} slug
    * @param {{ dataRef?: string }} opts — thiếu hoặc rỗng → @main
    */
@@ -1032,7 +1033,13 @@
         return '';
       }
       var path = prefix ? prefix + '/' + sh + '/' + encodeURIComponent(safe) + '.json' : sh + '/' + encodeURIComponent(safe) + '.json';
-      return base + '@' + ref + '/' + path;
+      var url = base + '@' + ref + '/' + path;
+      if (/^[0-9a-f]{7,40}$/i.test(ref)) return url;
+      return (typeof window.DAOP.ensureDataCacheBust === 'function'
+        ? window.DAOP.ensureDataCacheBust()
+        : Promise.resolve('')).then(function (q) {
+          return q ? url + q : url;
+        });
     });
   }
 

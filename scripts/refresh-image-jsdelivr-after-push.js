@@ -110,10 +110,6 @@ async function main() {
 
   const verDir = path.join(PUBLIC_DATA, 'ver');
   const verByShard = loadVerByShard(verDir);
-  if (!verByShard.size) {
-    console.log('refresh-image-jsdelivr-after-push: không có ver/*.json — bỏ qua.');
-    return;
-  }
 
   const pubjsRoot = getPubjsOutputDir();
   let pubjsUpdated = 0;
@@ -121,9 +117,16 @@ async function main() {
 
   for (const slug of bumped) {
     const shard = getSlugShard2(slug);
-    const shardObj = verByShard.get(shard);
-    if (!shardObj || !shardObj[slug]) continue;
+    let shardObj = verByShard.get(shard);
+    if (!shardObj) {
+      shardObj = {};
+      verByShard.set(shard, shardObj);
+    }
+    if (!shardObj[slug]) shardObj[slug] = {};
     const entry = shardObj[slug];
+    delete entry.data;
+    delete entry.thumb;
+    delete entry.poster;
     entry.thumbRef = sha;
     entry.posterRef = sha;
     verTouched++;

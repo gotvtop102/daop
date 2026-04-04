@@ -1,5 +1,35 @@
 /** Ghi file vào repo qua GitHub Contents API (PAT cần quyền contents:write). */
 
+/**
+ * Chuẩn hóa owner/repo cho API (tránh 404 khi dán nhầm URL đầy đủ).
+ * Hỗ trợ: owner/repo, https://github.com/owner/repo, git@github.com:owner/repo.git
+ */
+export function normalizeGithubRepo(raw: string): string {
+  const s0 = String(raw || '').trim();
+  if (!s0) return '';
+  const ssh = /^git@github\.com:([^/]+)\/(.+?)(?:\.git)?$/i.exec(s0);
+  if (ssh) return `${ssh[1]}/${ssh[2].replace(/\.git$/i, '')}`;
+  if (!/:\/\//.test(s0) && !/^git@/i.test(s0)) {
+    const simple = s0.replace(/\.git$/i, '').replace(/^\/+/, '');
+    if (/^[^/]+\/[^/]+$/.test(simple)) return simple;
+  }
+  try {
+    const u = new URL(s0.includes('://') ? s0 : `https://${s0}`);
+    const host = u.hostname.replace(/^www\./i, '').toLowerCase();
+    if (host === 'github.com') {
+      const parts = u.pathname.split('/').filter(Boolean);
+      if (parts.length >= 2) {
+        const owner = parts[0];
+        const repo = parts[1].replace(/\.git$/i, '');
+        if (owner && repo) return `${owner}/${repo}`;
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return s0;
+}
+
 function encPath(p: string) {
   return String(p || '')
     .split('/')
@@ -10,7 +40,7 @@ function encPath(p: string) {
 
 export function getGithubRepoConfig() {
   const token = process.env.GITHUB_TOKEN?.trim();
-  const repo = process.env.GITHUB_REPO?.trim();
+  const repo = normalizeGithubRepo(process.env.GITHUB_REPO || '');
   const branch = (process.env.GITHUB_BRANCH || 'main').trim();
   return { token, repo, branch };
 }
@@ -23,12 +53,12 @@ export function getGithubImagesRepoConfig() {
     process.env.GITHUB_TOKEN ||
     ''
   ).trim();
-  const repo = (
+  const repo = normalizeGithubRepo(
     process.env.IMAGES_REPO ||
-    process.env.GITHUB_IMAGES_REPO ||
-    process.env.GITHUB_REPO ||
-    ''
-  ).trim();
+      process.env.GITHUB_IMAGES_REPO ||
+      process.env.GITHUB_REPO ||
+      ''
+  );
   const branch = (
     process.env.IMAGES_BRANCH ||
     process.env.GITHUB_IMAGES_BRANCH ||
@@ -62,7 +92,13 @@ export async function ensurePublicFolderInRemoteRepo(repo: string, branch: strin
   });
   if (!r.ok) {
     const t = await r.text();
-    if (r.status === 404) return;
+    if (r.status === 404) {
+      throw new Error(
+        `GitHub 404 khi tạo public/ — repo "${repo}" không tồn tại, nhánh "${branch}" sai, hoặc token không có quyền ghi (Contents: Read/Write). ` +
+          `Trên Vercel: đặt IMAGES_REPO=owner/repo (repo chứa ảnh, vd gotvtop102/goimg102), IMAGES_BRANCH khớp nhánh mặc định, IMAGES_TOKEN hoặc GITHUB_TOKEN có quyền trên đúng repo đó. ` +
+          `Nếu chỉ có GITHUB_REPO=repo site mà ảnh cần lên repo khác → bắt buộc thêm IMAGES_REPO + token ghi được repo ảnh. Chi tiết: ${t.slice(0, 200)}`
+      );
+    }
     throw new Error(`init public/: HTTP ${r.status} ${t.slice(0, 300)}`);
   }
 }
@@ -112,7 +148,9 @@ export async function githubPutFileBase64(opts: {
   });
   if (!r.ok) {
     const t = await r.text();
-    throw new Error(`GitHub PUT ${r.status}: ${t.slice(0, 500)}`);
+    throw new Error(
+      `GitHub PUT ${r.status} (repo=${repo}, branch=${branch}, path=${path}): ${t.slice(0, 400)}`
+    );
   }
 }
 

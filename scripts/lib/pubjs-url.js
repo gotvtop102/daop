@@ -46,7 +46,7 @@ export function getPubjsPathPrefix() {
   return String(process.env.PUBJS_PATH_PREFIX || 'pubjs').replace(/^\/+|\/+$/g, '');
 }
 
-/** Tham số giữa (semver trong ver) không dùng cho URL — chỉ `base@ref/path`, không ?v=. */
+/** Tham số `_dataVer` giữ chỗ tương thích, không dùng — URL = `base@ref/path` (ref = commit hex hoặc main). */
 export function buildPubjsFileUrl(slug, _dataVer, dataRef) {
   const base = getPubjsCdnBase();
   const ref = String(dataRef || getPubjsCdnRef()).trim() || 'main';

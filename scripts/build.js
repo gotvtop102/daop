@@ -462,18 +462,6 @@ async function fetchJsonWithTimeout(url, timeoutMs = OPHIM_FETCH_TIMEOUT_MS) {
   }
 }
 
-const DEFAULT_ASSET_VER = 'v1.0.0';
-
-function bumpSemverPatchVer(v) {
-  const s = String(v || DEFAULT_ASSET_VER).trim();
-  const m = s.match(/^v?(\d+)\.(\d+)\.(\d+)$/i);
-  if (!m) return 'v1.0.1';
-  const a = parseInt(m[1], 10);
-  const b = parseInt(m[2], 10);
-  const c = parseInt(m[3], 10);
-  return `v${a}.${b}.${c + 1}`;
-}
-
 function tmdbPayloadFingerprint(m) {
   if (!m || typeof m !== 'object') return '';
   const pick = {
@@ -489,28 +477,6 @@ function tmdbPayloadFingerprint(m) {
   } catch {
     return '';
   }
-}
-
-function loadVerStateFromDisk(verDir) {
-  const bySlug = new Map();
-  if (!fs.existsSync(verDir)) return bySlug;
-  let files = [];
-  try {
-    files = fs.readdirSync(verDir).filter((f) => f.endsWith('.json'));
-  } catch {
-    return bySlug;
-  }
-  for (const f of files) {
-    try {
-      const j = JSON.parse(fs.readFileSync(path.join(verDir, f), 'utf8'));
-      if (!j || typeof j !== 'object') continue;
-      for (const [slug, entry] of Object.entries(j)) {
-        if (!slug) continue;
-        bySlug.set(slug, entry && typeof entry === 'object' ? { ...entry } : {});
-      }
-    } catch {}
-  }
-  return bySlug;
 }
 
 function writeVerShardFiles(verDir, byShard) {
@@ -644,7 +610,7 @@ function normalizeMovieCastForPubjs(m, maxCast = MAX_CAST_PUBJS) {
 
 /**
  * Ghi JSON phim vào pubjs-output (không commit vào repo dự án — đồng bộ pjs102 qua npm run push-pubjs-repo),
- * public/data/ver/*.json, movies-manifest.json, cdn.json
+ * public/data/ver/*.json (chỉ ref commit hex khi pin), movies-manifest.json, cdn.json
  * @returns {{ newLastModified: Object, batchPtrById: null }}
  */
 function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
@@ -655,7 +621,6 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
   fs.ensureDirSync(pubjsRoot);
   fs.ensureDirSync(verDir);
 
-  const prevVerBySlug = loadVerStateFromDisk(verDir);
   const sorted = [...movies].sort((a, b) => String(a.id).localeCompare(String(b.id)));
   const newLastModified = {};
   const verByShard = new Map();
@@ -690,24 +655,6 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
 
     if (modChanged) dataBumpedSlugs.push(slug);
 
-    const prevEntry = prevVerBySlug.get(slug);
-    let dataVer;
-    let thumbVer;
-    let posterVer;
-    if (!prevEntry) {
-      dataVer = DEFAULT_ASSET_VER;
-      thumbVer = DEFAULT_ASSET_VER;
-      posterVer = DEFAULT_ASSET_VER;
-    } else if (modChanged) {
-      dataVer = bumpSemverPatchVer(prevEntry.data || DEFAULT_ASSET_VER);
-      thumbVer = bumpSemverPatchVer(prevEntry.thumb || DEFAULT_ASSET_VER);
-      posterVer = bumpSemverPatchVer(prevEntry.poster || DEFAULT_ASSET_VER);
-    } else {
-      dataVer = prevEntry.data || DEFAULT_ASSET_VER;
-      thumbVer = prevEntry.thumb || DEFAULT_ASSET_VER;
-      posterVer = prevEntry.poster || DEFAULT_ASSET_VER;
-    }
-
     const hadPrevModified = prevMod != null;
     const { dataRef, thumbRef, posterRef } = pickPerMovieJsDelivrRefs(modChanged, hadPrevModified, defaultDataRef, defaultImgRef);
     const pinRefsInVer = !!(modChanged && hadPrevModified);
@@ -715,7 +662,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
 
     merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: thumbRef });
     merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: posterRef });
-    merged.pubjs_url = buildPubjsFileUrl(slug, dataVer, dataRef);
+    merged.pubjs_url = buildPubjsFileUrl(slug, null, dataRef);
 
     fs.ensureDirSync(path.dirname(fp));
     fs.writeFileSync(fp, JSON.stringify(merged), 'utf8');
@@ -724,22 +671,29 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     m.poster = merged.poster;
     if (merged.pubjs_url) m.pubjs_url = merged.pubjs_url;
 
-    /** Chỉ ghi ver khi đã từng có dòng ver, hoặc phim đã có trong last_modified và vừa đổi (lần cập nhật đầu). Phim mới hoàn toàn: bỏ qua cả semver trong ver. */
-    const shouldWriteVer = prevEntry != null || (hadPrevModified && modChanged);
-    if (shouldWriteVer) {
-      if (!verByShard.has(shard)) verByShard.set(shard, {});
-      const verEntry = { data: dataVer, thumb: thumbVer, poster: posterVer };
-      if (pinRefsInVer) {
-        if (isGitSha(dataRef)) verEntry.dataRef = String(dataRef).toLowerCase();
-        if (isGitSha(thumbRef)) verEntry.thumbRef = String(thumbRef).toLowerCase();
-        if (isGitSha(posterRef)) verEntry.posterRef = String(posterRef).toLowerCase();
+    /** ver/*.json: chỉ ghi khi pin ref (commit hex), không còn semver data/thumb/poster. */
+    if (pinRefsInVer) {
+      const verEntry = {};
+      if (isGitSha(dataRef)) verEntry.dataRef = String(dataRef).toLowerCase();
+      if (isGitSha(thumbRef)) verEntry.thumbRef = String(thumbRef).toLowerCase();
+      if (isGitSha(posterRef)) verEntry.posterRef = String(posterRef).toLowerCase();
+      if (Object.keys(verEntry).length > 0) {
+        if (!verByShard.has(shard)) verByShard.set(shard, {});
+        verByShard.get(shard)[slug] = verEntry;
       }
-      verByShard.get(shard)[slug] = verEntry;
     }
 
     manifest.push({ id: idStr, slug, shard, modified: curMod });
   }
 
+  try {
+    if (fs.existsSync(verDir)) {
+      for (const vf of fs.readdirSync(verDir)) {
+        if (!vf.endsWith('.json')) continue;
+        fs.unlinkSync(path.join(verDir, vf));
+      }
+    }
+  } catch {}
   writeVerShardFiles(verDir, verByShard);
   fs.writeFileSync(
     path.join(PUBLIC_DATA, 'movies-manifest.json'),
@@ -3420,10 +3374,14 @@ function writeActors(movies) {
       const profileAbs = c && c.profile
         ? String(c.profile).trim()
         : (pp ? TMDB_IMG_BASE + (pp.startsWith('/') ? pp : `/${pp}`) : null);
+      const thumbStr = m.thumb != null ? String(m.thumb).trim() : '';
+      const posterStr = m.poster != null ? String(m.poster).trim() : '';
+      const profileFallback = !profileAbs && (thumbStr || posterStr) ? thumbStr || posterStr : null;
+      const profileOut = profileAbs || profileFallback;
       const tid = c && c.tmdb_id != null ? c.tmdb_id : null;
       const tmdbUrl = c && c.tmdb_url ? String(c.tmdb_url) : (tid ? `https://www.themoviedb.org/person/${tid}` : null);
-      if (tid || profileAbs || tmdbUrl) {
-        const next = { tmdb_id: tid || null, profile: profileAbs || null, tmdb_url: tmdbUrl || null };
+      if (tid || profileOut || tmdbUrl) {
+        const next = { tmdb_id: tid || null, profile: profileOut || null, tmdb_url: tmdbUrl || null };
         if (!meta[s]) meta[s] = next;
         else {
           if (!meta[s].profile && next.profile) meta[s].profile = next.profile;

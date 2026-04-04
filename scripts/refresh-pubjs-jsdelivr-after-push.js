@@ -74,11 +74,16 @@ async function main() {
   let updated = 0;
   for (const slug of bumped) {
     const shard = getSlugShard2(slug);
-    const shardObj = verByShard.get(shard);
-    if (!shardObj || !shardObj[slug]) continue;
-
+    let shardObj = verByShard.get(shard);
+    if (!shardObj) {
+      shardObj = {};
+      verByShard.set(shard, shardObj);
+    }
+    if (!shardObj[slug]) shardObj[slug] = {};
     const entry = shardObj[slug];
-    const dataVer = entry.data || 'v1.0.0';
+    delete entry.data;
+    delete entry.thumb;
+    delete entry.poster;
     entry.dataRef = sha;
     const imgSha = normalizeCommitSha(process.env.IMAGE_REPO_COMMIT || '') || sha;
     entry.thumbRef = imgSha;
@@ -88,7 +93,7 @@ async function main() {
     if (!(await fs.pathExists(fp))) continue;
     try {
       const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
-      merged.pubjs_url = buildPubjsFileUrl(slug, dataVer, sha);
+      merged.pubjs_url = buildPubjsFileUrl(slug, null, sha);
       await fs.writeFile(fp, JSON.stringify(merged), 'utf8');
       updated++;
     } catch {
