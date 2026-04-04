@@ -99,6 +99,9 @@
 
   function ensureCommentsLibsLoaded() {
     try {
+      if (window.DAOP && typeof window.DAOP.ensureCommentsLibsLoaded === 'function') {
+        return window.DAOP.ensureCommentsLibsLoaded();
+      }
       if (window.DAOP && typeof window.DAOP.mountComments === 'function') return Promise.resolve(true);
       var base = (window.DAOP && window.DAOP.basePath) || '';
       function loadScript(src) {
@@ -116,7 +119,6 @@
           } catch (e) { resolve(false); }
         });
       }
-      // DOMPurify is optional; comments.js should handle absence gracefully, but we try to load it.
       var purify = 'https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js';
       return loadScript(purify).then(function () {
         return loadScript(base + '/js/comments.js' + ((window.DAOP && window.DAOP._dataCacheBust) || ''));

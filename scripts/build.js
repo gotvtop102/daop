@@ -1233,6 +1233,17 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
   return list;
 }
 
+/** OPhim detail: actor | director là mảng chuỗi hoặc một chuỗi tên cách nhau dấu phẩy. */
+function ophimNameListToStrings(raw) {
+  if (raw == null) return [];
+  if (Array.isArray(raw)) {
+    return raw.map((x) => String(x || '').trim()).filter(Boolean);
+  }
+  const s = String(raw).trim();
+  if (!s) return [];
+  return s.split(/[,，;|]/).map((t) => t.trim()).filter(Boolean);
+}
+
 function normalizeOPhimMovie(m, slug, cdnBase = 'https://img.ophim.live') {
   const rawId = m._id || m.id || `ophim_${slug}`;
   const id = String(rawId);
@@ -1248,6 +1259,8 @@ function normalizeOPhimMovie(m, slug, cdnBase = 'https://img.ophim.live') {
   const poster = posterRaw && !/^https?:\/\//i.test(posterRaw)
     ? `${cdnBase}/uploads/movies/${posterRaw.replace(/^\/+/, '')}`
     : posterRaw;
+  const cast = ophimNameListToStrings(m.actor);
+  const director = ophimNameListToStrings(m.director);
   return {
     id,
     _id: id,
@@ -1277,6 +1290,8 @@ function normalizeOPhimMovie(m, slug, cdnBase = 'https://img.ophim.live') {
       (m.modified && typeof m.modified === 'object' && m.modified.time)
         ? m.modified.time
         : (m.modified || m.updated_at || new Date().toISOString()),
+    cast,
+    director,
   };
 }
 
@@ -2155,6 +2170,8 @@ function mergeMovies(ophim, custom) {
           base.episodes = JSON.parse(JSON.stringify(oEps));
         }
       }
+      if (isEmptyVal(base.cast) && !isEmptyVal(ophimMovie.cast)) base.cast = ophimMovie.cast;
+      if (isEmptyVal(base.director) && !isEmptyVal(ophimMovie.director)) base.director = ophimMovie.director;
     } else {
       base._supabaseExportEpisodesOnly = false;
       // OPhim cũ hơn hoặc bằng: điền chỗ trống từ OPhim (giữ hành vi cũ).
@@ -3343,7 +3360,10 @@ function writeActors(movies) {
     const withCast = (Array.isArray(movies) ? movies : []).filter((m) =>
       (Array.isArray(m?.cast_meta) && m.cast_meta.length) || (Array.isArray(m?.cast) && m.cast.length)
     ).length;
-    console.warn(`Actors output is empty (0 actors). Movies=${total}, moviesWithCast=${withCast}. Common cause: TMDB enrich skipped (missing TMDB_API_KEY or SKIP_TMDB).`);
+    console.warn(
+      `Actors output is empty (0 actors). Movies=${total}, moviesWithCast=${withCast}. ` +
+        'Nguyên nhân thường gặp: thiếu TMDB_API_KEY; OPhim detail không có actor (build cũ); chạy full build sau khi cập nhật normalize OPhim.'
+    );
   }
   // actors.js chỉ names+meta; map nằm trong actors-{a-z|other}.* (một file map đầy đủ vượt 25 MiB → Cloudflare Pages từ chối deploy).
   fs.writeFileSync(

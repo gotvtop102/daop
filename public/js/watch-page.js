@@ -1590,6 +1590,30 @@
     if (!movie || !root) return;
     var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
     var slug = movie.slug || '';
+    var _watchCommentsMounted = false;
+
+    function ensureWatchCommentsMounted() {
+      var postSlug = slug || '';
+      function doMount() {
+        if (_watchCommentsMounted) return;
+        if (!(window.DAOP && typeof window.DAOP.mountComments === 'function')) return;
+        try {
+          window.DAOP.mountComments('#watch-comments-container', { postSlug: postSlug });
+          _watchCommentsMounted = true;
+          var ctn = root.querySelector('#watch-comments-container');
+          if (window.DAOP && typeof window.DAOP._commentsStartLoad === 'function' && ctn) {
+            window.DAOP._commentsStartLoad(ctn);
+          }
+        } catch (eM) {}
+      }
+      if (window.DAOP && typeof window.DAOP.mountComments === 'function') {
+        doMount();
+        return;
+      }
+      if (window.DAOP && typeof window.DAOP.ensureCommentsLibsLoaded === 'function') {
+        window.DAOP.ensureCommentsLibsLoaded().then(doMount);
+      }
+    }
 
     var btnFav = root.querySelector('#watch-btn-favorite');
     var btnShare = root.querySelector('#watch-btn-share');
@@ -1699,6 +1723,7 @@
     }
 
     function showCommentsPanel() {
+      ensureWatchCommentsMounted();
       var sidebar = root.querySelector('.watch-sidebar');
       if (!sidebar) return;
       sidebar.classList.add('watch-sidebar--show-comments');
@@ -1950,11 +1975,7 @@
       }
     }
 
-    try {
-      if (window.DAOP && typeof window.DAOP.mountComments === 'function') {
-        window.DAOP.mountComments('#watch-comments-container', { postSlug: movie.slug || '' });
-      }
-    } catch (e5) {}
+    ensureWatchCommentsMounted();
   }
 
   function init() {

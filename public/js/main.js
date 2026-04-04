@@ -920,6 +920,39 @@
     return window.DAOP._cdnConfigPromise;
   };
 
+  /** DOMPurify + /js/comments.js — dùng chung trang chi tiết & xem phim (trang xem không lazy-load sẵn comments.js). */
+  window.DAOP.ensureCommentsLibsLoaded = function () {
+    try {
+      if (typeof window.DAOP.mountComments === 'function') return Promise.resolve(true);
+      function loadScript(src) {
+        return new Promise(function (resolve) {
+          try {
+            window.DAOP = window.DAOP || {};
+            window.DAOP._loadedScripts = window.DAOP._loadedScripts || {};
+            var key = String(src);
+            if (window.DAOP._loadedScripts[key]) return resolve(true);
+            var s = document.createElement('script');
+            s.src = src;
+            s.onload = function () { window.DAOP._loadedScripts[key] = true; resolve(true); };
+            s.onerror = function () { resolve(false); };
+            document.head.appendChild(s);
+          } catch (e) { resolve(false); }
+        });
+      }
+      var purify = 'https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js';
+      return (typeof window.DAOP.ensureDataCacheBust === 'function'
+        ? window.DAOP.ensureDataCacheBust()
+        : Promise.resolve(window.DAOP._dataCacheBust || '')
+      ).then(function (q) {
+        return loadScript(purify).then(function () {
+          return loadScript(BASE + '/js/comments.js' + (q || ''));
+        });
+      });
+    } catch (e2) {
+      return Promise.resolve(false);
+    }
+  };
+
   window.DAOP._verShardCache = window.DAOP._verShardCache || {};
   window.DAOP.fetchVerShard = function (shard) {
     var k = String(shard || '');
