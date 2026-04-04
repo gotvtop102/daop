@@ -12,12 +12,10 @@ const ROOT = path.join(__dirname, '..');
 const publicDir = path.join(ROOT, 'public');
 const dataDir = path.join(publicDir, 'data');
 
-const DATA_SUBDIRS_REMOVE = ['index', 'search', 'ver', 'home', 'lists', 'cache', 'batches'];
+const DATA_SUBDIRS_REMOVE = ['index', 'search', 'ver', 'home', 'lists', 'cache', 'batches', 'actors'];
 const DATA_FILES_REMOVE = [
   'filters.js',
   'filters.json',
-  'actors.js',
-  'actors-index.json',
   'movies-light.js',
   'movies-manifest.json',
   'cdn.json',
@@ -45,7 +43,12 @@ async function main() {
   const entries = await fs.readdir(dataDir, { withFileTypes: true }).catch(() => []);
   for (const ent of entries) {
     if (!ent.isFile()) continue;
-    if (/^actors-[a-z]+\.(js|json)$/i.test(ent.name) || /^actors-other\.(js|json)$/i.test(ent.name)) {
+    if (
+      /^actors-[a-z]+\.(js|json)$/i.test(ent.name) ||
+      /^actors-other\.(js|json)$/i.test(ent.name) ||
+      ent.name === 'actors.js' ||
+      ent.name === 'actors-index.json'
+    ) {
       const p = path.join(dataDir, ent.name);
       await fs.remove(p);
       console.log('removed', path.relative(ROOT, p));

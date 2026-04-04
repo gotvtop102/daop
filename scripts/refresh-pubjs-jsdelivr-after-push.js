@@ -1,7 +1,7 @@
 /**
- * Sau khi push JSON phim lên repo pjs102: gán dataRef + pubjs_url = commit mới nhất
- * cho **mọi** slug trong public/data/ver/*.json (một commit = toàn bộ file trong repo cùng revision).
- * Cập nhật public/data/ver/*.json; cdn.json pubjs.ref = main (mặc định; từng phim dùng ver.dataRef).
+ * Sau khi push JSON phim lên repo pjs102: gán dataRef + pubjs_url = commit
+ * chỉ cho slug trong .pubjs-slugs-data-bumped.json (phim vừa cập nhật / chỉnh Admin).
+ * Phim mới chỉ dùng @main trên client — không ghi SHA vào ver để gọn file.
  *
  * Env: PUBJS_REPO_COMMIT = SHA sau push (bắt buộc, 7–40 hex).
  */
@@ -11,10 +11,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
 import { getPubjsOutputDir, buildPubjsFileUrl, getPubjsCdnBase, getPubjsPathPrefix } from './lib/pubjs-url.js';
+import { getSlugShard2 } from './lib/slug-shard.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
+const BUMP_FILE = path.join(PUBLIC_DATA, '.pubjs-slugs-data-bumped.json');
+
 function loadVerByShard(verDir) {
   const verByShard = new Map();
   if (!fs.existsSync(verDir)) return verByShard;
@@ -54,31 +57,42 @@ async function main() {
     process.exit(1);
   }
 
+  let bumped = [];
+  try {
+    if (await fs.pathExists(BUMP_FILE)) {
+      const j = JSON.parse(await fs.readFile(BUMP_FILE, 'utf8'));
+      bumped = Array.isArray(j.slugs) ? j.slugs.map((s) => String(s || '').trim()).filter(Boolean) : [];
+    }
+  } catch {
+    bumped = [];
+  }
+
   const pubjsRoot = getPubjsOutputDir();
   const verDir = path.join(PUBLIC_DATA, 'ver');
   const verByShard = loadVerByShard(verDir);
 
   let updated = 0;
-  let slugTotal = 0;
-  for (const [shard, shardObj] of verByShard.entries()) {
-    if (!shardObj || typeof shardObj !== 'object') continue;
-    for (const slug of Object.keys(shardObj)) {
-      const entry = shardObj[slug];
-      if (!entry || typeof entry !== 'object') continue;
-      slugTotal++;
-      const dataVer = entry.data || 'v1.0.0';
-      entry.dataRef = sha;
+  for (const slug of bumped) {
+    const shard = getSlugShard2(slug);
+    const shardObj = verByShard.get(shard);
+    if (!shardObj || !shardObj[slug]) continue;
 
-      const fp = path.join(pubjsRoot, shard, `${slug}.json`);
-      if (!(await fs.pathExists(fp))) continue;
-      try {
-        const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
-        merged.pubjs_url = buildPubjsFileUrl(slug, dataVer, sha);
-        await fs.writeFile(fp, JSON.stringify(merged), 'utf8');
-        updated++;
-      } catch {
-        /* skip */
-      }
+    const entry = shardObj[slug];
+    const dataVer = entry.data || 'v1.0.0';
+    entry.dataRef = sha;
+    const imgSha = normalizeCommitSha(process.env.IMAGE_REPO_COMMIT || '') || sha;
+    entry.thumbRef = imgSha;
+    entry.posterRef = imgSha;
+
+    const fp = path.join(pubjsRoot, shard, `${slug}.json`);
+    if (!(await fs.pathExists(fp))) continue;
+    try {
+      const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
+      merged.pubjs_url = buildPubjsFileUrl(slug, dataVer, sha);
+      await fs.writeFile(fp, JSON.stringify(merged), 'utf8');
+      updated++;
+    } catch {
+      /* skip */
     }
   }
 
@@ -101,9 +115,9 @@ async function main() {
   console.log(
     'refresh-pubjs-jsdelivr-after-push: dataRef + pubjs_url →',
     sha,
-    '| slug trong ver:',
-    slugTotal,
-    '| pubjs file cập nhật:',
+    '| slugs bumped:',
+    bumped.length,
+    '| file cập nhật:',
     updated
   );
 }

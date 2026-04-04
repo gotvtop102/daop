@@ -21,7 +21,7 @@ import {
   getImageCdnRef,
   getImagePathPrefix,
 } from './lib/repo-images.js';
-import { getSlugShard2 } from './lib/slug-shard.js';
+import { getSlugShard2, getIdShard3 } from './lib/slug-shard.js';
 import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
 import {
   getPubjsOutputDir,
@@ -42,6 +42,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
+const ACTORS_DATA_DIR = path.join(PUBLIC_DATA, 'actors');
 const BATCH_SIZE = 120;
 const BATCH_MAX_BYTES_DEFAULT = 300_000;
 
@@ -63,7 +64,7 @@ function getBatchMaxBytesFromEnv() {
 }
 
 const SHARD_MAX_BYTES_DEFAULT = 300_000;
-/** Số bucket tối đa khi hash-split một shard 2 ký tự (slug / idIndex / search prefix). Client tải `parts` file .0…N-1 — không đặt quá cao. */
+/** Số bucket tối đa khi hash-split một shard (slug + search prefix: 2 ký tự; idIndex: 3 ký tự). Client tải `parts` file .0…N-1 — không đặt quá cao. */
 const SHARD_SPLIT_MAX_PARTS = 256;
 
 /** Trần byte mỗi file shard (slug, idIndex, search prefix); đồng bộ với client lazy load. */
@@ -521,38 +522,23 @@ function writeVerShardFiles(verDir, byShard) {
 }
 
 /**
- * Chọn @ref jsDelivr cho pubjs / ảnh theo từng phim.
- * - Phim mới hoặc nội dung đổi (OPhim/Admin/TMDB payload đổi → modChanged): @main tới khi push, rồi refresh-* gán SHA;
- *   nếu đã set PUBJS_REPO_COMMIT / IMAGE_REPO_COMMIT (local) thì dùng luôn.
- * - Phim không đổi: luôn @main (không giữ SHA cũ).
+ * Chọn @ref jsDelivr cho pubjs / ảnh (luôn tính URL đầy đủ).
+ * Chỉ khi phim đã có trong ver trước đó VÀ vừa đổi nội dung (modChanged) mới dùng commit từ env — và chỉ ghi SHA vào file ver khi là commit hex (xem writePubjsMoviesAndVer).
+ * Phim mới (chưa có prevEntry): luôn @main + ?v=dataVer trên client, không lưu dataRef trong ver để gọn file.
  */
 function pickPerMovieJsDelivrRefs(prevEntry, modChanged, _defaultDataRef, _defaultImgRef) {
   const dmCommit = normalizeCommitSha(process.env.PUBJS_REPO_COMMIT);
   const imgCommit = normalizeCommitSha(process.env.IMAGE_REPO_COMMIT);
   const fin = (r) => String(r || '').trim() || 'main';
-
-  const touched = modChanged || !prevEntry;
-  let dataRef;
-  let thumbRef;
-  let posterRef;
-  const isSha = (r) => /^[0-9a-f]{7,40}$/i.test(String(r || '').trim());
-  if (touched) {
-    dataRef = fin(dmCommit || 'main');
-    thumbRef = fin(imgCommit || 'main');
-    posterRef = fin(imgCommit || 'main');
-  } else if (prevEntry && typeof prevEntry === 'object') {
-    const pd = String(prevEntry.dataRef || '').trim();
-    const pt = String(prevEntry.thumbRef || '').trim();
-    const pp = String(prevEntry.posterRef || '').trim();
-    dataRef = isSha(pd) ? pd.toLowerCase() : 'main';
-    thumbRef = isSha(pt) ? pt.toLowerCase() : 'main';
-    posterRef = isSha(pp) ? pp.toLowerCase() : 'main';
-  } else {
-    dataRef = 'main';
-    thumbRef = 'main';
-    posterRef = 'main';
+  const pinRefs = !!(prevEntry && modChanged);
+  if (pinRefs) {
+    return {
+      dataRef: fin(dmCommit || 'main'),
+      thumbRef: fin(imgCommit || 'main'),
+      posterRef: fin(imgCommit || 'main'),
+    };
   }
-  return { dataRef: fin(dataRef), thumbRef: fin(thumbRef), posterRef: fin(posterRef) };
+  return { dataRef: 'main', thumbRef: 'main', posterRef: 'main' };
 }
 
 function writeCdnConfigJson() {
@@ -656,6 +642,8 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     }
 
     const { dataRef, thumbRef, posterRef } = pickPerMovieJsDelivrRefs(prevEntry, modChanged, defaultDataRef, defaultImgRef);
+    const pinRefsInVer = !!(prevEntry && modChanged);
+    const isGitSha = (r) => /^[0-9a-f]{7,40}$/i.test(String(r || '').trim());
 
     merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: thumbRef });
     merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: posterRef });
@@ -669,14 +657,13 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     if (merged.pubjs_url) m.pubjs_url = merged.pubjs_url;
 
     if (!verByShard.has(shard)) verByShard.set(shard, {});
-    verByShard.get(shard)[slug] = {
-      data: dataVer,
-      thumb: thumbVer,
-      poster: posterVer,
-      dataRef,
-      thumbRef,
-      posterRef,
-    };
+    const verEntry = { data: dataVer, thumb: thumbVer, poster: posterVer };
+    if (pinRefsInVer) {
+      if (isGitSha(dataRef)) verEntry.dataRef = String(dataRef).toLowerCase();
+      if (isGitSha(thumbRef)) verEntry.thumbRef = String(thumbRef).toLowerCase();
+      if (isGitSha(posterRef)) verEntry.posterRef = String(posterRef).toLowerCase();
+    }
+    verByShard.get(shard)[slug] = verEntry;
 
     manifest.push({ id: idStr, slug, shard, modified: curMod });
   }
@@ -826,7 +813,7 @@ function validateIdIndexPointersSample(allMovies, sampleCount = 200) {
   for (const m of picks) {
     const idStr = m && m.id != null ? String(m.id) : '';
     if (!idStr) continue;
-    const shard = getShardKey2(idStr);
+    const shard = getIdShard3(idStr);
     if (shards.has(shard)) continue;
     shards.set(shard, loadIdIndexShardMapFromDisk(idDir, shard));
   }
@@ -834,7 +821,7 @@ function validateIdIndexPointersSample(allMovies, sampleCount = 200) {
   for (const m of picks) {
     const idStr = m && m.id != null ? String(m.id) : '';
     if (!idStr) continue;
-    const shard = getShardKey2(idStr);
+    const shard = getIdShard3(idStr);
     const map = shards.get(shard);
     const row = map ? map[idStr] : null;
     if (!row) throw new Error('idIndex missing id: ' + idStr);
@@ -2759,7 +2746,7 @@ function writeIndexAndSearchShards(movies, _batchPtrUnused) {
     const slugStr = m.slug != null ? String(m.slug) : '';
     if (!idStr) continue;
 
-    const idShard = getShardKey2(idStr);
+    const idShard = getIdShard3(idStr);
     if (!idIndexByShard.has(idShard)) idIndexByShard.set(idShard, {});
     idIndexByShard.get(idShard)[idStr] = {
       i,
@@ -3175,10 +3162,12 @@ async function maybeMinifyPublicAssets() {
       if (name.endsWith('.css')) targets.push(path.join(cssDir, name));
     }
   }
-  for (const baseName of ['filters.js', 'actors.js', 'movies-light.js']) {
+  for (const baseName of ['filters.js', 'movies-light.js']) {
     const p = path.join(PUBLIC_DATA, baseName);
     if (await fs.pathExists(p)) targets.push(p);
   }
+  const actorsMainJs = path.join(ACTORS_DATA_DIR, 'actors.js');
+  if (await fs.pathExists(actorsMainJs)) targets.push(actorsMainJs);
 
   if (!targets.length) return;
 
@@ -3322,7 +3311,7 @@ const ACTORS_SHARD_KEYS = [
 function mergeActorsMapFromShards() {
   const map = {};
   for (const key of ACTORS_SHARD_KEYS) {
-    const p = path.join(PUBLIC_DATA, `actors-${key}.json`);
+    const p = path.join(ACTORS_DATA_DIR, `actors-${key}.json`);
     if (!fs.existsSync(p)) continue;
     try {
       const data = JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -3337,6 +3326,7 @@ function mergeActorsMapFromShards() {
 
 /** 7. Tạo actors: index (names only) + shard theo ký tự đầu, mỗi shard có thêm movies (light) để trang diễn viên không cần movies-light.js */
 function writeActors(movies) {
+  fs.ensureDirSync(ACTORS_DATA_DIR);
   const map = {};
   const names = {};
   const meta = {};
@@ -3384,13 +3374,13 @@ function writeActors(movies) {
   }
   // actors.js chỉ names+meta; map nằm trong actors-{a-z|other}.* (một file map đầy đủ vượt 25 MiB → Cloudflare Pages từ chối deploy).
   fs.writeFileSync(
-    path.join(PUBLIC_DATA, 'actors.js'),
+    path.join(ACTORS_DATA_DIR, 'actors.js'),
     `window.actorsData = ${JSON.stringify({ names, meta })};`,
     'utf8'
   );
   // JSON: nhẹ hơn JS khi host hỗ trợ gzip/brotli, dùng cho fetch trên client
   fs.writeFileSync(
-    path.join(PUBLIC_DATA, 'actors-index.json'),
+    path.join(ACTORS_DATA_DIR, 'actors-index.json'),
     JSON.stringify({ names, meta }),
     'utf8'
   );
@@ -3410,30 +3400,31 @@ function writeActors(movies) {
   for (const key of ACTORS_SHARD_KEYS) {
     const data = byFirst[key] || { map: {}, names: {}, meta: {}, movies: {} };
     fs.writeFileSync(
-      path.join(PUBLIC_DATA, `actors-${key}.js`),
+      path.join(ACTORS_DATA_DIR, `actors-${key}.js`),
       `window.actorsData = ${JSON.stringify(data)};`,
       'utf8'
     );
     fs.writeFileSync(
-      path.join(PUBLIC_DATA, `actors-${key}.json`),
+      path.join(ACTORS_DATA_DIR, `actors-${key}.json`),
       JSON.stringify(data),
       'utf8'
     );
   }
   const shardCount = ACTORS_SHARD_KEYS.filter((k) => byFirst[k] && Object.keys(byFirst[k].map).length > 0).length;
-  console.log('   Actors: index +', shardCount, 'shards (a-z, other) + movies per shard');
+  console.log('   Actors: index +', shardCount, 'shards (a-z, other) + movies per shard →', path.relative(ROOT, ACTORS_DATA_DIR));
 }
 
 /** 7b. Tạo actors-index.js + shards từ object { map, names }, thêm movies nếu có movies-light.js (incremental) */
 function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta = {}) {
+  fs.ensureDirSync(ACTORS_DATA_DIR);
   const slugs = Object.keys(names);
   fs.writeFileSync(
-    path.join(PUBLIC_DATA, 'actors-index.json'),
+    path.join(ACTORS_DATA_DIR, 'actors-index.json'),
     JSON.stringify({ names, meta }),
     'utf8'
   );
   fs.writeFileSync(
-    path.join(PUBLIC_DATA, 'actors.js'),
+    path.join(ACTORS_DATA_DIR, 'actors.js'),
     `window.actorsData = ${JSON.stringify({ names, meta })};`,
     'utf8'
   );
@@ -3454,18 +3445,18 @@ function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta 
   for (const key of ACTORS_SHARD_KEYS) {
     const data = byFirst[key] || { map: {}, names: {}, meta: {}, movies: {} };
     fs.writeFileSync(
-      path.join(PUBLIC_DATA, `actors-${key}.js`),
+      path.join(ACTORS_DATA_DIR, `actors-${key}.js`),
       `window.actorsData = ${JSON.stringify(data)};`,
       'utf8'
     );
     fs.writeFileSync(
-      path.join(PUBLIC_DATA, `actors-${key}.json`),
+      path.join(ACTORS_DATA_DIR, `actors-${key}.json`),
       JSON.stringify(data),
       'utf8'
     );
   }
   const shardCount = ACTORS_SHARD_KEYS.filter((k) => byFirst[k] && Object.keys(byFirst[k].map).length > 0).length;
-  console.log('   Actors (từ actors.js): index +', shardCount, 'shards', movieById ? '+ movies' : '');
+  console.log('   Actors (từ actors.js): index +', shardCount, 'shards', movieById ? '+ movies' : '', '→', path.relative(ROOT, ACTORS_DATA_DIR));
 }
 
 function hydrateMoviesWithTmdbPayload(movies, tmdbById) {
@@ -4100,8 +4091,6 @@ async function main() {
         'movies-light.js',
         'filters.js',
         'filters.json',
-        'actors.js',
-        'actors-index.json',
         'repo_image_upload_state.json',
         'last_modified.json',
         'last_build.json',
@@ -4112,14 +4101,15 @@ async function main() {
       for (const f of filesToRemove) {
         await fs.remove(path.join(PUBLIC_DATA, f));
       }
-      // remove actor shards actors-a.js ... actors-z.js, actors-other.js (+ json variants)
+      await fs.remove(ACTORS_DATA_DIR).catch(() => {});
+      // legacy: actors từng nằm ngay public/data/
       try {
         const entries = await fs.readdir(PUBLIC_DATA);
         for (const name of entries) {
-          if (/^actors-[a-z]+\.js$/i.test(name) || name === 'actors-other.js') {
+          if (/^actors-[a-z]+\.js$/i.test(name) || name === 'actors-other.js' || name === 'actors.js') {
             await fs.remove(path.join(PUBLIC_DATA, name));
           }
-          if (/^actors-[a-z]+\.json$/i.test(name) || name === 'actors-other.json') {
+          if (/^actors-[a-z]+\.json$/i.test(name) || name === 'actors-other.json' || name === 'actors-index.json') {
             await fs.remove(path.join(PUBLIC_DATA, name));
           }
         }
@@ -4177,7 +4167,7 @@ async function main() {
           console.warn('   Không parse được filters.js, bỏ qua writeCategoryPages:', e.message);
         }
       }
-      const actorsPath = path.join(PUBLIC_DATA, 'actors.js');
+      const actorsPath = path.join(ACTORS_DATA_DIR, 'actors.js');
       if (await fs.pathExists(actorsPath)) {
         const raw = fs.readFileSync(actorsPath, 'utf8');
         const jsonStr = raw.replace(/^window\.actorsData\s*=\s*/, '').replace(/;\s*$/, '');

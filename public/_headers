@@ -17,7 +17,7 @@
 /images/*
   Cache-Control: public, max-age=604800, must-revalidate
 
-# JS tại /data/*.js (movies-light, actors-index, …). Thư mục con có rule riêng (ver, index, search, …).
+# JS tại /data/*.js (movies-light, …). Thư mục con có rule riêng (ver, index, search, actors, …).
 /data/*.js
   Cache-Control: public, max-age=3600, must-revalidate
 
@@ -37,13 +37,7 @@
 /data/search/*
   Cache-Control: public, max-age=3600, must-revalidate
 
-/data/actors-*.js
-  Cache-Control: public, max-age=3600, must-revalidate
-
-/data/actors-*.json
-  Cache-Control: public, max-age=3600, must-revalidate
-
-/data/actors-index.json
+/data/actors/*
   Cache-Control: public, max-age=3600, must-revalidate
 
 /data/filters.js

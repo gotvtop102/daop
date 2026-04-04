@@ -11,6 +11,7 @@ import { getSlugShard2 } from './lib/slug-shard.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
+const ACTORS_DATA_DIR = path.join(PUBLIC_DATA, 'actors');
 
 const ACTORS_SHARD_KEYS = [
   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'other',
@@ -19,7 +20,7 @@ const ACTORS_SHARD_KEYS = [
 function mergeActorsMapFromShards() {
   const map = {};
   for (const key of ACTORS_SHARD_KEYS) {
-    const p = path.join(PUBLIC_DATA, `actors-${key}.json`);
+    const p = path.join(ACTORS_DATA_DIR, `actors-${key}.json`);
     if (!fs.existsSync(p)) continue;
     try {
       const data = JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -85,7 +86,7 @@ function loadMovieLightByIdFromManifest() {
 }
 
 function main() {
-  const actorsPath = path.join(PUBLIC_DATA, 'actors.js');
+  const actorsPath = path.join(ACTORS_DATA_DIR, 'actors.js');
 
   if (!fs.existsSync(actorsPath)) {
     console.error('actors.js không tồn tại. Chạy npm run build trước.');
@@ -121,10 +122,11 @@ function main() {
   }
 
   const keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'other'];
+  fs.mkdirSync(ACTORS_DATA_DIR, { recursive: true });
   for (const key of keys) {
     const data = byFirst[key] || { map: {}, names: {}, movies: {} };
     fs.writeFileSync(
-      path.join(PUBLIC_DATA, `actors-${key}.js`),
+      path.join(ACTORS_DATA_DIR, `actors-${key}.js`),
       `window.actorsData = ${JSON.stringify(data)};`,
       'utf8'
     );

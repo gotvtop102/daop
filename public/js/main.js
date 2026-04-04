@@ -901,6 +901,19 @@
     return c1 + c2;
   }
 
+  /** Index id (Mongo…): 3 ký tự đầu — trùng scripts/lib/slug-shard.js getIdShard3 */
+  function getIdShard3(id) {
+    var s = String(id || '').trim().toLowerCase();
+    if (!s) return '___';
+    function ok(c) { return c && /[a-z0-9]/.test(c); }
+    var a = s[0] || '_';
+    var b = s[1] || '_';
+    var c = s[2] || '_';
+    return (ok(a) ? a : '_') + (ok(b) ? b : '_') + (ok(c) ? c : '_');
+  }
+
+  window.DAOP.getIdShard3 = getIdShard3;
+
   /** Trùng scripts/lib/slug-shard.js — dùng cho public/data/ver/*.json (không bỏ dấu slug). */
   window.DAOP.getSlugShard2 = function (slug) {
     var s = String(slug || '').trim().toLowerCase();
@@ -1235,7 +1248,7 @@
     return Promise.resolve().then(function () {
       if (id == null) return null;
       var idStr = String(id);
-      var key = getShardKey2(idStr);
+      var key = getIdShard3(idStr);
       return loadIdIndexShardsForKey(key).then(function () {
         try {
           var idxMap = window.DAOP && window.DAOP.idIndex ? window.DAOP.idIndex[key] : null;
