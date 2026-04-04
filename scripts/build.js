@@ -491,7 +491,7 @@ function writeVerShardFiles(verDir, byShard) {
  * Chọn @ref jsDelivr cho pubjs / ảnh (luôn tính URL đầy đủ).
  * Chỉ khi phim không còn “mới” theo last_modified (đã có prevMod) VÀ vừa đổi (modChanged) mới pin commit từ env;
  * chỉ ghi SHA vào file ver khi là commit hex (writePubjsMoviesAndVer).
- * Phim mới (prevMod == null): URL pubjs @main, không ghi dòng trong ver (client không có dataRef → @main).
+ * Phim không đổi: không ghi ver; client pubjs @main chỉ dùng ?v= (build_version).
  */
 function pickPerMovieJsDelivrRefs(modChanged, hadPrevModified, _defaultDataRef, _defaultImgRef) {
   const dmCommit = normalizeCommitSha(process.env.PUBJS_REPO_COMMIT);
@@ -610,7 +610,7 @@ function normalizeMovieCastForPubjs(m, maxCast = MAX_CAST_PUBJS) {
 
 /**
  * Ghi JSON phim vào pubjs-output (không commit vào repo dự án — đồng bộ pjs102 qua npm run push-pubjs-repo),
- * public/data/ver/*.json (chỉ ref commit hex khi pin), movies-manifest.json, cdn.json
+ * public/data/ver/*.json (chỉ slug vừa đổi: modified + *Ref khi pin SHA), movies-manifest.json, cdn.json
  * @returns {{ newLastModified: Object, batchPtrById: null }}
  */
 function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
@@ -671,12 +671,15 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     m.poster = merged.poster;
     if (merged.pubjs_url) m.pubjs_url = merged.pubjs_url;
 
-    /** ver/*.json: chỉ ghi khi pin ref (commit hex), không còn semver data/thumb/poster. */
-    if (pinRefsInVer) {
+    /** ver/*.json: chỉ phim modChanged (sửa / OPhim đổi / TMDB payload đổi); modified + *Ref khi pin SHA. */
+    if (modChanged) {
       const verEntry = {};
-      if (isGitSha(dataRef)) verEntry.dataRef = String(dataRef).toLowerCase();
-      if (isGitSha(thumbRef)) verEntry.thumbRef = String(thumbRef).toLowerCase();
-      if (isGitSha(posterRef)) verEntry.posterRef = String(posterRef).toLowerCase();
+      if (String(curMod || '').trim()) verEntry.modified = String(curMod);
+      if (pinRefsInVer) {
+        if (isGitSha(dataRef)) verEntry.dataRef = String(dataRef).toLowerCase();
+        if (isGitSha(thumbRef)) verEntry.thumbRef = String(thumbRef).toLowerCase();
+        if (isGitSha(posterRef)) verEntry.posterRef = String(posterRef).toLowerCase();
+      }
       if (Object.keys(verEntry).length > 0) {
         if (!verByShard.has(shard)) verByShard.set(shard, {});
         verByShard.get(shard)[slug] = verEntry;

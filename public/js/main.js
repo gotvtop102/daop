@@ -43,8 +43,6 @@
         if (prev !== q) {
           window.DAOP._dataCacheBust = q;
           window.DAOP._dataCacheBustPromise = null;
-          window.DAOP._verShardCache = {};
-          window.DAOP._verShardCacheBust = '';
         }
         return q;
       })
@@ -997,8 +995,7 @@
     }
   };
 
-  window.DAOP._verShardCache = window.DAOP._verShardCache || {};
-  window.DAOP._verShardCacheBust = window.DAOP._verShardCacheBust || '';
+  window.DAOP._verFetchInflight = window.DAOP._verFetchInflight || {};
   window.DAOP.fetchVerShard = function (shard) {
     var k = String(shard || '');
     var bustP = typeof window.DAOP.ensureDataCacheBust === 'function'
@@ -1006,21 +1003,21 @@
       : Promise.resolve(window.DAOP._dataCacheBust || '');
     return bustP.then(function (q) {
       var bust = q || '';
-      if (window.DAOP._verShardCacheBust !== bust) {
-        window.DAOP._verShardCache = {};
-        window.DAOP._verShardCacheBust = bust;
-      }
-      var cache = window.DAOP._verShardCache;
-      if (cache[k] != null) return cache[k];
       var url = BASE + '/data/ver/' + encodeURIComponent(k) + '.json' + bust;
-      return fetch(url, { cache: 'no-store' })
+      if (window.DAOP._verFetchInflight[url]) return window.DAOP._verFetchInflight[url];
+      var p = fetch(url, { cache: 'no-store' })
         .then(function (r) { return r.ok ? r.json() : {}; })
         .catch(function () { return {}; })
         .then(function (j) {
-          var obj = j && typeof j === 'object' ? j : {};
-          cache[k] = obj;
-          return obj;
+          return j && typeof j === 'object' ? j : {};
+        })
+        .finally(function () {
+          try {
+            delete window.DAOP._verFetchInflight[url];
+          } catch (eDel) {}
         });
+      window.DAOP._verFetchInflight[url] = p;
+      return p;
     });
   };
 
@@ -1037,13 +1034,14 @@
 
   /**
    * URL JSON phim trên jsDelivr: `base@ref/path`. Ref là commit hex → URL cố định (CDN immutable).
-   * Không phải hex (vd. main): ghép ?v= từ build_version để tránh edge jsDelivr giữ bản cũ.
+   * Không phải hex (vd. main): ghép ?v= (build) + &m= (modified từ ver) để bust theo từng phim.
    * @param {string} slug
-   * @param {{ dataRef?: string }} opts — thiếu hoặc rỗng → @main
+   * @param {{ dataRef?: string, dataModified?: string }} opts — thiếu hoặc rỗng → @main
    */
   function buildPubjsMovieUrl(slug, opts) {
     opts = opts || {};
     var dataRefRaw = opts.dataRef != null ? String(opts.dataRef).trim() : '';
+    var dataModified = opts.dataModified != null ? String(opts.dataModified).trim() : '';
     return window.DAOP.ensureCdnConfigLoaded().then(function (cfg) {
       var d = (cfg && cfg.pubjs) || {};
       var base = String(d.base || '').replace(/\/+$/, '');
@@ -1069,7 +1067,10 @@
       return (typeof window.DAOP.ensureDataCacheBust === 'function'
         ? window.DAOP.ensureDataCacheBust()
         : Promise.resolve('')).then(function (q) {
-          return q ? url + q : url;
+          var u = q ? url + q : url;
+          if (!dataModified) return u;
+          var sep = u.indexOf('?') >= 0 ? '&' : '?';
+          return u + sep + 'm=' + encodeURIComponent(dataModified);
         });
     });
   }
@@ -1334,7 +1335,8 @@
       var slugForPath = resolved ? resolved.slugForPath : s;
       var entry = resolved ? resolved.entry : null;
       var dataRef = (entry && entry.dataRef) ? String(entry.dataRef).trim() : '';
-      return buildPubjsMovieUrl(slugForPath, { dataRef: dataRef });
+      var dataModified = (entry && entry.modified) ? String(entry.modified).trim() : '';
+      return buildPubjsMovieUrl(slugForPath, { dataRef: dataRef, dataModified: dataModified });
     }).then(function (url) {
       if (!url) return null;
       return fetch(url, { credentials: 'omit', cache: 'no-store' }).then(function (r) {
