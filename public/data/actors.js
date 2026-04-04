@@ -1,1 +1,0 @@
-window.actorsData={names:{},meta:{}};
