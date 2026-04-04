@@ -15,7 +15,7 @@ on:
         required: false
         default: 'false'
       upload_images:
-        description: 'Sau khi build xong thì ghi ảnh thumb/poster vào repo (public/) (true/false)'
+        description: 'Upload thumb/poster lên repo ảnh sau build TMDB. false = có thể bật bằng biến repo UPLOAD_IMAGES_AFTER_BUILD=1 hoặc site_settings upload_images_after_build (Supabase)'
         required: false
         default: 'false'
       reupload_existing:
@@ -71,6 +71,22 @@ jobs:
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
 
+      - name: Decide upload images mode
+        run: |
+          if [ "${{ inputs.upload_images }}" = "true" ]; then
+            echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
+            echo "::notice::Upload ảnh: bật (workflow input upload_images=true)"
+          elif [ "${UPLOAD_IMAGES_AFTER_BUILD:-0}" = "1" ]; then
+            echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
+            echo "::notice::Upload ảnh: bật (site_settings upload_images_after_build qua Supabase → UPLOAD_IMAGES_AFTER_BUILD)"
+          elif [ "${{ vars.UPLOAD_IMAGES_AFTER_BUILD }}" = "1" ]; then
+            echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
+            echo "::notice::Upload ảnh: bật (repository variable UPLOAD_IMAGES_AFTER_BUILD=1)"
+          else
+            echo "UPLOAD_IMAGES=false" >> $GITHUB_ENV
+            echo "::notice::Upload ảnh: tắt — chọn upload_images=true khi chạy workflow, hoặc đặt UPLOAD_IMAGES_AFTER_BUILD=1 (vars/Supabase), và cần secret IMAGES_REPO + IMAGE_CDN_BASE + IMAGES_TOKEN"
+          fi
+
       - name: Build CORE (skip TMDB)
         run: npm run build
         env:
@@ -98,7 +114,7 @@ jobs:
           bash scripts/git-commit-staged-push-retry.sh "chore: core build (skip tmdb)"
 
       - name: Deploy CORE to Cloudflare Pages
-        if: ${{ env.DEPLOY_AFTER_IMAGE_UPLOAD != '1' || inputs.upload_images != 'true' }}
+        if: ${{ env.DEPLOY_AFTER_IMAGE_UPLOAD != '1' || env.UPLOAD_IMAGES != 'true' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -124,7 +140,7 @@ jobs:
           IMAGE_CDN_ONLY: ${{ env.IMAGE_CDN_ONLY }}
 
       - name: Upload movie images to repo (after TMDB build)
-        if: ${{ inputs.upload_images == 'true' }}
+        if: ${{ env.UPLOAD_IMAGES == 'true' }}
         run: |
           node scripts/upload-movie-images-repo.js \
             --reupload_existing "${{ inputs.reupload_existing }}"
@@ -137,7 +153,7 @@ jobs:
           REPO_IMAGE_STATE_KEEP_FAILED: '0'
 
       - name: Push movie images to assets GitHub repo (+ refresh URL @commit)
-        if: ${{ inputs.upload_images == 'true' && env.HAS_IMAGES_REPO == 'true' }}
+        if: ${{ env.UPLOAD_IMAGES == 'true' && env.HAS_IMAGES_REPO == 'true' }}
         run: node scripts/push-images-to-assets-repo.js
         env:
           IMAGES_REPO: ${{ secrets.IMAGES_REPO }}
