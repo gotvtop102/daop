@@ -94,10 +94,19 @@ function pushWithRebaseRetry({ cloneDir, branch, maxAttempts = 5 }) {
   }
 }
 
+/** Có ít nhất một file .webp (đệ quy — ảnh thường ở thumbs|posters/{shard2}/*.webp). */
 async function dirHasWebp(dir) {
   if (!(await fs.pathExists(dir))) return false;
-  const files = await fs.readdir(dir);
-  return files.some((f) => /\.webp$/i.test(f));
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  for (const e of entries) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) {
+      if (await dirHasWebp(p)) return true;
+    } else if (e.isFile() && /\.webp$/i.test(e.name)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 async function main() {
@@ -126,9 +135,14 @@ async function main() {
   const hasThumbs = await dirHasWebp(srcThumbs);
   const hasPosters = await dirHasWebp(srcPosters);
   if (!hasThumbs && !hasPosters) {
-    console.log('push-images-to-assets-repo: không có file ảnh (.webp) trong public/thumbs|posters — bỏ qua.');
+    console.log(
+      'push-images-to-assets-repo: không có file .webp (kể cả trong thư mục con shard) trong public/thumbs|posters — bỏ qua.'
+    );
     return;
   }
+  console.log(
+    `push-images-to-assets-repo: phát hiện ảnh — thumbs=${hasThumbs} posters=${hasPosters} → clone & push ${repo}`
+  );
 
   await ensurePublicFolderInRemoteRepo(repo, branch, token);
 
