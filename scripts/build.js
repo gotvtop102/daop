@@ -371,7 +371,8 @@ async function ensureRepoImagesForAllMovies(movies) {
           if (!tOk) missingThumb++;
           if (!pOk) missingPoster++;
           if (!tOk || !pOk) {
-            if (missing.length < 30) missing.push({ id: idStr, thumb: !tOk, poster: !pOk });
+            const mid = m && m.id != null ? String(m.id) : '';
+            if (missing.length < 30) missing.push({ id: mid, slug: slugStr, thumb: !tOk, poster: !pOk });
           }
         }
       })());

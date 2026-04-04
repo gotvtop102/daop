@@ -26,13 +26,14 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
-import { buildCdnMovieImageUrlById, buildOphimUploadsImageUrlById } from '../lib/movie-image-urls';
+import { buildCdnMovieImageUrlBySlug, buildOphimUploadsImageUrlByStem } from '../lib/movie-image-urls';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
 
 interface Movie {
   id: string;
+  slug?: string;
   title: string;
   origin_name?: string;
   poster_url?: string;
@@ -96,9 +97,15 @@ export default function MovieList() {
     loadConfig();
   }, []);
 
-  const listMoviePosterSrc = (movieId: string) =>
-    buildCdnMovieImageUrlById(r2ImgDomain, movieId, 'poster') ||
-    buildOphimUploadsImageUrlById(ophimImgDomain, movieId, 'poster');
+  const listMoviePosterSrc = (record: Movie) => {
+    const slug = String(record.slug || '').trim();
+    const stem = slug || String(record.id || '').trim();
+    if (!stem) return '';
+    return (
+      buildCdnMovieImageUrlBySlug(r2ImgDomain, stem, 'poster') ||
+      buildOphimUploadsImageUrlByStem(ophimImgDomain, stem, 'poster')
+    );
+  };
 
   const loadMovies = async (opts?: { nextPage?: number; nextPageSize?: number }) => {
     if (!configReady) return;
@@ -208,7 +215,7 @@ export default function MovieList() {
       width: 80,
       render: (url: string, record: Movie) => (
         <Image
-          src={listMoviePosterSrc(record.id) || '/images/default_poster.png'}
+          src={listMoviePosterSrc(record) || '/images/default_poster.png'}
           alt={record.title}
           width={60}
           height={90}

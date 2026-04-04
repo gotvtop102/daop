@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
+import { buildCdnMovieImageUrlBySlug } from '../lib/movie-image-urls';
 
 const { Text } = Typography;
 const OPHIM_BASE = (((import.meta as any).env?.VITE_OPHIM_BASE_URL) || 'https://ophim1.com/v1/api').replace(/\/$/, '');
@@ -116,10 +117,10 @@ export default function GitHubActions() {
   const [uploadUrlsForm] = Form.useForm();
 
   const [r2LinkBaseUrl, setR2LinkBaseUrl] = useState('');
-  const [r2LinkIdsText, setR2LinkIdsText] = useState('');
+  const [r2LinkSlugsText, setR2LinkSlugsText] = useState('');
   const [r2LinkOutput, setR2LinkOutput] = useState('');
   const [r2LinkPrefixes, setR2LinkPrefixes] = useState<string[]>(['thumbs', 'posters']);
-  const [r2LinkMode, setR2LinkMode] = useState<'by_id' | 'by_prefix'>('by_id');
+  const [r2LinkMode, setR2LinkMode] = useState<'by_slug' | 'by_prefix'>('by_slug');
   const [r2ListUrlsLoading, setR2ListUrlsLoading] = useState(false);
   const [r2ListCap, setR2ListCap] = useState<number>(0);
 
@@ -161,14 +162,6 @@ export default function GitHubActions() {
     return base.endsWith('/') ? base : base + '/';
   };
 
-  const buildR2ImageUrlById = (base: string, folder: string, id: string) => {
-    const b = String(base || '').replace(/\/$/, '');
-    const f = normalizePresetPrefixValue(folder);
-    const idStr = String(id || '').trim();
-    if (!b || !f || !idStr) return '';
-    return `${b}/${f}/${idStr}.webp`;
-  };
-
   const r2LinkPrefixOptions = useMemo(() => {
     const presets = parseR2PrefixPresets(r2PrefixPresetsText);
     const seen = new Set<string>();
@@ -195,9 +188,9 @@ export default function GitHubActions() {
       message.warning('Nhập base URL ảnh (Cài đặt trang → Base URL ảnh / jsDelivr …/public).');
       return;
     }
-    const ids = parseSlugList(r2LinkIdsText);
-    if (!ids.length) {
-      message.warning('Nhập ít nhất một movie id.');
+    const slugs = parseSlugList(r2LinkSlugsText);
+    if (!slugs.length) {
+      message.warning('Nhập ít nhất một slug phim (giống slug trên URL /phim/… và tên file .webp trên repo).');
       return;
     }
     const rawFolders = (r2LinkPrefixes || []).map((x) => normalizePresetPrefixValue(String(x))).filter(Boolean);
@@ -216,10 +209,19 @@ export default function GitHubActions() {
       message.warning('Chọn ít nhất một prefix (thư mục).');
       return;
     }
+    const b = String(base || '').replace(/\/$/, '');
     const lines: string[] = [];
-    for (const id of ids) {
+    for (const slug of slugs) {
       for (const folder of folders) {
-        const u = buildR2ImageUrlById(base, folder, id);
+        const f = normalizePresetPrefixValue(folder);
+        if (!f || !slug) continue;
+        let u = '';
+        if (f === 'thumbs' || f === 'posters') {
+          const kind: 'thumb' | 'poster' = f === 'posters' ? 'poster' : 'thumb';
+          u = buildCdnMovieImageUrlBySlug(b, slug, kind);
+        } else {
+          u = `${b}/${f}/${slug}.webp`;
+        }
         if (u) lines.push(u);
       }
     }
@@ -248,7 +250,7 @@ export default function GitHubActions() {
       return;
     }
     const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-    const suffix = r2LinkMode === 'by_prefix' ? 'prefix' : 'by-id';
+    const suffix = r2LinkMode === 'by_prefix' ? 'prefix' : 'by-slug';
     const filename = `image-urls_${suffix}_${stamp}.txt`;
     const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -570,8 +572,8 @@ export default function GitHubActions() {
     const defaultPresets = presetsRaw
       ? presetsRaw
       : [
-          'Ảnh phim (thumbs)|thumbs|Ảnh thumbnail theo id phim',
-          'Ảnh phim (posters)|posters|Ảnh poster theo id phim',
+          'Ảnh phim (thumbs)|thumbs|Thumbnail: public/thumbs/{shard}/{slug}.webp',
+          'Ảnh phim (posters)|posters|Poster: public/posters/{shard}/{slug}.webp',
           'Slider|slider|Upload tức thời (giữ tên file gốc)',
           'Banners|banners|Upload tức thời (giữ tên file gốc)',
         ].join('\n');
@@ -1191,6 +1193,15 @@ export default function GitHubActions() {
                     label: 'Cài đặt',
                     children: (
                       <>
+                        <Card size="small" style={{ marginBottom: 16 }} title="Chuẩn đường dẫn ảnh phim">
+                          <Text type="secondary">
+                            Trên repo GitHub (thư mục <Text code>public</Text>):{' '}
+                            <Text code>thumbs/{'{shard2}'}/{'{slug}'}.webp</Text> và{' '}
+                            <Text code>posters/{'{shard2}'}/{'{slug}'}.webp</Text> — <Text code>shard2</Text> là 2 ký tự đầu
+                            slug (a–z, 0–9), giống script <Text code>upload-movie-images-repo.js</Text> và <Text code>build.js</Text>.
+                            Base URL trong Cài đặt trang nên trỏ tới <Text code>…/public</Text> trên jsDelivr (không gồm <Text code>@ref</Text> trong ô cấu hình site).
+                          </Text>
+                        </Card>
                         <Card
                           title="Cài đặt upload ảnh (GitHub repo + jsDelivr)"
                           extra={
@@ -1279,13 +1290,15 @@ export default function GitHubActions() {
                           }
                         >
                           <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                            Mỗi dòng: <b>tên hiển thị|prefix|ghi chú</b>. Ví dụ: <code>Slider|slider|Ảnh slider (giữ tên file gốc)</code>.
+                            Mỗi dòng: <b>tên hiển thị|prefix|ghi chú</b>. Prefix <Text code>thumbs</Text> / <Text code>posters</Text> dùng layout{' '}
+                            <Text code>{'{shard}'}/{'{slug}'}.webp</Text>; prefix khác (vd. <Text code>slider</Text>) thường là file phẳng{' '}
+                            <Text code>{'{prefix}'}/{'{tên}'}.webp</Text> khi dùng «Tạo link».
                           </Text>
                           <Input.TextArea
                             rows={6}
                             value={r2PrefixPresetsText}
                             onChange={(e) => setR2PrefixPresetsText(e.target.value || '')}
-                            placeholder="Ảnh phim (thumbs)|thumbs|Ảnh thumbnail theo id phim\nSlider|slider|Giữ tên file gốc"
+                            placeholder="Ảnh phim (thumbs)|thumbs|Thumbnail theo slug\nSlider|slider|Ảnh slider (tên file tùy nhập)"
                           />
                         </Card>
                       </>
@@ -1297,7 +1310,8 @@ export default function GitHubActions() {
                     children: (
                       <Card title="Upload ảnh vào repo">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                          Upload hàng loạt bằng GitHub Actions. Hỗ trợ force slugs (OPhim).
+                          Upload hàng loạt bằng GitHub Actions. Tab «Theo slug» gửi danh sách <b>slug OPhim</b> để tải ảnh nguồn; file ghi vào repo vẫn là{' '}
+                          <Text code>public/thumbs|posters/{'{shard}'}/{'{slug}'}.webp</Text> (theo slug phim, không đặt tên theo id).
                         </Text>
 
                         <Tabs
@@ -1308,11 +1322,11 @@ export default function GitHubActions() {
                               children: (
                                 <Form form={uploadForm} layout="vertical">
                                   <Space wrap align="start">
-                                    <Form.Item name="force_slugs" label="Danh sách slug (comma/newline)" style={{ minWidth: 0, flex: 1 }}>
-                                      <Input.TextArea style={{ width: '100%', minWidth: 0 }} rows={3} placeholder="slug-1\nslug-2" />
+                                    <Form.Item name="force_slugs" label="Danh sách slug OPhim (mỗi dòng / phẩy)" style={{ minWidth: 0, flex: 1 }}>
+                                      <Input.TextArea style={{ width: '100%', minWidth: 0 }} rows={3} placeholder="ten-phim-op\nphim-khac" />
                                     </Form.Item>
 
-                                    <Form.Item name="force_slugs_file" label="File slug (.txt/.csv)" style={{ minWidth: 0, flex: 1 }}>
+                                    <Form.Item name="force_slugs_file" label="File chứa slug (.txt/.csv)" style={{ minWidth: 0, flex: 1 }}>
                                       <input
                                         type="file"
                                         accept=".txt,.csv,text/plain,text/csv"
@@ -1345,11 +1359,12 @@ export default function GitHubActions() {
                               children: (
                                 <>
                                   <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                                    Chọn 1 trong 2 cách:
+                                    Chọn 1 trong 2 cách (workflow riêng <Text code>upload-r2-from-urls</Text>):
                                     <br />
-                                    - IDs + URLs: tên ảnh sẽ là <b>id phim</b> (folder/id.webp)
-                                    <br />
-                                    - Pairs name|link: mỗi dòng <b>name|link</b>, name là tên ảnh (folder/name.webp)
+                                    - <b>IDs + URLs</b>: mỗi dòng một cặp — tên file đích trong prefix thường là <b>id phim</b> (xem workflow; có thể khác chuẩn{' '}
+                                    <Text code>thumbs/{'{shard}'}/{'{slug}'}</Text> ở tab OPhim).
+                                    <br />- <b>name|link</b>: tên file = phần <Text code>name</Text> (vd. slug hoặc id tuỳ bạn đặt), không tự thêm shard — cần khớp
+                                    cách bạn tổ chức thư mục.
                                   </Text>
                                   <Form
                                     form={uploadUrlsForm}
@@ -1490,8 +1505,9 @@ export default function GitHubActions() {
                     children: (
                       <Card title="Link ảnh (jsDelivr)">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                          Tạo URL công khai để tải trực tiếp (trình duyệt, wget, IDM…). Base URL lấy từ Cài đặt trang (r2_img_domain), có thể sửa tạm bên dưới.
-                          Chế độ theo prefix gọi API liệt kê file trên repo ảnh (cần cấu hình IMAGES_REPO / token trên Vercel).
+                          «Theo slug phim»: dựng URL đúng layout <Text code>…/thumbs|posters/{'{shard2}'}/{'{slug}'}.webp</Text>. Base URL = Cài đặt trang (
+                          <Text code>r2_img_domain</Text>), thường dạng <Text code>https://cdn.jsdelivr.net/gh/owner/img@main/public</Text>.
+                          «Toàn bộ object»: gọi API liệt kê file trong repo ảnh (cần <Text code>IMAGES_*</Text> / token trên Vercel).
                         </Text>
 
                         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -1504,7 +1520,7 @@ export default function GitHubActions() {
                               setR2LinkOutput('');
                             }}
                           >
-                            <Radio.Button value="by_id">Theo movie ID</Radio.Button>
+                            <Radio.Button value="by_slug">Theo slug phim</Radio.Button>
                             <Radio.Button value="by_prefix">Toàn bộ object trong prefix</Radio.Button>
                           </Radio.Group>
 
@@ -1538,18 +1554,21 @@ export default function GitHubActions() {
                             </div>
                           </div>
 
-                          {r2LinkMode === 'by_id' ? (
+                          {r2LinkMode === 'by_slug' ? (
                             <div>
-                              <Text strong>Movie ID</Text>
+                              <Text strong>Slug phim</Text>
                               <Input.TextArea
                                 style={{ marginTop: 6 }}
                                 rows={5}
-                                placeholder={'Mỗi dòng một id, hoặc cách nhau bởi dấu phẩy / khoảng trắng\n62a4f2...\n626577...'}
-                                value={r2LinkIdsText}
-                                onChange={(e) => setR2LinkIdsText(e.target.value || '')}
+                                placeholder={'Mỗi dòng một slug (như trên URL /phim/slug.html)\nchuong-tu-diet-mon\nhoac-nhau-bang-dau-phay'}
+                                value={r2LinkSlugsText}
+                                onChange={(e) => setR2LinkSlugsText(e.target.value || '')}
                               />
                               <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
-                                Chuẩn URL: <Text code>{'{domain}'}/{'{thư mục}'}/{'{id}'}.webp</Text>
+                                Chuẩn file trên repo (sau thư mục public trong base URL):{' '}
+                                <Text code>
+                                  thumbs|posters/{'{shard2}'}/{'{slug}'}.webp
+                                </Text>
                               </Text>
                             </div>
                           ) : (
@@ -1567,8 +1586,8 @@ export default function GitHubActions() {
                                 </div>
                               </Space>
                               <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
-                                Gọi ListObjects cho từng thư mục đã chọn, dựng URL <Text code>{'{domain}'}/{'{key}'}</Text> theo key thật trên bucket (có thể
-                                khác .webp nếu object không theo chuẩn phim).
+                                Gọi API liệt kê cây GitHub repo ảnh, dựng URL <Text code>{'{domain}'}/{'{key}'}</Text> theo đường dẫn trong public/ (có thể khác
+                                .webp nếu file không theo chuẩn phim).
                               </Text>
                               <Button
                                 type="primary"
@@ -1583,7 +1602,7 @@ export default function GitHubActions() {
                           )}
 
                           <Space wrap>
-                            {r2LinkMode === 'by_id' ? (
+                            {r2LinkMode === 'by_slug' ? (
                               <Button type="primary" onClick={handleGenerateR2Links} disabled={!!r2ListUrlsLoading}>
                                 Tạo link
                               </Button>
@@ -1620,7 +1639,8 @@ export default function GitHubActions() {
                     children: (
                       <Card title="Xóa ảnh trong repo">
                         <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                          Xóa ảnh theo prefix (thư mục), theo keys, hoặc theo movie ids (đọc từ repo_image_upload_state.json). Mặc định chạy dry-run để an toàn.
+                          Xóa theo prefix (vd. <Text code>thumbs/</Text>), theo keys đầy đủ (vd. <Text code>thumbs/ab/slug.webp</Text>), hoặc theo movie ids trong{' '}
+                          <Text code>repo_image_upload_state.json</Text>. Mặc định dry-run.
                         </Text>
 
                         <Form
@@ -1708,7 +1728,7 @@ export default function GitHubActions() {
                                   label="Keys (mỗi dòng 1 key)"
                                   rules={[{ required: true, message: 'Nhập danh sách keys để xóa' }]}
                                 >
-                                  <Input.TextArea rows={3} placeholder="thumbs/123.webp\nposters/123.webp" />
+                                  <Input.TextArea rows={3} placeholder="thumbs/ab/ten-phim.webp\nposters/ab/ten-phim.webp" />
                                 </Form.Item>
                               );
                             }}

@@ -16,7 +16,7 @@ import {
 import { PlusOutlined, EditOutlined, DeleteOutlined, LinkOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
-import { buildCdnMovieImageUrlById } from '../lib/movie-image-urls';
+import { buildCdnMovieImageUrlBySlug } from '../lib/movie-image-urls';
 
 type SlideItem = {
   image_url: string;
@@ -347,10 +347,10 @@ export default function Slider() {
 
       const linkUrl = '/phim/' + (movie.slug || slug) + '.html';
       const r2b = String(r2ImgDomain || '').replace(/\/$/, '');
-      const mid = String((movie as any).id != null ? (movie as any).id : '').trim();
+      const slugForCdn = String((movie as any).slug || slug || '').trim();
       let img = '';
-      if (r2b && mid) {
-        img = buildCdnMovieImageUrlById(r2b, mid, 'poster');
+      if (r2b && slugForCdn) {
+        img = buildCdnMovieImageUrlBySlug(r2b, slugForCdn, 'poster');
       }
       if (!img) {
         const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
@@ -451,10 +451,10 @@ export default function Slider() {
       const r2b = String(r2ImgDomain || '').replace(/\/$/, '');
       const newSlides: SlideItem[] = sorted.slice(0, n).map((movie: any, i: number) => {
         const linkUrl = '/phim/' + (movie.slug || movie.id) + '.html';
-        const mid = String(movie?.id != null ? movie.id : '').trim();
+        const slugForCdn = String(movie?.slug || '').trim();
         let img = '';
-        if (r2b && mid) {
-          img = buildCdnMovieImageUrlById(r2b, mid, 'poster');
+        if (r2b && slugForCdn) {
+          img = buildCdnMovieImageUrlBySlug(r2b, slugForCdn, 'poster');
         }
         if (!img) {
           const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';

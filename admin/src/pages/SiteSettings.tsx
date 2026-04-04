@@ -283,7 +283,7 @@ export default function SiteSettings() {
                     <Form.Item
                       name="r2_img_domain"
                       label="Base URL ảnh (jsDelivr …/public)"
-                      extra="Ảnh phim trong repo: public/thumbs/{id phim}.webp và public/posters/{id phim}.webp (đặt tên theo id, không theo slug)."
+                      extra="Ảnh phim trên repo: public/thumbs/{2 ký tự đầu slug}/{slug}.webp và public/posters/… (giống workflow upload + build)."
                     >
                       <Input placeholder="https://cdn.jsdelivr.net/gh/user/repo@main/public" />
                     </Form.Item>

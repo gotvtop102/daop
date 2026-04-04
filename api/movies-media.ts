@@ -25,6 +25,18 @@ function normalizeSourceImageUrl(u: string) {
   return s;
 }
 
+/** Giống scripts/lib/slug-shard.js — thư mục con 2 ký tự đầu slug. */
+function getSlugShard2(slug: string): string {
+  const s = String(slug || '')
+    .trim()
+    .toLowerCase();
+  if (!s) return '__';
+  const ok = (c: string) => !!(c && /[a-z0-9]/.test(c));
+  const a = s[0] || '_';
+  const b = s[1] || '_';
+  return (ok(a) ? a : '_') + (ok(b) ? b : '_');
+}
+
 async function optimizeToWebp(input: Buffer) {
   const sharp = await getSharp();
   return sharp(input)
@@ -33,13 +45,20 @@ async function optimizeToWebp(input: Buffer) {
     .toBuffer();
 }
 
-export async function uploadMovieImageById(sourceUrl: string, id: string, folder: 'thumbs' | 'posters') {
+export async function uploadMovieImageById(
+  sourceUrl: string,
+  id: string,
+  folder: 'thumbs' | 'posters',
+  slug?: string
+) {
   const url = normalizeSourceImageUrl(String(sourceUrl || '').trim());
   const idStr = String(id || '').trim();
+  const slugStr = String(slug || '').trim() || idStr;
   if (!url || !idStr) return '';
   const base = String(process.env.IMAGE_CDN_BASE || process.env.R2_PUBLIC_URL || '').trim().replace(/\/$/, '');
   if (!base) return '';
-  const key = `${folder}/${idStr}.webp`;
+  const shard = getSlugShard2(slugStr);
+  const key = `${folder}/${shard}/${slugStr}.webp`;
   const filePath = `public/${key}`;
   const { token, repo, branch } = getGithubImagesRepoConfig();
   if (!token || !repo) return '';
@@ -58,7 +77,7 @@ export async function uploadMovieImageById(sourceUrl: string, id: string, folder
       branch,
       token,
       contentBase64: optimized.toString('base64'),
-      message: `chore: upload movie image ${folder}/${idStr}.webp`,
+      message: `chore: upload movie image ${folder}/${shard}/${slugStr}.webp`,
     });
     return `${base}/${key}`;
   } catch {
@@ -70,6 +89,10 @@ export async function uploadMovieImageById(sourceUrl: string, id: string, folder
 export async function applyMovieRepoImageUploads(movieData: any) {
   const idStr = String(movieData.id || '').trim();
   if (!idStr) return;
+  const slugStr = String(movieData.slug || '').trim();
+  if (!slugStr) {
+    throw new Error('Thiếu slug phim — cần để ghi ảnh đúng public/thumbs|posters/{shard}/{slug}.webp giống build & workflow.');
+  }
 
   const thumbSrc = String(movieData.thumb_url || movieData.thumb || '').trim();
   const posterSrc = String(movieData.poster_url || movieData.poster || '').trim() || thumbSrc;
@@ -81,8 +104,8 @@ export async function applyMovieRepoImageUploads(movieData: any) {
     );
   }
 
-  const r2Thumb = thumbSrc ? await uploadMovieImageById(thumbSrc, idStr, 'thumbs') : '';
-  const r2Poster = posterSrc ? await uploadMovieImageById(posterSrc, idStr, 'posters') : '';
+  const r2Thumb = thumbSrc ? await uploadMovieImageById(thumbSrc, idStr, 'thumbs', slugStr) : '';
+  const r2Poster = posterSrc ? await uploadMovieImageById(posterSrc, idStr, 'posters', slugStr) : '';
 
   if (thumbSrc && !r2Thumb) {
     throw new Error('Upload thumb thất bại. Kiểm tra quyền token, IMAGE_CDN_BASE, và link ảnh nguồn.');

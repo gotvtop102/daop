@@ -30,8 +30,8 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
 import {
-  buildCdnMovieImageUrlById,
-  buildOphimUploadsImageUrlById,
+  buildCdnMovieImageUrlBySlug,
+  buildOphimUploadsImageUrlByStem,
   extractImageFileStem,
 } from '../lib/movie-image-urls';
 import { parseViteTmdbKeys, fetchWithTmdbKeyRotation } from '../lib/tmdb-fetch';
@@ -286,13 +286,13 @@ export default function MovieEdit() {
   const refreshSourcePreviews = (next?: { poster?: any; thumb?: any }) => {
     const posterRaw = next && next.poster != null ? next.poster : form.getFieldValue('poster_url');
     const thumbRaw = next && next.thumb != null ? next.thumb : form.getFieldValue('thumb_url');
-    const movieId = String(form.getFieldValue('id') || id || '').trim();
+    const slugForCdn = String(form.getFieldValue('slug') || '').trim();
 
     const p0 = normalizeMovieImageUrl(String(posterRaw || '').trim(), 'poster');
     const t0 = normalizeMovieImageUrl(String(thumbRaw || '').trim(), 'thumb');
 
-    const p = p0 || (movieId ? buildRepoMovieImageUrlById(movieId, 'poster') : '');
-    const t = t0 || (movieId ? buildRepoMovieImageUrlById(movieId, 'thumb') : '');
+    const p = p0 || (slugForCdn ? buildRepoMovieImageUrlBySlug(slugForCdn, 'poster') : '');
+    const t = t0 || (slugForCdn ? buildRepoMovieImageUrlBySlug(slugForCdn, 'thumb') : '');
 
     setPosterPreview(p);
     setThumbPreview(t);
@@ -316,13 +316,13 @@ export default function MovieEdit() {
     loadConfig();
   }, []);
 
-  /** CDN/repo: thumbs|posters/{id phim}.webp */
-  const buildRepoMovieImageUrlById = (movieId: string, kind: 'thumb' | 'poster') => {
-    const idStr = String(movieId || '').trim();
-    if (!idStr) return '';
-    const r2u = buildCdnMovieImageUrlById(r2ImgDomain, idStr, kind);
+  /** CDN/repo: …/thumbs|posters/{shard}/{slug}.webp */
+  const buildRepoMovieImageUrlBySlug = (movieSlug: string, kind: 'thumb' | 'poster') => {
+    const s = String(movieSlug || '').trim();
+    if (!s) return '';
+    const r2u = buildCdnMovieImageUrlBySlug(r2ImgDomain, s, kind);
     if (r2u) return r2u;
-    return buildOphimUploadsImageUrlById(ophimImgDomain, idStr, kind);
+    return buildOphimUploadsImageUrlByStem(ophimImgDomain, s, kind);
   };
 
   const normalizeMovieImageUrl = (raw: string, kind: 'thumb' | 'poster') => {
@@ -377,7 +377,7 @@ export default function MovieEdit() {
     if (!stem) return u;
     if (/^https?:\/\//i.test(stem)) return stem;
     if (stem.startsWith('/')) return u;
-    return buildRepoMovieImageUrlById(stem, kind);
+    return buildRepoMovieImageUrlBySlug(stem, kind);
   };
 
   // Load movie data
@@ -826,7 +826,7 @@ export default function MovieEdit() {
                         { required: true, message: 'Vui lòng nhập slug' },
                       ]}
                     >
-                      <Input placeholder="vd: than-kiem-hanh" />
+                      <Input placeholder="vd: than-kiem-hanh" onChange={() => refreshSourcePreviews()} />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -1027,7 +1027,7 @@ export default function MovieEdit() {
                   name="poster_url"
                   label="URL Poster"
                   rules={[{ required: isNew, message: 'Vui lòng nhập URL poster' }]}
-                  extra="Sau upload lên repo CDN, ảnh chuẩn là posters/{id phim}.webp (base trong Cài đặt → Base URL ảnh). Xem trước bên dưới dùng id phim nếu ô trống."
+                  extra="Trên repo CDN (workflow / build): posters/{2 ký tự đầu slug}/{slug}.webp — cùng thư mục thumbs|posters. Xem trước khi ô URL trống dùng slug phim."
                 >
                   <Input placeholder="https://... hoặc để trống nếu đã có file theo id" onChange={handlePosterChange} />
                 </Form.Item>
@@ -1046,7 +1046,7 @@ export default function MovieEdit() {
                 <Form.Item
                   name="thumb_url"
                   label="URL Thumbnail (nếu có)"
-                  extra="Trên CDN: thumbs/{id phim}.webp."
+                  extra="Trên repo CDN: thumbs/{shard}/{slug}.webp."
                 >
                   <Input placeholder="https://... hoặc để trống nếu đã có file theo id" onChange={handleThumbChange} />
                 </Form.Item>
