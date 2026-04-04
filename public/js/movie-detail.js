@@ -311,6 +311,20 @@
           var display2 = name != null ? String(name) : '';
           return { display: display2, slug: slugifyActorName(display2) };
         }).filter(function (x) { return x && x.display; });
+      } else if (movie && movie.cast != null && typeof movie.cast === 'string' && String(movie.cast).trim()) {
+        list = String(movie.cast)
+          .split(/[,，;|]/)
+          .map(function (t) { return t.trim(); })
+          .filter(Boolean)
+          .slice(0, 10)
+          .map(function (display2) {
+            return { display: display2, slug: slugifyActorName(display2) };
+          });
+      } else if (Array.isArray(movie && movie.actor) && movie.actor.length) {
+        list = movie.actor.slice(0, 10).map(function (name) {
+          var display2 = name != null ? String(name) : '';
+          return { display: display2, slug: slugifyActorName(display2) };
+        }).filter(function (x) { return x && x.display; });
       }
     } catch (e) {
       list = [];
@@ -578,6 +592,18 @@
       if (light) {
         applySeoFromLight(light, slug);
         renderFromLight(light);
+        var slugFull = String((light && light.slug) || slug || '').trim();
+        if (slugFull && window.DAOP && typeof window.DAOP.loadFullMovieJsonBySlugAsync === 'function') {
+          window.DAOP.loadFullMovieJsonBySlugAsync(slugFull).then(function (m) {
+            if (!m) return;
+            var hasCast =
+              (Array.isArray(m.cast) && m.cast.length) ||
+              (Array.isArray(m.cast_meta) && m.cast_meta.length);
+            if (!hasCast) return;
+            applySeoFromMovie(m, slug);
+            renderFull(m);
+          }).catch(function () {});
+        }
         return;
       }
       if (el) el.innerHTML = notFoundHtml;

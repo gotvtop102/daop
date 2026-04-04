@@ -576,6 +576,72 @@ function mergeMovieWithTmdbMap(m, tmdbById) {
   };
 }
 
+/** Số dòng cast tối đa trong mỗi file JSON phim (pubjs). */
+const MAX_CAST_PUBJS = 18;
+
+/**
+ * Đảm bảo mỗi JSON phim luôn có cast: string[] và cast_meta: object[] (tối thiểu { name, name_original }) để client / actors build dùng thống nhất.
+ */
+function normalizeMovieCastForPubjs(m, maxCast = MAX_CAST_PUBJS) {
+  if (!m || typeof m !== 'object') return m;
+  const cap = Math.max(1, Math.min(40, Number(maxCast) || MAX_CAST_PUBJS));
+
+  let metaOut = [];
+  if (Array.isArray(m.cast_meta) && m.cast_meta.length) {
+    metaOut = m.cast_meta
+      .filter((c) => c && typeof c === 'object')
+      .slice(0, cap)
+      .map((c) => ({ ...c }));
+  }
+
+  let castOut = [];
+  if (metaOut.length) {
+    castOut = metaOut
+      .map((c) => String(c.name_vi || c.name || c.name_original || '').trim())
+      .filter(Boolean);
+  }
+
+  if (!castOut.length) {
+    if (Array.isArray(m.cast) && m.cast.length) {
+      castOut = m.cast
+        .map((x) => {
+          if (x == null) return '';
+          if (typeof x === 'string') return x.trim();
+          if (typeof x === 'object' && x && x.name != null) return String(x.name).trim();
+          return String(x).trim();
+        })
+        .filter(Boolean)
+        .slice(0, cap);
+    } else if (typeof m.cast === 'string' && String(m.cast).trim()) {
+      castOut = ophimNameListToStrings(m.cast).slice(0, cap);
+    } else if (m.actor != null) {
+      castOut = ophimNameListToStrings(m.actor).slice(0, cap);
+    }
+  }
+
+  if (metaOut.length && (!castOut.length || castOut.length !== metaOut.length)) {
+    castOut = metaOut
+      .map((c) => String(c.name_vi || c.name || c.name_original || '').trim())
+      .filter(Boolean)
+      .slice(0, cap);
+  }
+
+  if (castOut.length > cap) castOut = castOut.slice(0, cap);
+  if (metaOut.length > cap) metaOut = metaOut.slice(0, cap);
+
+  if (castOut.length && !metaOut.length) {
+    metaOut = castOut.map((name) => ({
+      name,
+      name_vi: null,
+      name_original: name,
+    }));
+  }
+
+  m.cast = castOut;
+  m.cast_meta = metaOut;
+  return m;
+}
+
 /**
  * Ghi JSON phim vào pubjs-output (không commit vào repo dự án — đồng bộ pjs102 qua npm run push-pubjs-repo),
  * public/data/ver/*.json, movies-manifest.json, cdn.json
@@ -611,7 +677,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     const curMod = modified;
     let modChanged = prevMod == null || String(prevMod) !== String(curMod);
 
-    const merged = mergeMovieWithTmdbMap(m, tmdbById);
+    const merged = normalizeMovieCastForPubjs(mergeMovieWithTmdbMap(m, tmdbById));
     const shard = getSlugShard2(slug);
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
 
