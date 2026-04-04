@@ -1004,18 +1004,13 @@
 
   window.DAOP.sanitizeCdnRefForFetch = sanitizeCdnRef;
 
-  /** @ref là commit hex → URL cố định, jsDelivr không cần query; @main/tag vẫn bị edge cache → gắn ?v=dataVer (semver đổi khi nội dung phim đổi). */
-  function isPubjsCommitRef(ref) {
-    return /^[0-9a-f]{7,40}$/i.test(String(ref || '').trim());
-  }
-
   /**
+   * URL JSON phim trên jsDelivr: chỉ `base@ref/path` — ref là commit hex hoặc `main` (tag), không gắn ?v=.
    * @param {string} slug
-   * @param {{ dataVer?: string, dataRef?: string }} opts
+   * @param {{ dataRef?: string }} opts — thiếu hoặc rỗng → @main
    */
   function buildPubjsMovieUrl(slug, opts) {
     opts = opts || {};
-    var dataVer = opts.dataVer != null ? String(opts.dataVer) : '';
     var dataRefRaw = opts.dataRef != null ? String(opts.dataRef).trim() : '';
     return window.DAOP.ensureCdnConfigLoaded().then(function (cfg) {
       var d = (cfg && cfg.pubjs) || {};
@@ -1037,11 +1032,7 @@
         return '';
       }
       var path = prefix ? prefix + '/' + sh + '/' + encodeURIComponent(safe) + '.json' : sh + '/' + encodeURIComponent(safe) + '.json';
-      var url = base + '@' + ref + '/' + path;
-      if (!isPubjsCommitRef(ref) && dataVer) {
-        url += (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(dataVer);
-      }
-      return url;
+      return base + '@' + ref + '/' + path;
     });
   }
 
@@ -1298,9 +1289,8 @@
       var resolved = resolveVerEntryForSlug(verMap, s);
       var slugForPath = resolved ? resolved.slugForPath : s;
       var entry = resolved ? resolved.entry : null;
-      var dataVer = (entry && entry.data) ? String(entry.data) : 'v1.0.0';
       var dataRef = (entry && entry.dataRef) ? String(entry.dataRef).trim() : '';
-      return buildPubjsMovieUrl(slugForPath, { dataVer: dataVer, dataRef: dataRef });
+      return buildPubjsMovieUrl(slugForPath, { dataRef: dataRef });
     }).then(function (url) {
       if (!url) return null;
       return fetch(url, { credentials: 'omit', cache: 'no-store' }).then(function (r) {

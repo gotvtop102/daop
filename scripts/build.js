@@ -523,14 +523,15 @@ function writeVerShardFiles(verDir, byShard) {
 
 /**
  * Chọn @ref jsDelivr cho pubjs / ảnh (luôn tính URL đầy đủ).
- * Chỉ khi phim đã có trong ver trước đó VÀ vừa đổi nội dung (modChanged) mới dùng commit từ env — và chỉ ghi SHA vào file ver khi là commit hex (xem writePubjsMoviesAndVer).
- * Phim mới (chưa có prevEntry): luôn @main + ?v=dataVer trên client, không lưu dataRef trong ver để gọn file.
+ * Chỉ khi phim không còn “mới” theo last_modified (đã có prevMod) VÀ vừa đổi (modChanged) mới pin commit từ env;
+ * chỉ ghi SHA vào file ver khi là commit hex (writePubjsMoviesAndVer).
+ * Phim mới (prevMod == null): URL pubjs @main, không ghi dòng trong ver (client không có dataRef → @main).
  */
-function pickPerMovieJsDelivrRefs(prevEntry, modChanged, _defaultDataRef, _defaultImgRef) {
+function pickPerMovieJsDelivrRefs(modChanged, hadPrevModified, _defaultDataRef, _defaultImgRef) {
   const dmCommit = normalizeCommitSha(process.env.PUBJS_REPO_COMMIT);
   const imgCommit = normalizeCommitSha(process.env.IMAGE_REPO_COMMIT);
   const fin = (r) => String(r || '').trim() || 'main';
-  const pinRefs = !!(prevEntry && modChanged);
+  const pinRefs = !!(modChanged && hadPrevModified);
   if (pinRefs) {
     return {
       dataRef: fin(dmCommit || 'main'),
@@ -641,8 +642,9 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
       posterVer = prevEntry.poster || DEFAULT_ASSET_VER;
     }
 
-    const { dataRef, thumbRef, posterRef } = pickPerMovieJsDelivrRefs(prevEntry, modChanged, defaultDataRef, defaultImgRef);
-    const pinRefsInVer = !!(prevEntry && modChanged);
+    const hadPrevModified = prevMod != null;
+    const { dataRef, thumbRef, posterRef } = pickPerMovieJsDelivrRefs(modChanged, hadPrevModified, defaultDataRef, defaultImgRef);
+    const pinRefsInVer = !!(modChanged && hadPrevModified);
     const isGitSha = (r) => /^[0-9a-f]{7,40}$/i.test(String(r || '').trim());
 
     merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: thumbRef });
@@ -656,14 +658,18 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     m.poster = merged.poster;
     if (merged.pubjs_url) m.pubjs_url = merged.pubjs_url;
 
-    if (!verByShard.has(shard)) verByShard.set(shard, {});
-    const verEntry = { data: dataVer, thumb: thumbVer, poster: posterVer };
-    if (pinRefsInVer) {
-      if (isGitSha(dataRef)) verEntry.dataRef = String(dataRef).toLowerCase();
-      if (isGitSha(thumbRef)) verEntry.thumbRef = String(thumbRef).toLowerCase();
-      if (isGitSha(posterRef)) verEntry.posterRef = String(posterRef).toLowerCase();
+    /** Chỉ ghi ver khi đã từng có dòng ver, hoặc phim đã có trong last_modified và vừa đổi (lần cập nhật đầu). Phim mới hoàn toàn: bỏ qua cả semver trong ver. */
+    const shouldWriteVer = prevEntry != null || (hadPrevModified && modChanged);
+    if (shouldWriteVer) {
+      if (!verByShard.has(shard)) verByShard.set(shard, {});
+      const verEntry = { data: dataVer, thumb: thumbVer, poster: posterVer };
+      if (pinRefsInVer) {
+        if (isGitSha(dataRef)) verEntry.dataRef = String(dataRef).toLowerCase();
+        if (isGitSha(thumbRef)) verEntry.thumbRef = String(thumbRef).toLowerCase();
+        if (isGitSha(posterRef)) verEntry.posterRef = String(posterRef).toLowerCase();
+      }
+      verByShard.get(shard)[slug] = verEntry;
     }
-    verByShard.get(shard)[slug] = verEntry;
 
     manifest.push({ id: idStr, slug, shard, modified: curMod });
   }
