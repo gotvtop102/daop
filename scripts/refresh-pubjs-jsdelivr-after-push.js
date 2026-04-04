@@ -1,7 +1,7 @@
 /**
  * Sau khi push JSON phim lên repo pjs102: gán dataRef + pubjs_url = commit
  * chỉ cho slug trong .pubjs-slugs-data-bumped.json (phim vừa cập nhật / chỉnh Admin).
- * Phim mới chỉ dùng @main trên client — không ghi SHA vào ver để gọn file.
+ * Slug không bumped: client dùng @main + ?v=builtAt; bumped: ghi dataRef (SHA) trong ver.
  *
  * Env: PUBJS_REPO_COMMIT = SHA sau push (bắt buộc, 7–40 hex).
  */

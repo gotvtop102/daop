@@ -4172,7 +4172,15 @@ async function main() {
       writeCategoryPages(filters);
       const prevTmdbById = await loadPreviousBuiltTmdbById();
       writeActors(hydrateMoviesWithTmdbPayload(allMovies, prevTmdbById));
+      console.log('   Incremental: index/search + home-sections từ pubjs (cùng nguồn với filters/actors).');
+      timeBuildPhaseSync('incremental: writeIndex + search', () => writeIndexAndSearchShards(allMovies, null));
+      writeHomeSectionsData(allMovies);
+      writeAutoSliderFile(allMovies);
     } else {
+      console.warn(
+        'Incremental: không đọc được phim từ movies-manifest + pubjs-output — chỉ cập nhật category từ filters.js/actors nếu có file. ' +
+          'Để rebuild filters/actors đúng: chạy full hoặc two_phase trước, hoặc giữ pubjs-output trên máy CI.'
+      );
       // Fallback: chỉ tạo lại trang từ filters.js hiện có (hành vi cũ)
       const filtersPath = path.join(PUBLIC_DATA, 'filters.js');
       const filterOrderPath = path.join(PUBLIC_DATA, 'config', 'filter-order.json');
@@ -4232,6 +4240,7 @@ async function main() {
     const buildVersion = { builtAt: new Date().toISOString() };
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
     injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
+    timeBuildPhaseSync('incremental: home-bootstrap (build version)', () => writeHomeBootstrapFile());
     injectHomeLcpPreloadIntoHtml();
     await maybeMinifyPublicAssets();
     console.log('Incremental build xong.');
@@ -4266,7 +4275,7 @@ async function main() {
   const skipTmdb = (process.env.SKIP_TMDB === '1' || process.env.SKIP_TMDB === 'true');
   const tmdbOnly = (process.env.TMDB_ONLY === '1' || process.env.TMDB_ONLY === 'true');
 
-  // TMDB_ONLY: đọc pubjs từ manifest, enrich TMDB, ghi lại pubjs + ver (bump data khi payload TMDB đổi).
+  // TMDB_ONLY: đọc pubjs từ manifest, enrich TMDB, ghi lại pubjs + ver (pin SHA khi có env); đồng bộ filters/home như full build.
   if (tmdbOnly) {
     if (skipTmdb) {
       console.log('TMDB_ONLY: SKIP_TMDB đang bật, không có gì để làm.');
@@ -4282,9 +4291,14 @@ async function main() {
     }
     if (!allMovies.length) {
       throw new Error(
-        'TMDB_ONLY requires pubjs JSON files + movies-manifest.json (or prevMoviesById). Chạy full build trước.'
+        'TMDB_ONLY: thiếu pubjs — cần pubjs-output/<shard>/*.json và public/data/movies-manifest.json ' +
+          '(từ lần build CORE với SKIP_TMDB=1, full build, hoặc artifact CI sau bước 1). ' +
+          'Chỉ clone repo không có pubjs-output (thường không commit) thì không chạy được một mình pha TMDB.'
       );
     }
+    console.log(
+      'TMDB_ONLY: một pha — dùng pubjs + manifest sẵn có (sau CORE / full trên cùng runner hoặc restore artifact).'
+    );
     console.log('TMDB_ONLY: loaded movies from pubjs:', allMovies.length);
     console.log('[TIMING] ✓ TMDB_ONLY: load pubjs:', fmtBuildMs(Date.now() - tLoad));
 
@@ -4357,10 +4371,25 @@ async function main() {
       console.warn('TMDB_ONLY: rebuild actors failed (continue):', e && e.message ? e.message : e);
     }
 
+    // Giống full build 6c+6e: lịch chiếu / filters / trang chủ dựa trên allMovies đã có cast_meta TMDB.
+    await timeBuildPhase('TMDB_ONLY: filters + category + home sections', async () => {
+      const { genreNames, countryNames } = await fetchOPhimGenresAndCountries();
+      const f = writeFilters(allMovies, genreNames, countryNames);
+      writeCategoryPages(f);
+      writeHomeSectionsData(allMovies);
+      writeAutoSliderFile(allMovies);
+      writeHomeBootstrapFile();
+      injectHomeLcpPreloadIntoHtml();
+    });
+
     const buildVersion = { builtAt: new Date().toISOString() };
     fs.writeFileSync(path.join(PUBLIC_DATA, 'build_version.json'), JSON.stringify(buildVersion, null, 2));
     injectFiltersJsCacheBustIntoHtml(path.join(ROOT, 'public'), buildVersion.builtAt);
+    timeBuildPhaseSync('TMDB_ONLY: refresh home-bootstrap (build version)', () => writeHomeBootstrapFile());
     await maybeMinifyPublicAssets();
+    console.log(
+      'TMDB_ONLY: một pha hoàn tất — pubjs/filters/home/index/actors đã khớp; không cập nhật OPhim trong lần chạy này.'
+    );
     console.log('TMDB_ONLY build done.');
     console.log('[TIMING] Total (TMDB_ONLY):', fmtBuildMs(Date.now() - buildT0));
     return;
@@ -4521,6 +4550,12 @@ async function main() {
   const lastModifiedOut = newLastModified || {};
   fs.writeFileSync(lastModifiedPath, JSON.stringify(lastModifiedOut, null, 2));
   await maybeMinifyPublicAssets();
+  if (skipTmdb) {
+    console.warn(
+      'SKIP_TMDB (pha 1 / CORE): chưa gọi TMDB — cast_meta/keywords có thể thiếu; ảnh diễn viên phụ thuộc TMDB sẽ đầy sau pha 2. ' +
+        'Hai pha: chạy thêm TMDB_ONLY=1 trên cùng pubjs-output + public/data đã build, hoặc dùng full build (bỏ SKIP_TMDB).'
+    );
+  }
   console.log('Build done.');
   console.log('[TIMING] Total (full build):', fmtBuildMs(Date.now() - buildT0));
 }
