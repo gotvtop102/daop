@@ -16,6 +16,7 @@ import {
 import { PlusOutlined, EditOutlined, DeleteOutlined, LinkOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
+import { buildCdnMovieImageUrlById } from '../lib/movie-image-urls';
 
 type SlideItem = {
   image_url: string;
@@ -345,10 +346,18 @@ export default function Slider() {
       }
 
       const linkUrl = '/phim/' + (movie.slug || slug) + '.html';
-      const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
-      const imgRaw = ((movie as any).poster || derivedPoster || movie.thumb || (movie as any).image_url || '').replace(/^\/\//, 'https://');
-      const uploadsUrl = pickUploadsUrlFromAnyUrl(imgRaw);
-      const img = uploadsUrl || normalizeStoredSlideImageUrl(imgRaw);
+      const r2b = String(r2ImgDomain || '').replace(/\/$/, '');
+      const mid = String((movie as any).id != null ? (movie as any).id : '').trim();
+      let img = '';
+      if (r2b && mid) {
+        img = buildCdnMovieImageUrlById(r2b, mid, 'poster');
+      }
+      if (!img) {
+        const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
+        const imgRaw = ((movie as any).poster || derivedPoster || movie.thumb || (movie as any).image_url || '').replace(/^\/\//, 'https://');
+        const uploadsUrl = pickUploadsUrlFromAnyUrl(imgRaw);
+        img = uploadsUrl || normalizeStoredSlideImageUrl(imgRaw);
+      }
       const title = movie.title || movie.origin_name || (movie as any).name || '';
       const countryName = Array.isArray(movie.country)
         ? (movie.country[0]?.name || '')
@@ -439,12 +448,20 @@ export default function Slider() {
         return 0;
       });
 
+      const r2b = String(r2ImgDomain || '').replace(/\/$/, '');
       const newSlides: SlideItem[] = sorted.slice(0, n).map((movie: any, i: number) => {
         const linkUrl = '/phim/' + (movie.slug || movie.id) + '.html';
-        const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
-        const imgRaw = (movie.poster || derivedPoster || movie.thumb || movie.image_url || '').replace(/^\/\//, 'https://');
-        const uploadsUrl = pickUploadsUrlFromAnyUrl(imgRaw);
-        const img = uploadsUrl || normalizeStoredSlideImageUrl(imgRaw);
+        const mid = String(movie?.id != null ? movie.id : '').trim();
+        let img = '';
+        if (r2b && mid) {
+          img = buildCdnMovieImageUrlById(r2b, mid, 'poster');
+        }
+        if (!img) {
+          const derivedPoster = (!movie.poster && movie.thumb) ? derivePosterFromThumb(movie.thumb) : '';
+          const imgRaw = (movie.poster || derivedPoster || movie.thumb || movie.image_url || '').replace(/^\/\//, 'https://');
+          const uploadsUrl = pickUploadsUrlFromAnyUrl(imgRaw);
+          img = uploadsUrl || normalizeStoredSlideImageUrl(imgRaw);
+        }
         const title = movie.title || movie.origin_name || movie.name || '';
         const countryName = Array.isArray(movie.country) && movie.country[0] ? (movie.country[0].name || '') : '';
         const genreNames = Array.isArray(movie.genre)

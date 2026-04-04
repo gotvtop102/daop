@@ -280,7 +280,11 @@ export default function SiteSettings() {
                         }
                       />
                     </Form.Item>
-                    <Form.Item name="r2_img_domain" label="Base URL ảnh (jsDelivr …/public)">
+                    <Form.Item
+                      name="r2_img_domain"
+                      label="Base URL ảnh (jsDelivr …/public)"
+                      extra="Ảnh phim trong repo: public/thumbs/{id phim}.webp và public/posters/{id phim}.webp (đặt tên theo id, không theo slug)."
+                    >
                       <Input placeholder="https://cdn.jsdelivr.net/gh/user/repo@main/public" />
                     </Form.Item>
                     <Form.Item name="ophim_img_domain" label="Domain ảnh OPhim (fallback)">

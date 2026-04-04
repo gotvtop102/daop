@@ -29,6 +29,11 @@ import {
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
+import {
+  buildCdnMovieImageUrlById,
+  buildOphimUploadsImageUrlById,
+  extractImageFileStem,
+} from '../lib/movie-image-urls';
 import { parseViteTmdbKeys, fetchWithTmdbKeyRotation } from '../lib/tmdb-fetch';
 
 const { Title } = Typography;
@@ -286,8 +291,8 @@ export default function MovieEdit() {
     const p0 = normalizeMovieImageUrl(String(posterRaw || '').trim(), 'poster');
     const t0 = normalizeMovieImageUrl(String(thumbRaw || '').trim(), 'thumb');
 
-    const p = p0 || (movieId ? buildImageUrlFromSlug(movieId, 'poster') : '');
-    const t = t0 || (movieId ? buildImageUrlFromSlug(movieId, 'thumb') : '');
+    const p = p0 || (movieId ? buildRepoMovieImageUrlById(movieId, 'poster') : '');
+    const t = t0 || (movieId ? buildRepoMovieImageUrlById(movieId, 'thumb') : '');
 
     setPosterPreview(p);
     setThumbPreview(t);
@@ -311,47 +316,13 @@ export default function MovieEdit() {
     loadConfig();
   }, []);
 
-  const extractImageSlug = (raw: string) => {
-    const u = String(raw || '').trim();
-    if (!u) return '';
-    const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
-    const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
-    let name = u;
-    if (/^https?:\/\//i.test(u)) {
-      try {
-        const parsed = new URL(u);
-        const p = parsed.pathname || '';
-        const underKnownDomain =
-          (!!r2 && parsed.origin === r2) ||
-          (!!ophim && parsed.origin === ophim);
-        if (!underKnownDomain && p.indexOf('/uploads/') !== 0) {
-          return u;
-        }
-        name = p.split('/').pop() || '';
-      } catch {
-        name = u.split('/').pop() || '';
-      }
-    } else if (u.startsWith('/')) {
-      if (u.indexOf('/uploads/') !== 0) return u;
-      name = u.split('/').pop() || '';
-    }
-    name = name.split('?')[0].split('#')[0];
-    name = name.replace(/\.(jpe?g|jpg|png|webp|gif)$/i, '');
-    name = name
-      .replace(/[-_]?thumb$/i, '')
-      .replace(/[-_]?poster$/i, '')
-      .trim();
-    return name;
-  };
-
-  const buildImageUrlFromSlug = (slug: string, kind: 'thumb' | 'poster') => {
-    const s = String(slug || '').trim();
-    if (!s) return '';
-    const r2 = String(r2ImgDomain || '').replace(/\/$/, '');
-    const ophim = String(ophimImgDomain || '').replace(/\/$/, '');
-    if (r2) return `${r2}/${kind === 'poster' ? 'posters' : 'thumbs'}/${s}.webp`;
-    if (ophim) return `${ophim}/uploads/${kind === 'poster' ? 'posters' : 'thumbs'}/${s}.webp`;
-    return '';
+  /** CDN/repo: thumbs|posters/{id phim}.webp */
+  const buildRepoMovieImageUrlById = (movieId: string, kind: 'thumb' | 'poster') => {
+    const idStr = String(movieId || '').trim();
+    if (!idStr) return '';
+    const r2u = buildCdnMovieImageUrlById(r2ImgDomain, idStr, kind);
+    if (r2u) return r2u;
+    return buildOphimUploadsImageUrlById(ophimImgDomain, idStr, kind);
   };
 
   const normalizeMovieImageUrl = (raw: string, kind: 'thumb' | 'poster') => {
@@ -402,9 +373,11 @@ export default function MovieEdit() {
       if (r2u) return r2u;
       if (ophim) return ophim + u;
     }
-    // slug-only
-    const slug = extractImageSlug(u);
-    return slug ? buildImageUrlFromSlug(slug, kind) : u;
+    const stem = extractImageFileStem(u, { r2Origin: r2ImgDomain, ophimOrigin: ophimImgDomain });
+    if (!stem) return u;
+    if (/^https?:\/\//i.test(stem)) return stem;
+    if (stem.startsWith('/')) return u;
+    return buildRepoMovieImageUrlById(stem, kind);
   };
 
   // Load movie data
@@ -1054,8 +1027,9 @@ export default function MovieEdit() {
                   name="poster_url"
                   label="URL Poster"
                   rules={[{ required: isNew, message: 'Vui lòng nhập URL poster' }]}
+                  extra="Sau upload lên repo CDN, ảnh chuẩn là posters/{id phim}.webp (base trong Cài đặt → Base URL ảnh). Xem trước bên dưới dùng id phim nếu ô trống."
                 >
-                  <Input placeholder="https://..." onChange={handlePosterChange} />
+                  <Input placeholder="https://... hoặc để trống nếu đã có file theo id" onChange={handlePosterChange} />
                 </Form.Item>
 
                 <div style={{ textAlign: 'center', marginTop: 16 }}>
@@ -1069,8 +1043,12 @@ export default function MovieEdit() {
 
                 <Divider />
 
-                <Form.Item name="thumb_url" label="URL Thumbnail (nếu có)">
-                  <Input placeholder="https://..." onChange={handleThumbChange} />
+                <Form.Item
+                  name="thumb_url"
+                  label="URL Thumbnail (nếu có)"
+                  extra="Trên CDN: thumbs/{id phim}.webp."
+                >
+                  <Input placeholder="https://... hoặc để trống nếu đã có file theo id" onChange={handleThumbChange} />
                 </Form.Item>
 
                 <div style={{ textAlign: 'center', marginTop: 16 }}>
