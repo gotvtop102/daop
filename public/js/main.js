@@ -26,6 +26,37 @@
     return window.DAOP._dataCacheBustPromise;
   };
 
+  /**
+   * Luôn fetch lại build_version (no-store) để cập nhật ?v= sau deploy; xóa cache ver shard nếu builtAt đổi.
+   * Dùng trước khi tải pubjs @main — tránh tab mở lâu vẫn ghép ?v= cũ. Nhiều gọi song song dùng chung một fetch.
+   */
+  window.DAOP.refreshBuildVersionCacheBust = function () {
+    window.DAOP = window.DAOP || {};
+    if (window.DAOP._refreshBustInFlight) return window.DAOP._refreshBustInFlight;
+    window.DAOP._refreshBustInFlight = fetch(BASE + '/data/build_version.json', { cache: 'no-store' })
+      .then(function (r) {
+        return r.ok ? r.json() : {};
+      })
+      .then(function (ver) {
+        var q = ver && ver.builtAt ? '?v=' + encodeURIComponent(ver.builtAt) : '';
+        var prev = window.DAOP._dataCacheBust || '';
+        if (prev !== q) {
+          window.DAOP._dataCacheBust = q;
+          window.DAOP._dataCacheBustPromise = null;
+          window.DAOP._verShardCache = {};
+          window.DAOP._verShardCacheBust = '';
+        }
+        return q;
+      })
+      .catch(function () {
+        return window.DAOP._dataCacheBust || '';
+      })
+      .finally(function () {
+        window.DAOP._refreshBustInFlight = null;
+      });
+    return window.DAOP._refreshBustInFlight;
+  };
+
   /** Một lần fetch site-settings cho toàn trang (tránh trùng giữa loading screen, CategoryPage, search…). */
   window.DAOP.ensureSiteSettingsLoaded = function (skipHomeBootstrapPromise) {
     window.DAOP = window.DAOP || {};
@@ -1292,7 +1323,13 @@
     var s = String(slug || '').trim();
     if (!s) return Promise.resolve(null);
     var shard = window.DAOP.getSlugShard2(s);
-    return window.DAOP.fetchVerShard(shard).then(function (verMap) {
+    var bustRefresh =
+      typeof window.DAOP.refreshBuildVersionCacheBust === 'function'
+        ? window.DAOP.refreshBuildVersionCacheBust()
+        : Promise.resolve();
+    return bustRefresh.then(function () {
+      return window.DAOP.fetchVerShard(shard);
+    }).then(function (verMap) {
       var resolved = resolveVerEntryForSlug(verMap, s);
       var slugForPath = resolved ? resolved.slugForPath : s;
       var entry = resolved ? resolved.entry : null;

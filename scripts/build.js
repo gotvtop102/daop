@@ -2136,8 +2136,14 @@ async function enrichTmdb(movies) {
         const cast = castMetaCompact.map((c) => c.name);
         const director = (creditsRes && Array.isArray(creditsRes.crew)) ? creditsRes.crew.filter((c) => c.job === 'Director').map((c) => c.name) : [];
         const keywords = (keywordsRes && Array.isArray(keywordsRes.keywords)) ? keywordsRes.keywords.map((k) => k.name) : [];
-        m.cast = m.cast?.length ? m.cast : cast;
-        m.cast_meta = Array.isArray(m.cast_meta) && m.cast_meta.length ? m.cast_meta : castMetaCompact;
+        // OPhim thường gửi cast_meta không có profile — nếu giữ sẽ mất ảnh TMDB; khi credits TMDB có dữ liệu thì ưu tiên cast_meta từ TMDB.
+        if (castMetaCompact.length > 0) {
+          m.cast_meta = castMetaCompact;
+          m.cast = cast;
+        } else {
+          m.cast = m.cast?.length ? m.cast : cast;
+          m.cast_meta = Array.isArray(m.cast_meta) && m.cast_meta.length ? m.cast_meta : castMetaCompact;
+        }
         m.director = m.director?.length ? m.director : director;
         m.keywords = m.keywords?.length ? m.keywords : keywords;
         if (!m.poster && detailRes?.poster_path) {

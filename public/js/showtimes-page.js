@@ -286,9 +286,12 @@
       }
     } catch (eF) {}
 
-    var bustP = (window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function')
-      ? window.DAOP.ensureDataCacheBust()
-      : Promise.resolve((window.DAOP && window.DAOP._dataCacheBust) || '');
+    var bustP =
+      window.DAOP && typeof window.DAOP.refreshBuildVersionCacheBust === 'function'
+        ? window.DAOP.refreshBuildVersionCacheBust()
+        : window.DAOP && typeof window.DAOP.ensureDataCacheBust === 'function'
+          ? window.DAOP.ensureDataCacheBust()
+          : Promise.resolve((window.DAOP && window.DAOP._dataCacheBust) || '');
     bustP
       .then(function (q) {
         return fetch(baseUrl + '/data/filters.json' + (q || ''), { cache: 'no-store' });
