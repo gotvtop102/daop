@@ -730,8 +730,9 @@ function normalizeMovieCastForPubjs(m, maxCast = MAX_CAST_PUBJS) {
 }
 
 /**
- * Ghi JSON phim vào pubjs-output (không commit vào repo dự án — đồng bộ pjs102 qua npm run push-pubjs-repo),
- * public/data/ver/*.json (chỉ slug cần bust @main: token `b`, không lưu modified OPhim; ref SHA sau push qua refresh script),
+ * Ghi JSON phim vào pubjs-output (đồng bộ pjs102 qua push repo ngoài),
+ * public/data/ver/*.json: build chỉ ghi token `b` khi cần bust @main (OPhim đổi / admin NEW); **không** ghi SHA ref ở đây.
+ * SHA ref trong ver do refresh-pubjs sau push, chỉ cho slug trong `.pubjs-slugs-data-bumped.json` (= pubjs “build lại”, mặc định không gồm phim mới lần đầu).
  * movies-manifest.json, cdn.json
  * @returns {{ newLastModified: Object, batchPtrById: null }}
  */
@@ -750,8 +751,9 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
   const touchedVerShards = new Set();
   const manifest = [];
   /**
-   * Slug cần refresh ref sau push: file pubjs đã tồn tại và payload (chuẩn hoá) đổi; hoặc file mới + PUBJS_BUMP_NEW_SLUGS=1.
-   * So canonical tránh coi là đổi vì thứ tự key / thứ tự tập; bỏ thumb/poster/pubjs_url khỏi so sánh.
+   * Bump list → refresh ghi ref/commit vào ver. Cần: (đã có file pubjs || PUBJS_BUMP_NEW_SLUGS=1)
+   * và (OPhim modified đổi || Admin có cờ cột update || PUBJS_BUMP_NEW_SLUGS=1)
+   * và (diskWriteNeeded || OPhim modified đổi) — tránh bump chỉ TMDB; vẫn bump khi chỉ đổi modified OPhim mà canonical không ghi disk.
    */
   const dataBumpedSlugs = [];
   const bumpBrandNewPubjs = /^1|true|yes$/i.test(String(process.env.PUBJS_BUMP_NEW_SLUGS || '').trim());
@@ -775,6 +777,16 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     if (!curMod && prevMod) curMod = prevMod;
     merged.modified = curMod;
     newLastModified[idStr] = ledgerMod;
+
+    const hasPrevLedger = isTrustedLastModifiedLedgerForVer(prevLastModified);
+    const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
+    const prevModStored = hadPrevId ? normalizeModifiedValue(prevLastModified[idStr]) : '';
+    const ophimVerReason =
+      hasPrevLedger && hadPrevId && ophimModifiedMeaningfullyChanged(prevModStored, ledgerMod);
+    /** Bất kỳ cờ update nào từ Admin/Supabase (NEW, …) → được coi là “Admin” cho bump refresh. */
+    const adminBumpForRefresh = !!(m && m._from_supabase && String(m._customUpdateStatus || '').trim());
+    const adminNewVerReason =
+      !!(m && m._from_supabase && String(m._customUpdateStatus || '').toUpperCase() === 'NEW');
 
     const shard = getSlugShard2(slug);
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
@@ -803,7 +815,13 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
       pubjsPayloadChanged = !isPubjsCanonicalUnchanged(mergedForPubjs, prevNorm);
     }
     const diskWriteNeeded = pubjsNeedsDiskWrite(hadReadablePrev, prevNorm, nextPubjsJson, merged, pubjsPayloadChanged);
-    if (diskWriteNeeded && (hadPubjsFile || bumpBrandNewPubjs)) {
+    const bumpSourceReason = ophimVerReason || adminBumpForRefresh || bumpBrandNewPubjs;
+    /** OPhim đổi modified có thể không làm đổi canonical (đã bỏ modified khỏi so) — vẫn bump để refresh/ref theo nguồn OPhim. */
+    if (
+      (hadPubjsFile || bumpBrandNewPubjs) &&
+      bumpSourceReason &&
+      (diskWriteNeeded || ophimVerReason)
+    ) {
       dataBumpedSlugs.push(slug);
     }
     if (diskWriteNeeded) {
@@ -818,22 +836,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     m.poster = merged.poster;
     if (merged.pubjs_url) m.pubjs_url = merged.pubjs_url;
 
-    /**
-     * ver: (1) admin Supabase update=NEW, hoặc (2) OPhim: id đã có trong last_modified.json do build trước ghi (`__buildLedger`) và modified đổi.
-     * Phim mới / ledger seed không cờ: không bust ver OPhim hàng loạt. Mỗi entry ver: { b }.
-     */
-    const hasPrevLedger = isTrustedLastModifiedLedgerForVer(prevLastModified);
-    
-    const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
-    const prevModStored = hadPrevId ? normalizeModifiedValue(prevLastModified[idStr]) : '';
-
-    /** So với ledger đã ghi (ledgerMod), không so với curMod có fallback prev — tránh false positive. */
-    const ophimVerReason =
-      hasPrevLedger && hadPrevId && ophimModifiedMeaningfullyChanged(prevModStored, ledgerMod);
-
-    const adminNewVerReason =
-      !!(m && m._from_supabase && String(m._customUpdateStatus || '').toUpperCase() === 'NEW');
-
+    /** ver `b`: admin NEW hoặc OPhim modified đổi (đã tính ophimVerReason / adminNewVerReason phía trên). */
     const verWrite = adminNewVerReason || ophimVerReason;
 
     if (verWrite) {
@@ -858,6 +861,12 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
         hadPubjsFile,
         pubjsPayloadChanged,
         verWrite: !!verWrite,
+        bumpRefresh:
+          (hadPubjsFile || bumpBrandNewPubjs) &&
+          bumpSourceReason &&
+          (diskWriteNeeded || ophimVerReason),
+        ophimVerReason: !!ophimVerReason,
+        adminBumpForRefresh: !!adminBumpForRefresh,
         skipReason: diskWriteNeeded ? '' : skipReason,
       });
     }

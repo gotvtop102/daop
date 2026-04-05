@@ -1,5 +1,5 @@
 /**
- * Sau khi push repo ảnh: chỉ slug trong .pubjs-slugs-data-bumped.json (phim đổi trong build)
+ * Sau khi push repo ảnh: chỉ slug trong .pubjs-slugs-data-bumped.json (cùng danh sách bump với pubjs — mặc định phim build lại, không phải phim mới lần đầu).
  * Ghi imageRef (hoặc ref nếu trùng data); cdn.images.ref = main; movies-light chỉ sửa dòng bumped.
  *
  * Env: IMAGE_REPO_COMMIT hoặc --sha=<commit> (7–40 hex).

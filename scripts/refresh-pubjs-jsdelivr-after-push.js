@@ -6,6 +6,9 @@
  * Build có thể “skip” vì so payload nội dung; refresh khác nhiệm vụ: lần đầu sau bump phải đổi URL @main → @sha
  * (chưa pin thì không thể bỏ qua). Chạy lại cùng SHA: đã có `alreadyPinned` + so URL/ref lỏng (7 vs 40 hex).
  *
+ * Slug trong `.pubjs-slugs-data-bumped.json` = OPhim modified đổi (ledger) hoặc Admin có cờ `update` (hoặc PUBJS_BUMP_NEW_SLUGS),
+ * kèm điều kiện ghi disk hoặc chỉ đổi modified OPhim — không bump thuần TMDB/cast. Phim mới OPhim mặc định không vào list.
+ *
  * Env: PUBJS_REPO_COMMIT = SHA sau push (bắt buộc, 7–40 hex).
  */
 import 'dotenv/config';
