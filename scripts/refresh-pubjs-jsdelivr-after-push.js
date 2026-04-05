@@ -45,6 +45,31 @@ function writeVerShardFiles(verDir, verByShard) {
   }
 }
 
+/** Ver đã pin đúng commit + pubjs_url trong JSON khớp → không ghi lại (tránh chạy refresh trùng). */
+async function alreadyPinnedPubjsSlug(slug, entry, sha, imgSha, pubjsRoot) {
+  const d = normalizeCommitSha(sha);
+  const i = normalizeCommitSha(imgSha) || d;
+  if (!d || !entry || typeof entry !== 'object') return false;
+  let refsOk = false;
+  if (d === i) {
+    refsOk = normalizeCommitSha(entry.ref) === d;
+  } else {
+    refsOk =
+      normalizeCommitSha(String(entry.dataRef || '')) === d &&
+      normalizeCommitSha(String(entry.imageRef || '')) === i;
+  }
+  if (!refsOk) return false;
+  const fp = path.join(pubjsRoot, getSlugShard2(slug), `${slug}.json`);
+  if (!(await fs.pathExists(fp))) return false;
+  try {
+    const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
+    const want = buildPubjsFileUrl(slug, null, sha);
+    return String(merged.pubjs_url || '') === want;
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
   const argSha = process.argv.find((a) => a.startsWith('--sha='))?.slice('--sha='.length);
   const sha = normalizeCommitSha(argSha || process.env.PUBJS_REPO_COMMIT || '');
@@ -73,6 +98,7 @@ async function main() {
   const verByShard = loadVerByShard(verDir);
 
   let updated = 0;
+  let skippedAlreadyPinned = 0;
   for (const slug of bumped) {
     const shard = getSlugShard2(slug);
     let shardObj = verByShard.get(shard);
@@ -82,10 +108,14 @@ async function main() {
     }
     if (!shardObj[slug]) shardObj[slug] = {};
     const entry = shardObj[slug];
+    const imgSha = normalizeCommitSha(process.env.IMAGE_REPO_COMMIT || '') || sha;
+    if (await alreadyPinnedPubjsSlug(slug, entry, sha, imgSha, pubjsRoot)) {
+      skippedAlreadyPinned++;
+      continue;
+    }
     delete entry.data;
     delete entry.thumb;
     delete entry.poster;
-    const imgSha = normalizeCommitSha(process.env.IMAGE_REPO_COMMIT || '') || sha;
     applyVerEntryShas(entry, { dataSha: sha, imageSha: imgSha });
 
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
@@ -121,6 +151,8 @@ async function main() {
     sha,
     '| slugs bumped:',
     bumped.length,
+    '| bỏ qua (đã pin):',
+    skippedAlreadyPinned,
     '| file cập nhật:',
     updated
   );

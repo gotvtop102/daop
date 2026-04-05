@@ -464,23 +464,6 @@ async function fetchJsonWithTimeout(url, timeoutMs = OPHIM_FETCH_TIMEOUT_MS) {
   }
 }
 
-function tmdbPayloadFingerprint(m) {
-  if (!m || typeof m !== 'object') return '';
-  const pick = {
-    tmdb: m.tmdb || null,
-    imdb: m.imdb || null,
-    cast: m.cast || [],
-    director: m.director || [],
-    cast_meta: m.cast_meta || [],
-    keywords: m.keywords || [],
-  };
-  try {
-    return JSON.stringify(pick);
-  } catch {
-    return '';
-  }
-}
-
 function writeVerShardFiles(verDir, byShard) {
   fs.ensureDirSync(verDir);
   for (const [shard, obj] of byShard.entries()) {
@@ -604,9 +587,7 @@ function normalizeMovieCastForPubjs(m, maxCast = MAX_CAST_PUBJS) {
  * movies-manifest.json, cdn.json
  * @returns {{ newLastModified: Object, batchPtrById: null }}
  */
-function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
-  opts = opts || {};
-  const tmdbPhase = !!opts.tmdbPhase;
+function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
   const pubjsRoot = getPubjsOutputDir();
   const verDir = path.join(PUBLIC_DATA, 'ver');
   fs.ensureDirSync(pubjsRoot);
@@ -619,7 +600,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
   const newLastModified = {};
   const verByShard = new Map();
   const manifest = [];
-  /** Slug có dữ liệu đổi (OPhim/Admin modified hoặc TMDB payload đổi): sau push gán @commit cho pubjs + ảnh */
+  /** Slug mà file pubjs *.json đổi nội dung (so byte) — refresh sau push chỉ pin ref cho các slug này */
   const dataBumpedSlugs = [];
 
   for (const m of sorted) {
@@ -635,19 +616,9 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
 
     const prevMod = prevLastModified && prevLastModified[idStr] != null ? prevLastModified[idStr] : null;
     const curMod = modified;
-    let modChanged = prevMod == null || String(prevMod) !== String(curMod);
 
     const shard = getSlugShard2(slug);
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
-
-    if (tmdbPhase && !modChanged && fs.existsSync(fp)) {
-      try {
-        const old = JSON.parse(fs.readFileSync(fp, 'utf8'));
-        if (tmdbPayloadFingerprint(old) !== tmdbPayloadFingerprint(merged)) modChanged = true;
-      } catch {}
-    }
-
-    if (modChanged) dataBumpedSlugs.push(slug);
 
     const { dataRef, thumbRef, posterRef } = pickPerMovieJsDelivrRefs();
 
@@ -655,8 +626,20 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: posterRef });
     merged.pubjs_url = buildPubjsFileUrl(slug, null, dataRef);
 
+    const nextPubjsJson = JSON.stringify(merged);
+    let pubjsBytesChanged = true;
+    if (fs.existsSync(fp)) {
+      try {
+        pubjsBytesChanged = fs.readFileSync(fp, 'utf8') !== nextPubjsJson;
+      } catch {
+        pubjsBytesChanged = true;
+      }
+    }
+    /** Chỉ slug pubjs đổi thật mới vào bump — refresh sau push không ghi ref/hash cả đống phim không đổi. */
+    if (pubjsBytesChanged) dataBumpedSlugs.push(slug);
+
     fs.ensureDirSync(path.dirname(fp));
-    fs.writeFileSync(fp, JSON.stringify(merged), 'utf8');
+    fs.writeFileSync(fp, nextPubjsJson, 'utf8');
 
     m.thumb = merged.thumb;
     m.poster = merged.poster;
@@ -4338,7 +4321,7 @@ async function main() {
     console.log('Writing TMDB pubjs + ver...');
     let newLastModifiedTmdb = null;
     timeBuildPhaseSync('TMDB_ONLY: writePubjsMoviesAndVer', () => {
-      const r = writePubjsMoviesAndVer(allMovies, prevLastModified || undefined, tmdbById, { tmdbPhase: true });
+      const r = writePubjsMoviesAndVer(allMovies, prevLastModified || undefined, tmdbById);
       newLastModifiedTmdb = r && r.newLastModified ? r.newLastModified : null;
     });
     try {
