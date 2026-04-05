@@ -558,6 +558,22 @@ function ophimModifiedMeaningfullyChanged(prevNorm, curNorm) {
   return p !== c;
 }
 
+/** Ledger chỉ tin cho bust ver OPhim khi do build ghi — tránh last_modified.json seed/commit (timestamp cũ ≠ API) ghi ver cả đống lần đầu. */
+const LAST_MODIFIED_LEDGER_FLAG = '__buildLedger';
+
+function isTrustedLastModifiedLedgerForVer(o) {
+  if (o == null || typeof o !== 'object') return false;
+  if (o[LAST_MODIFIED_LEDGER_FLAG] !== true) return false;
+  for (const k of Object.keys(o)) {
+    if (k !== LAST_MODIFIED_LEDGER_FLAG) return true;
+  }
+  return false;
+}
+
+function serializeLastModifiedJson(idToModifiedMap) {
+  return JSON.stringify({ [LAST_MODIFIED_LEDGER_FLAG]: true, ...idToModifiedMap }, null, 2);
+}
+
 function normalizeModifiedValue(v) {
   if (v == null) return '';
   const s = String(v).trim();
@@ -727,14 +743,10 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     if (merged.pubjs_url) m.pubjs_url = merged.pubjs_url;
 
     /**
-     * ver: (1) admin Supabase update=NEW, hoặc (2) OPhim: id đã có trong last_modified.json và modified đổi.
-     * Phim mới (lần đầu xuất hiện trong ledger) không ghi ver — chỉ ?v= build_version. Không ghi ver khi chỉ đổi TMDB mà modified OPhim không đổi.
-     * Mỗi entry: { b } — token bust &m= @main.
+     * ver: (1) admin Supabase update=NEW, hoặc (2) OPhim: id đã có trong last_modified.json do build trước ghi (`__buildLedger`) và modified đổi.
+     * Phim mới / ledger seed không cờ: không bust ver OPhim hàng loạt. Mỗi entry ver: { b }.
      */
-    const hasPrevLedger =
-      prevLastModified != null &&
-      typeof prevLastModified === 'object' &&
-      Object.keys(prevLastModified).length > 0;
+    const hasPrevLedger = isTrustedLastModifiedLedgerForVer(prevLastModified);
     
     const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
     const prevModStored = hadPrevId ? normalizeModifiedValue(prevLastModified[idStr]) : '';
@@ -4409,7 +4421,7 @@ async function main() {
     });
     try {
       if (newLastModifiedTmdb) {
-        fs.writeFileSync(lastModifiedPath, JSON.stringify(newLastModifiedTmdb, null, 2));
+        fs.writeFileSync(lastModifiedPath, serializeLastModifiedJson(newLastModifiedTmdb));
       }
     } catch {}
 
@@ -4578,7 +4590,7 @@ async function main() {
   });
 
   try {
-    fs.writeFileSync(path.join(PUBLIC_DATA, 'last_modified.json'), JSON.stringify(newLastModified, null, 2));
+    fs.writeFileSync(path.join(PUBLIC_DATA, 'last_modified.json'), serializeLastModifiedJson(newLastModified));
   } catch {}
 
   console.log('6b. Sync update status back to Supabase (NEW → blank, slug if needed)...');
