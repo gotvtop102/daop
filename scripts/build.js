@@ -594,16 +594,35 @@ function writeLastModifiedIfChanged(absPath, idToModifiedMap) {
   return true;
 }
 
+/** Bỏ field nội bộ build (prefix `_`) khỏi JSON pubjs — tránh lệch canonical vs file cũ / lộ metadata. */
+function stripInternalKeysForPubjsOutput(obj) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+  const out = { ...obj };
+  for (const k of Object.keys(out)) {
+    if (k.startsWith('_')) delete out[k];
+  }
+  return out;
+}
+
+function normalizePubjsDiskRaw(raw) {
+  return String(raw || '')
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n/g, '\n')
+    .trimEnd();
+}
+
 /**
  * Chỉ ghi pubjs khi file mới, payload canonical đổi, hoặc thumb/poster/pubjs_url đổi.
  * Tránh ghi lại cả thư mục khi chỉ khác thứ tự key của JSON.stringify(merged).
  */
 function pubjsNeedsDiskWrite(hadReadableFile, prevRaw, nextPubjsJson, merged, pubjsPayloadChanged) {
   if (!hadReadableFile || !prevRaw) return true;
-  if (prevRaw === nextPubjsJson) return false;
+  const pr = normalizePubjsDiskRaw(prevRaw);
+  const nr = normalizePubjsDiskRaw(nextPubjsJson);
+  if (pr === nr) return false;
   if (pubjsPayloadChanged) return true;
   try {
-    const old = JSON.parse(prevRaw);
+    const old = JSON.parse(pr);
     const urlsMatch =
       String(old.thumb || '') === String(merged.thumb || '') &&
       String(old.poster || '') === String(merged.poster || '') &&
@@ -766,7 +785,8 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: posterRef });
     merged.pubjs_url = buildPubjsFileUrl(slug, null, dataRef);
 
-    const nextPubjsJson = JSON.stringify(merged);
+    const mergedForPubjs = stripInternalKeysForPubjsOutput(merged);
+    const nextPubjsJson = JSON.stringify(mergedForPubjs);
     let prevRaw = '';
     const hadPubjsFile = fs.existsSync(fp);
     if (hadPubjsFile) {
@@ -776,12 +796,13 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
         prevRaw = '';
       }
     }
-    const hadReadablePrev = hadPubjsFile && !!prevRaw;
+    const prevNorm = normalizePubjsDiskRaw(prevRaw);
+    const hadReadablePrev = hadPubjsFile && !!prevNorm;
     let pubjsPayloadChanged = true;
     if (hadReadablePrev) {
-      pubjsPayloadChanged = !isPubjsCanonicalUnchanged(merged, prevRaw);
+      pubjsPayloadChanged = !isPubjsCanonicalUnchanged(mergedForPubjs, prevNorm);
     }
-    const diskWriteNeeded = pubjsNeedsDiskWrite(hadReadablePrev, prevRaw, nextPubjsJson, merged, pubjsPayloadChanged);
+    const diskWriteNeeded = pubjsNeedsDiskWrite(hadReadablePrev, prevNorm, nextPubjsJson, merged, pubjsPayloadChanged);
     if (diskWriteNeeded && (hadPubjsFile || bumpBrandNewPubjs)) {
       dataBumpedSlugs.push(slug);
     }
@@ -827,7 +848,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     if (writeDebug && debugEntries.length < 300) {
       let skipReason = '';
       if (!diskWriteNeeded) {
-        if (prevRaw === nextPubjsJson) skipReason = 'bytes_identical';
+        if (normalizePubjsDiskRaw(prevRaw) === normalizePubjsDiskRaw(nextPubjsJson)) skipReason = 'bytes_identical';
         else if (!pubjsPayloadChanged) skipReason = 'canonical_unchanged_urls_match';
         else skipReason = 'other';
       }

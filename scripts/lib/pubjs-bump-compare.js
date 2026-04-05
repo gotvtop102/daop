@@ -60,8 +60,13 @@ export function canonicalPubjsJsonForBump(merged) {
 export function isPubjsCanonicalUnchanged(merged, prevRaw) {
   const next = canonicalPubjsJsonForBump(merged);
   if (!next) return false;
+  const raw = String(prevRaw || '')
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n/g, '\n')
+    .trimEnd();
+  if (!raw) return false;
   try {
-    const old = JSON.parse(prevRaw);
+    const old = JSON.parse(raw);
     return canonicalPubjsJsonForBump(old) === next;
   } catch {
     return false;
