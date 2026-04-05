@@ -37,14 +37,6 @@ function loadVerByShard(verDir) {
   return verByShard;
 }
 
-function writeVerShardFiles(verDir, verByShard) {
-  fs.ensureDirSync(verDir);
-  for (const [shard, obj] of verByShard.entries()) {
-    if (!shard || !obj || !Object.keys(obj).length) continue;
-    fs.writeFileSync(path.join(verDir, `${shard}.json`), JSON.stringify(obj), 'utf8');
-  }
-}
-
 /** Ver đã pin đúng commit + pubjs_url trong JSON khớp → không ghi lại (tránh chạy refresh trùng). */
 async function alreadyPinnedPubjsSlug(slug, entry, sha, imgSha, pubjsRoot) {
   const d = normalizeCommitSha(sha);
@@ -99,6 +91,8 @@ async function main() {
 
   let updated = 0;
   let skippedAlreadyPinned = 0;
+  /** Chỉ ghi lại shard ver đã sửa — tránh ghi đè toàn bộ file shard khiến git diff như “đụng hết slug”. */
+  const touchedShards = new Set();
   for (const slug of bumped) {
     const shard = getSlugShard2(slug);
     let shardObj = verByShard.get(shard);
@@ -113,6 +107,7 @@ async function main() {
       skippedAlreadyPinned++;
       continue;
     }
+    touchedShards.add(shard);
     delete entry.data;
     delete entry.thumb;
     delete entry.poster;
@@ -130,7 +125,13 @@ async function main() {
     }
   }
 
-  writeVerShardFiles(verDir, verByShard);
+  fs.ensureDirSync(verDir);
+  for (const sh of touchedShards) {
+    const obj = verByShard.get(sh);
+    if (obj && Object.keys(obj).length) {
+      fs.writeFileSync(path.join(verDir, `${sh}.json`), JSON.stringify(obj), 'utf8');
+    }
+  }
 
   const cdnPath = path.join(PUBLIC_DATA, 'cdn.json');
   if (await fs.pathExists(cdnPath)) {

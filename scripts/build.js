@@ -25,6 +25,7 @@ import {
 import { getSlugShard2, getIdShard3 } from './lib/slug-shard.js';
 import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
 import { extractMovieModifiedCanonical, extractOphimModifiedForPersist } from './lib/movie-modified.js';
+import { isPubjsCanonicalUnchanged } from './lib/pubjs-bump-compare.js';
 import {
   getPubjsOutputDir,
   getPubjsCdnBase,
@@ -600,8 +601,12 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
   const newLastModified = {};
   const verByShard = new Map();
   const manifest = [];
-  /** Slug mà file pubjs *.json đổi nội dung (so byte) — refresh sau push chỉ pin ref cho các slug này */
+  /**
+   * Slug cần refresh ref sau push: file pubjs đã tồn tại và payload (chuẩn hoá) đổi; hoặc file mới + PUBJS_BUMP_NEW_SLUGS=1.
+   * So canonical tránh coi là đổi vì thứ tự key / thứ tự tập; bỏ thumb/poster/pubjs_url khỏi so sánh.
+   */
   const dataBumpedSlugs = [];
+  const bumpBrandNewPubjs = /^1|true|yes$/i.test(String(process.env.PUBJS_BUMP_NEW_SLUGS || '').trim());
 
   for (const m of sorted) {
     const idStr = m && m.id != null ? String(m.id) : '';
@@ -627,16 +632,19 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     merged.pubjs_url = buildPubjsFileUrl(slug, null, dataRef);
 
     const nextPubjsJson = JSON.stringify(merged);
-    let pubjsBytesChanged = true;
-    if (fs.existsSync(fp)) {
+    const hadPubjsFile = fs.existsSync(fp);
+    let pubjsPayloadChanged = true;
+    if (hadPubjsFile) {
       try {
-        pubjsBytesChanged = fs.readFileSync(fp, 'utf8') !== nextPubjsJson;
+        const prevRaw = fs.readFileSync(fp, 'utf8');
+        pubjsPayloadChanged = !isPubjsCanonicalUnchanged(merged, prevRaw);
       } catch {
-        pubjsBytesChanged = true;
+        pubjsPayloadChanged = true;
       }
     }
-    /** Chỉ slug pubjs đổi thật mới vào bump — refresh sau push không ghi ref/hash cả đống phim không đổi. */
-    if (pubjsBytesChanged) dataBumpedSlugs.push(slug);
+    if (pubjsPayloadChanged && (hadPubjsFile || bumpBrandNewPubjs)) {
+      dataBumpedSlugs.push(slug);
+    }
 
     fs.ensureDirSync(path.dirname(fp));
     fs.writeFileSync(fp, nextPubjsJson, 'utf8');
@@ -697,6 +705,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
   } catch {}
 
   console.log('   Pubjs JSON:', manifest.length, 'files →', pubjsRoot);
+  console.log('   Pubjs bump (refresh ref):', dataBumpedSlugs.length, 'slugs — mới mặc định không bump (PUBJS_BUMP_NEW_SLUGS=1 nếu cần)');
   console.log('   Ver:', verByShard.size, 'shards →', verDir);
   return { newLastModified, batchPtrById: null };
 }

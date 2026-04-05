@@ -41,11 +41,20 @@ function loadVerByShard(verDir) {
   return verByShard;
 }
 
-function writeVerShardFiles(verDir, verByShard) {
-  fs.ensureDirSync(verDir);
-  for (const [shard, obj] of verByShard.entries()) {
-    if (!shard || !obj || !Object.keys(obj).length) continue;
-    fs.writeFileSync(path.join(verDir, `${shard}.json`), JSON.stringify(obj), 'utf8');
+async function imageUrlsAndVerAlreadyPinned(slug, entry, sha, pubjsRoot) {
+  const sh = normalizeCommitSha(sha);
+  if (!sh || !entry || typeof entry !== 'object') return false;
+  const imgRef = normalizeCommitSha(String(entry.imageRef || entry.ref || ''));
+  if (imgRef !== sh) return false;
+  const fp = path.join(pubjsRoot, getSlugShard2(slug), `${slug}.json`);
+  if (!(await fs.pathExists(fp))) return false;
+  try {
+    const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
+    const wantT = cdnUrlByMovieSlug(slug, 'thumbs', { ref: sha });
+    const wantP = cdnUrlByMovieSlug(slug, 'posters', { ref: sha });
+    return String(merged.thumb || '') === wantT && String(merged.poster || '') === wantP;
+  } catch {
+    return false;
   }
 }
 
@@ -115,6 +124,8 @@ async function main() {
   const pubjsRoot = getPubjsOutputDir();
   let pubjsUpdated = 0;
   let verTouched = 0;
+  let skippedAlreadyPinned = 0;
+  const touchedShards = new Set();
 
   for (const slug of bumped) {
     const shard = getSlugShard2(slug);
@@ -125,6 +136,11 @@ async function main() {
     }
     if (!shardObj[slug]) shardObj[slug] = {};
     const entry = shardObj[slug];
+    if (await imageUrlsAndVerAlreadyPinned(slug, entry, sha, pubjsRoot)) {
+      skippedAlreadyPinned++;
+      continue;
+    }
+    touchedShards.add(shard);
     delete entry.data;
     delete entry.thumb;
     delete entry.poster;
@@ -146,7 +162,13 @@ async function main() {
     }
   }
 
-  writeVerShardFiles(verDir, verByShard);
+  fs.ensureDirSync(verDir);
+  for (const sh of touchedShards) {
+    const obj = verByShard.get(sh);
+    if (obj && Object.keys(obj).length) {
+      fs.writeFileSync(path.join(verDir, `${sh}.json`), JSON.stringify(obj), 'utf8');
+    }
+  }
 
   const cdnPath = path.join(PUBLIC_DATA, 'cdn.json');
   if (await fs.pathExists(cdnPath)) {
@@ -169,6 +191,8 @@ async function main() {
     sha,
     '| slug bumped:',
     bumpedSet.size,
+    '| bỏ qua (đã pin):',
+    skippedAlreadyPinned,
     '| ver cập nhật:',
     verTouched,
     '| pubjs file:',
