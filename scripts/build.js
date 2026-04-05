@@ -721,20 +721,22 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
       typeof prevLastModified === 'object' &&
       Object.keys(prevLastModified).length > 0;
     
-    if (idx === 0) {
-      console.log(`   [DEBUG] hasPrevLedger: ${hasPrevLedger}, prevLastModified size: ${prevLastModified ? Object.keys(prevLastModified).length : 0}`);
-    }
     const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
     const prevModStored = hadPrevId ? normalizeModifiedValue(prevLastModified[idStr]) : '';
+    
+    // Nếu là build lần đầu (không có ledger cũ), hoặc phim mới hoàn toàn -> PHẢI ghi ver để client có token bust.
+    const isNewMovie = !hasPrevLedger || !hadPrevId;
+    
     const ophimVerReason =
-      hasPrevLedger &&
-      hadPrevId &&
+      !isNewMovie &&
       !!prevModStored &&
       !!curMod &&
       prevModStored !== curMod;
+    
     const adminNewVerReason =
       !!(m && m._from_supabase && String(m._customUpdateStatus || '').toUpperCase() === 'NEW');
-    const verWrite = adminNewVerReason || ophimVerReason;
+    
+    const verWrite = isNewMovie || adminNewVerReason || ophimVerReason;
 
     if (verWrite) {
       if (!verByShard.has(shard)) verByShard.set(shard, {});
@@ -742,10 +744,15 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
       const prevEntry = shardObj && shardObj[slug] && typeof shardObj[slug] === 'object' ? shardObj[slug] : {};
       
       // LOG ĐỂ KIỂM TRA TẠI SAO PHIM NÀY GHI VER
-      if (adminNewVerReason) {
+      if (isNewMovie) {
+        // Chỉ log vài cái đầu nếu là build lần đầu để tránh rác log
+        if (manifest.length < 5 || !hasPrevLedger) {
+           // console.log(`   [DEBUG] VerWrite (New/First): ${slug}`);
+        }
+      } else if (adminNewVerReason) {
         console.log(`   [DEBUG] VerWrite (Admin NEW): ${slug}`);
       } else if (ophimVerReason) {
-        console.log(`   [DEBUG] VerWrite (OPhim): ${slug} | prev: ${prevModStored} | cur: ${curMod}`);
+        console.log(`   [DEBUG] VerWrite (OPhim Change): ${slug} | prev: ${prevModStored} | cur: ${curMod}`);
       }
       
       prevEntry.b = verBustToken;
