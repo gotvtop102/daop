@@ -488,23 +488,11 @@ function writeVerShardFiles(verDir, byShard) {
 }
 
 /**
- * Chọn @ref jsDelivr cho pubjs / ảnh (luôn tính URL đầy đủ).
- * Chỉ khi phim không còn “mới” theo last_modified (đã có prevMod) VÀ vừa đổi (modChanged) mới pin commit từ env;
- * chỉ ghi SHA vào file ver khi là commit hex (writePubjsMoviesAndVer).
- * Phim không đổi: không ghi ver; client pubjs @main chỉ dùng ?v= (build_version).
+ * Chọn @ref jsDelivr cho pubjs / ảnh trong JSON build (luôn @main).
+ * Pin SHA theo commit **không** làm trong build — tránh CI đặt PUBJS_REPO_COMMIT/IMAGE_REPO_COMMIT
+ * khiến hàng loạt phim vừa đổi nhận ref mới; ghi SHA vào ver + pubjs_url sau push: refresh-pubjs-jsdelivr-after-push / refresh-image-jsdelivr-after-push.
  */
-function pickPerMovieJsDelivrRefs(modChanged, hadPrevModified, _defaultDataRef, _defaultImgRef) {
-  const dmCommit = normalizeCommitSha(process.env.PUBJS_REPO_COMMIT);
-  const imgCommit = normalizeCommitSha(process.env.IMAGE_REPO_COMMIT);
-  const fin = (r) => String(r || '').trim() || 'main';
-  const pinRefs = !!(modChanged && hadPrevModified);
-  if (pinRefs) {
-    return {
-      dataRef: fin(dmCommit || 'main'),
-      thumbRef: fin(imgCommit || 'main'),
-      posterRef: fin(imgCommit || 'main'),
-    };
-  }
+function pickPerMovieJsDelivrRefs() {
   return { dataRef: 'main', thumbRef: 'main', posterRef: 'main' };
 }
 
@@ -609,8 +597,32 @@ function normalizeMovieCastForPubjs(m, maxCast = MAX_CAST_PUBJS) {
 }
 
 /**
+ * Thời điểm cập nhật thống nhất cho last_modified / ver / so sánh đổi:
+ * OPhim thường là `modified: { time: "..." }` hoặc chuỗi; Admin/Supabase: `modified` / `updated_at`.
+ * Không tự sinh ISO lúc build (tránh lệch với API OPhim).
+ */
+function extractMovieModifiedCanonical(m) {
+  if (!m || typeof m !== 'object') return '';
+  if (m.modified && typeof m.modified === 'object' && m.modified.time != null) {
+    const t = m.modified.time;
+    return String(t).trim();
+  }
+  if (m.modified != null && typeof m.modified !== 'object') {
+    const s = String(m.modified).trim();
+    if (s) return s;
+  }
+  const u = m.updated_at != null ? String(m.updated_at).trim() : '';
+  if (u) return u;
+  const ua = m.updatedAt != null ? String(m.updatedAt).trim() : '';
+  if (ua) return ua;
+  if (m.createdAt != null && String(m.createdAt).trim()) return String(m.createdAt).trim();
+  if (m.created_at != null && String(m.created_at).trim()) return String(m.created_at).trim();
+  return '';
+}
+
+/**
  * Ghi JSON phim vào pubjs-output (không commit vào repo dự án — đồng bộ pjs102 qua npm run push-pubjs-repo),
- * public/data/ver/*.json (chỉ slug vừa đổi: modified + *Ref khi pin SHA), movies-manifest.json, cdn.json
+ * public/data/ver/*.json (chỉ slug vừa đổi: chỉ field modified — không ghi SHA; SHA sau push qua refresh script), movies-manifest.json, cdn.json
  * @returns {{ newLastModified: Object, batchPtrById: null }}
  */
 function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
@@ -627,15 +639,13 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
   const manifest = [];
   /** Slug có dữ liệu đổi (OPhim/Admin modified hoặc TMDB payload đổi): sau push gán @commit cho pubjs + ảnh */
   const dataBumpedSlugs = [];
-  const defaultDataRef = getPubjsCdnRef();
-  const defaultImgRef = getImageCdnRef();
 
   for (const m of sorted) {
     const idStr = m && m.id != null ? String(m.id) : '';
     const slug = m && m.slug != null ? String(m.slug).trim() : '';
     if (!idStr || !slug) continue;
 
-    const modified = m.modified || m.updated_at || '';
+    const modified = extractMovieModifiedCanonical(m);
     newLastModified[idStr] = modified;
 
     const prevMod = prevLastModified && prevLastModified[idStr] != null ? prevLastModified[idStr] : null;
@@ -655,10 +665,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
 
     if (modChanged) dataBumpedSlugs.push(slug);
 
-    const hadPrevModified = prevMod != null;
-    const { dataRef, thumbRef, posterRef } = pickPerMovieJsDelivrRefs(modChanged, hadPrevModified, defaultDataRef, defaultImgRef);
-    const pinRefsInVer = !!(modChanged && hadPrevModified);
-    const isGitSha = (r) => /^[0-9a-f]{7,40}$/i.test(String(r || '').trim());
+    const { dataRef, thumbRef, posterRef } = pickPerMovieJsDelivrRefs();
 
     merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: thumbRef });
     merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: posterRef });
@@ -671,15 +678,10 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     m.poster = merged.poster;
     if (merged.pubjs_url) m.pubjs_url = merged.pubjs_url;
 
-    /** ver/*.json: chỉ phim modChanged (sửa / OPhim đổi / TMDB payload đổi); modified + *Ref khi pin SHA. */
+    /** ver/*.json: chỉ slug modChanged; chỉ field modified (bust client &m=). SHA *Ref ghi sau push pubjs, không trong build. */
     if (modChanged) {
       const verEntry = {};
       if (String(curMod || '').trim()) verEntry.modified = String(curMod);
-      if (pinRefsInVer) {
-        if (isGitSha(dataRef)) verEntry.dataRef = String(dataRef).toLowerCase();
-        if (isGitSha(thumbRef)) verEntry.thumbRef = String(thumbRef).toLowerCase();
-        if (isGitSha(posterRef)) verEntry.posterRef = String(posterRef).toLowerCase();
-      }
       if (Object.keys(verEntry).length > 0) {
         if (!verByShard.has(shard)) verByShard.set(shard, {});
         verByShard.get(shard)[slug] = verEntry;
@@ -1140,11 +1142,7 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
       const idStr = rawId ? String(rawId) : '';
       if (!slug || !idStr) continue;
 
-      const rawModified =
-        (item?.modified && typeof item.modified === 'object' && item.modified.time)
-          ? item.modified.time
-          : (item?.modified || item?.updated_at || item?.updatedAt || item?.createdAt || '');
-      const modifiedStr = rawModified ? String(rawModified) : '';
+      const modifiedStr = extractMovieModifiedCanonical(item);
 
       const prev = idStr ? prevIndex?.[idStr] : null;
       const isChanged = !idStr || !prev || (modifiedStr && prev.modified !== modifiedStr);
@@ -1310,10 +1308,7 @@ function normalizeOPhimMovie(m, slug, cdnBase = 'https://img.ophim.live') {
     time: m.time,
     description: m.content || m.description || '',
     tmdb: m.tmdb || null,
-    modified:
-      (m.modified && typeof m.modified === 'object' && m.modified.time)
-        ? m.modified.time
-        : (m.modified || m.updated_at || new Date().toISOString()),
+    modified: extractMovieModifiedCanonical(m),
     cast,
     director,
   };
@@ -2163,8 +2158,8 @@ async function enrichTmdb(movies) {
 function mergeMovies(ophim, custom) {
   const getModTs = (m) => {
     if (!m) return 0;
-    const v = m.modified || m.updated_at || '';
-    const t = Date.parse(String(v));
+    const v = extractMovieModifiedCanonical(m);
+    const t = Date.parse(v);
     return Number.isFinite(t) ? t : 0;
   };
 
