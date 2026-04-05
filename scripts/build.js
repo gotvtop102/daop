@@ -712,7 +712,9 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     manifest.push({ id: idStr, slug, shard, modified: curMod });
   }
 
-  writeVerShardFiles(verDir, verByShard, touchedVerShards.size ? touchedVerShards : null);
+  if (touchedVerShards.size) {
+    writeVerShardFiles(verDir, verByShard, touchedVerShards);
+  }
   fs.writeFileSync(
     path.join(PUBLIC_DATA, 'movies-manifest.json'),
     JSON.stringify({ movies: manifest, updatedAt: new Date().toISOString() }),
