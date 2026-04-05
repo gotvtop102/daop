@@ -1,47 +1,48 @@
 /**
- * So sánh nội dung pubjs để quyết định bump (refresh ref) — tránh mỗi lần build
- * coi là đổi vì JSON.stringify khác thứ tự key / thứ tự mảng tập.
+ * So sánh nội dung pubjs để bump (refresh ref) — ổn định trước thứ tự key / thứ tự phần tử mảng lồng nhau.
  */
 
 /**
+ * Chuẩn hoá đệ quy: sort key object; mảng primitive sort; mảng object sort theo JSON.stringify phần tử đã chuẩn hoá.
  * @param {unknown} value
  * @returns {unknown}
  */
-function sortKeysDeep(value) {
+function stableDeepForBump(value) {
   if (value === null || typeof value !== 'object') return value;
-  if (Array.isArray(value)) return value.map((x) => sortKeysDeep(x));
+  if (Array.isArray(value)) {
+    const mapped = value.map((x) => stableDeepForBump(x));
+    if (!mapped.length) return mapped;
+    const prim = mapped.every(
+      (x) => x === null || ['string', 'number', 'boolean'].includes(typeof x)
+    );
+    if (prim) {
+      return [...mapped].sort((a, b) => String(a).localeCompare(String(b)));
+    }
+    try {
+      return [...mapped].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+    } catch {
+      return mapped;
+    }
+  }
   const out = {};
   for (const k of Object.keys(value).sort()) {
-    out[k] = sortKeysDeep(value[k]);
+    out[k] = stableDeepForBump(value[k]);
   }
   return out;
 }
 
 /**
- * Bỏ URL do build gắn (luôn tái tạo từ slug + env); chuẩn hoá episodes để so ổn định.
  * @param {Record<string, unknown>} merged
  * @returns {string}
  */
 export function canonicalPubjsJsonForBump(merged) {
   if (!merged || typeof merged !== 'object') return '';
   try {
-    const o = sortKeysDeep(merged);
-    delete o.pubjs_url;
-    delete o.thumb;
-    delete o.poster;
-    if (Array.isArray(o.episodes)) {
-      o.episodes = o.episodes
-        .map((g) => {
-          if (!g || typeof g !== 'object') return g;
-          const grp = sortKeysDeep(g);
-          if (Array.isArray(grp.server_data)) {
-            grp.server_data = [...grp.server_data]
-              .map((x) => sortKeysDeep(x))
-              .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
-          }
-          return grp;
-        })
-        .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+    const o = stableDeepForBump(merged);
+    if (o && typeof o === 'object' && !Array.isArray(o)) {
+      delete o.pubjs_url;
+      delete o.thumb;
+      delete o.poster;
     }
     return JSON.stringify(o);
   } catch {
@@ -52,7 +53,7 @@ export function canonicalPubjsJsonForBump(merged) {
 /**
  * @param {Record<string, unknown>} merged
  * @param {string} prevRaw utf-8 file cũ
- * @returns {boolean} true nếu payload logic giống (bỏ qua thumb/poster/pubjs_url + chuẩn hoá tập)
+ * @returns {boolean} true nếu payload logic giống
  */
 export function isPubjsCanonicalUnchanged(merged, prevRaw) {
   const next = canonicalPubjsJsonForBump(merged);

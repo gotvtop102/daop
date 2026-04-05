@@ -723,38 +723,22 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     
     const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
     const prevModStored = hadPrevId ? normalizeModifiedValue(prevLastModified[idStr]) : '';
-    
-    // Nếu là build lần đầu (không có ledger cũ), hoặc phim mới hoàn toàn -> PHẢI ghi ver để client có token bust.
-    const isNewMovie = !hasPrevLedger || !hadPrevId;
-    
+
+    /** Không ghi ver cho build lần đầu / phim mới hàng loạt — chỉ admin NEW hoặc OPhim modified đổi so với ledger. */
     const ophimVerReason =
-      !isNewMovie &&
-      !!prevModStored &&
-      !!curMod &&
-      prevModStored !== curMod;
-    
+      hasPrevLedger &&
+      hadPrevId &&
+      String(prevModStored ?? '') !== String(curMod ?? '');
+
     const adminNewVerReason =
       !!(m && m._from_supabase && String(m._customUpdateStatus || '').toUpperCase() === 'NEW');
-    
-    const verWrite = isNewMovie || adminNewVerReason || ophimVerReason;
+
+    const verWrite = adminNewVerReason || ophimVerReason;
 
     if (verWrite) {
       if (!verByShard.has(shard)) verByShard.set(shard, {});
       const shardObj = verByShard.get(shard);
       const prevEntry = shardObj && shardObj[slug] && typeof shardObj[slug] === 'object' ? shardObj[slug] : {};
-      
-      // LOG ĐỂ KIỂM TRA TẠI SAO PHIM NÀY GHI VER
-      if (isNewMovie) {
-        // Chỉ log vài cái đầu nếu là build lần đầu để tránh rác log
-        if (manifest.length < 5 || !hasPrevLedger) {
-           // console.log(`   [DEBUG] VerWrite (New/First): ${slug}`);
-        }
-      } else if (adminNewVerReason) {
-        console.log(`   [DEBUG] VerWrite (Admin NEW): ${slug}`);
-      } else if (ophimVerReason) {
-        console.log(`   [DEBUG] VerWrite (OPhim Change): ${slug} | prev: ${prevModStored} | cur: ${curMod}`);
-      }
-      
       prevEntry.b = verBustToken;
       shardObj[slug] = prevEntry;
       touchedVerShards.add(shard);
@@ -783,7 +767,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
 
   console.log('   Pubjs JSON:', manifest.length, 'files →', pubjsRoot);
   console.log('   Pubjs bump (refresh ref):', dataBumpedSlugs.length, 'slugs — mới mặc định không bump (PUBJS_BUMP_NEW_SLUGS=1 nếu cần)');
-  console.log('   Ver:', verByShard.size, 'shards →', verDir);
+  console.log('   Ver shards ghi (có thay đổi):', touchedVerShards.size, '| map:', verByShard.size, '→', verDir);
   return { newLastModified, batchPtrById: null };
 }
 
