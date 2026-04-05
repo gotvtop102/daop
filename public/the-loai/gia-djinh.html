@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Năm phát hành | GoTV</title>
+  <title>Thể loại | GoTV</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -21,7 +21,7 @@
     <nav class="site-nav"><div class="site-nav-main"><a href="../phim-bo.html">Phim bộ</a><a href="../phim-le.html">Phim lẻ</a><a href="../the-loai/">Thể loại</a><a href="../quoc-gia/">Quốc gia</a><a href="../chu-de/">Chủ đề</a><a href="../dien-vien/">Diễn viên</a><a href="../hoat-hinh.html">Hoạt hình</a><a href="../shows.html">TV Shows</a><a href="../gioi-thieu.html">Giới thiệu</a><a href="../donate.html">Donate</a><a href="../huong-dan-app.html">Tải app</a><a href="../lien-he.html">Liên hệ</a></div><div class="site-nav-actions"><a href="../tim-kiem.html">Tìm kiếm</a><a href="../login.html">Đăng nhập</a></div></nav>
   </header>
   <main class="container">
-    <h1 id="page-title">Năm phát hành</h1>
+    <h1 id="page-title">Thể loại</h1>
     <div id="filter-bar" class="filter-bar"></div>
     <div id="movies-grid" class="movies-grid"></div>
     <div id="pagination" class="pagination"></div>
@@ -47,28 +47,47 @@
     (function(){
       function run() {
       var path = window.location.pathname;
-      var m = path.match(/\/nam-phat-hanh\/([^/]+)(\.html)?$/);
-      if (!m) m = path.match(/.+\/nam-phat-hanh\/([^/]+)(\.html)?$/);
-      var year = m ? decodeURIComponent(m[1]) : null;
-      if (!year) {
+      var m = path.match(/\/the-loai\/([^/]+)(\.html)?$/);
+      if (!m) m = path.match(/.+\/the-loai\/([^/]+)(\.html)?$/);
+      var slug = m ? decodeURIComponent(m[1]) : null;
+      if (!slug) {
         var fd = window.filtersData || {};
-        var years = Object.keys(fd.yearMap || {}).sort(function(a,b){ return Number(b) - Number(a); });
-        document.getElementById('page-title').textContent = 'Năm phát hành';
+        var genreNames = fd.genreNames || {};
+        var genreMap = fd.genreMap || {};
+        var genres = Object.keys(genreNames).length ? Object.keys(genreNames) : Object.keys(genreMap);
+        var genreOrder = (fd.filterOrder && fd.filterOrder.genreOrder) || [];
+        if (genreOrder.length) {
+          var orderSet = {};
+          genreOrder.forEach(function(k,i){ orderSet[k]=i; });
+          genres = genres.slice().sort(function(a,b){
+            var ia=orderSet[a], ib=orderSet[b];
+            if (ia!==undefined && ib!==undefined) return ia-ib;
+            if (ia!==undefined) return -1;
+            if (ib!==undefined) return 1;
+            return a<b?-1:a>b?1:0;
+          });
+        } else genres = genres.slice().sort();
+        var name = function(s){ return genreNames[s] || s; };
+        var genreIcons = { 'hanh-dong':'🥷','tinh-cam':'💕','hai-huoc':'😂','co-trang':'🏯','tam-ly':'🧩','hinh-su':'🔍','chien-tranh':'⚔️','the-thao':'⚽','vo-thuat':'🥋','vien-tuong':'🚀','phieu-luu':'🗺️','khoa-hoc':'🔬','kinh-di':'👻','am-nhac':'🎵','than-thoai':'⚡','tai-lieu':'📽️','gia-dinh':'👨‍👩‍👧‍👦','chinh-kich':'🎭','bi-an':'🕵️','hoc-duong':'📚','kinh-dien':'🎞️','phim-18':'🔞','short-drama':'📺' };
         var base = (window.DAOP && window.DAOP.basePath) || '';
-        document.getElementById('movies-grid').innerHTML = years.length
-          ? '<div class="genre-grid">' + years.map(function(y){
-              var label = String(y || '').replace(/</g, '&lt;');
-              return '<a class="genre-card" href="' + base + '/nam-phat-hanh/' + encodeURIComponent(String(y)) + '.html"><span class="genre-icon">📅</span><span class="genre-name">' + label + '</span></a>';
+        document.getElementById('page-title').textContent = 'Thể loại';
+        document.getElementById('movies-grid').innerHTML = genres.length
+          ? '<div class="genre-grid">' + genres.map(function(g){
+              var icon = genreIcons[g] || '🎬';
+              var label = (name(g) || g).replace(/</g, '&lt;');
+              return '<a class="genre-card" href="' + base + '/the-loai/' + encodeURIComponent(g) + '.html"><span class="genre-icon">' + icon + '</span><span class="genre-name">' + label + '</span></a>';
             }).join('') + '</div>'
           : '<p>Chưa có dữ liệu.</p>';
         document.getElementById('filter-bar').innerHTML = '';
         document.getElementById('pagination').innerHTML = '';
         return;
       }
-      document.getElementById('page-title').textContent = 'Năm: ' + year;
+      var fd = window.filtersData || {};
+      var displayName = (fd.genreNames && fd.genreNames[slug]) || slug;
+      document.getElementById('page-title').textContent = 'Thể loại: ' + displayName;
       new CategoryPage({
-        baseFilter: function(){ return new Set((window.filtersData && window.filtersData.yearMap && window.filtersData.yearMap[year]) || []); },
-        title: 'Năm: ' + year,
+        baseFilter: function(){ return new Set((window.filtersData && window.filtersData.genreMap && window.filtersData.genreMap[slug]) || []); },
+        title: 'Thể loại: ' + displayName,
         gridId: 'movies-grid',
         filterContainerId: 'filter-bar',
         paginationId: 'pagination'
