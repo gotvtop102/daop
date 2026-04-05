@@ -547,10 +547,19 @@ function normalizeModifiedValue(v) {
   if (v == null) return '';
   const s = String(v).trim();
   if (!s) return '';
-  const t = Date.parse(s);
+  // ISO format (YYYY-MM-DDTHH:mm:ss.sssZ) hoặc format OPhim (YYYY-MM-DD HH:mm:ss)
+  // Đưa về cùng precision (không mili giây) và giả định UTC nếu thiếu múi giờ
+  let input = s;
+  if (/^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$/.test(s)) {
+    input = s.replace(' ', 'T') + 'Z';
+  }
+  const t = Date.parse(input);
   if (Number.isFinite(t)) {
     try {
-      return new Date(t).toISOString();
+      const d = new Date(t);
+      // Bỏ qua mili giây để tránh lệch giữa các nguồn (Admin vs OPhim vs DB)
+      d.setMilliseconds(0);
+      return d.toISOString();
     } catch {
       return s;
     }
@@ -4449,9 +4458,10 @@ async function main() {
         if (prevTid != null && String(prevTid) !== String(tid)) return true;
         // Nếu phim không đổi so với last_modified và đã có payload TMDB trước đó => bỏ qua gọi TMDB.
         if (prevLastModified && typeof prevLastModified === 'object') {
-          const curMod = m.modified || m.updated_at || '';
-          const oldMod = prevLastModified[idStr];
-          if (oldMod && curMod && String(oldMod) === String(curMod)) {
+          const rawMod = m.modified || m.updated_at || '';
+          const curMod = normalizeModifiedValue(rawMod);
+          const oldMod = normalizeModifiedValue(prevLastModified[idStr]);
+          if (oldMod && curMod && oldMod === curMod) {
             return false;
           }
         }
