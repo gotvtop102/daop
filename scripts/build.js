@@ -465,11 +465,38 @@ async function fetchJsonWithTimeout(url, timeoutMs = OPHIM_FETCH_TIMEOUT_MS) {
   }
 }
 
-function writeVerShardFiles(verDir, byShard) {
+function loadVerByShard(verDir) {
+  const verByShard = new Map();
+  if (!fs.existsSync(verDir)) return verByShard;
+  let files = [];
+  try {
+    files = fs.readdirSync(verDir).filter((f) => f.endsWith('.json'));
+  } catch {
+    return verByShard;
+  }
+  for (const f of files) {
+    try {
+      const j = JSON.parse(fs.readFileSync(path.join(verDir, f), 'utf8'));
+      if (j && typeof j === 'object') verByShard.set(f.replace(/\.json$/i, ''), j);
+    } catch {}
+  }
+  return verByShard;
+}
+
+function writeVerShardFiles(verDir, byShard, touchedShards = null) {
   fs.ensureDirSync(verDir);
   for (const [shard, obj] of byShard.entries()) {
     if (!shard || !obj || !Object.keys(obj).length) continue;
-    fs.writeFileSync(path.join(verDir, `${shard}.json`), JSON.stringify(obj), 'utf8');
+    if (touchedShards && !touchedShards.has(shard)) continue;
+    const fp = path.join(verDir, `${shard}.json`);
+    const nextRaw = JSON.stringify(obj);
+    if (fs.existsSync(fp)) {
+      try {
+        const prevRaw = fs.readFileSync(fp, 'utf8');
+        if (prevRaw === nextRaw) continue;
+      } catch {}
+    }
+    fs.writeFileSync(fp, nextRaw, 'utf8');
   }
 }
 
@@ -599,7 +626,8 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
 
   const sorted = [...movies].sort((a, b) => String(a.id).localeCompare(String(b.id)));
   const newLastModified = {};
-  const verByShard = new Map();
+  const verByShard = loadVerByShard(verDir);
+  const touchedVerShards = new Set();
   const manifest = [];
   /**
    * Slug cần refresh ref sau push: file pubjs đã tồn tại và payload (chuẩn hoá) đổi; hoặc file mới + PUBJS_BUMP_NEW_SLUGS=1.
@@ -674,21 +702,17 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
 
     if (verWrite) {
       if (!verByShard.has(shard)) verByShard.set(shard, {});
-      verByShard.get(shard)[slug] = { b: verBustToken };
+      const shardObj = verByShard.get(shard);
+      const prevEntry = shardObj && shardObj[slug] && typeof shardObj[slug] === 'object' ? shardObj[slug] : {};
+      prevEntry.b = verBustToken;
+      shardObj[slug] = prevEntry;
+      touchedVerShards.add(shard);
     }
 
     manifest.push({ id: idStr, slug, shard, modified: curMod });
   }
 
-  try {
-    if (fs.existsSync(verDir)) {
-      for (const vf of fs.readdirSync(verDir)) {
-        if (!vf.endsWith('.json')) continue;
-        fs.unlinkSync(path.join(verDir, vf));
-      }
-    }
-  } catch {}
-  writeVerShardFiles(verDir, verByShard);
+  writeVerShardFiles(verDir, verByShard, touchedVerShards.size ? touchedVerShards : null);
   fs.writeFileSync(
     path.join(PUBLIC_DATA, 'movies-manifest.json'),
     JSON.stringify({ movies: manifest, updatedAt: new Date().toISOString() }),
