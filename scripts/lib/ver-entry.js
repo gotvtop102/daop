@@ -1,8 +1,8 @@
 /**
- * Định dạng gọn cho public/data/ver/*.json (mỗi slug):
- * - ref: một SHA khi pubjs JSON + ảnh cùng commit
- * - dataRef + imageRef: khi hai repo khác SHA (IMAGE_REPO_COMMIT ≠ PUBJS_REPO_COMMIT)
- * Không ghi thumbRef/posterRef trùng lặp (legacy vẫn đọc được).
+ * Định dạng public/data/ver/*.json (mỗi slug):
+ * - b: token bust &m= khi pubjs @main (build ghi; không lưu modified OPhim trong ver)
+ * - ref / dataRef + imageRef: SHA sau push (refresh-pubjs / refresh-image)
+ * Legacy: modified, thumbRef/posterRef (client main.js vẫn đọc modified nếu không có b)
  */
 
 /**

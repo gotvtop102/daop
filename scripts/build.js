@@ -7,6 +7,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { gzipSync, gunzipSync, constants as zlibConstants } from 'node:zlib';
 import { fileURLToPath } from 'url';
+import { randomBytes } from 'node:crypto';
 import fetch from 'node-fetch';
 import sharp from 'sharp';
 import * as XLSX from 'xlsx';
@@ -599,7 +600,8 @@ function normalizeMovieCastForPubjs(m, maxCast = MAX_CAST_PUBJS) {
 
 /**
  * Ghi JSON phim vào pubjs-output (không commit vào repo dự án — đồng bộ pjs102 qua npm run push-pubjs-repo),
- * public/data/ver/*.json (chỉ slug vừa đổi: chỉ field modified — không ghi SHA; SHA sau push qua refresh script), movies-manifest.json, cdn.json
+ * public/data/ver/*.json (chỉ slug cần bust @main: token `b`, không lưu modified OPhim; ref SHA sau push qua refresh script),
+ * movies-manifest.json, cdn.json
  * @returns {{ newLastModified: Object, batchPtrById: null }}
  */
 function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
@@ -609,6 +611,9 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
   const verDir = path.join(PUBLIC_DATA, 'ver');
   fs.ensureDirSync(pubjsRoot);
   fs.ensureDirSync(verDir);
+
+  /** Một token / lần gọi — gắn vào ver.{slug}.b cho &m= khi @main (không nhân bản modified OPhim trong ver). */
+  const verBustToken = randomBytes(8).toString('hex');
 
   const sorted = [...movies].sort((a, b) => String(a.id).localeCompare(String(b.id)));
   const newLastModified = {};
@@ -657,14 +662,28 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     m.poster = merged.poster;
     if (merged.pubjs_url) m.pubjs_url = merged.pubjs_url;
 
-    /** ver/*.json: chỉ slug modChanged; chỉ field modified (bust client &m=). SHA *Ref ghi sau push pubjs, không trong build. */
-    if (modChanged) {
-      const verEntry = {};
-      if (String(curMod || '').trim()) verEntry.modified = String(curMod);
-      if (Object.keys(verEntry).length > 0) {
-        if (!verByShard.has(shard)) verByShard.set(shard, {});
-        verByShard.get(shard)[slug] = verEntry;
-      }
+    /**
+     * ver: (1) admin Supabase update=NEW, hoặc (2) OPhim: id đã có trong last_modified.json và modified đổi.
+     * Phim mới (lần đầu xuất hiện trong ledger) không ghi ver — chỉ ?v= build_version. Không ghi ver khi chỉ đổi TMDB mà modified OPhim không đổi.
+     * Mỗi entry: { b } — token bust &m= @main.
+     */
+    const hasPrevLedger =
+      prevLastModified != null &&
+      typeof prevLastModified === 'object' &&
+      Object.keys(prevLastModified).length > 0;
+    const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
+    const prevModStored = hadPrevId ? prevLastModified[idStr] : undefined;
+    const ophimVerReason =
+      hasPrevLedger &&
+      hadPrevId &&
+      String(prevModStored ?? '') !== String(curMod ?? '');
+    const adminNewVerReason =
+      !!(m && m._from_supabase && String(m._customUpdateStatus || '').toUpperCase() === 'NEW');
+    const verWrite = adminNewVerReason || ophimVerReason;
+
+    if (verWrite) {
+      if (!verByShard.has(shard)) verByShard.set(shard, {});
+      verByShard.get(shard)[slug] = { b: verBustToken };
     }
 
     manifest.push({ id: idStr, slug, shard, modified: curMod });

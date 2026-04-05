@@ -1,6 +1,6 @@
 /**
  * Sau khi push JSON phim lên repo pjs102: gán dataRef + pubjs_url = commit
- * cho slug bumped; đồng bộ ver.modified từ JSON phim (bust client &m=).
+ * cho slug bumped; gán ref vào ver (bust @commit). Token ver.b do build giữ nguyên nếu có.
  * Slug không bumped: client dùng @main + ?v=builtAt; bumped: ghi ref hoặc dataRef+imageRef trong ver.
  *
  * Env: PUBJS_REPO_COMMIT = SHA sau push (bắt buộc, 7–40 hex).
@@ -93,8 +93,6 @@ async function main() {
     try {
       const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
       merged.pubjs_url = buildPubjsFileUrl(slug, null, sha);
-      const mod = merged.modified != null ? String(merged.modified).trim() : merged.updated_at != null ? String(merged.updated_at).trim() : '';
-      if (mod) entry.modified = mod;
       await fs.writeFile(fp, JSON.stringify(merged), 'utf8');
       updated++;
     } catch {

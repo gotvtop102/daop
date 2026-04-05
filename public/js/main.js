@@ -1034,7 +1034,7 @@
 
   /**
    * URL JSON phim trên jsDelivr: `base@ref/path`. Ref là commit hex → URL cố định (CDN immutable).
-   * Không phải hex (vd. main): ghép ?v= (build) + &m= (modified từ ver) để bust theo từng phim.
+   * Không phải hex (vd. main): ghép ?v= (build) + &m= (token `b` từ ver, legacy: modified) để bust theo từng phim.
    * @param {string} slug
    * @param {{ dataRef?: string, dataModified?: string }} opts — thiếu hoặc rỗng → @main
    */
@@ -1348,7 +1348,11 @@
       var slugForPath = resolved ? resolved.slugForPath : s;
       var entry = resolved ? resolved.entry : null;
       var dataRef = entry ? verEntryDataRefForPubjs(entry) : '';
-      var dataModified = (entry && entry.modified) ? String(entry.modified).trim() : '';
+      var dataModified = '';
+      if (entry) {
+        if (entry.b != null && String(entry.b).trim()) dataModified = String(entry.b).trim();
+        else if (entry.modified != null && String(entry.modified).trim()) dataModified = String(entry.modified).trim();
+      }
       return buildPubjsMovieUrl(slugForPath, { dataRef: dataRef, dataModified: dataModified });
     }).then(function (url) {
       if (!url) return null;

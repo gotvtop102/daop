@@ -138,8 +138,6 @@ async function main() {
         const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
         merged.thumb = cdnUrlByMovieSlug(slug, 'thumbs', { ref: sha });
         merged.poster = cdnUrlByMovieSlug(slug, 'posters', { ref: sha });
-        const mod = merged.modified != null ? String(merged.modified).trim() : merged.updated_at != null ? String(merged.updated_at).trim() : '';
-        if (mod) entry.modified = mod;
         await fs.writeFile(fp, JSON.stringify(merged), 'utf8');
         pubjsUpdated++;
       } catch {
