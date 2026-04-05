@@ -543,6 +543,21 @@ function mergeMovieWithTmdbMap(m, tmdbById) {
   };
 }
 
+/**
+ * Hai chuỗi modified đã normalize có cùng thời điểm (Date) không — tránh run 2 ghi ver vì khác format.
+ * Rỗng một phía: không coi là “đổi OPhim” (ledger lần 1 thường rỗng, lần 2 mới có từ API).
+ */
+function ophimModifiedMeaningfullyChanged(prevNorm, curNorm) {
+  const p = String(prevNorm || '').trim();
+  const c = String(curNorm || '').trim();
+  if (p === c) return false;
+  if (!p || !c) return false;
+  const tp = Date.parse(p);
+  const tc = Date.parse(c);
+  if (Number.isFinite(tp) && Number.isFinite(tc)) return tp !== tc;
+  return p !== c;
+}
+
 function normalizeModifiedValue(v) {
   if (v == null) return '';
   const s = String(v).trim();
@@ -724,11 +739,9 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
     const prevModStored = hadPrevId ? normalizeModifiedValue(prevLastModified[idStr]) : '';
 
-    /** Không ghi ver cho build lần đầu / phim mới hàng loạt — chỉ admin NEW hoặc OPhim modified đổi so với ledger. */
+    /** Chỉ ver khi admin NEW hoặc OPhim modified thật sự khác thời điểm (không chỉ khác chuỗi / lần trước rỗng). */
     const ophimVerReason =
-      hasPrevLedger &&
-      hadPrevId &&
-      String(prevModStored ?? '') !== String(curMod ?? '');
+      hasPrevLedger && hadPrevId && ophimModifiedMeaningfullyChanged(prevModStored, curMod);
 
     const adminNewVerReason =
       !!(m && m._from_supabase && String(m._customUpdateStatus || '').toUpperCase() === 'NEW');

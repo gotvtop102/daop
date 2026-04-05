@@ -43,6 +43,8 @@ export function canonicalPubjsJsonForBump(merged) {
       delete o.pubjs_url;
       delete o.thumb;
       delete o.poster;
+      /** Không so `modified` khi bump — lệch run 1 (rỗng) vs run 2 (API có chuỗi) không phải đổi nội dung pubjs. */
+      delete o.modified;
     }
     return JSON.stringify(o);
   } catch {
