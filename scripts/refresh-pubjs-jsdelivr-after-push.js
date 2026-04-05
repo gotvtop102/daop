@@ -1,7 +1,7 @@
 /**
  * Sau khi push JSON phim lên repo pjs102: gán dataRef + pubjs_url = commit
  * cho slug bumped; đồng bộ ver.modified từ JSON phim (bust client &m=).
- * Slug không bumped: client dùng @main + ?v=builtAt; bumped: ghi dataRef (SHA) trong ver.
+ * Slug không bumped: client dùng @main + ?v=builtAt; bumped: ghi ref hoặc dataRef+imageRef trong ver.
  *
  * Env: PUBJS_REPO_COMMIT = SHA sau push (bắt buộc, 7–40 hex).
  */
@@ -10,6 +10,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
+import { applyVerEntryShas } from './lib/ver-entry.js';
 import { getPubjsOutputDir, buildPubjsFileUrl, getPubjsCdnBase, getPubjsPathPrefix } from './lib/pubjs-url.js';
 import { getSlugShard2 } from './lib/slug-shard.js';
 
@@ -84,10 +85,8 @@ async function main() {
     delete entry.data;
     delete entry.thumb;
     delete entry.poster;
-    entry.dataRef = sha;
     const imgSha = normalizeCommitSha(process.env.IMAGE_REPO_COMMIT || '') || sha;
-    entry.thumbRef = imgSha;
-    entry.posterRef = imgSha;
+    applyVerEntryShas(entry, { dataSha: sha, imageSha: imgSha });
 
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
     if (!(await fs.pathExists(fp))) continue;
@@ -120,7 +119,7 @@ async function main() {
   }
 
   console.log(
-    'refresh-pubjs-jsdelivr-after-push: dataRef + pubjs_url →',
+    'refresh-pubjs-jsdelivr-after-push: ver ref + pubjs_url →',
     sha,
     '| slugs bumped:',
     bumped.length,

@@ -1,6 +1,6 @@
 /**
  * Sau khi push repo ảnh: chỉ slug trong .pubjs-slugs-data-bumped.json (phim đổi trong build)
- * nhận thumbRef/posterRef = SHA; cdn.images.ref = main; movies-light chỉ sửa dòng bumped.
+ * Ghi imageRef (hoặc ref nếu trùng data); cdn.images.ref = main; movies-light chỉ sửa dòng bumped.
  *
  * Env: IMAGE_REPO_COMMIT hoặc --sha=<commit> (7–40 hex).
  */
@@ -9,6 +9,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
+import { applyVerEntryShas, extractDataShaFromVerEntry } from './lib/ver-entry.js';
 import {
   cdnUrlByMovieSlug,
   getImageCdnBase,
@@ -127,8 +128,8 @@ async function main() {
     delete entry.data;
     delete entry.thumb;
     delete entry.poster;
-    entry.thumbRef = sha;
-    entry.posterRef = sha;
+    const prevDataSha = extractDataShaFromVerEntry(entry);
+    applyVerEntryShas(entry, { dataSha: prevDataSha || sha, imageSha: sha });
     verTouched++;
 
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
@@ -166,7 +167,7 @@ async function main() {
   const mlN = await refreshMoviesLight(verByShard, sha, bumpedSet);
 
   console.log(
-    'refresh-image-jsdelivr-after-push: thumbRef/posterRef →',
+    'refresh-image-jsdelivr-after-push: ver imageRef →',
     sha,
     '| slug bumped:',
     bumpedSet.size,

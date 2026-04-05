@@ -1300,6 +1300,19 @@
   };
 
   /** Khớp key trong ver shard (slug URL có thể khác chữ hoa/thường so với key build). */
+  /** SHA cho URL pubjs JSON: dataRef, hoặc ref (gộp), hoặc legacy thumbRef khi trùng posterRef. */
+  function verEntryDataRefForPubjs(entry) {
+    if (!entry || typeof entry !== 'object') return '';
+    var d = entry.dataRef != null ? String(entry.dataRef).trim() : '';
+    if (d) return d;
+    var r = entry.ref != null ? String(entry.ref).trim() : '';
+    if (r) return r;
+    var t = entry.thumbRef != null ? String(entry.thumbRef).trim() : '';
+    var p = entry.posterRef != null ? String(entry.posterRef).trim() : '';
+    if (t && p && t === p) return t;
+    return t || p || '';
+  }
+
   function resolveVerEntryForSlug(verMap, s) {
     if (!verMap || typeof verMap !== 'object' || !s) return null;
     if (Object.prototype.hasOwnProperty.call(verMap, s) && verMap[s]) {
@@ -1334,7 +1347,7 @@
       var resolved = resolveVerEntryForSlug(verMap, s);
       var slugForPath = resolved ? resolved.slugForPath : s;
       var entry = resolved ? resolved.entry : null;
-      var dataRef = (entry && entry.dataRef) ? String(entry.dataRef).trim() : '';
+      var dataRef = entry ? verEntryDataRefForPubjs(entry) : '';
       var dataModified = (entry && entry.modified) ? String(entry.modified).trim() : '';
       return buildPubjsMovieUrl(slugForPath, { dataRef: dataRef, dataModified: dataModified });
     }).then(function (url) {
