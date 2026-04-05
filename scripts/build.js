@@ -23,7 +23,7 @@ import {
 } from './lib/repo-images.js';
 import { getSlugShard2, getIdShard3 } from './lib/slug-shard.js';
 import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
-import { extractMovieModifiedCanonical } from './lib/movie-modified.js';
+import { extractMovieModifiedCanonical, extractOphimModifiedForPersist } from './lib/movie-modified.js';
 import {
   getPubjsOutputDir,
   getPubjsCdnBase,
@@ -623,7 +623,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     if (!idStr || !slug) continue;
 
     const merged = normalizeMovieCastForPubjs(mergeMovieWithTmdbMap(m, tmdbById));
-    merged.modified = extractMovieModifiedCanonical(merged);
+    merged.modified = extractOphimModifiedForPersist(merged);
 
     const modified = merged.modified;
     newLastModified[idStr] = modified;
@@ -1287,7 +1287,7 @@ function normalizeOPhimMovie(m, slug, cdnBase = 'https://img.ophim.live') {
     time: m.time,
     description: m.content || m.description || '',
     tmdb: m.tmdb || null,
-    modified: extractMovieModifiedCanonical(m),
+    modified: extractOphimModifiedForPersist(m),
     cast,
     director,
   };
@@ -1351,16 +1351,9 @@ function buildMoviesFromSupabase(movieRows, epRows) {
     const updateRaw = String(row.update ?? row['update'] ?? '').trim();
     const updateStatus = updateRaw ? updateRaw.toUpperCase() : '';
     const sheetModified = String(row.modified || '').trim();
-    const updatedAtRaw = String(row.updated_at || '').trim();
 
-    // Admin thường cập nhật `updated_at` nhưng có thể không cập nhật `modified`.
-    // Home sections + nhiều logic pick theo `modified`, nên lấy `updated_at` nếu mới hơn.
-    let effectiveModified = sheetModified || updatedAtRaw || new Date().toISOString();
-    const tMod = Date.parse(String(effectiveModified));
-    const tUpd = Date.parse(String(updatedAtRaw || ''));
-    if (!Number.isNaN(tUpd) && !Number.isNaN(tMod) && tUpd > tMod) {
-      effectiveModified = updatedAtRaw;
-    }
+    // Cột `modified` = thời điểm OPhim (export/sync). Không fallback `updated_at` — mỗi lần chạm DB `updated_at` đổi sẽ làm lệch OPhim.
+    const effectiveModified = sheetModified;
 
     const movie = {
       id: movieId,
@@ -1393,7 +1386,6 @@ function buildMoviesFromSupabase(movieRows, epRows) {
     };
 
     if (updateStatus === 'NEW') {
-      movie.modified = new Date().toISOString();
       movie._customUpdateStatus = updateStatus;
     } else if (updateStatus) {
       movie._customUpdateStatus = updateStatus;
@@ -1562,7 +1554,7 @@ function parseCustomMoviesFromExcelRows(moviesRows, episodesRows) {
       lang_key: (row[idx('lang_key')] || row[idx('language')] || '').toString(),
       episode_current: (row[idx('episode_current')] || '1').toString(),
       quality,
-      modified: (idxModified >= 0 ? sheetModified : new Date().toISOString()),
+      modified: idxModified >= 0 ? sheetModified : '',
       is_4k: is4k,
       is_exclusive: parseBooleanFlag(row[idx('is_exclusive')], false),
       status: (row[idx('status')] || '').toString(),
@@ -1577,9 +1569,7 @@ function parseCustomMoviesFromExcelRows(moviesRows, episodesRows) {
       keywords: [],
     };
 
-    // NEW: ép modified=now để chắc chắn build lại/batch thay đổi, và lưu info để clear update sau build.
     if (updateStatus === 'NEW') {
-      movie.modified = new Date().toISOString();
       movie._customUpdateStatus = updateStatus;
     } else if (updateStatus) {
       movie._customUpdateStatus = updateStatus;
@@ -1677,7 +1667,7 @@ function parseCustomMoviesFromExcelRows(moviesRows, episodesRows) {
 
 /**
  * Sau build: ghi ngược lên bảng `movies` (không ghi URL ảnh, chỉ metadata):
- * - Xóa cờ cột `update` (NEW), cập nhật `modified` / `updated_at`
+ * - Xóa cờ cột `update` (NEW); `updated_at` = giờ build; `modified` chỉ khi có giá trị OPhim trên object merge (không ghi `now`).
  * - Đồng bộ `slug` nếu merge đã đổi slug (tránh trùng OPhim)
  */
 async function applySupabaseUpdateStatuses(custom) {
@@ -1705,8 +1695,10 @@ async function applySupabaseUpdateStatuses(custom) {
     const now = new Date().toISOString();
 
     for (const m of need) {
-      const modOut = extractMovieModifiedCanonical(m) || now;
-      await supabase.from('movies').update({ update: '', modified: modOut, updated_at: now }).eq('id', String(m.id));
+      const modOut = extractOphimModifiedForPersist(m);
+      const patch = { update: '', updated_at: now };
+      if (modOut) patch.modified = modOut;
+      await supabase.from('movies').update(patch).eq('id', String(m.id));
     }
     for (const m of slugFix) {
       await supabase.from('movies').update({ slug: String(m.slug), updated_at: now }).eq('id', String(m.id));

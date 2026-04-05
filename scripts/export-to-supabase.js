@@ -7,7 +7,7 @@
  *   - all (mặc định): toàn bộ phim trong batch
  *   - custom: chỉ phim có _from_supabase hoặc id bắt đầu ext_ (tránh đẩy nhầm batch lớn)
  *
- * EXPORT_TO_SUPABASE_ALWAYS_FULL=1: luôn upsert mọi phim + đồng bộ lại toàn bộ tập (bỏ qua tối ưu).
+ * EXPORT_TO_SUPABASE_ALWAYS_FULL=1: luôn upsert mọi phim + đồng bộ tập (bỏ qua incremental — mọi dòng đã có vẫn ghi lại).
  * Mặc định (incremental): chỉ ghi khi batch khác DB (so modified + episode_current + hash tập).
  * - Phim _from_supabase + _supabaseExportEpisodesOnly (OPhim mới hơn trong build): chỉ UPDATE episode_current + movie_episodes, không upsert metadata.
  * - Cùng mode trên: bỏ qua hoàn toàn nếu episode_current và danh sách tập (hash) trùng DB.
@@ -27,7 +27,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
 import { getSlugShard2 } from './lib/slug-shard.js';
-import { extractMovieModifiedCanonical } from './lib/movie-modified.js';
+import { extractOphimModifiedForPersist } from './lib/movie-modified.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -82,9 +82,17 @@ function genreCountry(m) {
   return { genreStr, countryStr };
 }
 
-function movieToRow(m) {
+/**
+ * @param {object} m — phim từ pubjs
+ * @param {{ modified?: string } | null | undefined} dbSt — dòng hiện có trên Supabase (để giữ `modified` khi pubjs thiếu)
+ */
+function movieToRow(m, dbSt) {
   const { genreStr, countryStr } = genreCountry(m);
   const tid = m.tmdb_id != null ? m.tmdb_id : m.tmdb?.id;
+  let modified = extractOphimModifiedForPersist(m);
+  if (!modified && dbSt && dbSt.modified != null && String(dbSt.modified).trim()) {
+    modified = String(dbSt.modified).trim();
+  }
   return {
     id: String(m.id),
     slug: String(m.slug || ''),
@@ -107,7 +115,7 @@ function movieToRow(m) {
     showtimes: String(m.showtimes || ''),
     is_exclusive: m.is_exclusive ? '1' : '0',
     tmdb_id: tid != null && tid !== '' ? String(tid) : '',
-    modified: extractMovieModifiedCanonical(m) || new Date().toISOString(),
+    modified,
     update: '',
     note: String(m.note || ''),
     director: Array.isArray(m.director) ? m.director.join(',') : String(m.director || ''),
@@ -224,10 +232,13 @@ function normalizeModified(v) {
   return s;
 }
 
-/** Giá trị modified từ nguồn batch để so sánh; null = không tin được → luôn sync. */
+/**
+ * Giá trị modified từ pubjs để so với DB.
+ * Rỗng → `null` (không dùng để *ép* full upsert; incremental chỉ xét tập + episode_current).
+ */
 function batchModifiedComparable(m) {
   if (m == null) return null;
-  const s = extractMovieModifiedCanonical(m);
+  const s = extractOphimModifiedForPersist(m);
   return s === '' ? null : s;
 }
 
@@ -381,18 +392,19 @@ function movieNeedsDbWrite(m, syncState, alwaysFull) {
 
   const fp = episodeSyncFingerprintFromBatch(m);
   const batchEc = String(m.episode_current || '');
+  const epChanged = batchEc !== st.episode_current || fp !== st.episodeHash;
 
   if (m && m._from_supabase && m._supabaseExportEpisodesOnly) {
-    return batchEc !== st.episode_current || fp !== st.episodeHash;
+    return epChanged;
   }
 
   const batchMod = batchModifiedComparable(m);
-  if (batchMod == null) return true;
-  return (
-    normalizeModified(batchMod) !== normalizeModified(st.modified) ||
-    batchEc !== st.episode_current ||
-    fp !== st.episodeHash
-  );
+  // Pubjs không có modified (rỗng): trước đây `null` → luôn upsert toàn bộ phim. Chỉ sync khi tập / episode_current đổi.
+  if (batchMod == null) {
+    return epChanged;
+  }
+
+  return normalizeModified(batchMod) !== normalizeModified(st.modified) || epChanged;
 }
 
 function isEpisodesOnlyExport(m) {
@@ -465,13 +477,16 @@ async function main() {
   let skippedUnchanged = 0;
   let episodesOnlyCount = 0;
 
+  const ids = movies.map((m) => String(m.id));
+  const syncState = await fetchExistingSyncState(supabase, ids);
+
   let toSync = movies;
   if (!alwaysFull) {
-    const ids = movies.map((m) => m.id);
-    const syncState = await fetchExistingSyncState(supabase, ids);
     toSync = movies.filter((m) => movieNeedsDbWrite(m, syncState, false));
     skippedUnchanged = movies.length - toSync.length;
     console.log('   Incremental: skip unchanged:', skippedUnchanged, '| will sync:', toSync.length);
+  } else {
+    console.log('   EXPORT_TO_SUPABASE_ALWAYS_FULL: upsert toàn bộ', movies.length, 'phim (bỏ qua incremental).');
   }
 
   const fullSync = toSync.filter((m) => !isEpisodesOnlyExport(m));
@@ -483,7 +498,9 @@ async function main() {
   }
 
   for (let i = 0; i < fullSync.length; i += batchSize) {
-    const chunk = fullSync.slice(i, i + batchSize).map(movieToRow);
+    const chunk = fullSync
+      .slice(i, i + batchSize)
+      .map((m) => movieToRow(m, syncState.get(String(m.id))));
     try {
       await upsertMoviesChunked(supabase, chunk);
     } catch (e) {

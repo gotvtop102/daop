@@ -2,14 +2,17 @@
  * Tách khỏi movies-supabase.ts để bundle /api/movies không kéo movies-media (sharp, GitHub API).
  * Chỉ được import động từ api/movies.ts khi action=save.
  */
-import { movieExistsByIdRest, moviePayloadToRow, upsertMovieRowRest } from './movies-supabase.js';
+import { movieExistsByIdRest, moviePayloadToRow, upsertMovieRowRest, extractOphimModifiedForPersist } from './movies-supabase.js';
 
 export async function saveMovieSb(movieData: any) {
   const isNew = !movieData.id;
   if (isNew) {
     movieData.id = String(Date.now());
   }
-  if (!movieData.modified) {
+  const canon = extractOphimModifiedForPersist(movieData);
+  if (canon) {
+    movieData.modified = canon;
+  } else if (isNew && (movieData.modified == null || movieData.modified === '')) {
     movieData.modified = new Date().toISOString();
   }
   if (isNew && !movieData.update) {

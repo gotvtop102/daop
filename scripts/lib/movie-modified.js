@@ -1,7 +1,24 @@
 /**
  * Thời điểm cập nhật thống nhất (OPhim API, pubjs, ver, Supabase):
- * OPhim: `modified: { time: "..." }` hoặc chuỗi; fallback `updated_at` / `updatedAt` / `createdAt`.
+ * - `extractMovieModifiedCanonical`: thêm fallback list/API (`updated_at`, `createdAt`) — dùng index, merge.
+ * - `extractOphimModifiedForPersist`: **chỉ** `modified` / `modified.time` — dùng ghi pubjs/DB để khớp OPhim, không đổi khi rerun.
  */
+
+/**
+ * @param {Record<string, unknown> | null | undefined} m
+ * @returns {string}
+ */
+export function extractOphimModifiedForPersist(m) {
+  if (!m || typeof m !== 'object') return '';
+  if (m.modified && typeof m.modified === 'object' && m.modified.time != null) {
+    return String(m.modified.time).trim();
+  }
+  if (m.modified != null && typeof m.modified !== 'object') {
+    const s = String(m.modified).trim();
+    if (s) return s;
+  }
+  return '';
+}
 
 /**
  * @param {Record<string, unknown> | null | undefined} m
