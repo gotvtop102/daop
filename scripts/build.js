@@ -642,13 +642,12 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     if (!idStr || !slug) continue;
 
     const merged = normalizeMovieCastForPubjs(mergeMovieWithTmdbMap(m, tmdbById));
-    merged.modified = extractOphimModifiedForPersist(merged);
-
-    const modified = merged.modified;
-    newLastModified[idStr] = modified;
-
-    const prevMod = prevLastModified && prevLastModified[idStr] != null ? prevLastModified[idStr] : null;
-    const curMod = modified;
+    const prevMod = prevLastModified && prevLastModified[idStr] != null ? String(prevLastModified[idStr] ?? '').trim() : '';
+    let curMod = String(extractOphimModifiedForPersist(merged) || '').trim();
+    if (!curMod) curMod = String(extractMovieModifiedCanonical(merged) || '').trim();
+    if (!curMod && prevMod) curMod = prevMod;
+    merged.modified = curMod;
+    newLastModified[idStr] = curMod;
 
     const shard = getSlugShard2(slug);
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
@@ -691,11 +690,13 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
       typeof prevLastModified === 'object' &&
       Object.keys(prevLastModified).length > 0;
     const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
-    const prevModStored = hadPrevId ? prevLastModified[idStr] : undefined;
+    const prevModStored = hadPrevId ? String(prevLastModified[idStr] ?? '').trim() : '';
     const ophimVerReason =
       hasPrevLedger &&
       hadPrevId &&
-      String(prevModStored ?? '') !== String(curMod ?? '');
+      !!prevModStored &&
+      !!curMod &&
+      prevModStored !== curMod;
     const adminNewVerReason =
       !!(m && m._from_supabase && String(m._customUpdateStatus || '').toUpperCase() === 'NEW');
     const verWrite = adminNewVerReason || ophimVerReason;
