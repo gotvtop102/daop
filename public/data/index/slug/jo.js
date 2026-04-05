@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["jo"] = {"jockey":{"id":"628496639e983cdfde38675f","i":799,"title":"Jockey","origin_name":"Jockey","slug":"jockey","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/jo/jockey.webp","year":"2021","type":"single","episode_current":"Full"}};

@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["cr"] = {"crush":{"id":"62767b3e3a2c0c6289bef1ae","i":626,"title":"Crush","origin_name":"Crush","slug":"crush","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cr/crush.webp","year":"2022","type":"single","episode_current":"Full"}};
