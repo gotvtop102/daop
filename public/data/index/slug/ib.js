@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ib"] = {"iboy":{"id":"6218e473a2d0f024a9de4707","i":438,"title":"iBOY","origin_name":"iBOY","slug":"iboy","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ib/iboy.webp","year":2017,"type":"single","episode_current":"Full"}};

@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ny"] = {"nyad":{"id":"65464b93aa7d07ce5c6e6336","i":3472,"title":"NYAD","origin_name":"NYAD","slug":"nyad","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ny/nyad.webp","year":2023,"type":"single","episode_current":"Full"}};
