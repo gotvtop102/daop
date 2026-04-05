@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ac"] = {"acharya":{"id":"628a20dc9e983cdfde3d1e4e","i":965,"title":"Acharya","origin_name":"Acharya","slug":"acharya","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ac/acharya.webp","year":"2022","type":"single","episode_current":"Trailer"}};
