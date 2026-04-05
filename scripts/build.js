@@ -4311,23 +4311,16 @@ async function main() {
     console.log('TMDB_ONLY: loaded movies from pubjs:', allMovies.length);
     console.log('[TIMING] ✓ TMDB_ONLY: load pubjs:', fmtBuildMs(Date.now() - tLoad));
 
-    const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
-    const shouldEnrich = (m) => {
+    /**
+     * Pha TMDB_ONLY (sau CORE có SKIP_TMDB): pubjs đã có tmdb id + đôi khi cast_meta OPhim không ảnh.
+     * Logic "skip nếu đã enrich trước" (dùng cho incremental) làm need ≈ rỗng → không gọi credits TMDB → thiếu diễn viên / ảnh.
+     * Bắt buộc enrich mọi phim có TMDB id (trừ khi không có id).
+     */
+    const need = (allMovies || []).filter((m) => {
       if (!m) return false;
       const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
-      if (!tid) return false;
-      if (forceTmdb) return true;
-      const idStr = m && m.id != null ? String(m.id) : '';
-      if (!idStr) return true;
-      if (!prevTmdbById || typeof prevTmdbById.get !== 'function') return true;
-      const prev = prevTmdbById.get(idStr);
-      if (!prev) return true;
-      const prevTid = prev && prev.tmdb ? prev.tmdb.id : null;
-      if (prevTid != null && String(prevTid) !== String(tid)) return true;
-      return false;
-    };
-
-    const need = (allMovies || []).filter(shouldEnrich);
+      return !!tid;
+    });
     console.log('TMDB_ONLY: movies to enrich:', need.length);
     await timeBuildPhase('TMDB_ONLY: enrich TMDB', () => enrichTmdb(need));
 
