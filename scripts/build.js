@@ -23,6 +23,7 @@ import {
 } from './lib/repo-images.js';
 import { getSlugShard2, getIdShard3 } from './lib/slug-shard.js';
 import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
+import { extractMovieModifiedCanonical } from './lib/movie-modified.js';
 import {
   getPubjsOutputDir,
   getPubjsCdnBase,
@@ -597,30 +598,6 @@ function normalizeMovieCastForPubjs(m, maxCast = MAX_CAST_PUBJS) {
 }
 
 /**
- * Thời điểm cập nhật thống nhất cho last_modified / ver / so sánh đổi:
- * OPhim thường là `modified: { time: "..." }` hoặc chuỗi; Admin/Supabase: `modified` / `updated_at`.
- * Không tự sinh ISO lúc build (tránh lệch với API OPhim).
- */
-function extractMovieModifiedCanonical(m) {
-  if (!m || typeof m !== 'object') return '';
-  if (m.modified && typeof m.modified === 'object' && m.modified.time != null) {
-    const t = m.modified.time;
-    return String(t).trim();
-  }
-  if (m.modified != null && typeof m.modified !== 'object') {
-    const s = String(m.modified).trim();
-    if (s) return s;
-  }
-  const u = m.updated_at != null ? String(m.updated_at).trim() : '';
-  if (u) return u;
-  const ua = m.updatedAt != null ? String(m.updatedAt).trim() : '';
-  if (ua) return ua;
-  if (m.createdAt != null && String(m.createdAt).trim()) return String(m.createdAt).trim();
-  if (m.created_at != null && String(m.created_at).trim()) return String(m.created_at).trim();
-  return '';
-}
-
-/**
  * Ghi JSON phim vào pubjs-output (không commit vào repo dự án — đồng bộ pjs102 qua npm run push-pubjs-repo),
  * public/data/ver/*.json (chỉ slug vừa đổi: chỉ field modified — không ghi SHA; SHA sau push qua refresh script), movies-manifest.json, cdn.json
  * @returns {{ newLastModified: Object, batchPtrById: null }}
@@ -645,14 +622,16 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById, opts) {
     const slug = m && m.slug != null ? String(m.slug).trim() : '';
     if (!idStr || !slug) continue;
 
-    const modified = extractMovieModifiedCanonical(m);
+    const merged = normalizeMovieCastForPubjs(mergeMovieWithTmdbMap(m, tmdbById));
+    merged.modified = extractMovieModifiedCanonical(merged);
+
+    const modified = merged.modified;
     newLastModified[idStr] = modified;
 
     const prevMod = prevLastModified && prevLastModified[idStr] != null ? prevLastModified[idStr] : null;
     const curMod = modified;
     let modChanged = prevMod == null || String(prevMod) !== String(curMod);
 
-    const merged = normalizeMovieCastForPubjs(mergeMovieWithTmdbMap(m, tmdbById));
     const shard = getSlugShard2(slug);
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
 
@@ -1726,7 +1705,8 @@ async function applySupabaseUpdateStatuses(custom) {
     const now = new Date().toISOString();
 
     for (const m of need) {
-      await supabase.from('movies').update({ update: '', modified: now, updated_at: now }).eq('id', String(m.id));
+      const modOut = extractMovieModifiedCanonical(m) || now;
+      await supabase.from('movies').update({ update: '', modified: modOut, updated_at: now }).eq('id', String(m.id));
     }
     for (const m of slugFix) {
       await supabase.from('movies').update({ slug: String(m.slug), updated_at: now }).eq('id', String(m.id));

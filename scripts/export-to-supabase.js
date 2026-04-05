@@ -27,6 +27,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
 import { getSlugShard2 } from './lib/slug-shard.js';
+import { extractMovieModifiedCanonical } from './lib/movie-modified.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -106,7 +107,7 @@ function movieToRow(m) {
     showtimes: String(m.showtimes || ''),
     is_exclusive: m.is_exclusive ? '1' : '0',
     tmdb_id: tid != null && tid !== '' ? String(tid) : '',
-    modified: String(m.modified || new Date().toISOString()),
+    modified: extractMovieModifiedCanonical(m) || new Date().toISOString(),
     update: '',
     note: String(m.note || ''),
     director: Array.isArray(m.director) ? m.director.join(',') : String(m.director || ''),
@@ -225,8 +226,8 @@ function normalizeModified(v) {
 
 /** Giá trị modified từ nguồn batch để so sánh; null = không tin được → luôn sync. */
 function batchModifiedComparable(m) {
-  if (m == null || m.modified == null) return null;
-  const s = String(m.modified).trim();
+  if (m == null) return null;
+  const s = extractMovieModifiedCanonical(m);
   return s === '' ? null : s;
 }
 

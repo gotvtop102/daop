@@ -171,6 +171,25 @@ export async function getMovieBySlugSb(slug: string) {
   return sorted[0] || null;
 }
 
+/** Cùng logic scripts/lib/movie-modified.js — cột `modified` text khớp OPhim (`modified.time` / chuỗi). */
+function extractMovieModifiedCanonical(m: any): string {
+  if (!m || typeof m !== 'object') return '';
+  if (m.modified && typeof m.modified === 'object' && m.modified.time != null) {
+    return String(m.modified.time).trim();
+  }
+  if (m.modified != null && typeof m.modified !== 'object') {
+    const s = String(m.modified).trim();
+    if (s) return s;
+  }
+  const u = m.updated_at != null ? String(m.updated_at).trim() : '';
+  if (u) return u;
+  const ua = m.updatedAt != null ? String(m.updatedAt).trim() : '';
+  if (ua) return ua;
+  if (m.createdAt != null && String(m.createdAt).trim()) return String(m.createdAt).trim();
+  if (m.created_at != null && String(m.created_at).trim()) return String(m.created_at).trim();
+  return '';
+}
+
 export function moviePayloadToRow(movieData: any) {
   const str = (v: any) => (Array.isArray(v) ? v.join(',') : v ?? '') || '';
   return {
@@ -195,7 +214,7 @@ export function moviePayloadToRow(movieData: any) {
     showtimes: str(movieData.showtimes),
     is_exclusive: boolToDbFlag(movieData.is_exclusive),
     tmdb_id: str(movieData.tmdb_id),
-    modified: str(movieData.modified),
+    modified: extractMovieModifiedCanonical(movieData),
     update: str(movieData.update),
     note: str(movieData.note),
     director: str(movieData.director),
