@@ -8,10 +8,11 @@ import 'dotenv/config';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
+import { normalizeCommitSha, commitShasEquivalent } from './lib/jsdelivr-ref.js';
 import { applyVerEntryShas, extractDataShaFromVerEntry } from './lib/ver-entry.js';
 import {
   cdnUrlByMovieSlug,
+  cdnMovieImageUrlMatchesCommit,
   getImageCdnBase,
   getImagePathPrefix,
 } from './lib/repo-images.js';
@@ -44,15 +45,15 @@ function loadVerByShard(verDir) {
 async function imageUrlsAndVerAlreadyPinned(slug, entry, sha, pubjsRoot) {
   const sh = normalizeCommitSha(sha);
   if (!sh || !entry || typeof entry !== 'object') return false;
-  const imgRef = normalizeCommitSha(String(entry.imageRef || entry.ref || ''));
-  if (imgRef !== sh) return false;
+  if (!commitShasEquivalent(String(entry.imageRef || entry.ref || ''), sh)) return false;
   const fp = path.join(pubjsRoot, getSlugShard2(slug), `${slug}.json`);
   if (!(await fs.pathExists(fp))) return false;
   try {
     const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
-    const wantT = cdnUrlByMovieSlug(slug, 'thumbs', { ref: sha });
-    const wantP = cdnUrlByMovieSlug(slug, 'posters', { ref: sha });
-    return String(merged.thumb || '') === wantT && String(merged.poster || '') === wantP;
+    return (
+      cdnMovieImageUrlMatchesCommit(String(merged.thumb || ''), slug, 'thumbs', sha) &&
+      cdnMovieImageUrlMatchesCommit(String(merged.poster || ''), slug, 'posters', sha)
+    );
   } catch {
     return false;
   }

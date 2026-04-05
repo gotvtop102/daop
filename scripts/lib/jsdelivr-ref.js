@@ -13,6 +13,18 @@ export function normalizeCommitSha(v) {
   return s.toLowerCase();
 }
 
+/** Hai SHA (7 vs 40 ký tự, cùng commit) coi là trùng — dùng khi so ver vs URL jsDelivr. */
+export function commitShasEquivalent(a, b) {
+  const na = normalizeCommitSha(a);
+  const nb = normalizeCommitSha(b);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  const shorter = na.length <= nb.length ? na : nb;
+  const longer = na.length <= nb.length ? nb : na;
+  if (shorter.length < 7) return false;
+  return longer.startsWith(shorter);
+}
+
 /**
  * @param {{ explicitVar?: string, repoCommitVar?: string, fallback?: string }} opts
  * - explicitVar: nếu env có giá trị (vd. main, tag, hash) → dùng luôn (ghi đè).

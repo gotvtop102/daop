@@ -3,15 +3,24 @@
  * cho slug bumped; gán ref vào ver (bust @commit). Token ver.b do build giữ nguyên nếu có.
  * Slug không bumped: client dùng @main + ?v=builtAt; bumped: ghi ref hoặc dataRef+imageRef trong ver.
  *
+ * Build có thể “skip” vì so payload nội dung; refresh khác nhiệm vụ: lần đầu sau bump phải đổi URL @main → @sha
+ * (chưa pin thì không thể bỏ qua). Chạy lại cùng SHA: đã có `alreadyPinned` + so URL/ref lỏng (7 vs 40 hex).
+ *
  * Env: PUBJS_REPO_COMMIT = SHA sau push (bắt buộc, 7–40 hex).
  */
 import 'dotenv/config';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { normalizeCommitSha } from './lib/jsdelivr-ref.js';
+import { normalizeCommitSha, commitShasEquivalent } from './lib/jsdelivr-ref.js';
 import { applyVerEntryShas } from './lib/ver-entry.js';
-import { getPubjsOutputDir, buildPubjsFileUrl, getPubjsCdnBase, getPubjsPathPrefix } from './lib/pubjs-url.js';
+import {
+  getPubjsOutputDir,
+  buildPubjsFileUrl,
+  getPubjsCdnBase,
+  getPubjsPathPrefix,
+  pubjsDataUrlMatchesCommit,
+} from './lib/pubjs-url.js';
 import { getSlugShard2 } from './lib/slug-shard.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -44,19 +53,18 @@ async function alreadyPinnedPubjsSlug(slug, entry, sha, imgSha, pubjsRoot) {
   if (!d || !entry || typeof entry !== 'object') return false;
   let refsOk = false;
   if (d === i) {
-    refsOk = normalizeCommitSha(entry.ref) === d;
+    refsOk = commitShasEquivalent(String(entry.ref || ''), d);
   } else {
     refsOk =
-      normalizeCommitSha(String(entry.dataRef || '')) === d &&
-      normalizeCommitSha(String(entry.imageRef || '')) === i;
+      commitShasEquivalent(String(entry.dataRef || ''), d) &&
+      commitShasEquivalent(String(entry.imageRef || ''), i);
   }
   if (!refsOk) return false;
   const fp = path.join(pubjsRoot, getSlugShard2(slug), `${slug}.json`);
   if (!(await fs.pathExists(fp))) return false;
   try {
     const merged = JSON.parse(await fs.readFile(fp, 'utf8'));
-    const want = buildPubjsFileUrl(slug, null, sha);
-    return String(merged.pubjs_url || '') === want;
+    return pubjsDataUrlMatchesCommit(String(merged.pubjs_url || ''), slug, sha);
   } catch {
     return false;
   }

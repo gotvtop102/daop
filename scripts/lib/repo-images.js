@@ -6,7 +6,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getSlugShard2 } from './slug-shard.js';
-import { resolveJsDelivrRef } from './jsdelivr-ref.js';
+import { resolveJsDelivrRef, commitShasEquivalent } from './jsdelivr-ref.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_IMAGES_ROOT = path.join(__dirname, '..', '..', 'public');
@@ -68,6 +68,28 @@ export function cdnUrlByMovieSlug(slug, folder, opts = {}) {
   const pathInRepo = prefix ? `${prefix}/${key}` : key;
   // Không gắn ?v= semver: nội dung đã được định danh bởi @ref (commit/main) trên jsDelivr.
   return buildJsDelivrFileUrl(base, ref, pathInRepo);
+}
+
+/** URL thumb/poster trong pubjs đã trỏ đúng commit (ref 7 vs 40 ký tự). */
+export function cdnMovieImageUrlMatchesCommit(url, slug, folder, commitSha) {
+  const want = cdnUrlByMovieSlug(slug, folder, { ref: commitSha });
+  const g = String(url || '').trim();
+  const w = String(want || '').trim();
+  if (!w) return false;
+  if (g === w) return true;
+  const iu = g.indexOf('@');
+  const iw = w.indexOf('@');
+  if (iu < 0 || iw < 0) return false;
+  const restU = g.slice(iu + 1);
+  const restW = w.slice(iw + 1);
+  const slashU = restU.indexOf('/');
+  const slashW = restW.indexOf('/');
+  if (slashU < 0 || slashW < 0) return false;
+  const refU = restU.slice(0, slashU);
+  const pathU = restU.slice(slashU + 1);
+  const pathW = restW.slice(slashW + 1);
+  if (pathU !== pathW) return false;
+  return commitShasEquivalent(refU, commitSha);
 }
 
 /** Key tương đối trong public/ */

@@ -3,7 +3,7 @@
  */
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { resolveJsDelivrRef } from './jsdelivr-ref.js';
+import { resolveJsDelivrRef, commitShasEquivalent, normalizeCommitSha } from './jsdelivr-ref.js';
 import { buildJsDelivrFileUrl, stripTrailingSlash } from './repo-images.js';
 import { getSlugShard2 } from './slug-shard.js';
 
@@ -56,4 +56,31 @@ export function buildPubjsFileUrl(slug, _dataVer, dataRef) {
   if (!base || !safe) return '';
   const rel = prefix ? `${prefix}/${shard}/${safe}.json` : `${shard}/${safe}.json`;
   return buildJsDelivrFileUrl(base, ref, rel);
+}
+
+/**
+ * URL pubjs trên disk đã trỏ đúng commit (so lỏng: ref 7/40 hex, path sau @ref).
+ * Dùng refresh sau push để không ghi lại khi chạy CI trùng SHA.
+ */
+export function pubjsDataUrlMatchesCommit(url, slug, commitSha) {
+  const want = buildPubjsFileUrl(slug, null, commitSha);
+  const u = String(url || '').trim();
+  const w = String(want || '').trim();
+  if (!w) return false;
+  if (u === w) return true;
+  const d = normalizeCommitSha(commitSha);
+  if (!d) return false;
+  const iu = u.indexOf('@');
+  const iw = w.indexOf('@');
+  if (iu < 0 || iw < 0) return false;
+  const restU = u.slice(iu + 1);
+  const restW = w.slice(iw + 1);
+  const slashU = restU.indexOf('/');
+  const slashW = restW.indexOf('/');
+  if (slashU < 0 || slashW < 0) return false;
+  const refU = restU.slice(0, slashU);
+  const pathU = restU.slice(slashU + 1);
+  const pathW = restW.slice(slashW + 1);
+  if (pathU !== pathW) return false;
+  return commitShasEquivalent(refU, d);
 }
