@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quốc gia | GoTV</title>
+  <title>Năm phát hành | GoTV</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -21,7 +21,7 @@
     <nav class="site-nav"><div class="site-nav-main"><a href="../phim-bo.html">Phim bộ</a><a href="../phim-le.html">Phim lẻ</a><a href="../the-loai/">Thể loại</a><a href="../quoc-gia/">Quốc gia</a><a href="../chu-de/">Chủ đề</a><a href="../dien-vien/">Diễn viên</a><a href="../hoat-hinh.html">Hoạt hình</a><a href="../shows.html">TV Shows</a><a href="../gioi-thieu.html">Giới thiệu</a><a href="../donate.html">Donate</a><a href="../huong-dan-app.html">Tải app</a><a href="../lien-he.html">Liên hệ</a></div><div class="site-nav-actions"><a href="../tim-kiem.html">Tìm kiếm</a><a href="../login.html">Đăng nhập</a></div></nav>
   </header>
   <main class="container">
-    <h1 id="page-title">Quốc gia</h1>
+    <h1 id="page-title">Năm phát hành</h1>
     <div id="filter-bar" class="filter-bar"></div>
     <div id="movies-grid" class="movies-grid"></div>
     <div id="pagination" class="pagination"></div>
@@ -47,51 +47,28 @@
     (function(){
       function run() {
       var path = window.location.pathname;
-      var m = path.match(/\/quoc-gia\/([^/]+)(\.html)?$/);
-      if (!m) m = path.match(/.+\/quoc-gia\/([^/]+)(\.html)?$/);
-      var slug = m ? decodeURIComponent(m[1]) : null;
-      if (!slug) {
+      var m = path.match(/\/nam-phat-hanh\/([^/]+)(\.html)?$/);
+      if (!m) m = path.match(/.+\/nam-phat-hanh\/([^/]+)(\.html)?$/);
+      var year = m ? decodeURIComponent(m[1]) : null;
+      if (!year) {
         var fd = window.filtersData || {};
-        var countryNames = fd.countryNames || {};
-        var countryMap = fd.countryMap || {};
-        var countries = Object.keys(countryNames).length ? Object.keys(countryNames) : Object.keys(countryMap);
-        var countryOrder = (fd.filterOrder && fd.filterOrder.countryOrder) || [];
-        if (countryOrder.length) {
-          var orderSet = {};
-          countryOrder.forEach(function(k,i){ orderSet[k]=i; });
-          countries = countries.slice().sort(function(a,b){
-            var ia=orderSet[a], ib=orderSet[b];
-            if (ia!==undefined && ib!==undefined) return ia-ib;
-            if (ia!==undefined) return -1;
-            if (ib!==undefined) return 1;
-            return a<b?-1:a>b?1:0;
-          });
-        } else countries = countries.slice().sort();
-        var name = function(s){ return countryNames[s] || s; };
-        var countryFlags = { 'viet-nam':'vn','han-quoc':'kr','nhat-ban':'jp','thai-lan':'th','trung-quoc':'cn','au-my':'us','anh':'gb','phap':'fr','duc':'de','tay-ban-nha':'es','y':'it','nga':'ru','canada':'ca','uc':'au','brazil':'br','an-do':'in','indonesia':'id','malaysia':'my','philippines':'ph','singapore':'sg','dai-loan':'tw','hong-kong':'hk','ha-lan':'nl','thuy-dien':'se','phan-lan':'fi','na-uy':'no','dan-mach':'dk','ba-lan':'pl','ukraina':'ua','hy-lap':'gr','tho-nhi-ky':'tr','argentina':'ar','mexico':'mx','colombia':'co','chile':'cl','nam-phi':'za','nigeria':'ng','uae':'ae','quoc-gia-khac':'' };
-        var flagCdn = 'https://flagcdn.com/w80';
+        var years = Object.keys(fd.yearMap || {}).sort(function(a,b){ return Number(b) - Number(a); });
+        document.getElementById('page-title').textContent = 'Năm phát hành';
         var base = (window.DAOP && window.DAOP.basePath) || '';
-        document.getElementById('page-title').textContent = 'Quốc gia';
-        document.getElementById('movies-grid').innerHTML = countries.length
-          ? '<div class="country-grid">' + countries.map(function(c){
-              var iso2 = countryFlags[c];
-              var label = (name(c) || c).replace(/</g, '&lt;');
-              var flagHtml = iso2
-                ? '<img src="' + flagCdn + '/' + iso2 + '.png" alt="" class="country-flag-img" loading="lazy">'
-                : '<span class="country-flag">🌐</span>';
-              return '<a class="country-card" href="' + base + '/quoc-gia/' + encodeURIComponent(c) + '.html">' + flagHtml + '<span class="country-name">' + label + '</span></a>';
+        document.getElementById('movies-grid').innerHTML = years.length
+          ? '<div class="genre-grid">' + years.map(function(y){
+              var label = String(y || '').replace(/</g, '&lt;');
+              return '<a class="genre-card" href="' + base + '/nam-phat-hanh/' + encodeURIComponent(String(y)) + '.html"><span class="genre-icon">📅</span><span class="genre-name">' + label + '</span></a>';
             }).join('') + '</div>'
           : '<p>Chưa có dữ liệu.</p>';
         document.getElementById('filter-bar').innerHTML = '';
         document.getElementById('pagination').innerHTML = '';
         return;
       }
-      var fd = window.filtersData || {};
-      var displayName = (fd.countryNames && fd.countryNames[slug]) || slug;
-      document.getElementById('page-title').textContent = 'Quốc gia: ' + displayName;
+      document.getElementById('page-title').textContent = 'Năm: ' + year;
       new CategoryPage({
-        baseFilter: function(){ return new Set((window.filtersData && window.filtersData.countryMap && window.filtersData.countryMap[slug]) || []); },
-        title: 'Quốc gia: ' + displayName,
+        baseFilter: function(){ return new Set((window.filtersData && window.filtersData.yearMap && window.filtersData.yearMap[year]) || []); },
+        title: 'Năm: ' + year,
         gridId: 'movies-grid',
         filterContainerId: 'filter-bar',
         paginationId: 'pagination'

@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["48"] = {"48-hrs":{"id":"636cdac6dcaeab7814b86509","i":5551,"title":"48 Hrs.","origin_name":"48 Hrs.","slug":"48-hrs","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/48/48-hrs.webp","year":1982,"type":"single","episode_current":"Full"}};

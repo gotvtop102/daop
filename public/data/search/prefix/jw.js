@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["jw"] = [{"id":"641430a372b9a838f842eb13","title":"Jwanita","origin_name":"Jwanita","slug":"jwanita","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/jw/jwanita.webp","year":2015,"episode_current":"Full","_t":"jwanita jwanita jwanita"}];
