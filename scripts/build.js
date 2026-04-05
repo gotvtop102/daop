@@ -522,8 +522,16 @@ function writeCdnConfigJson() {
       pathPrefix: getPubjsPathPrefix(),
     },
   };
+  const next = JSON.stringify(out, null, 2);
+  const p = path.join(PUBLIC_DATA, 'cdn.json');
+  try {
+    if (fs.existsSync(p)) {
+      const prev = fs.readFileSync(p, 'utf8');
+      if (prev === next) return;
+    }
+  } catch {}
   fs.ensureDirSync(PUBLIC_DATA);
-  fs.writeFileSync(path.join(PUBLIC_DATA, 'cdn.json'), JSON.stringify(out, null, 2), 'utf8');
+  fs.writeFileSync(p, next, 'utf8');
 }
 
 function mergeMovieWithTmdbMap(m, tmdbById) {
@@ -572,6 +580,38 @@ function isTrustedLastModifiedLedgerForVer(o) {
 
 function serializeLastModifiedJson(idToModifiedMap) {
   return JSON.stringify({ [LAST_MODIFIED_LEDGER_FLAG]: true, ...idToModifiedMap }, null, 2);
+}
+
+function writeLastModifiedIfChanged(absPath, idToModifiedMap) {
+  const next = serializeLastModifiedJson(idToModifiedMap);
+  try {
+    if (fs.existsSync(absPath)) {
+      const prev = fs.readFileSync(absPath, 'utf8');
+      if (prev === next) return false;
+    }
+  } catch {}
+  fs.writeFileSync(absPath, next, 'utf8');
+  return true;
+}
+
+/**
+ * Chỉ ghi pubjs khi file mới, payload canonical đổi, hoặc thumb/poster/pubjs_url đổi.
+ * Tránh ghi lại cả thư mục khi chỉ khác thứ tự key của JSON.stringify(merged).
+ */
+function pubjsNeedsDiskWrite(hadReadableFile, prevRaw, nextPubjsJson, merged, pubjsPayloadChanged) {
+  if (!hadReadableFile || !prevRaw) return true;
+  if (prevRaw === nextPubjsJson) return false;
+  if (pubjsPayloadChanged) return true;
+  try {
+    const old = JSON.parse(prevRaw);
+    const urlsMatch =
+      String(old.thumb || '') === String(merged.thumb || '') &&
+      String(old.poster || '') === String(merged.poster || '') &&
+      String(old.pubjs_url || '') === String(merged.pubjs_url || '');
+    return !urlsMatch;
+  } catch {
+    return true;
+  }
 }
 
 function normalizeModifiedValue(v) {
@@ -696,6 +736,10 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
    */
   const dataBumpedSlugs = [];
   const bumpBrandNewPubjs = /^1|true|yes$/i.test(String(process.env.PUBJS_BUMP_NEW_SLUGS || '').trim());
+  const writeDebug = /^1|true|yes$/i.test(String(process.env.PUBJS_BUILD_WRITE_DEBUG || '').trim());
+  const debugEntries = [];
+  let pubjsWrote = 0;
+  let pubjsSkipped = 0;
 
   for (const m of sorted) {
     const idStr = m && m.id != null ? String(m.id) : '';
@@ -723,22 +767,31 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     merged.pubjs_url = buildPubjsFileUrl(slug, null, dataRef);
 
     const nextPubjsJson = JSON.stringify(merged);
+    let prevRaw = '';
     const hadPubjsFile = fs.existsSync(fp);
-    let pubjsPayloadChanged = true;
     if (hadPubjsFile) {
       try {
-        const prevRaw = fs.readFileSync(fp, 'utf8');
-        pubjsPayloadChanged = !isPubjsCanonicalUnchanged(merged, prevRaw);
+        prevRaw = fs.readFileSync(fp, 'utf8');
       } catch {
-        pubjsPayloadChanged = true;
+        prevRaw = '';
       }
     }
-    if (pubjsPayloadChanged && (hadPubjsFile || bumpBrandNewPubjs)) {
+    const hadReadablePrev = hadPubjsFile && !!prevRaw;
+    let pubjsPayloadChanged = true;
+    if (hadReadablePrev) {
+      pubjsPayloadChanged = !isPubjsCanonicalUnchanged(merged, prevRaw);
+    }
+    const diskWriteNeeded = pubjsNeedsDiskWrite(hadReadablePrev, prevRaw, nextPubjsJson, merged, pubjsPayloadChanged);
+    if (diskWriteNeeded && (hadPubjsFile || bumpBrandNewPubjs)) {
       dataBumpedSlugs.push(slug);
     }
-
-    fs.ensureDirSync(path.dirname(fp));
-    fs.writeFileSync(fp, nextPubjsJson, 'utf8');
+    if (diskWriteNeeded) {
+      fs.ensureDirSync(path.dirname(fp));
+      fs.writeFileSync(fp, nextPubjsJson, 'utf8');
+      pubjsWrote++;
+    } else {
+      pubjsSkipped++;
+    }
 
     m.thumb = merged.thumb;
     m.poster = merged.poster;
@@ -771,28 +824,92 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
       touchedVerShards.add(shard);
     }
 
+    if (writeDebug && debugEntries.length < 300) {
+      let skipReason = '';
+      if (!diskWriteNeeded) {
+        if (prevRaw === nextPubjsJson) skipReason = 'bytes_identical';
+        else if (!pubjsPayloadChanged) skipReason = 'canonical_unchanged_urls_match';
+        else skipReason = 'other';
+      }
+      debugEntries.push({
+        slug,
+        diskWriteNeeded,
+        hadPubjsFile,
+        pubjsPayloadChanged,
+        verWrite: !!verWrite,
+        skipReason: diskWriteNeeded ? '' : skipReason,
+      });
+    }
+
     manifest.push({ id: idStr, slug, shard, modified: curMod });
   }
 
   if (touchedVerShards.size) {
     writeVerShardFiles(verDir, verByShard, touchedVerShards);
   }
-  fs.writeFileSync(
-    path.join(PUBLIC_DATA, 'movies-manifest.json'),
-    JSON.stringify({ movies: manifest, updatedAt: new Date().toISOString() }),
-    'utf8'
-  );
-  writeCdnConfigJson();
-
+  const manifestPath = path.join(PUBLIC_DATA, 'movies-manifest.json');
+  const nextMoviesJson = JSON.stringify(manifest);
+  let prevMoviesJson = null;
   try {
+    if (fs.existsSync(manifestPath)) {
+      const pm = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      prevMoviesJson = JSON.stringify(pm.movies || []);
+    }
+  } catch {}
+  if (prevMoviesJson !== nextMoviesJson) {
     fs.writeFileSync(
-      path.join(PUBLIC_DATA, '.pubjs-slugs-data-bumped.json'),
-      JSON.stringify({ slugs: dataBumpedSlugs, updatedAt: new Date().toISOString() }, null, 2),
+      manifestPath,
+      JSON.stringify({ movies: manifest, updatedAt: new Date().toISOString() }),
       'utf8'
     );
+  }
+  writeCdnConfigJson();
+
+  const bumpPath = path.join(PUBLIC_DATA, '.pubjs-slugs-data-bumped.json');
+  const nextBumpSlugsJson = JSON.stringify(dataBumpedSlugs);
+  let prevBumpSlugsJson = null;
+  try {
+    if (fs.existsSync(bumpPath)) {
+      const bj = JSON.parse(fs.readFileSync(bumpPath, 'utf8'));
+      prevBumpSlugsJson = JSON.stringify(bj.slugs || []);
+    }
+  } catch {}
+  try {
+    if (prevBumpSlugsJson !== nextBumpSlugsJson) {
+      fs.writeFileSync(
+        bumpPath,
+        JSON.stringify({ slugs: dataBumpedSlugs, updatedAt: new Date().toISOString() }, null, 2),
+        'utf8'
+      );
+    }
   } catch {}
 
-  console.log('   Pubjs JSON:', manifest.length, 'files →', pubjsRoot);
+  if (writeDebug) {
+    try {
+      fs.writeFileSync(
+        path.join(PUBLIC_DATA, '.build-write-pubjs-log.json'),
+        JSON.stringify(
+          {
+            at: new Date().toISOString(),
+            env: { PUBJS_BUILD_WRITE_DEBUG: '1' },
+            summary: {
+              pubjsWrote,
+              pubjsSkipped,
+              bumpSlugs: dataBumpedSlugs.length,
+              verTouchedShards: touchedVerShards.size,
+            },
+            hint: 'Đặt PUBJS_BUILD_WRITE_DEBUG=0 hoặc bỏ env để không ghi file này.',
+            entriesSample: debugEntries,
+          },
+          null,
+          2
+        ),
+        'utf8'
+      );
+    } catch {}
+  }
+
+  console.log('   Pubjs JSON:', manifest.length, '→', pubjsRoot, '| ghi:', pubjsWrote, '| giữ:', pubjsSkipped);
   console.log('   Pubjs bump (refresh ref):', dataBumpedSlugs.length, 'slugs — mới mặc định không bump (PUBJS_BUMP_NEW_SLUGS=1 nếu cần)');
   console.log('   Ver shards ghi (có thay đổi):', touchedVerShards.size, '| map:', verByShard.size, '→', verDir);
   return { newLastModified, batchPtrById: null };
@@ -4423,7 +4540,7 @@ async function main() {
     });
     try {
       if (newLastModifiedTmdb) {
-        fs.writeFileSync(lastModifiedPath, serializeLastModifiedJson(newLastModifiedTmdb));
+        writeLastModifiedIfChanged(lastModifiedPath, newLastModifiedTmdb);
       }
     } catch {}
 
@@ -4592,7 +4709,7 @@ async function main() {
   });
 
   try {
-    fs.writeFileSync(path.join(PUBLIC_DATA, 'last_modified.json'), serializeLastModifiedJson(newLastModified));
+    writeLastModifiedIfChanged(path.join(PUBLIC_DATA, 'last_modified.json'), newLastModified);
   } catch {}
 
   console.log('6b. Sync update status back to Supabase (NEW → blank, slug if needed)...');

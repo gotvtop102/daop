@@ -23,6 +23,8 @@ const DATA_FILES_REMOVE = [
   'last_build.json',
   'build_version.json',
   'repo_image_upload_state.json',
+  '.pubjs-slugs-data-bumped.json',
+  '.build-write-pubjs-log.json',
 ];
 
 async function main() {
