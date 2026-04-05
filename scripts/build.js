@@ -543,6 +543,21 @@ function mergeMovieWithTmdbMap(m, tmdbById) {
   };
 }
 
+function normalizeModifiedValue(v) {
+  if (v == null) return '';
+  const s = String(v).trim();
+  if (!s) return '';
+  const t = Date.parse(s);
+  if (Number.isFinite(t)) {
+    try {
+      return new Date(t).toISOString();
+    } catch {
+      return s;
+    }
+  }
+  return s;
+}
+
 /** Số dòng cast tối đa trong mỗi file JSON phim (pubjs). */
 const MAX_CAST_PUBJS = 18;
 
@@ -642,9 +657,10 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     if (!idStr || !slug) continue;
 
     const merged = normalizeMovieCastForPubjs(mergeMovieWithTmdbMap(m, tmdbById));
-    const prevMod = prevLastModified && prevLastModified[idStr] != null ? String(prevLastModified[idStr] ?? '').trim() : '';
-    let curMod = String(extractOphimModifiedForPersist(merged) || '').trim();
-    if (!curMod) curMod = String(extractMovieModifiedCanonical(merged) || '').trim();
+    const prevMod = prevLastModified && prevLastModified[idStr] != null ? normalizeModifiedValue(prevLastModified[idStr]) : '';
+    let curModRaw = extractOphimModifiedForPersist(merged);
+    if (!curModRaw) curModRaw = extractMovieModifiedCanonical(merged);
+    let curMod = normalizeModifiedValue(curModRaw);
     if (!curMod && prevMod) curMod = prevMod;
     merged.modified = curMod;
     newLastModified[idStr] = curMod;
@@ -690,7 +706,7 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
       typeof prevLastModified === 'object' &&
       Object.keys(prevLastModified).length > 0;
     const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
-    const prevModStored = hadPrevId ? String(prevLastModified[idStr] ?? '').trim() : '';
+    const prevModStored = hadPrevId ? normalizeModifiedValue(prevLastModified[idStr]) : '';
     const ophimVerReason =
       hasPrevLedger &&
       hadPrevId &&
