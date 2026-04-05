@@ -706,10 +706,12 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     const prevMod = prevLastModified && prevLastModified[idStr] != null ? normalizeModifiedValue(prevLastModified[idStr]) : '';
     let curModRaw = extractOphimModifiedForPersist(merged);
     if (!curModRaw) curModRaw = extractMovieModifiedCanonical(merged);
-    let curMod = normalizeModifiedValue(curModRaw);
+    /** Chỉ từ nguồn phim hiện tại — không copy ledger/seed vào đây (copy vào last_modified khiến lần build sau API có modified ≠ ledger → bust ver cả đống). */
+    const ledgerMod = normalizeModifiedValue(curModRaw);
+    let curMod = ledgerMod;
     if (!curMod && prevMod) curMod = prevMod;
     merged.modified = curMod;
-    newLastModified[idStr] = curMod;
+    newLastModified[idStr] = ledgerMod;
 
     const shard = getSlugShard2(slug);
     const fp = path.join(pubjsRoot, shard, `${slug}.json`);
@@ -751,9 +753,9 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
     const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
     const prevModStored = hadPrevId ? normalizeModifiedValue(prevLastModified[idStr]) : '';
 
-    /** Chỉ ver khi admin NEW hoặc OPhim modified thật sự khác thời điểm (không chỉ khác chuỗi / lần trước rỗng). */
+    /** So với ledger đã ghi (ledgerMod), không so với curMod có fallback prev — tránh false positive. */
     const ophimVerReason =
-      hasPrevLedger && hadPrevId && ophimModifiedMeaningfullyChanged(prevModStored, curMod);
+      hasPrevLedger && hadPrevId && ophimModifiedMeaningfullyChanged(prevModStored, ledgerMod);
 
     const adminNewVerReason =
       !!(m && m._from_supabase && String(m._customUpdateStatus || '').toUpperCase() === 'NEW');
