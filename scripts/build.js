@@ -547,17 +547,23 @@ function normalizeModifiedValue(v) {
   if (v == null) return '';
   const s = String(v).trim();
   if (!s) return '';
-  // ISO format (YYYY-MM-DDTHH:mm:ss.sssZ) hoặc format OPhim (YYYY-MM-DD HH:mm:ss)
-  // Đưa về cùng precision (không mili giây) và giả định UTC nếu thiếu múi giờ
+
   let input = s;
+  // Format OPhim: "YYYY-MM-DD HH:mm:ss" -> chuyển về ISO UTC
   if (/^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$/.test(s)) {
     input = s.replace(' ', 'T') + 'Z';
+  } else if (/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$/.test(s)) {
+    // Thiếu Z nhưng có T -> giả định UTC nếu không có thông tin múi giờ
+    if (!s.includes('Z') && !s.includes('+') && !/-\d{2}:\d{2}$/.test(s)) {
+      input = s + 'Z';
+    }
   }
+
   const t = Date.parse(input);
   if (Number.isFinite(t)) {
     try {
       const d = new Date(t);
-      // Bỏ qua mili giây để tránh lệch giữa các nguồn (Admin vs OPhim vs DB)
+      // Bỏ qua mili giây để tránh lệch giữa các nguồn
       d.setMilliseconds(0);
       return d.toISOString();
     } catch {
@@ -714,6 +720,10 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
       prevLastModified != null &&
       typeof prevLastModified === 'object' &&
       Object.keys(prevLastModified).length > 0;
+    
+    if (idx === 0) {
+      console.log(`   [DEBUG] hasPrevLedger: ${hasPrevLedger}, prevLastModified size: ${prevLastModified ? Object.keys(prevLastModified).length : 0}`);
+    }
     const hadPrevId = hasPrevLedger && Object.prototype.hasOwnProperty.call(prevLastModified, idStr);
     const prevModStored = hadPrevId ? normalizeModifiedValue(prevLastModified[idStr]) : '';
     const ophimVerReason =
@@ -730,6 +740,14 @@ function writePubjsMoviesAndVer(movies, prevLastModified, tmdbById) {
       if (!verByShard.has(shard)) verByShard.set(shard, {});
       const shardObj = verByShard.get(shard);
       const prevEntry = shardObj && shardObj[slug] && typeof shardObj[slug] === 'object' ? shardObj[slug] : {};
+      
+      // LOG ĐỂ KIỂM TRA TẠI SAO PHIM NÀY GHI VER
+      if (adminNewVerReason) {
+        console.log(`   [DEBUG] VerWrite (Admin NEW): ${slug}`);
+      } else if (ophimVerReason) {
+        console.log(`   [DEBUG] VerWrite (OPhim): ${slug} | prev: ${prevModStored} | cur: ${curMod}`);
+      }
+      
       prevEntry.b = verBustToken;
       shardObj[slug] = prevEntry;
       touchedVerShards.add(shard);
