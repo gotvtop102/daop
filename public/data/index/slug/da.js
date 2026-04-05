@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["da"] = {"dam-xanh":{"id":"6220db448481266c5b7f0b22","i":0,"title":"Dặm xanh","origin_name":"The Green Mile","slug":"dam-xanh","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/da/dam-xanh.webp","year":1999,"type":"single","episode_current":"Full"}};
