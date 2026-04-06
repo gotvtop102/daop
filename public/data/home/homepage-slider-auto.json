@@ -28,92 +28,6 @@
     "enabled": true
   },
   {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/sa/savage-hunt.webp",
-    "link_url": "/phim/savage-hunt.html",
-    "title": "Cuộc săn lùng man rợ",
-    "year": "2025",
-    "country": "Âu Mỹ",
-    "episode_current": "Full",
-    "genres": [
-      "Bí ẩn"
-    ],
-    "sort_order": 2,
-    "enabled": true
-  },
-  {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/xe/xeno.webp",
-    "link_url": "/phim/xeno.html",
-    "title": "Xeno",
-    "year": "2025",
-    "country": "Âu Mỹ",
-    "episode_current": "Full",
-    "genres": [
-      "Viễn Tưởng",
-      "Phiêu Lưu",
-      "Khoa Học",
-      "Chính kịch",
-      "Bí ẩn"
-    ],
-    "sort_order": 3,
-    "enabled": true
-  },
-  {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/thi-nghiem-copenhagen.webp",
-    "link_url": "/phim/thi-nghiem-copenhagen.html",
-    "title": "Thí Nghiệm Copenhagen",
-    "year": "2025",
-    "country": "Âu Mỹ",
-    "episode_current": "Hoàn Tất (8/8)",
-    "genres": [
-      "Hành Động",
-      "Viễn Tưởng",
-      "Khoa Học"
-    ],
-    "sort_order": 4,
-    "enabled": true
-  },
-  {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/nh/nhan-chi-so.webp",
-    "link_url": "/phim/nhan-chi-so.html",
-    "title": "Nhân Chi Sơ",
-    "year": "2025",
-    "country": "Trung Quốc",
-    "episode_current": "Hoàn tất (18/18)",
-    "genres": [
-      "Chính kịch",
-      "Bí ẩn"
-    ],
-    "sort_order": 5,
-    "enabled": true
-  },
-  {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ph/phi-vu-ao-thuat-gia.webp",
-    "link_url": "/phim/phi-vu-ao-thuat-gia.html",
-    "title": "Phi Vụ Ảo Thuật Gia",
-    "year": "2025",
-    "country": "Nga",
-    "episode_current": "Full",
-    "genres": [
-      "Hành Động",
-      "Hình Sự"
-    ],
-    "sort_order": 6,
-    "enabled": true
-  },
-  {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/my/my-korean-boyfriend.webp",
-    "link_url": "/phim/my-korean-boyfriend.html",
-    "title": "My Korean Boyfriend",
-    "year": "2026",
-    "country": "Brazil",
-    "episode_current": "Hoàn tất (8/8)",
-    "genres": [
-      "Tình Cảm"
-    ],
-    "sort_order": 7,
-    "enabled": true
-  },
-  {
     "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/an/an-danh-phan-3.webp",
     "link_url": "/phim/an-danh-phan-3.html",
     "title": "Ẩn Danh (Phần 3)",
@@ -126,50 +40,126 @@
       "Phiêu Lưu",
       "Chính kịch"
     ],
+    "sort_order": 2,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/to/toi-song-mot-minh.webp",
+    "link_url": "/phim/toi-song-mot-minh.html",
+    "title": "Tôi Sống Một Mình",
+    "year": "2020",
+    "country": "Hàn Quốc",
+    "episode_current": "Tập 628",
+    "genres": [
+      "Gia Đình"
+    ],
+    "sort_order": 3,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ba/ban-choi-the-nao.webp",
+    "link_url": "/phim/ban-choi-the-nao.html",
+    "title": "Bạn Chơi Thế Nào?",
+    "year": "2019",
+    "country": "Hàn Quốc",
+    "episode_current": "Tập 312",
+    "genres": [
+      "Hài Hước"
+    ],
+    "sort_order": 4,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/to/to-my-shore.webp",
+    "link_url": "/phim/to-my-shore.html",
+    "title": "Ngô Ngạn (Phật Tứ Diện)",
+    "year": "2025",
+    "country": "Trung Quốc",
+    "episode_current": "Hoàn tất (15/15)",
+    "genres": [
+      "Chính kịch"
+    ],
+    "sort_order": 5,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/gi/giua-chung-ta-co-bi-mat-phan-2.webp",
+    "link_url": "/phim/giua-chung-ta-co-bi-mat-phan-2.html",
+    "title": "Giữa Chúng Ta Có Bí Mật (Phần 2)",
+    "year": "2025",
+    "country": "Trung Quốc",
+    "episode_current": "Hoàn tất (10/10)",
+    "genres": [
+      "Tình Cảm"
+    ],
+    "sort_order": 6,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/qu/quai-thu-vo-hinh-vung-dat-chet-choc.webp",
+    "link_url": "/phim/quai-thu-vo-hinh-vung-dat-chet-choc.html",
+    "title": "Quái Thú Vô Hình: Vùng Đất Chết Chóc",
+    "year": "2025",
+    "country": "Âu Mỹ",
+    "episode_current": "Full",
+    "genres": [
+      "Hành Động",
+      "Viễn Tưởng",
+      "Khoa Học"
+    ],
+    "sort_order": 7,
+    "enabled": true
+  },
+  {
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ly/lying.webp",
+    "link_url": "/phim/lying.html",
+    "title": "Lying",
+    "year": "2025",
+    "country": "Thái Lan",
+    "episode_current": "Hoàn tất (24/24)",
+    "genres": [
+      "Chính kịch"
+    ],
     "sort_order": 8,
     "enabled": true
   },
   {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mo/mo-khoa-thi-nghiem-nha-giam-phan-2.webp",
-    "link_url": "/phim/mo-khoa-thi-nghiem-nha-giam-phan-2.html",
-    "title": "Mở khóa: Thí nghiệm nhà giam (Phần 2)",
-    "year": "2026",
-    "country": "Âu Mỹ",
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/vi/villains.webp",
+    "link_url": "/phim/villains.html",
+    "title": "Phản Diện",
+    "year": "2025",
+    "country": "Hàn Quốc",
     "episode_current": "Hoàn tất (8/8)",
     "genres": [
-      "Tài Liệu"
+      "Hình Sự",
+      "Chính kịch"
     ],
     "sort_order": 9,
     "enabled": true
   },
   {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/ta-la-quan-chu-ta-ac-cua-quoc-gia-o-giua-muon-vi-sao.webp",
-    "link_url": "/phim/ta-la-quan-chu-ta-ac-cua-quoc-gia-o-giua-muon-vi-sao.html",
-    "title": "Ta Là Quân Chủ Tà Ác Của Quốc Gia Ở Giữa Muôn Vì Sao",
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/so/song-trang-hoan-menh.webp",
+    "link_url": "/phim/song-trang-hoan-menh.html",
+    "title": "Sông Trăng Hoán Mệnh",
     "year": "2025",
-    "country": "Nhật Bản",
-    "episode_current": "Hoàn tất (12/12)",
+    "country": "Hàn Quốc",
+    "episode_current": "Hoàn tất (14/14)",
     "genres": [
-      "Hành Động",
-      "Hài Hước",
-      "Viễn Tưởng",
-      "Phiêu Lưu",
-      "Khoa Học"
+      "Chính kịch"
     ],
     "sort_order": 10,
     "enabled": true
   },
   {
-    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ph/pha-ken-2025.webp",
-    "link_url": "/phim/pha-ken-2025.html",
-    "title": "Phá Kén",
+    "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/taylor-swift-chuong-ket-cua-mot-ky-nguyen.webp",
+    "link_url": "/phim/taylor-swift-chuong-ket-cua-mot-ky-nguyen.html",
+    "title": "Taylor Swift: Chương Kết của một Kỷ Nguyên",
     "year": "2025",
-    "country": "Trung Quốc",
-    "episode_current": "Hoàn tất (21/21)",
+    "country": "Âu Mỹ",
+    "episode_current": "Hoàn tất (6/6)",
     "genres": [
-      "Hình Sự",
-      "Chính kịch",
-      "Bí ẩn"
+      "Tài Liệu",
+      "Âm Nhạc"
     ],
     "sort_order": 11,
     "enabled": true
