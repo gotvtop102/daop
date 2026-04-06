@@ -1425,6 +1425,9 @@
     if (!url) return '';
     var u = String(url);
     if (/poster\.(jpe?g|png|webp)$/i.test(u)) return u;
+    // CDN/repo path convention: /thumbs/<shard>/<slug>.webp -> /posters/<shard>/<slug>.webp
+    var r0 = u.replace(/\/thumbs\//i, '/posters/');
+    if (r0 !== u) return r0;
     var r1 = u.replace(/thumb\.(jpe?g|png|webp)$/i, 'poster.$1');
     if (r1 !== u) return r1;
     var r2 = u.replace(/-thumb\.(jpe?g|png|webp)$/i, '-poster.$1');
