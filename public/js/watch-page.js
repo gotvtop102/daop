@@ -414,7 +414,10 @@
         var slug = String(g.slug || g.id || '').toLowerCase();
         var name = String(g.name || '').toLowerCase();
         if (slug === 'short-drama' || slug === 'short_drama') return true;
+        if (slug.indexOf('short') >= 0) return true;
+        if (slug.indexOf('ngan') >= 0) return true;
         if (name.indexOf('short drama') >= 0) return true;
+        if (name.indexOf('phim ngan') >= 0) return true;
       }
       return false;
     } catch (e) {
@@ -440,6 +443,11 @@
         props.forEach(function (p) { try { el.style.removeProperty(p); } catch (e1) {} });
       }
 
+      function setStyleImportant(el, key, value) {
+        if (!el) return;
+        try { el.style.setProperty(key, value, 'important'); } catch (e1) {}
+      }
+
       function apply() {
         var fsEl = getFullscreenElement();
         var video = container.querySelector('#watch-video');
@@ -452,35 +460,59 @@
           if (!target && fsEl.querySelector) target = fsEl.querySelector('video, iframe');
         }
 
-        if (!fsEl || !target) {
+        var byRatio = false;
+        try {
+          if (video && video.videoWidth && video.videoHeight && video.videoHeight > video.videoWidth) byRatio = true;
+        } catch (e1) {}
+        var shouldVertical = !!enabled || byRatio;
+
+        if (!fsEl || !target || !shouldVertical) {
           clearStyles(video, ['width', 'height', 'max-width', 'max-height', 'object-fit']);
           clearStyles(frame, ['width', 'height', 'max-width', 'max-height', 'object-fit']);
           return;
         }
 
         try {
-          fsEl.style.background = '#000';
-          fsEl.style.display = 'flex';
-          fsEl.style.alignItems = 'center';
-          fsEl.style.justifyContent = 'center';
-        } catch (e2) {}
+          setStyleImportant(fsEl, 'background', '#000');
+          setStyleImportant(fsEl, 'display', 'flex');
+          setStyleImportant(fsEl, 'align-items', 'center');
+          setStyleImportant(fsEl, 'justify-content', 'center');
+          setStyleImportant(fsEl, 'overflow', 'hidden');
+        } catch (e2) { }
 
         try {
-          target.style.width = 'auto';
-          target.style.height = '100vh';
-          target.style.maxHeight = '100vh';
-          target.style.maxWidth = '56.25vh'; // 9:16 vertical video in fullscreen
-          target.style.objectFit = 'contain';
-        } catch (e3) {}
+          setStyleImportant(target, 'width', 'auto');
+          setStyleImportant(target, 'height', '100vh');
+          setStyleImportant(target, 'max-height', '100vh');
+          setStyleImportant(target, 'max-width', '56.25vh'); // 9:16 vertical video in fullscreen
+          setStyleImportant(target, 'object-fit', 'contain');
+        } catch (e3) { }
+
+        try {
+          var vjsRoots = fsEl.querySelectorAll ? fsEl.querySelectorAll('.video-js, .vjs-tech, .plyr, .plyr__video-wrapper, .plyr video') : [];
+          (vjsRoots || []).forEach(function (el) {
+            setStyleImportant(el, 'width', 'auto');
+            setStyleImportant(el, 'height', '100vh');
+            setStyleImportant(el, 'max-height', '100vh');
+            setStyleImportant(el, 'max-width', '56.25vh');
+          });
+        } catch (e4) {}
       }
 
       document.addEventListener('fullscreenchange', apply);
       document.addEventListener('webkitfullscreenchange', apply);
+      var videoEl = container.querySelector('#watch-video');
+      if (videoEl) {
+        try { videoEl.addEventListener('loadedmetadata', apply); } catch (e5) {}
+      }
       apply();
 
       container.__daopCleanupVerticalFs = function () {
         document.removeEventListener('fullscreenchange', apply);
         document.removeEventListener('webkitfullscreenchange', apply);
+        if (videoEl) {
+          try { videoEl.removeEventListener('loadedmetadata', apply); } catch (e6) {}
+        }
       };
     } catch (e) {}
   }
