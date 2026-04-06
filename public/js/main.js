@@ -1482,7 +1482,11 @@
       ? opts.cardOrientation
       : (opts.usePoster ? 'horizontal' : 'vertical');
     const thumbFromIndex = (m && m.thumb) ? window.DAOP.normalizeImgUrl(m.thumb) : '';
-    const posterFromIndex = (m && m.poster) ? window.DAOP.normalizeImgUrl(m.poster) : '';
+    const posterFromIndexRaw = (m && m.poster) ? window.DAOP.normalizeImgUrl(m.poster) : '';
+    const posterFromThumb = thumbFromIndex && window.DAOP && typeof window.DAOP.derivePosterFromThumb === 'function'
+      ? window.DAOP.normalizeImgUrl(window.DAOP.derivePosterFromThumb(thumbFromIndex))
+      : '';
+    const posterFromIndex = posterFromIndexRaw || posterFromThumb || '';
     const defaultImg = cardOrientation === 'horizontal'
       ? (baseUrl + '/images/default_poster.png')
       : (baseUrl + '/images/default_thumb.png');
