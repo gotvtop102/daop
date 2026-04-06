@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["xe"] = {"xeno":{"id":"69637f771d0b515454a3e296","i":1199,"title":"Xeno","origin_name":"Xeno","slug":"xeno","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/xe/xeno.webp","year":2025,"type":"single","episode_current":"Full"}};
