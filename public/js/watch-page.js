@@ -432,7 +432,7 @@
         try { container.__daopCleanupVerticalFs(); } catch (e0) {}
         container.__daopCleanupVerticalFs = null;
       }
-      // Keep handler active even when enabled=false; we may auto-detect vertical by real video ratio.
+      if (!enabled) return;
 
       function getFullscreenElement() {
         return document.fullscreenElement || document.webkitFullscreenElement || null;
@@ -446,52 +446,6 @@
       function setStyleImportant(el, key, value) {
         if (!el) return;
         try { el.style.setProperty(key, value, 'important'); } catch (e1) {}
-      }
-
-      var pseudoFsActive = false;
-      var prevBodyOverflow = '';
-
-      function applyPseudoFullscreen(on) {
-        var wrap = container.querySelector('.watch-player-wrap') || container;
-        var video = container.querySelector('#watch-video');
-        var frame = container.querySelector('#watch-embed');
-        var target = video || frame;
-        if (!wrap || !target) return;
-
-        if (!on) {
-          pseudoFsActive = false;
-          try { document.body.style.overflow = prevBodyOverflow || ''; } catch (e0) {}
-          clearStyles(wrap, ['position', 'inset', 'z-index', 'background', 'display', 'align-items', 'justify-content', 'width', 'height', 'max-width', 'max-height', 'padding', 'margin', 'overflow']);
-          clearStyles(target, ['width', 'height', 'max-width', 'max-height', 'object-fit']);
-          return;
-        }
-
-        pseudoFsActive = true;
-        try {
-          prevBodyOverflow = document.body.style.overflow || '';
-          document.body.style.overflow = 'hidden';
-        } catch (e1) {}
-
-        setStyleImportant(wrap, 'position', 'fixed');
-        setStyleImportant(wrap, 'inset', '0');
-        setStyleImportant(wrap, 'z-index', '2147483647');
-        setStyleImportant(wrap, 'background', '#000');
-        setStyleImportant(wrap, 'display', 'flex');
-        setStyleImportant(wrap, 'align-items', 'center');
-        setStyleImportant(wrap, 'justify-content', 'center');
-        setStyleImportant(wrap, 'width', '100vw');
-        setStyleImportant(wrap, 'height', '100vh');
-        setStyleImportant(wrap, 'max-width', '100vw');
-        setStyleImportant(wrap, 'max-height', '100vh');
-        setStyleImportant(wrap, 'padding', '0');
-        setStyleImportant(wrap, 'margin', '0');
-        setStyleImportant(wrap, 'overflow', 'hidden');
-
-        setStyleImportant(target, 'width', 'auto');
-        setStyleImportant(target, 'height', '100vh');
-        setStyleImportant(target, 'max-height', '100vh');
-        setStyleImportant(target, 'max-width', '56.25vh');
-        setStyleImportant(target, 'object-fit', 'contain');
       }
 
       function apply() {
@@ -580,52 +534,12 @@
       }
       apply();
 
-      function isFullscreenControlClick(ev) {
-        var t = ev && ev.target;
-        if (!t || !t.closest) return false;
-        return !!t.closest('.vjs-fullscreen-control, [data-plyr="fullscreen"], .plyr__control[data-plyr="fullscreen"], .fluid_control_fullscreen');
-      }
-
-      function interceptFullscreen(ev) {
-        var video = container.querySelector('#watch-video');
-        var byRatio = false;
-        try {
-          if (video && video.videoWidth && video.videoHeight && video.videoHeight > video.videoWidth) byRatio = true;
-        } catch (e7) {}
-        var shouldVertical = !!enabled || byRatio;
-        var isMobileOrTablet = false;
-        try {
-          var w = window.innerWidth || document.documentElement.clientWidth || 0;
-          var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
-          isMobileOrTablet = coarse || w <= 1024;
-        } catch (e8) {}
-        if (!isMobileOrTablet || !shouldVertical) return;
-        if (!isFullscreenControlClick(ev)) return;
-        try { ev.preventDefault(); } catch (e9) {}
-        try { ev.stopPropagation(); } catch (e10) {}
-        try { ev.stopImmediatePropagation(); } catch (e11) {}
-        applyPseudoFullscreen(!pseudoFsActive);
-      }
-
-      function onKeydown(ev) {
-        if ((ev.key === 'Escape' || ev.key === 'Esc') && pseudoFsActive) {
-          try { ev.preventDefault(); } catch (e12) {}
-          applyPseudoFullscreen(false);
-        }
-      }
-
-      container.addEventListener('click', interceptFullscreen, true);
-      document.addEventListener('keydown', onKeydown, true);
-
       container.__daopCleanupVerticalFs = function () {
-        applyPseudoFullscreen(false);
         document.removeEventListener('fullscreenchange', apply);
         document.removeEventListener('webkitfullscreenchange', apply);
         if (videoEl) {
           try { videoEl.removeEventListener('loadedmetadata', apply); } catch (e6) {}
         }
-        container.removeEventListener('click', interceptFullscreen, true);
-        document.removeEventListener('keydown', onKeydown, true);
       };
     } catch (e) {}
   }
