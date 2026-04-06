@@ -432,7 +432,7 @@
         try { container.__daopCleanupVerticalFs(); } catch (e0) {}
         container.__daopCleanupVerticalFs = null;
       }
-      // Keep handler active even when enabled=false; we may auto-detect vertical by real video ratio.
+      if (!enabled) return;
 
       function getFullscreenElement() {
         return document.fullscreenElement || document.webkitFullscreenElement || null;
@@ -506,11 +506,7 @@
           if (!target && fsEl.querySelector) target = fsEl.querySelector('video, iframe');
         }
 
-        var byRatio = false;
-        try {
-          if (video && video.videoWidth && video.videoHeight && video.videoHeight > video.videoWidth) byRatio = true;
-        } catch (e1) {}
-        var shouldVertical = !!enabled || byRatio;
+        var shouldVertical = !!enabled;
         var isMobileOrTablet = false;
         try {
           var w = window.innerWidth || document.documentElement.clientWidth || 0;
@@ -587,12 +583,7 @@
       }
 
       function interceptFullscreen(ev) {
-        var video = container.querySelector('#watch-video');
-        var byRatio = false;
-        try {
-          if (video && video.videoWidth && video.videoHeight && video.videoHeight > video.videoWidth) byRatio = true;
-        } catch (e7) {}
-        var shouldVertical = !!enabled || byRatio;
+        var shouldVertical = !!enabled;
         var isMobileOrTablet = false;
         try {
           var w = window.innerWidth || document.documentElement.clientWidth || 0;
