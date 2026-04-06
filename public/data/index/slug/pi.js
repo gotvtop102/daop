@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["pi"] = {"pixels":{"id":"6218f804e962100eb1905866","i":216,"title":"Pixels","origin_name":"Pixels","slug":"pixels","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/pi/pixels.webp","year":"2015","type":"single","episode_current":"Full"}};

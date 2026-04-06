@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["cj"] = {"cj7":{"id":"6453281eca5e47f4062fff59","i":2724,"title":"CJ7","origin_name":"CJ7","slug":"cj7","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cj/cj7.webp","year":2008,"type":"single","episode_current":"Full"}};

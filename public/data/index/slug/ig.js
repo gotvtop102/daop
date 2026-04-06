@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ig"] = {"ignite":{"id":"68f3c05fce73f835c9df92fd","i":2266,"title":"Ignite","origin_name":"Ignite","slug":"ignite","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ig/ignite.webp","year":2025,"type":"series","episode_current":"Hoàn tất (11/11)"}};

@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["gt"] = [{"id":"67400c4175e275d00a1cb98f","title":"GTMAX","origin_name":"GTMAX","slug":"gtmax","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/gt/gtmax.webp","year":2024,"episode_current":"Full","_t":"gtmax gtmax gtmax"}];

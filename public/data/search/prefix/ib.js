@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["ib"] = [{"id":"679f429dd9bbb41aaa4e222b","title":"Ibu","origin_name":"Ibu","slug":"ibu","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ib/ibu.webp","year":2024,"episode_current":"Full","_t":"ibu ibu ibu"}];

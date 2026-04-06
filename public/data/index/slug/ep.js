@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ep"] = {"epitaph":{"id":"6832721f2e950ecbd183596a","i":1031,"title":"Epitaph","origin_name":"Epitaph","slug":"epitaph","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ep/epitaph.webp","year":"2007","type":"single","episode_current":"Full"}};

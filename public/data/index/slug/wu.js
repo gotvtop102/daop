@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["wu"] = {"wu-yen":{"id":"621f6883a666e8a57f65c5bd","i":283,"title":"Wu Yen","origin_name":"Wu Yen","slug":"wu-yen","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/wu/wu-yen.webp","year":"2001","type":"single","episode_current":"Full"}};

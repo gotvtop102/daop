@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["sm"] = {"smiley":{"id":"639184c8be31c1c97dc746ea","i":2113,"title":"Smiley","origin_name":"Smiley","slug":"smiley","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/sm/smiley.webp","year":2022,"type":"series","episode_current":"Hoàn Tất (8/8)"}};

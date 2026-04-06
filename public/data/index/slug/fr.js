@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["fr"] = {"frida":{"id":"65645428aa7d07ce5ca4b8a9","i":645,"title":"Frida","origin_name":"Frida","slug":"frida","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/fr/frida.webp","year":"2002","type":"single","episode_current":"Full"}};

@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["23"] = {"2323":{"id":"64f2be07f9e5c681861036bb","i":2790,"title":"23:23","origin_name":"23:23","slug":"2323","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/23/2323.webp","year":2023,"type":"series","episode_current":"Hoàn Tất (18/18)"}};

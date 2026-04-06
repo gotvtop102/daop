@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["cy"] = {"cyanide":{"id":"68e0be0a3d2e34ce1b8e9b80","i":1741,"title":"Cyanide","origin_name":"Sianida","slug":"cyanide","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cy/cyanide.webp","year":2021,"type":"series","episode_current":"Tập 3"}};

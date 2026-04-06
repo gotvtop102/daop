@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["28"] = [{"id":"622b3448eb35da19972e7a2e","title":"28 ngày","origin_name":"28 Days","slug":"28-ngay","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/28/28-ngay.webp","year":"2018","episode_current":"Full","_t":"28 ngay 28 days 28 ngay"}];

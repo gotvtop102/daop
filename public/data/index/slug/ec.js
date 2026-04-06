@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ec"] = {"echo-3":{"id":"637dd11637680d945fbe62b9","i":2030,"title":"Echo 3","origin_name":"Echo 3","slug":"echo-3","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ec/echo-3.webp","year":2022,"type":"series","episode_current":"Hoàn Tất (10/10)"}};

@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["kr"] = {"kraken":{"id":"68864220deb8c7619f0c0c32","i":912,"title":"Kraken","origin_name":"Kraken","slug":"kraken","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/kr/kraken.webp","year":"2025","type":"single","episode_current":"Full"}};

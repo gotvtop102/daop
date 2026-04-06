@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["kr"] = [{"id":"68864220deb8c7619f0c0c32","title":"Kraken","origin_name":"Kraken","slug":"kraken","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/kr/kraken.webp","year":"2025","episode_current":"Full","_t":"kraken kraken kraken"}];

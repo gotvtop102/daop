@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["id"] = {"ida":{"id":"644239c19a90db3f525c5a5f","i":2515,"title":"Ida","origin_name":"Ida","slug":"ida","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/id/ida.webp","year":2013,"type":"single","episode_current":"Full"}};

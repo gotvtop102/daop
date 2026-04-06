@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["18"] = {"1899":{"id":"63771e075bf974cad9faec2a","i":2007,"title":"1899","origin_name":"1899","slug":"1899","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/18/1899.webp","year":2022,"type":"series","episode_current":"Hoàn Tất (8/8)"}};

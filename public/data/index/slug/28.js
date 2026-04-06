@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["28"] = {"28-ngay":{"id":"622b3448eb35da19972e7a2e","i":397,"title":"28 ngày","origin_name":"28 Days","slug":"28-ngay","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/28/28-ngay.webp","year":"2018","type":"single","episode_current":"Full"}};

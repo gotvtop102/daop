@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["oh"] = {"oh-hi":{"id":"68db4794bb00ccbb08b4f4f4","i":1611,"title":"Oh, Hi!","origin_name":"Oh, Hi!","slug":"oh-hi","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/oh/oh-hi.webp","year":2025,"type":"single","episode_current":"Full"}};
