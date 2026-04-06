@@ -1486,12 +1486,16 @@
     const defaultImg = cardOrientation === 'horizontal'
       ? (baseUrl + '/images/default_poster.png')
       : (baseUrl + '/images/default_thumb.png');
+    const defaultThumb = baseUrl + '/images/default_thumb.png';
+    const defaultPoster = baseUrl + '/images/default_poster.png';
     const fromIndexPrimary = cardOrientation === 'horizontal'
       ? (posterFromIndex || thumbFromIndex)
       : (thumbFromIndex || posterFromIndex);
     const primaryResolved = (fromIndexPrimary || '').replace(/^\/\//, 'https://');
     const imgUrl = primaryResolved || defaultImg;
     const fallbackUrl = (thumbFromIndex || posterFromIndex || '').replace(/^\/\//, 'https://') || defaultImg;
+    const thumbUrl = ((thumbFromIndex || posterFromIndex || '').replace(/^\/\//, 'https://')) || defaultThumb;
+    const posterUrl = ((posterFromIndex || thumbFromIndex || '').replace(/^\/\//, 'https://')) || defaultPoster;
     const title = (m.title || '').replace(/</g, '&lt;');
     const origin = (m.origin_name || '').replace(/</g, '&lt;');
     var thumbDims = cardOrientation === 'horizontal' ? ' width="300" height="200"' : ' width="200" height="300"';
@@ -1519,6 +1523,8 @@
       favBtn +
       '<a href="' + href + '">' +
       '<div class="thumb-wrap"><img' + thumbDims + ' loading="lazy" src="' + imgUrl + '"' +
+      ' data-thumb-src="' + thumbUrl.replace(/"/g, '&quot;') + '"' +
+      ' data-poster-src="' + posterUrl.replace(/"/g, '&quot;') + '"' +
       (function(){
         var d = defaultImg.replace(/'/g, '%27');
         var f = (fallbackUrl || '').replace(/'/g, '%27');
@@ -1536,6 +1542,40 @@
       '</div></a></div>'
     );
   };
+
+  function applyPosterModeToGrid(gridEl, usePoster) {
+    if (!gridEl) return;
+    var cards = gridEl.querySelectorAll('.movie-card');
+    cards.forEach(function (card) {
+      card.classList.toggle('movie-card--horizontal', !!usePoster);
+      card.classList.toggle('movie-card--vertical', !usePoster);
+    });
+    var imgs = gridEl.querySelectorAll('.movie-card .thumb-wrap img[data-thumb-src][data-poster-src]');
+    imgs.forEach(function (img) {
+      var nextSrc = usePoster ? (img.getAttribute('data-poster-src') || '') : (img.getAttribute('data-thumb-src') || '');
+      if (nextSrc && img.getAttribute('src') !== nextSrc) {
+        img.setAttribute('src', nextSrc);
+      }
+      if (usePoster) {
+        img.setAttribute('width', '300');
+        img.setAttribute('height', '200');
+      } else {
+        img.setAttribute('width', '200');
+        img.setAttribute('height', '300');
+      }
+    });
+  }
+
+  document.addEventListener('change', function (ev) {
+    var target = ev && ev.target ? ev.target : null;
+    if (!target || !target.matches || !target.matches('.grid-poster-select')) return;
+    var usePoster = String(target.value || '').toLowerCase() === 'poster';
+    var host = target.closest('.md-section, .watch-recommend-full, .filter-bar, .page-content, main, body') || document;
+    var grids = host.querySelectorAll('.movies-grid');
+    grids.forEach(function (grid) {
+      applyPosterModeToGrid(grid, usePoster);
+    });
+  });
 
   function initQuickFavorites() {
     function getLocal() {

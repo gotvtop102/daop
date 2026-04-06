@@ -1518,8 +1518,16 @@ function normalizeOPhimMovie(m, slug, cdnBase = 'https://img.ophim.live') {
     poster: poster,
     year: m.year || '',
     type: m.type || 'single',
-    genre: m.category?.map((c) => ({ id: c.id, name: c.name, slug: c.slug || slugify(c.name, { lower: true }) })) || [],
-    country: m.country?.map((c) => ({ id: c.id, name: c.name, slug: c.slug || slugify(c.name, { lower: true }) })) || [],
+    genre: m.category?.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: normalizeTaxonomySlug(c.slug, c.name) || slugify(c.name, { lower: true, strict: true }),
+    })) || [],
+    country: m.country?.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: normalizeTaxonomySlug(c.slug, c.name) || slugify(c.name, { lower: true, strict: true }),
+    })) || [],
     lang_key: m.lang || '',
     episode_current: m.episode_current || m.episodes?.length || '1',
     quality: m.quality || '',
@@ -1586,12 +1594,12 @@ function buildMoviesFromSupabase(movieRows, epRows) {
       .split(',')
       .map((g) => g.trim())
       .filter(Boolean)
-      .map((g) => ({ name: g, slug: slugify(g, { lower: true }) }));
+      .map((g) => ({ name: g, slug: normalizeTaxonomySlug('', g) || slugify(g, { lower: true, strict: true }) }));
     const country = String(row.country || '')
       .split(',')
       .map((c) => c.trim())
       .filter(Boolean)
-      .map((c) => ({ name: c, slug: slugify(c, { lower: true }) }));
+      .map((c) => ({ name: c, slug: normalizeTaxonomySlug('', c) || slugify(c, { lower: true, strict: true }) }));
     const quality = String(row.quality || '').trim();
     const is4k = /4k|uhd|2160p/i.test(quality);
     const updateRaw = String(row.update ?? row['update'] ?? '').trim();
@@ -1767,11 +1775,11 @@ function parseCustomMoviesFromExcelRows(moviesRows, episodesRows) {
     const genre = (row[idx('genre')] || '')
       .toString()
       .split(',')
-      .map((g) => ({ name: g.trim(), slug: slugify(g.trim(), { lower: true }) }));
+      .map((g) => ({ name: g.trim(), slug: normalizeTaxonomySlug('', g.trim()) || slugify(g.trim(), { lower: true, strict: true }) }));
     const country = (row[idx('country')] || '')
       .toString()
       .split(',')
-      .map((c) => ({ name: c.trim(), slug: slugify(c.trim(), { lower: true }) }));
+      .map((c) => ({ name: c.trim(), slug: normalizeTaxonomySlug('', c.trim()) || slugify(c.trim(), { lower: true, strict: true }) }));
     const quality = (row[idx('quality')] || '').toString();
     const is4k = /4k|uhd|2160p/i.test(quality);
     const updateRaw = (idxUpdate >= 0 ? (row[idxUpdate] ?? '') : '').toString().trim();
@@ -2854,6 +2862,20 @@ function normalizeSearchText(s) {
   return t;
 }
 
+function normalizeTaxonomySlug(rawSlug, fallbackName = '') {
+  let base = String(rawSlug || '').trim().toLowerCase();
+  if (!base && fallbackName) base = String(fallbackName || '').trim().toLowerCase();
+  if (!base) return '';
+  try {
+    if (base.normalize) base = base.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  } catch {}
+  base = base.replace(/đ/g, 'd');
+  // OPhim/slugify đôi khi để lại biến thể dj cho ký tự đ (vd: gia-djinh) -> gộp về d.
+  base = base.replace(/(^|-)dj(?=[a-z0-9])/g, '$1d');
+  base = base.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-{2,}/g, '-');
+  return base;
+}
+
 function getShardKey2(s) {
   const t = normalizeSearchText(s);
   if (!t) return '__';
@@ -3140,14 +3162,16 @@ async function fetchOPhimGenresAndCountries() {
     if (genres.length) {
       genreNames = {};
       for (const g of genres) {
-        if (g.slug && g.name) genreNames[g.slug] = g.name;
+        const s = normalizeTaxonomySlug(g.slug, g.name);
+        if (s && g.name) genreNames[s] = g.name;
       }
       genreNames = { ...OPHIM_GENRES_FALLBACK, ...genreNames };
     }
     if (countries.length) {
       countryNames = {};
       for (const c of countries) {
-        if (c.slug && c.name) countryNames[c.slug] = c.name;
+        const s = normalizeTaxonomySlug(c.slug, c.name);
+        if (s && c.name) countryNames[s] = c.name;
       }
       countryNames = { ...OPHIM_COUNTRIES_FALLBACK, ...countryNames };
     }
@@ -3245,13 +3269,15 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
       yearMap[y].push(m.id);
     }
     for (const g of m.genre || []) {
-      const s = g.slug || slugify(g.name, { lower: true });
+      const s = normalizeTaxonomySlug(g.slug, g.name) || slugify(g.name, { lower: true, strict: true });
+      if (!s) continue;
       if (!genreMap[s]) genreMap[s] = [];
       genreMap[s].push(m.id);
       if (g.name && !genreNames[s]) genreNames[s] = g.name;
     }
     for (const c of m.country || []) {
-      const s = c.slug || slugify(c.name, { lower: true });
+      const s = normalizeTaxonomySlug(c.slug, c.name) || slugify(c.name, { lower: true, strict: true });
+      if (!s) continue;
       if (!countryMap[s]) countryMap[s] = [];
       countryMap[s].push(m.id);
       if (c.name && !countryNames[s]) countryNames[s] = c.name;
