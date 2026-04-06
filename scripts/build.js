@@ -3650,6 +3650,12 @@ function writeActors(movies) {
         'Nguyên nhân thường gặp: thiếu TMDB_API_KEY; OPhim detail không có actor (build cũ); chạy full build sau khi cập nhật normalize OPhim.'
     );
   }
+  // actors.js chỉ names+meta; map nằm trong actors-{a-z|other}.* (một file map đầy đủ vượt 25 MiB → Cloudflare Pages từ chối deploy).
+  fs.writeFileSync(
+    path.join(ACTORS_DATA_DIR, 'actors.js'),
+    `window.actorsData = ${JSON.stringify({ names, meta })};`,
+    'utf8'
+  );
   // JSON: nhẹ hơn JS khi host hỗ trợ gzip/brotli, dùng cho fetch trên client
   fs.writeFileSync(
     path.join(ACTORS_DATA_DIR, 'actors-index.json'),
@@ -3693,6 +3699,11 @@ function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta 
   fs.writeFileSync(
     path.join(ACTORS_DATA_DIR, 'actors-index.json'),
     JSON.stringify({ names, meta }),
+    'utf8'
+  );
+  fs.writeFileSync(
+    path.join(ACTORS_DATA_DIR, 'actors.js'),
+    `window.actorsData = ${JSON.stringify({ names, meta })};`,
     'utf8'
   );
   const byFirst = {};
@@ -4442,11 +4453,12 @@ async function main() {
           console.warn('   Không parse được filters.js, bỏ qua writeCategoryPages:', e.message);
         }
       }
-      const actorsPath = path.join(ACTORS_DATA_DIR, 'actors-index.json');
+      const actorsPath = path.join(ACTORS_DATA_DIR, 'actors.js');
       if (await fs.pathExists(actorsPath)) {
         const raw = fs.readFileSync(actorsPath, 'utf8');
+        const jsonStr = raw.replace(/^window\.actorsData\s*=\s*/, '').replace(/;\s*$/, '');
         try {
-          const actorsData = JSON.parse(raw);
+          const actorsData = JSON.parse(jsonStr);
           let m = actorsData.map;
           const n = actorsData.names || {};
           const meta = actorsData.meta || {};
