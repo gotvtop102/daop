@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["kr"] = {"kryptic":{"id":"69c635e5f07c400a86d5cf20","i":1092,"title":"Kryptic","origin_name":"Kryptic","slug":"kryptic","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/kr/kryptic.webp","year":2025,"type":"single","episode_current":"Full"}};

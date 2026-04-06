@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["kr"] = [{"id":"69c635e5f07c400a86d5cf20","title":"Kryptic","origin_name":"Kryptic","slug":"kryptic","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/kr/kryptic.webp","year":2025,"episode_current":"Full","_t":"kryptic kryptic kryptic"}];

@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["fe"] = {"felicity":{"id":"696d93204da3bf6eb3325da7","i":279,"title":"Felicity","origin_name":"Felicity","slug":"felicity","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/fe/felicity.webp","year":1978,"type":"single","episode_current":"Full"}};

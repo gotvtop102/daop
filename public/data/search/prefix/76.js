@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["76"] = [{"id":"69b27982f063d23bbbd1d66b","title":"1976","origin_name":"Chile '76","slug":"1976","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/19/1976.webp","year":2022,"episode_current":"Full","_t":"1976 chile 76 1976"}];
