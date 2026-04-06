@@ -465,12 +465,39 @@
           if (video && video.videoWidth && video.videoHeight && video.videoHeight > video.videoWidth) byRatio = true;
         } catch (e1) {}
         var shouldVertical = !!enabled || byRatio;
+        var isMobileOrTablet = false;
+        try {
+          var w = window.innerWidth || document.documentElement.clientWidth || 0;
+          var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+          isMobileOrTablet = coarse || w <= 1024;
+        } catch (e0) {}
+
+        function lockPortrait() {
+          try {
+            if (!isMobileOrTablet) return;
+            var so = screen && screen.orientation;
+            if (so && typeof so.lock === 'function') {
+              so.lock('portrait').catch(function () {});
+            }
+          } catch (eLock) {}
+        }
+
+        function unlockOrientation() {
+          try {
+            if (!isMobileOrTablet) return;
+            var so = screen && screen.orientation;
+            if (so && typeof so.unlock === 'function') so.unlock();
+          } catch (eUnlock) {}
+        }
 
         if (!fsEl || !target || !shouldVertical) {
+          unlockOrientation();
           clearStyles(video, ['width', 'height', 'max-width', 'max-height', 'object-fit']);
           clearStyles(frame, ['width', 'height', 'max-width', 'max-height', 'object-fit']);
           return;
         }
+
+        lockPortrait();
 
         try {
           setStyleImportant(fsEl, 'background', '#000');
