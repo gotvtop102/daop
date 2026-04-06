@@ -1011,29 +1011,12 @@
         ? '<iframe id="watch-embed" src="' + safeLink + '" allowfullscreen allow="autoplay; fullscreen"></iframe>'
         : '<video id="watch-video" class="video-js" controls playsinline preload="' + preloadMode + '" src="' + safeLink + '"></video>';
 
-    var isVerticalPlayer = !!(ctx && ctx.isVertical);
-    var wrapStyle = isVerticalPlayer
-      ? ' style="max-width:min(56.25vh, 520px);width:100%;margin:0 auto;aspect-ratio:9 / 16;"'
-      : '';
-    var videoStyle = isVerticalPlayer
-      ? ' style="width:100%;height:100%;object-fit:contain;background:#000;"'
-      : '';
-    var frameStyle = isVerticalPlayer
-      ? ' style="width:100%;height:100%;background:#000;"'
-      : '';
-
     container.innerHTML =
       '<div class="watch-player-card">' +
-      '<div class="watch-player-wrap' + (isVerticalPlayer ? ' watch-player-wrap--vertical' : '') + '"' + wrapStyle + '>' +
+      '<div class="watch-player-wrap">' +
       '<div class="watch-player-quality" data-role="quality" style="display:none;margin:0 0 8px;"></div>' +
       '<div class="watch-player-playback" data-role="playback" style="display:none;margin:0 0 8px;"></div>' +
-      (function () {
-        if (!ctx.link) return playerHtml;
-        if (isEmbed) {
-          return '<iframe id="watch-embed" src="' + safeLink + '" allowfullscreen allow="autoplay; fullscreen"' + frameStyle + '></iframe>';
-        }
-        return '<video id="watch-video" class="video-js" controls playsinline preload="' + preloadMode + '" src="' + safeLink + '"' + videoStyle + '></video>';
-      })() +
+      playerHtml +
       '<div class="watch-next-overlay" data-role="next-overlay" style="display:none;">' +
       '  <button type="button" class="watch-next-btn" data-role="next-btn">Tập tiếp theo</button>' +
       '  <div class="watch-next-count" data-role="next-count"></div>' +
@@ -1194,7 +1177,7 @@
             var vjsOptions = {
               fluid: playerConfig.vjs_fluid !== false,
               responsive: playerConfig.vjs_responsive !== false,
-              aspectRatio: (ctx && ctx.isVertical) ? '9:16' : (playerConfig.vjs_aspectRatio || '16:9'),
+              aspectRatio: playerConfig.vjs_aspectRatio || '16:9',
               bigPlayButton: playerConfig.vjs_bigPlayButton !== false,
               controlBar: controlBarOpt,
               playbackRates: speedEnabled ? rates : [],
