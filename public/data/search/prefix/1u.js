@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["1u"] = [{"id":"639d5ccd3cf7f0db9b02aa54","title":"1Up","origin_name":"1Up","slug":"1up","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/1u/1up.webp","year":2022,"episode_current":"Full","_t":"1up 1up 1up"}];
