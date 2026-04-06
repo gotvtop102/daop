@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["iq"] = {"iq":{"id":"62e768ce425c8969e5ea41d8","i":4400,"title":"I.Q.","origin_name":"I.Q.","slug":"iq","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/iq/iq.webp","year":1994,"type":"single","episode_current":"Full"}};

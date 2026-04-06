@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["84"] = [{"id":"687a2d6cc73946885737b9e5","title":"84m²","origin_name":"Wall to Wall","slug":"84m2","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/84/84m2.webp","year":"2025","episode_current":"Full","_t":"84m wall to wall 84m2"}];

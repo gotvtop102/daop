@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["vf"] = {"vfw":{"id":"68f77f79ef006da6980f9a11","i":2327,"title":"VFW","origin_name":"VFW","slug":"vfw","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/vf/vfw.webp","year":2019,"type":"single","episode_current":"Full"}};

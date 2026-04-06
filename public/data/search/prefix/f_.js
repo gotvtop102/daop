@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["f_"] = [{"id":"621cc1d83fb21848d19735e4","title":"F***/OFF","origin_name":"F***/OFF","slug":"foff","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/fo/foff.webp","year":"1998","episode_current":"Full","_t":"f off f off foff"}];

@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["m3"] = {"m3gan-20":{"id":"68765f095d07a1d38ee371f9","i":810,"title":"M3GAN 2.0","origin_name":"M3GAN 2.0","slug":"m3gan-20","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/m3/m3gan-20.webp","year":"2025","type":"single","episode_current":"Full"}};

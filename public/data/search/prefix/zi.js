@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["zi"] = [{"id":"686e5580d3cac655a4f6fb18","title":"Ziam","origin_name":"Ziam","slug":"ziam","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/zi/ziam.webp","year":"2025","episode_current":"Full","_t":"ziam ziam ziam"}];

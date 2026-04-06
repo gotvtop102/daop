@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["27"] = {"27-dem":{"id":"68f266b46e990551b5ce78bb","i":2236,"title":"27 Đêm","origin_name":"27 Nights","slug":"27-dem","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/27/27-dem.webp","year":2025,"type":"single","episode_current":"Full"}};

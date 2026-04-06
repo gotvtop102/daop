@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["iz"] = {"izla":{"id":"621a446a3fb21848d197138a","i":266,"title":"Izla","origin_name":"Izla","slug":"izla","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/iz/izla.webp","year":"2021","type":"single","episode_current":"Full"}};

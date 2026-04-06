@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["l_"] = [{"id":"623dc9a5e3cd150b3990e5a5","title":"L.U.C.A","origin_name":"L.U.C.A","slug":"luca","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/lu/luca.webp","year":2021,"episode_current":"Hoàn Tất (12/12)","_t":"l u c a l u c a luca"}];

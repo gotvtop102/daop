@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["gl"] = {"glass":{"id":"623b022a53ad6de2a9934416","i":1292,"title":"Glass","origin_name":"Glass","slug":"glass","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/gl/glass.webp","year":2019,"type":"single","episode_current":"Full"}};
