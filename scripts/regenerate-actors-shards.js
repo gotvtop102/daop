@@ -1,5 +1,5 @@
 /**
- * Script độc lập: đọc actors.js + movies-manifest/pubjs-output, tạo lại actors shards có trường movies.
+ * Script độc lập: đọc actors-index.json + movies-manifest/pubjs-output, tạo lại actors shards có trường movies.
  * Chạy: node scripts/regenerate-actors-shards.js
  * Giúp trang diễn viên hiển thị danh sách phim mà không cần phụ thuộc movies-light.js load động.
  */
@@ -86,23 +86,22 @@ function loadMovieLightByIdFromManifest() {
 }
 
 function main() {
-  const actorsPath = path.join(ACTORS_DATA_DIR, 'actors.js');
+  const actorsPath = path.join(ACTORS_DATA_DIR, 'actors-index.json');
 
   if (!fs.existsSync(actorsPath)) {
-    console.error('actors.js không tồn tại. Chạy npm run build trước.');
+    console.error('actors-index.json không tồn tại. Chạy npm run build trước.');
     process.exit(1);
   }
 
   const actorsRaw = fs.readFileSync(actorsPath, 'utf8');
-  const actorsStr = actorsRaw.replace(/^window\.actorsData\s*=\s*/, '').replace(/;\s*$/, '');
-  const actorsData = JSON.parse(actorsStr);
+  const actorsData = JSON.parse(actorsRaw);
   let m = actorsData.map;
   const n = actorsData.names || {};
   if (!m || typeof m !== 'object' || Object.keys(m).length === 0) {
     m = mergeActorsMapFromShards();
   }
   if (!m || Object.keys(m).length === 0) {
-    console.error('Không có map trong actors.js và không gộp được từ actors-*.json.');
+    console.error('Không có map trong actors-index.json và không gộp được từ actors-*.json.');
     process.exit(1);
   }
 

@@ -403,6 +403,88 @@
     return raw.replace(/\.html$/i, '') || null;
   }
 
+  function isShortDramaMovie(movie) {
+    try {
+      if (!movie) return false;
+      var typeStr = String(movie.type || '').toLowerCase();
+      if (typeStr === 'short' || typeStr === 'short-drama' || typeStr === 'short_drama') return true;
+      var genres = Array.isArray(movie.genre) ? movie.genre : [];
+      for (var i = 0; i < genres.length; i++) {
+        var g = genres[i] || {};
+        var slug = String(g.slug || g.id || '').toLowerCase();
+        var name = String(g.name || '').toLowerCase();
+        if (slug === 'short-drama' || slug === 'short_drama') return true;
+        if (name.indexOf('short drama') >= 0) return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function setupVerticalFullscreen(container, enabled) {
+    try {
+      if (!container) return;
+      if (typeof container.__daopCleanupVerticalFs === 'function') {
+        try { container.__daopCleanupVerticalFs(); } catch (e0) {}
+        container.__daopCleanupVerticalFs = null;
+      }
+      if (!enabled) return;
+
+      function getFullscreenElement() {
+        return document.fullscreenElement || document.webkitFullscreenElement || null;
+      }
+
+      function clearStyles(el, props) {
+        if (!el) return;
+        props.forEach(function (p) { try { el.style.removeProperty(p); } catch (e1) {} });
+      }
+
+      function apply() {
+        var fsEl = getFullscreenElement();
+        var video = container.querySelector('#watch-video');
+        var frame = container.querySelector('#watch-embed');
+        var target = null;
+
+        if (fsEl) {
+          if (video && (fsEl === video || fsEl.contains(video) || video.contains(fsEl))) target = video;
+          if (!target && frame && (fsEl === frame || fsEl.contains(frame) || frame.contains(fsEl))) target = frame;
+          if (!target && fsEl.querySelector) target = fsEl.querySelector('video, iframe');
+        }
+
+        if (!fsEl || !target) {
+          clearStyles(video, ['width', 'height', 'max-width', 'max-height', 'object-fit']);
+          clearStyles(frame, ['width', 'height', 'max-width', 'max-height', 'object-fit']);
+          return;
+        }
+
+        try {
+          fsEl.style.background = '#000';
+          fsEl.style.display = 'flex';
+          fsEl.style.alignItems = 'center';
+          fsEl.style.justifyContent = 'center';
+        } catch (e2) {}
+
+        try {
+          target.style.width = 'auto';
+          target.style.height = '100vh';
+          target.style.maxHeight = '100vh';
+          target.style.maxWidth = '56.25vh'; // 9:16 vertical video in fullscreen
+          target.style.objectFit = 'contain';
+        } catch (e3) {}
+      }
+
+      document.addEventListener('fullscreenchange', apply);
+      document.addEventListener('webkitfullscreenchange', apply);
+      apply();
+
+      container.__daopCleanupVerticalFs = function () {
+        document.removeEventListener('fullscreenchange', apply);
+        document.removeEventListener('webkitfullscreenchange', apply);
+      };
+    } catch (e) {}
+  }
+
   function esc(s) {
     if (s == null || s === '') return '';
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -796,6 +878,8 @@
       '</div>' +
       '</div>' +
       '</div>';
+
+    setupVerticalFullscreen(container, !!(ctx && ctx.isVertical));
 
     var video = document.getElementById('watch-video');
     if (!video || isEmbed) return;
@@ -1297,7 +1381,8 @@
       server: (initial && initial.server) || serversData[0].slug,
       linkType: (initial && initial.linkType) || 'm3u8',
       episode: (initial && initial.episode) || '',
-      groupIdx: (initial && initial.groupIdx != null ? (parseInt(String(initial.groupIdx), 10) || 0) : 0)
+      groupIdx: (initial && initial.groupIdx != null ? (parseInt(String(initial.groupIdx), 10) || 0) : 0),
+      isVertical: isShortDramaMovie(movie)
     };
 
     // If initial server slug doesn't exist (slug mapping mismatch), try to recover by locating the episode across servers.
@@ -1538,7 +1623,8 @@
         episode: state.episode,
         server: state.server,
         linkType: state.linkType,
-        groupIdx: state.groupIdx
+        groupIdx: state.groupIdx,
+        isVertical: state.isVertical
       });
 
       var host = root.querySelector('[data-role="player"]');
