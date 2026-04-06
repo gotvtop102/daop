@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["4x"] = {"4x4":{"id":"68f7806d21bdd73337479a3b","i":2333,"title":"4x4","origin_name":"4x4","slug":"4x4","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/4x/4x4.webp","year":2019,"type":"single","episode_current":"Full"}};

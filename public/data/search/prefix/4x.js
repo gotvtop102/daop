@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["4x"] = [{"id":"68f7806d21bdd73337479a3b","title":"4x4","origin_name":"4x4","slug":"4x4","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/4x/4x4.webp","year":2019,"episode_current":"Full","_t":"4x4 4x4 4x4"}];
