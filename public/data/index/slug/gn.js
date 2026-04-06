@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["gn"] = {"gnosia":{"id":"68ee6607a93d00297db4da9d","i":181,"title":"GNOSIA","origin_name":"GNOSIA","slug":"gnosia","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/gn/gnosia.webp","year":2025,"type":"hoathinh","episode_current":"Hoàn tất (12/12)"}};

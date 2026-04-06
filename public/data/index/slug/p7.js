@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["p7"] = {"p77":{"id":"696081e4124287e08250888d","i":1199,"title":"P77","origin_name":"P77","slug":"p77","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/p7/p77.webp","year":2025,"type":"single","episode_current":"Full"}};

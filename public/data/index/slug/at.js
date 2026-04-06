@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["at"] = {"attila":{"id":"69c8d8a7f07c400a86d65baf","i":1114,"title":"Attila","origin_name":"Attila","slug":"attila","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/at/attila.webp","year":2018,"type":"single","episode_current":"Trailer"}};

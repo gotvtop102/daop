@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["sw"] = {"swimfan":{"id":"69c8d96954ca9185bbbe04d7","i":1119,"title":"Swimfan","origin_name":"Swimfan","slug":"swimfan","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/sw/swimfan.webp","year":2002,"type":"single","episode_current":"Trailer"}};
