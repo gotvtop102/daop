@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["al"] = {"altered":{"id":"6923cc64a26eb975dc085d64","i":270,"title":"Altered","origin_name":"Altered","slug":"altered","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/al/altered.webp","year":"2025","type":"single","episode_current":"Full"}};

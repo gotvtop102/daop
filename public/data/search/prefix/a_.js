@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["a_"] = [{"id":"69454ed8eea244e3e8a256f2","title":"A Thiền","origin_name":"A Chan","slug":"a-thien","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/a_/a-thien.webp","year":"2026","episode_current":"Trailer","_t":"a thien a chan a thien"}];
