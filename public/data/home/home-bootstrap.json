@@ -1,6 +1,6 @@
 {
   "buildVersion": {
-    "builtAt": "2026-04-08T05:36:00.340Z"
+    "builtAt": "2026-04-08T08:50:17.718Z"
   },
   "siteSettings": {
     "site_name": "GoTV",
@@ -955,7 +955,6 @@
       "featured_count_sm": 1,
       "featured_count_xs": 1,
       "ids": [
-        "628795049e983cdfde3b0811",
         "6288f38c9e983cdfde3c187d",
         "628789a89e983cdfde3affed",
         "6287896a9e983cdfde3affc5",
@@ -967,41 +966,10 @@
         "628746299e983cdfde3acd28",
         "628746039e983cdfde3acce5",
         "628745db9e983cdfde3acc9a",
-        "6287459a9e983cdfde3acc43"
+        "6287459a9e983cdfde3acc43",
+        "6287452c9e983cdfde3acb80"
       ],
       "movies": [
-        {
-          "id": "628795049e983cdfde3b0811",
-          "title": "David Letterman: Những vị khách không cần giới thiệu (Phần 4)",
-          "origin_name": "My Next Guest Needs No Introduction With David Letterman (Season 4)",
-          "slug": "david-letterman-nhung-vi-khach-khong-can-gioi-thieu-phan-4",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/da/david-letterman-nhung-vi-khach-khong-can-gioi-thieu-phan-4.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/da/david-letterman-nhung-vi-khach-khong-can-gioi-thieu-phan-4.webp",
-          "year": "2022",
-          "type": "series",
-          "genre": [
-            {
-              "name": "Tài Liệu",
-              "slug": "tai-lieu"
-            }
-          ],
-          "country": [
-            {
-              "name": "Âu Mỹ",
-              "slug": "au-my"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Hoàn Tất (6/6)",
-          "quality": "HD",
-          "status": "completed",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2022-05-21T16:44:00.000Z"
-        },
         {
           "id": "6288f38c9e983cdfde3c187d",
           "title": "Tehran (Phần 2)",
@@ -1453,6 +1421,42 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2022-05-20T07:39:06.000Z"
+        },
+        {
+          "id": "6287452c9e983cdfde3acb80",
+          "title": "Anh Có Thích Nước Mỹ Không",
+          "origin_name": "So Young",
+          "slug": "anh-co-thich-nuoc-my-khong",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/an/anh-co-thich-nuoc-my-khong.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/an/anh-co-thich-nuoc-my-khong.webp",
+          "year": "2016",
+          "type": "series",
+          "genre": [
+            {
+              "name": "Tình Cảm",
+              "slug": "tinh-cam"
+            },
+            {
+              "name": "Tâm Lý",
+              "slug": "tam-ly"
+            }
+          ],
+          "country": [
+            {
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Hoàn Tất (40/40)",
+          "quality": "HD",
+          "status": "completed",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2022-05-20T07:37:16.000Z"
         }
       ]
     },
@@ -3381,8 +3385,8 @@
         "6288385b9e983cdfde3b540b",
         "628837e19e983cdfde3b53dc",
         "6288372b9e983cdfde3b5363",
-        "628837129e983cdfde3b534d",
-        "6287950b9e983cdfde3b0823"
+        "628792489e983cdfde3b0526",
+        "626104e3db43524328affd38"
       ],
       "movies": [
         {
@@ -3790,76 +3794,24 @@
           "modified": "2022-05-21T00:49:47.000Z"
         },
         {
-          "id": "628837129e983cdfde3b534d",
-          "title": "Nỗi buồn của Suzumiya Haruhi (2006)",
-          "origin_name": "The Melancholy of Haruhi Suzumiya (2006)",
-          "slug": "noi-buon-cua-suzumiya-haruhi-2006",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/no/noi-buon-cua-suzumiya-haruhi-2006.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/no/noi-buon-cua-suzumiya-haruhi-2006.webp",
-          "year": "2006",
+          "id": "628792489e983cdfde3b0526",
+          "title": "Người Dơi: Năm Đầu Tiên",
+          "origin_name": "Batman: Year One",
+          "slug": "nguoi-doi-nam-dau-tien",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ng/nguoi-doi-nam-dau-tien.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ng/nguoi-doi-nam-dau-tien.webp",
+          "year": "2011",
           "type": "hoathinh",
           "genre": [
             {
-              "name": "Viễn Tưởng",
-              "slug": "vien-tuong"
-            },
-            {
-              "name": "Khoa Học",
-              "slug": "khoa-hoc"
+              "name": "Tâm Lý",
+              "slug": "tam-ly"
             }
           ],
           "country": [
             {
-              "name": "Nhật Bản",
-              "slug": "nhat-ban"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Hoàn Tất (14/14)",
-          "quality": "HD",
-          "status": "completed",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2022-05-21T00:49:22.000Z"
-        },
-        {
-          "id": "6287950b9e983cdfde3b0823",
-          "title": "Lupin Đệ Tam: Lâu Đài Gia Tộc Cagliostro",
-          "origin_name": "Lupin III: The Castle of Cagliostro",
-          "slug": "lupin-de-tam-lau-dai-gia-toc-cagliostro",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/lu/lupin-de-tam-lau-dai-gia-toc-cagliostro.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/lu/lupin-de-tam-lau-dai-gia-toc-cagliostro.webp",
-          "year": "1979",
-          "type": "hoathinh",
-          "genre": [
-            {
-              "name": "Hành Động",
-              "slug": "hanh-dong"
-            },
-            {
-              "name": "Viễn Tưởng",
-              "slug": "vien-tuong"
-            },
-            {
-              "name": "Phiêu Lưu",
-              "slug": "phieu-luu"
-            },
-            {
-              "name": "Khoa Học",
-              "slug": "khoa-hoc"
-            },
-            {
-              "name": "Gia Đình",
-              "slug": "gia-dinh"
-            }
-          ],
-          "country": [
-            {
-              "name": "Quốc Gia Khác",
-              "slug": "quoc-gia-khac"
+              "name": "Âu Mỹ",
+              "slug": "au-my"
             }
           ],
           "lang_key": "Vietsub",
@@ -3871,7 +3823,39 @@
           "is_exclusive": false,
           "chieurap": false,
           "sub_docquyen": false,
-          "modified": "2022-05-20T13:18:03.000Z"
+          "modified": "2022-05-20T13:06:16.000Z"
+        },
+        {
+          "id": "626104e3db43524328affd38",
+          "title": "Học Viên Ưu Tú ở Trường Cao Trung Ma Pháp: Hồi Ức",
+          "origin_name": "The Irregular at Magic High School: Reminiscence Arc, Mahouka Koukou no Rettousei: Tsuioku-hen",
+          "slug": "hoc-vien-uu-tu-o-truong-cao-trung-ma-phap-hoi-uc",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/hoc-vien-uu-tu-o-truong-cao-trung-ma-phap-hoi-uc.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/hoc-vien-uu-tu-o-truong-cao-trung-ma-phap-hoi-uc.webp",
+          "year": "2021",
+          "type": "hoathinh",
+          "genre": [
+            {
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "name": "Nhật Bản",
+              "slug": "nhat-ban"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Full",
+          "quality": "HD",
+          "status": "completed",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2022-05-20T08:10:49.000Z"
         }
       ]
     },
@@ -4204,23 +4188,20 @@
           "slug": "chuyen-nha-poong-sang",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chuyen-nha-poong-sang.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chuyen-nha-poong-sang.webp",
-          "year": 2019,
+          "year": "2019",
           "type": "series",
           "genre": [
             {
-              "id": "620a220de0fc277084dfd16d",
               "name": "Tình Cảm",
               "slug": "tinh-cam"
             },
             {
-              "id": "620a2238e0fc277084dfd291",
               "name": "Tâm Lý",
               "slug": "tam-ly"
             }
           ],
           "country": [
             {
-              "id": "620a2300e0fc277084dfd6d2",
               "name": "Hàn Quốc",
               "slug": "han-quoc"
             }
@@ -6386,10 +6367,10 @@
         "6288cd2b9e983cdfde3bc66f",
         "625c3432941a26e421dc518e",
         "625e98a8db43524328af1f83",
-        "6287973f9e983cdfde3b09e1",
         "6287928a9e983cdfde3b0575",
         "628789a89e983cdfde3affed",
-        "6287896a9e983cdfde3affc5"
+        "6287896a9e983cdfde3affc5",
+        "628740d49e983cdfde3ac69c"
       ],
       "movies": [
         {
@@ -6805,38 +6786,6 @@
           "modified": "2022-05-21T08:50:23.000Z"
         },
         {
-          "id": "6287973f9e983cdfde3b09e1",
-          "title": "Quý ông bắt ma",
-          "origin_name": "Ghost Sweepers",
-          "slug": "quy-ong-bat-ma",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/qu/quy-ong-bat-ma.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/qu/quy-ong-bat-ma.webp",
-          "year": "2012",
-          "type": "single",
-          "genre": [
-            {
-              "name": "Tâm Lý",
-              "slug": "tam-ly"
-            }
-          ],
-          "country": [
-            {
-              "name": "Hàn Quốc",
-              "slug": "han-quoc"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Full",
-          "quality": "HD",
-          "status": "completed",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2022-05-20T13:27:27.000Z"
-        },
-        {
           "id": "6287928a9e983cdfde3b0575",
           "title": "Mật Mã Henry",
           "origin_name": "Hardcore Henry",
@@ -6955,6 +6904,42 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2022-05-20T12:28:26.000Z"
+        },
+        {
+          "id": "628740d49e983cdfde3ac69c",
+          "title": "Bí Mật Sau Lưng Mẹ",
+          "origin_name": "Secret Mother",
+          "slug": "bi-mat-sau-lung-me",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bi/bi-mat-sau-lung-me.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bi/bi-mat-sau-lung-me.webp",
+          "year": "2018",
+          "type": "series",
+          "genre": [
+            {
+              "name": "Tình Cảm",
+              "slug": "tinh-cam"
+            },
+            {
+              "name": "Tâm Lý",
+              "slug": "tam-ly"
+            }
+          ],
+          "country": [
+            {
+              "name": "Hàn Quốc",
+              "slug": "han-quoc"
+            }
+          ],
+          "lang_key": "Lồng Tiếng",
+          "episode_current": "Hoàn Tất (32/32)",
+          "quality": "HD",
+          "status": "completed",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2022-05-20T07:18:44.000Z"
         }
       ]
     },
