@@ -192,6 +192,22 @@ function flattenEpisodes(m) {
   return out;
 }
 
+function hasAnyPlayableLink(rows) {
+  if (!Array.isArray(rows) || !rows.length) return false;
+  return rows.some((r) =>
+    !!(
+      (r && r.link_m3u8) ||
+      (r && r.link_embed) ||
+      (r && r.link_backup) ||
+      (r && r.link_vip1) ||
+      (r && r.link_vip2) ||
+      (r && r.link_vip3) ||
+      (r && r.link_vip4) ||
+      (r && r.link_vip5)
+    )
+  );
+}
+
 /** Hash đồng bộ với DB: episode_code + server_slug + link_m3u8 + link_embed (đủ để phát hiện tập mới/sửa). */
 function hashEpisodeRowsForSync(rows) {
   const lines = (rows || []).map((r) =>
@@ -515,8 +531,32 @@ async function main() {
     await updateEpisodeCurrentOnly(supabase, episodesOnly);
   }
 
-  for (let g = 0; g < toSync.length; g += epMovieBatch) {
-    const group = toSync.slice(g, g + epMovieBatch);
+  const episodeRowsByMovie = new Map();
+  let skippedEpisodeOverwrite = 0;
+  for (const m of toSync) {
+    const mid = String(m.id);
+    const rows = flattenEpisodes(m);
+    episodeRowsByMovie.set(mid, rows);
+  }
+
+  const safeEpisodeSyncMovies = toSync.filter((m) => {
+    const mid = String(m.id);
+    const rows = episodeRowsByMovie.get(mid) || [];
+    const safe = rows.length > 0 && hasAnyPlayableLink(rows);
+    if (!safe) skippedEpisodeOverwrite++;
+    return safe;
+  });
+
+  if (skippedEpisodeOverwrite > 0) {
+    console.warn(
+      '   Skip overwrite movie_episodes for',
+      skippedEpisodeOverwrite,
+      'movies (rows rỗng hoặc không có link phát) để tránh mất tập hiện có.'
+    );
+  }
+
+  for (let g = 0; g < safeEpisodeSyncMovies.length; g += epMovieBatch) {
+    const group = safeEpisodeSyncMovies.slice(g, g + epMovieBatch);
     const mids = group.map((m) => String(m.id));
     const { error: delErr } = await supabaseWithRetry('delete movie_episodes (batch movie_id)', () =>
       supabase.from('movie_episodes').delete().in('movie_id', mids)
@@ -529,7 +569,7 @@ async function main() {
           supabase.from('movie_episodes').delete().eq('movie_id', mid)
         );
         if (d1) console.warn('   Delete episodes failed', mid, d1.message);
-        const rows = flattenEpisodes(m);
+        const rows = episodeRowsByMovie.get(mid) || [];
         for (let j = 0; j < rows.length; j += epInsertChunk) {
           const part = rows.slice(j, j + epInsertChunk);
           const { error: insErr } = await supabaseWithRetry('insert movie_episodes', () =>
@@ -544,7 +584,7 @@ async function main() {
 
     const allEpRows = [];
     for (const m of group) {
-      const fe = flattenEpisodes(m);
+      const fe = episodeRowsByMovie.get(String(m.id)) || [];
       for (let k = 0; k < fe.length; k++) allEpRows.push(fe[k]);
     }
     for (let j = 0; j < allEpRows.length; j += epInsertChunk) {

@@ -1990,7 +1990,61 @@
         return;
       }
 
-      function renderWatch(movie) {
+      function hasEpisodeGroups(movie) {
+        if (!movie || !Array.isArray(movie.episodes) || !movie.episodes.length) return false;
+        return movie.episodes.some(function (grp) {
+          return grp && Array.isArray(grp.server_data) && grp.server_data.length > 0;
+        });
+      }
+
+      function buildEpisodeGroupsFromRows(rows) {
+        var byServer = {};
+        (rows || []).forEach(function (r, idx) {
+          if (!r) return;
+          var serverSlug = String((r.server_slug || r.server || '') || '').trim() || 'default';
+          var serverName = String((r.server_name || r.serverName || r.server || '') || '').trim() || serverSlug;
+          var episodeCode = String((r.episode_code || r.code || r.episode || '') || '').trim() || String(idx + 1);
+          var episodeName = String((r.episode_name || r.name || '') || '').trim() || ('Tập ' + episodeCode);
+
+          if (!byServer[serverSlug]) {
+            byServer[serverSlug] = { name: serverName, slug: serverSlug, server_name: serverName, server_data: [] };
+          }
+
+          var src = { name: episodeName, slug: episodeCode };
+          if (r.link_m3u8) src.link_m3u8 = String(r.link_m3u8);
+          if (r.link_embed) src.link_embed = String(r.link_embed);
+          if (r.link_backup) src.link_backup = String(r.link_backup);
+          if (r.link_vip1) src.link_vip1 = String(r.link_vip1);
+          if (r.link_vip2) src.link_vip2 = String(r.link_vip2);
+          if (r.link_vip3) src.link_vip3 = String(r.link_vip3);
+          if (r.link_vip4) src.link_vip4 = String(r.link_vip4);
+          if (r.link_vip5) src.link_vip5 = String(r.link_vip5);
+          byServer[serverSlug].server_data.push(src);
+        });
+        return Object.keys(byServer).map(function (k) { return byServer[k]; });
+      }
+
+      function ensureMovieEpisodes(movie, light) {
+        if (hasEpisodeGroups(movie)) return Promise.resolve(movie);
+        var movieId = movie && movie.id != null ? movie.id : (light && light.id != null ? light.id : null);
+        if (movieId == null || movieId === '') return Promise.resolve(movie);
+
+        var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
+        var url = baseUrl + '/api/movies?action=episodes&movie_id=' + encodeURIComponent(String(movieId));
+        return fetch(url, { cache: 'no-store' })
+          .then(function (r) { return r.ok ? r.json() : []; })
+          .then(function (data) {
+            var rows = Array.isArray(data) ? data : ((data && Array.isArray(data.episodes)) ? data.episodes : []);
+            if (!rows.length) return movie;
+            var grouped = buildEpisodeGroupsFromRows(rows);
+            if (grouped.length) movie.episodes = grouped;
+            return movie;
+          })
+          .catch(function () { return movie; });
+      }
+
+      function renderWatch(movie, light) {
+        ensureMovieEpisodes(movie, light).then(function () {
         var baseUrl = (window.DAOP && window.DAOP.basePath) || '';
         var defaultPoster = baseUrl + '/images/default_poster.png';
         var poster = (movie && movie.poster) ? String(movie.poster) : '';
@@ -2073,6 +2127,7 @@
         if (window.DAOP && typeof window.DAOP.renderAdsInDocument === 'function') {
           window.DAOP.renderAdsInDocument(rootEl);
         }
+        });
       }
 
       if (window.DAOP && typeof window.DAOP.resolveMovieForSlugPageAsync === 'function') {
@@ -2080,7 +2135,7 @@
           var movie = res && res.movie;
           var light = res && res.light;
           if (movie) {
-            renderWatch(movie);
+            renderWatch(movie, light);
             return;
           }
           if (!light) {
@@ -2114,7 +2169,7 @@
               rootEl.innerHTML = '<p>Không thể tải dữ liệu phim.</p>';
               return;
             }
-            renderWatch(movie);
+            renderWatch(movie, light);
           });
         });
       }
