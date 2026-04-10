@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["er"] = [{"id":"621107754ceb10432b967b53","title":"Erax","origin_name":"Erax","slug":"erax","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/er/erax.webp","year":"2022","episode_current":"Full","_t":"erax erax erax"}];
