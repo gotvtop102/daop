@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ya"] = {"yasuke":{"id":"628052009e983cdfde35c7a2","i":580,"title":"Yasuke","origin_name":"Yasuke","slug":"yasuke","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ya/yasuke.webp","year":"2021","type":"hoathinh","episode_current":"Hoàn Tất (6/6)"}};
