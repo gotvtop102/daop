@@ -1307,6 +1307,37 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
     : {};
   const reused = { count: 0 };
   const fetched = { count: 0 };
+  function parseEpisodeCurrentCount(raw) {
+    const s = String(raw || '').trim();
+    if (!s) return 0;
+    const m = s.match(/(\d+)/);
+    if (!m) return 0;
+    const n = parseInt(m[1], 10);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  function extractPlayableEpisodeCount(movie) {
+    const eps = Array.isArray(movie && movie.episodes) ? movie.episodes : [];
+    let count = 0;
+    for (const grp of eps) {
+      const rows = Array.isArray(grp && grp.server_data) ? grp.server_data : [];
+      for (const src of rows) {
+        if (!src || typeof src !== 'object') continue;
+        const hasPlayableLink = !!(
+          src.link_m3u8 ||
+          src.link_embed ||
+          src.link_backup ||
+          src.link_vip1 ||
+          src.link_vip2 ||
+          src.link_vip3 ||
+          src.link_vip4 ||
+          src.link_vip5
+        );
+        if (hasPlayableLink) count++;
+      }
+    }
+    return count;
+  }
   let page = OPHIM_START_PAGE > 0 ? OPHIM_START_PAGE : 1;
   let fetchedPages = 0;
   const hasEnd = OPHIM_END_PAGE > 0;
@@ -1379,8 +1410,13 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
           const reusedShowtimes = (reusedMovie.showtimes || '').toString().trim();
           const itemStatus = (item && item.status != null) ? String(item.status).trim() : '';
           const itemShowtimes = (item && item.showtimes != null) ? String(item.showtimes).trim() : '';
+          const expectEpisodeCount = parseEpisodeCurrentCount(item && item.episode_current);
+          const playableEpisodeCount = extractPlayableEpisodeCount(reusedMovie);
+          const episodesSuspect = playableEpisodeCount <= 0 || (expectEpisodeCount > 0 && playableEpisodeCount < expectEpisodeCount);
           const canBackfill = (!reusedStatus && itemStatus) || (!reusedShowtimes && itemShowtimes);
-          const shouldRefetchDetail = (!reusedStatus && !itemStatus) && (!reusedShowtimes && !itemShowtimes);
+          const shouldRefetchDetail =
+            ((!reusedStatus && !itemStatus) && (!reusedShowtimes && !itemShowtimes)) ||
+            episodesSuspect;
 
           if (canBackfill && !shouldRefetchDetail) {
             list.push({
