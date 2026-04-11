@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ar"] = {"arpo":{"id":"627375d83a2c0c6289bc8218","i":336,"title":"Arpo","origin_name":"Arpo","slug":"arpo","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ar/arpo.webp","year":"2022","type":"hoathinh","episode_current":"Hoàn Tất (5/5)"}};

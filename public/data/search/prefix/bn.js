@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["bn"] = [{"id":"628b2d3c9e983cdfde3dd281","title":"BNA","origin_name":"BNA","slug":"bna","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bn/bna.webp","year":"2020","episode_current":"Hoàn Tất (12/12)","_t":"bna bna bna"}];
