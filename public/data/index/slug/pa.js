@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["pa"] = {"panama":{"id":"623c5e8780a88d9a484be3b3","i":108,"title":"Panama","origin_name":"Panama","slug":"panama","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/pa/panama.webp","year":"2022","type":"single","episode_current":"Full"}};
