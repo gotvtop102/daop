@@ -1308,12 +1308,21 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
   const reused = { count: 0 };
   const fetched = { count: 0 };
   function parseEpisodeCurrentCount(raw) {
-    const s = String(raw || '').trim();
+    const s = String(raw || '').trim().toLowerCase();
     if (!s) return 0;
-    const m = s.match(/(\d+)/);
-    if (!m) return 0;
-    const n = parseInt(m[1], 10);
-    return Number.isFinite(n) && n > 0 ? n : 0;
+    const m1 = s.match(/(\d+)\s*\/\s*\d+/);
+    if (m1) return parseInt(m1[1], 10);
+    const m2 = s.match(/(?:t\u1EADp|tap|ep|ph\u1EA7n|phan|season|m\u00F9a)\s*(\d+)/);
+    if (m2) return parseInt(m2[1], 10);
+    const nums = s.match(/\d+/g);
+    if (nums) {
+      for (const num of nums) {
+        const n = parseInt(num, 10);
+        if (n >= 1900 && n <= 2099) continue;
+        if (n > 0) return n;
+      }
+    }
+    return 0;
   }
 
   function extractPlayableEpisodeCount(movie) {
@@ -1410,13 +1419,9 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
           const reusedShowtimes = (reusedMovie.showtimes || '').toString().trim();
           const itemStatus = (item && item.status != null) ? String(item.status).trim() : '';
           const itemShowtimes = (item && item.showtimes != null) ? String(item.showtimes).trim() : '';
-          const expectEpisodeCount = parseEpisodeCurrentCount(item && item.episode_current);
-          const playableEpisodeCount = extractPlayableEpisodeCount(reusedMovie);
-          const episodesSuspect = playableEpisodeCount <= 0 || (expectEpisodeCount > 0 && playableEpisodeCount < expectEpisodeCount);
           const canBackfill = (!reusedStatus && itemStatus) || (!reusedShowtimes && itemShowtimes);
           const shouldRefetchDetail =
-            ((!reusedStatus && !itemStatus) && (!reusedShowtimes && !itemShowtimes)) ||
-            episodesSuspect;
+            ((!reusedStatus && !itemStatus) && (!reusedShowtimes && !itemShowtimes));
 
           if (canBackfill && !shouldRefetchDetail) {
             list.push({
