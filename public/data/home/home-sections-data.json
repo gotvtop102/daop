@@ -72,7 +72,7 @@
         "is_exclusive": true,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": ""
+        "modified": "2022-05-22T14:01:09.000Z"
       }
     ]
   },
@@ -149,7 +149,7 @@
         "is_exclusive": true,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": ""
+        "modified": "2022-05-22T14:01:09.000Z"
       }
     ]
   },
@@ -202,10 +202,10 @@
       "62529648b89e109508076145",
       "6252e632b89e10950808258f",
       "62792b073a2c0c6289c0adb6",
+      "628a42259e983cdfde3d3701",
       "628a41c99e983cdfde3d366b",
       "6252e612b89e10950808257a",
-      "6254102bb89e109508085c8f",
-      "62540edab89e109508085ad2"
+      "6254102bb89e109508085c8f"
     ],
     "movies": [
       {
@@ -585,6 +585,38 @@
         "modified": "2022-05-23T06:00:17.000Z"
       },
       {
+        "id": "628a42259e983cdfde3d3701",
+        "title": "Cùng Em Đi Đến Tận Cùng Thế Giới",
+        "origin_name": "Gank Your Heart",
+        "slug": "cung-em-di-den-tan-cung-the-gioi",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cung-em-di-den-tan-cung-the-gioi.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cung-em-di-den-tan-cung-the-gioi.webp",
+        "year": "2019",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Thể Thao",
+            "slug": "the-thao"
+          }
+        ],
+        "country": [
+          {
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (35/35)",
+        "quality": "4K",
+        "status": "completed",
+        "showtimes": "Tập mới mỗi thứ 6'",
+        "is_4k": true,
+        "is_exclusive": true,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T14:01:09.000Z"
+      },
+      {
         "id": "628a41c99e983cdfde3d366b",
         "title": "Buổi Gặp Gỡ Đầu Tiên, Phút Chia Ly Cuối Cùng",
         "origin_name": "To Love",
@@ -700,40 +732,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-22T08:42:19.000Z"
-      },
-      {
-        "id": "62540edab89e109508085ad2",
-        "title": "Hoa Nở Nhớ Trăng",
-        "origin_name": "Moonshine",
-        "slug": "hoa-no-nho-trang",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/hoa-no-nho-trang.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/hoa-no-nho-trang.webp",
-        "year": 2021,
-        "type": "series",
-        "genre": [
-          {
-            "id": "620a222fe0fc277084dfd23d",
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          }
-        ],
-        "country": [
-          {
-            "id": "620a2300e0fc277084dfd6d2",
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (32/32)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:41:06.000Z"
       }
     ]
   },
