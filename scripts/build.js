@@ -1762,11 +1762,25 @@ async function fetchCustomMoviesFromSupabase() {
   if (!url || !key) return null;
   try {
     const supabase = createClient(url, key);
-    // Build cần toàn bộ cột + toàn bộ tập — chấp nhận một lần tải lớn (không giống API Admin list có chọn cột).
-    const { data: movieRows, error: e1 } = await supabase.from('movies').select('*');
-    if (e1) throw e1;
-    const { data: epRows, error: e2 } = await supabase.from('movie_episodes').select('*').order('sort_order');
-    if (e2) throw e2;
+    // Build cần toàn bộ phim (cần range vì PostgREST giới hạn 1000 dòng/request)
+    const movieRows = [];
+    for (let page = 0; ; page++) {
+      const { data, error } = await supabase.from('movies').select('*').range(page * 1000, (page + 1) * 1000 - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      movieRows.push(...data);
+      if (data.length < 1000) break;
+    }
+
+    // Build cần toàn bộ tập (cần range vì có thể lên tới chục ngàn dòng)
+    const epRows = [];
+    for (let page = 0; ; page++) {
+      const { data, error } = await supabase.from('movie_episodes').select('*').order('sort_order').range(page * 1000, (page + 1) * 1000 - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      epRows.push(...data);
+      if (data.length < 1000) break;
+    }
     return buildMoviesFromSupabase(movieRows || [], epRows || []);
     } catch (e) {
     console.warn('Supabase custom movies fetch failed, fallback Excel (nếu có):', e.message || e);
