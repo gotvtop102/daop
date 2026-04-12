@@ -132,10 +132,10 @@
       "62529648b89e109508076145",
       "6252e632b89e10950808258f",
       "62792b073a2c0c6289c0adb6",
+      "628a42259e983cdfde3d3701",
+      "628a41c99e983cdfde3d366b",
       "6252e612b89e10950808257a",
-      "6254102bb89e109508085c8f",
-      "62540edab89e109508085ad2",
-      "625a8899b89b507b80d92ad9"
+      "6254102bb89e109508085c8f"
     ],
     "movies": [
       {
@@ -453,20 +453,23 @@
         "slug": "canh-cua-trung-sinh",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ca/canh-cua-trung-sinh.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ca/canh-cua-trung-sinh.webp",
-        "year": "2022",
+        "year": 2022,
         "type": "series",
         "genre": [
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           },
           {
+            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -481,6 +484,89 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-23T06:00:17.000Z"
+      },
+      {
+        "id": "628a42259e983cdfde3d3701",
+        "title": "Cùng Em Đi Đến Tận Cùng Thế Giới",
+        "origin_name": "Gank Your Heart",
+        "slug": "cung-em-di-den-tan-cung-the-gioi",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cung-em-di-den-tan-cung-the-gioi.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cung-em-di-den-tan-cung-the-gioi.webp",
+        "year": 2019,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a225fe0fc277084dfd38d",
+            "name": "Thể Thao",
+            "slug": "the-thao"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (35/35)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T14:01:09.000Z"
+      },
+      {
+        "id": "628a41c99e983cdfde3d366b",
+        "title": "Buổi Gặp Gỡ Đầu Tiên, Phút Chia Ly Cuối Cùng",
+        "origin_name": "To Love",
+        "slug": "buoi-gap-go-dau-tien-phut-chia-ly-cuoi-cung",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bu/buoi-gap-go-dau-tien-phut-chia-ly-cuoi-cung.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bu/buoi-gap-go-dau-tien-phut-chia-ly-cuoi-cung.webp",
+        "year": 2020,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (40/40)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T13:59:37.000Z"
       },
       {
         "id": "6252e612b89e10950808257a",
@@ -549,70 +635,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-22T08:42:19.000Z"
-      },
-      {
-        "id": "62540edab89e109508085ad2",
-        "title": "Hoa Nở Nhớ Trăng",
-        "origin_name": "Moonshine",
-        "slug": "hoa-no-nho-trang",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/hoa-no-nho-trang.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/hoa-no-nho-trang.webp",
-        "year": "2021",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn tất (32/32)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:41:06.000Z"
-      },
-      {
-        "id": "625a8899b89b507b80d92ad9",
-        "title": "Thế Giới Này Không Ai Bằng Em",
-        "origin_name": "She Is The One",
-        "slug": "the-gioi-nay-khong-ai-bang-em",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/the-gioi-nay-khong-ai-bang-em.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/the-gioi-nay-khong-ai-bang-em.webp",
-        "year": "2021",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (24/24)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T03:05:25.000Z"
       }
     ]
   },
@@ -1219,6 +1241,9 @@
     "featured_count_xs": 1,
     "ids": [
       "625c6133941a26e421dc5cde",
+      "628746fd9e983cdfde3acddb",
+      "6287442f9e983cdfde3ac9fd",
+      "628743e69e983cdfde3ac9b1",
       "628741139e983cdfde3ac6d4",
       "62873ec69e983cdfde3ac422",
       "62873dc99e983cdfde3ac36c",
@@ -1227,10 +1252,7 @@
       "626abce2fa02df5563cc9e7f",
       "626abbbafa02df5563cc9dc2",
       "62778fed3a2c0c6289bf9682",
-      "628115b19e983cdfde36451b",
-      "6244e90fc78eb57bbfe30184",
-      "6244e9a5c78eb57bbfe3019e",
-      "624598c2c78eb57bbfe331d8"
+      "6283d1fa9e983cdfde381a4e"
     ],
     "movies": [
       {
@@ -1268,6 +1290,138 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-21T09:19:24.000Z"
+      },
+      {
+        "id": "628746fd9e983cdfde3acddb",
+        "title": "Thiếu Niên Phái",
+        "origin_name": "Growing Pain",
+        "slug": "thieu-nien-phai",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/thieu-nien-phai.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/thieu-nien-phai.webp",
+        "year": 2019,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 37",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:45:01.000Z"
+      },
+      {
+        "id": "6287442f9e983cdfde3ac9fd",
+        "title": "Săn Hồn",
+        "origin_name": "Praai Pikart",
+        "slug": "san-hon",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/sa/san-hon.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/sa/san-hon.webp",
+        "year": 2019,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2318e0fc277084dfd77a",
+            "name": "Thái Lan",
+            "slug": "thai-lan"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 4",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:33:03.000Z"
+      },
+      {
+        "id": "628743e69e983cdfde3ac9b1",
+        "title": "Cưỡng Đoạt (Phần 2)",
+        "origin_name": "Taken (Season 2)",
+        "slug": "cuong-doat-phan-2",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cuong-doat-phan-2.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cuong-doat-phan-2.webp",
+        "year": 2018,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 8",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:31:50.000Z"
       },
       {
         "id": "628741139e983cdfde3ac6d4",
@@ -1312,36 +1466,43 @@
         "slug": "nu-hoang-truot-tuyet",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/nu/nu-hoang-truot-tuyet.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/nu/nu-hoang-truot-tuyet.webp",
-        "year": "2019",
+        "year": 2019,
         "type": "series",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           },
           {
+            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
+            "id": "620a2253e0fc277084dfd339",
             "name": "Chiến Tranh",
             "slug": "chien-tranh"
           },
           {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -1396,20 +1557,23 @@
         "slug": "magia-record-ma-phap-thieu-nu-madoka-magica-ngoai-truyen-phan-2",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ma/magia-record-ma-phap-thieu-nu-madoka-magica-ngoai-truyen-phan-2.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ma/magia-record-ma-phap-thieu-nu-madoka-magica-ngoai-truyen-phan-2.webp",
-        "year": "2021",
+        "year": 2021,
         "type": "hoathinh",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620f84d291fa4af90ab6b3f4",
             "name": "Bí ẩn",
             "slug": "bi-an"
           }
         ],
         "country": [
           {
+            "id": "620a2307e0fc277084dfd726",
             "name": "Nhật Bản",
             "slug": "nhat-ban"
           }
@@ -1432,28 +1596,33 @@
         "slug": "hiep-si-mat-na-revice",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/hi/hiep-si-mat-na-revice.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/hi/hiep-si-mat-na-revice.webp",
-        "year": "2021",
+        "year": 2021,
         "type": "hoathinh",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620a2282e0fc277084dfd435",
             "name": "Viễn Tưởng",
             "slug": "vien-tuong"
           },
           {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
           },
           {
+            "id": "620a229be0fc277084dfd4dd",
             "name": "Khoa Học",
             "slug": "khoa-hoc"
           }
         ],
         "country": [
           {
+            "id": "620a2307e0fc277084dfd726",
             "name": "Nhật Bản",
             "slug": "nhat-ban"
           }
@@ -1476,28 +1645,33 @@
         "slug": "song-dien-than-tham",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/so/song-dien-than-tham.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/so/song-dien-than-tham.webp",
-        "year": "2021",
+        "year": 2021,
         "type": "series",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           },
           {
+            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -1520,28 +1694,33 @@
         "slug": "linh-lung",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/li/linh-lung.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/li/linh-lung.webp",
-        "year": "2021",
+        "year": 2021,
         "type": "series",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620a222fe0fc277084dfd23d",
             "name": "Cổ Trang",
             "slug": "co-trang"
           },
           {
+            "id": "620a2253e0fc277084dfd339",
             "name": "Chiến Tranh",
             "slug": "chien-tranh"
           },
           {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -1564,20 +1743,23 @@
         "slug": "hoa-giai-loi-nguyen-mua-cuoi",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/hoa-giai-loi-nguyen-mua-cuoi.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/hoa-giai-loi-nguyen-mua-cuoi.webp",
-        "year": "2019",
+        "year": 2019,
         "type": "series",
         "genre": [
           {
+            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           }
         ],
         "country": [
           {
+            "id": "620a2307e0fc277084dfd726",
             "name": "Nhật Bản",
             "slug": "nhat-ban"
           }
@@ -1594,36 +1776,35 @@
         "modified": "2022-05-18T12:55:59.000Z"
       },
       {
-        "id": "628115b19e983cdfde36451b",
-        "title": "Sức Mạnh Lời Nguyện Cầu",
-        "origin_name": "Duay Rang Atitharn",
-        "slug": "suc-manh-loi-nguyen-cau",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/su/suc-manh-loi-nguyen-cau.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/su/suc-manh-loi-nguyen-cau.webp",
-        "year": "2018",
-        "type": "series",
+        "id": "6283d1fa9e983cdfde381a4e",
+        "title": "Bi Kịch Của Một Siêu Năng Lực Gia (Phần 2)",
+        "origin_name": "The Disastrous Life Of Saiki K (Season 2)",
+        "slug": "bi-kich-cua-mot-sieu-nang-luc-gia-phan-2",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bi/bi-kich-cua-mot-sieu-nang-luc-gia-phan-2.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bi/bi-kich-cua-mot-sieu-nang-luc-gia-phan-2.webp",
+        "year": 2018,
+        "type": "hoathinh",
         "genre": [
           {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
           },
           {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
           }
         ],
         "country": [
           {
-            "name": "Thái Lan",
-            "slug": "thai-lan"
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Tập 3",
+        "episode_current": "Tập 23",
         "quality": "HD",
         "status": "ongoing",
         "showtimes": "",
@@ -1631,115 +1812,7 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2022-05-15T15:01:05.000Z"
-      },
-      {
-        "id": "6244e90fc78eb57bbfe30184",
-        "title": "Lần Gặp Đầu Thứ Hai",
-        "origin_name": "Her Fantastic Adventures",
-        "slug": "lan-gap-dau-thu-hai",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/la/lan-gap-dau-thu-hai.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/la/lan-gap-dau-thu-hai.webp",
-        "year": "2022",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 1 Preview",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-15T10:00:48.000Z"
-      },
-      {
-        "id": "6244e9a5c78eb57bbfe3019e",
-        "title": "Lần đầu yêu em",
-        "origin_name": "初次爱你",
-        "slug": "lan-dau-yeu-em",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/la/lan-dau-yeu-em.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/la/lan-dau-yeu-em.webp",
-        "year": "2022",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Học Đường",
-            "slug": "hoc-duong"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 1 Preview",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-15T10:00:13.000Z"
-      },
-      {
-        "id": "624598c2c78eb57bbfe331d8",
-        "title": "Pachinko",
-        "origin_name": "Pachinko",
-        "slug": "pachinko",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/pa/pachinko.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/pa/pachinko.webp",
-        "year": "2022",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 8",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-15T08:40:47.000Z"
+        "modified": "2022-05-17T16:48:58.000Z"
       }
     ]
   },
@@ -1783,20 +1856,90 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "628a20dc9e983cdfde3d1e4e",
+      "62874a9a9e983cdfde3ad15c",
       "6274df6d3a2c0c6289bdbabf",
+      "628294709e983cdfde373549",
+      "6281f2259e983cdfde36bf4f",
       "627680973a2c0c6289bef8f9",
       "627829f53a2c0c6289c005d5",
       "627e148f9e983cdfde34bb4f",
       "627e13d69e983cdfde34baae",
       "627e139d9e983cdfde34ba6b",
       "627e13459e983cdfde34ba14",
-      "627e12c59e983cdfde34b9a4",
-      "627e12f19e983cdfde34b9c8",
-      "627e12799e983cdfde34b955",
-      "627e11ae9e983cdfde34b89c",
-      "627e11059e983cdfde34b806"
+      "627e12c59e983cdfde34b9a4"
     ],
     "movies": [
+      {
+        "id": "628a20dc9e983cdfde3d1e4e",
+        "title": "Acharya",
+        "origin_name": "Acharya",
+        "slug": "acharya",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ac/acharya.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ac/acharya.webp",
+        "year": "2022",
+        "type": "single",
+        "genre": [
+          {
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "name": "Ấn Độ",
+            "slug": "an-do"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T11:39:08.000Z"
+      },
+      {
+        "id": "62874a9a9e983cdfde3ad15c",
+        "title": "The Valet",
+        "origin_name": "The Valet",
+        "slug": "the-valet",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/the-valet.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/the-valet.webp",
+        "year": 2022,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T08:00:26.000Z"
+      },
       {
         "id": "6274df6d3a2c0c6289bdbabf",
         "title": "Đội Trưởng Nova",
@@ -1836,6 +1979,70 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-19T08:51:26.000Z"
+      },
+      {
+        "id": "628294709e983cdfde373549",
+        "title": "Hiện Tại Tươi Đẹp",
+        "origin_name": "It’s Beautiful Now",
+        "slug": "hien-tai-tuoi-dep",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/hi/hien-tai-tuoi-dep.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/hi/hien-tai-tuoi-dep.webp",
+        "year": "2022",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-16T18:14:08.000Z"
+      },
+      {
+        "id": "6281f2259e983cdfde36bf4f",
+        "title": "O'PENing",
+        "origin_name": "O'PENing: What Are You Doing in the Office, Share?",
+        "slug": "opening",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/op/opening.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/op/opening.webp",
+        "year": "2022",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          }
+        ],
+        "country": [
+          {
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-16T06:41:41.000Z"
       },
       {
         "id": "627680973a2c0c6289bef8f9",
@@ -2092,138 +2299,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-13T08:12:45.000Z"
-      },
-      {
-        "id": "627e12f19e983cdfde34b9c8",
-        "title": "Căn Phòng 203",
-        "origin_name": "Room 203",
-        "slug": "can-phong-203",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ca/can-phong-203.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ca/can-phong-203.webp",
-        "year": "2022",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T08:12:33.000Z"
-      },
-      {
-        "id": "627e12799e983cdfde34b955",
-        "title": "Săn Linh Hồn",
-        "origin_name": "Hunting Souls",
-        "slug": "san-linh-hon",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/sa/san-linh-hon.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/sa/san-linh-hon.webp",
-        "year": "2024",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T08:10:33.000Z"
-      },
-      {
-        "id": "627e11ae9e983cdfde34b89c",
-        "title": "Những Kẻ Nguyền Rủa 2022",
-        "origin_name": "The Cursed / Eight for Silver",
-        "slug": "nhung-ke-nguyen-rua-2022",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/nh/nhung-ke-nguyen-rua-2022.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/nh/nhung-ke-nguyen-rua-2022.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T08:07:10.000Z"
-      },
-      {
-        "id": "627e11059e983cdfde34b806",
-        "title": "Ted K",
-        "origin_name": "Ted K",
-        "slug": "ted-k",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/te/ted-k.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/te/ted-k.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T08:04:32.000Z"
       }
     ]
   },
@@ -2357,6 +2432,8 @@
       "62541fe9b89e109508086b24",
       "62625c2bdb43524328b0685c",
       "6267eeddfa02df5563cafe91",
+      "6283cf909e983cdfde3817b1",
+      "628369339e983cdfde37a9c5",
       "624f66521cf546f8acae0071",
       "62625c71db43524328b06882",
       "6269052dfa02df5563cbad65",
@@ -2469,6 +2546,72 @@
         "modified": "2022-05-20T04:54:32.000Z"
       },
       {
+        "id": "6283cf909e983cdfde3817b1",
+        "title": "Nhỏ To Cùng Mẹ",
+        "origin_name": "Moms In Town",
+        "slug": "nho-to-cung-me",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/nh/nho-to-cung-me.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/nh/nho-to-cung-me.webp",
+        "year": 2017,
+        "type": "tvshows",
+        "genre": [
+          {
+            "id": "620e4c0b6ba8271c5eef05a8",
+            "name": "Gia Đình",
+            "slug": "gia-dinh"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2398e0fc277084dfda1a",
+            "name": "Quốc Gia Khác",
+            "slug": "quoc-gia-khac"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Tập 29",
+        "quality": "HD",
+        "status": "ongoing",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-17T16:38:40.000Z"
+      },
+      {
+        "id": "628369339e983cdfde37a9c5",
+        "title": "Katt Williams: Thế chiến III",
+        "origin_name": "Katt Williams: World War III",
+        "slug": "katt-williams-the-chien-iii",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ka/katt-williams-the-chien-iii.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ka/katt-williams-the-chien-iii.webp",
+        "year": "2022",
+        "type": "tvshows",
+        "genre": [
+          {
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-17T13:38:53.000Z"
+      },
+      {
         "id": "624f66521cf546f8acae0071",
         "title": "Tối hậu thư: Cưới hay nghỉ",
         "origin_name": "The Ultimatum: Marry or Move On",
@@ -2571,16 +2714,18 @@
         "slug": "trieu-phu-noi-bip",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tr/trieu-phu-noi-bip.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/tr/trieu-phu-noi-bip.webp",
-        "year": "2022",
+        "year": 2022,
         "type": "tvshows",
         "genre": [
           {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
           }
         ],
         "country": [
           {
+            "id": "620a2370e0fc277084dfd91e",
             "name": "Anh",
             "slug": "anh"
           }
@@ -2670,21 +2815,460 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "628b47909e983cdfde3dec2a",
+      "628b47219e983cdfde3deb90",
+      "628b35789e983cdfde3ddb6b",
+      "628b35769e983cdfde3ddb5a",
+      "628b2ecc9e983cdfde3dd6c4",
+      "628b2e2a9e983cdfde3dd4cf",
+      "628b2d3c9e983cdfde3dd281",
+      "628b2cc79e983cdfde3dd14e",
+      "628b2c549e983cdfde3dd0a1",
+      "628b2c3f9e983cdfde3dd073",
+      "628b2c329e983cdfde3dd064",
       "6251c03296d5fd12c054f0eb",
-      "6251c05696d5fd12c054f124",
-      "6251bfe896d5fd12c054f060",
-      "62540dc8b89e109508085a04",
-      "6252e116b89e109508082282",
-      "62540d74b89e1095080859aa",
-      "62542860b89e109508087ac5",
-      "62542c72b89e10950808815d",
-      "62542c74b89e10950808816e",
-      "62542c75b89e109508088179",
-      "62542ee6b89e109508088461",
-      "62542ee3b89e109508088453",
-      "625430bbb89e1095080888dc"
+      "6251c05696d5fd12c054f124"
     ],
     "movies": [
+      {
+        "id": "628b47909e983cdfde3dec2a",
+        "title": "Ma Cà Rồng, Lập Tức Đi Chết",
+        "origin_name": "The Vampire Dies in No Time",
+        "slug": "ma-ca-rong-lap-tuc-di-chet",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ma/ma-ca-rong-lap-tuc-di-chet.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ma/ma-ca-rong-lap-tuc-di-chet.webp",
+        "year": 2021,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T09:10:58.000Z"
+      },
+      {
+        "id": "628b47219e983cdfde3deb90",
+        "title": "Chiến Cơ Cảnh Giới",
+        "origin_name": "AMAIM Warrior at the borderline",
+        "slug": "chien-co-canh-gioi",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chien-co-canh-gioi.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chien-co-canh-gioi.webp",
+        "year": 2021,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (13/13)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T09:10:27.000Z"
+      },
+      {
+        "id": "628b35789e983cdfde3ddb6b",
+        "title": "Chiến sĩ cơ động Gundam: Thiết huyết cô nhi (Phần 2)",
+        "origin_name": "Mobile Suit Gundam: Iron-Blooded Orphans (Season 2)",
+        "slug": "chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-2",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-2.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-2.webp",
+        "year": 2015,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (25/25)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T07:19:20.000Z"
+      },
+      {
+        "id": "628b35769e983cdfde3ddb5a",
+        "title": "Chiến sĩ cơ động Gundam: Thiết huyết cô nhi (Phần 1)",
+        "origin_name": "Mobile Suit Gundam: Iron-Blooded Orphans (Season 1)",
+        "slug": "chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-1",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-1.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-1.webp",
+        "year": 2015,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (25/25)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T07:19:18.000Z"
+      },
+      {
+        "id": "628b2ecc9e983cdfde3dd6c4",
+        "title": "Cannon Busters: Khắc tinh đại pháo",
+        "origin_name": "Cannon Busters",
+        "slug": "cannon-busters-khac-tinh-dai-phao",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ca/cannon-busters-khac-tinh-dai-phao.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ca/cannon-busters-khac-tinh-dai-phao.webp",
+        "year": "2019",
+        "type": "hoathinh",
+        "genre": [
+          {
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          },
+          {
+            "name": "Anh",
+            "slug": "anh"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T06:50:52.000Z"
+      },
+      {
+        "id": "628b2e2a9e983cdfde3dd4cf",
+        "title": "Bộc hỏa nhân tượng (Phần 1)",
+        "origin_name": "Fire Force (Season 1)",
+        "slug": "boc-hoa-nhan-tuong-phan-1",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bo/boc-hoa-nhan-tuong-phan-1.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bo/boc-hoa-nhan-tuong-phan-1.webp",
+        "year": "2019",
+        "type": "hoathinh",
+        "genre": [
+          {
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          },
+          {
+            "name": "Anh",
+            "slug": "anh"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (24/24)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T06:48:10.000Z"
+      },
+      {
+        "id": "628b2d3c9e983cdfde3dd281",
+        "title": "BNA",
+        "origin_name": "BNA",
+        "slug": "bna",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bn/bna.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bn/bna.webp",
+        "year": "2020",
+        "type": "hoathinh",
+        "genre": [
+          {
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T06:44:12.000Z"
+      },
+      {
+        "id": "628b2cc79e983cdfde3dd14e",
+        "title": "Bộ ba diễn sâu",
+        "origin_name": "Asobi Asobase: Workshop Of Fun",
+        "slug": "bo-ba-dien-sau",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bo/bo-ba-dien-sau.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bo/bo-ba-dien-sau.webp",
+        "year": 2018,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          },
+          {
+            "id": "620a2370e0fc277084dfd91e",
+            "name": "Anh",
+            "slug": "anh"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T06:43:02.000Z"
+      },
+      {
+        "id": "628b2c549e983cdfde3dd0a1",
+        "title": "Black Lagoon (Phần 3)",
+        "origin_name": "Black Lagoon (Season 3)",
+        "slug": "black-lagoon-phan-3",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bl/black-lagoon-phan-3.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bl/black-lagoon-phan-3.webp",
+        "year": 2010,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          },
+          {
+            "id": "620a2370e0fc277084dfd91e",
+            "name": "Anh",
+            "slug": "anh"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (05/05)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T06:40:20.000Z"
+      },
+      {
+        "id": "628b2c3f9e983cdfde3dd073",
+        "title": "Black Lagoon (Phần 2)",
+        "origin_name": "Black Lagoon (Season 2)",
+        "slug": "black-lagoon-phan-2",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bl/black-lagoon-phan-2.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bl/black-lagoon-phan-2.webp",
+        "year": 2006,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          },
+          {
+            "id": "620a2370e0fc277084dfd91e",
+            "name": "Anh",
+            "slug": "anh"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T06:39:59.000Z"
+      },
+      {
+        "id": "628b2c329e983cdfde3dd064",
+        "title": "Black Lagoon (Phần 1)",
+        "origin_name": "Black Lagoon (Season 1)",
+        "slug": "black-lagoon-phan-1",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bl/black-lagoon-phan-1.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bl/black-lagoon-phan-1.webp",
+        "year": 2006,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          },
+          {
+            "id": "620a2370e0fc277084dfd91e",
+            "name": "Anh",
+            "slug": "anh"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T06:39:46.000Z"
+      },
       {
         "id": "6251c03296d5fd12c054f0eb",
         "title": "Nhà búp bê của Gabby (Phần 2)",
@@ -2748,422 +3332,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-23T06:08:22.000Z"
-      },
-      {
-        "id": "6251bfe896d5fd12c054f060",
-        "title": "Nhà búp bê của Gabby (Phần 1)",
-        "origin_name": "Gabby's Dollhouse (Season 1)",
-        "slug": "nha-bup-be-cua-gabby-phan-1",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/nh/nha-bup-be-cua-gabby-phan-1.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/nh/nha-bup-be-cua-gabby-phan-1.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Âm Nhạc",
-            "slug": "am-nhac"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (10/10)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-23T06:07:39.000Z"
-      },
-      {
-        "id": "62540dc8b89e109508085a04",
-        "title": "Truyện cổ hắc ám & Grimm",
-        "origin_name": "A Tale Dark & Grimm",
-        "slug": "truyen-co-hac-am-grimm",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tr/truyen-co-hac-am-grimm.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/tr/truyen-co-hac-am-grimm.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Gia Đình",
-            "slug": "gia-dinh"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (10/10)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-23T06:06:30.000Z"
-      },
-      {
-        "id": "6252e116b89e109508082282",
-        "title": "Thỏ Peter 2: Cuộc Trốn Chạy",
-        "origin_name": "Peter Rabbit 2: The Runaway",
-        "slug": "tho-peter-2-cuoc-tron-chay",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/tho-peter-2-cuoc-tron-chay.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/tho-peter-2-cuoc-tron-chay.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Gia Đình",
-            "slug": "gia-dinh"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          },
-          {
-            "name": "Úc",
-            "slug": "uc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-23T06:03:23.000Z"
-      },
-      {
-        "id": "62540d74b89e1095080859aa",
-        "title": "Truyền hình ngoài hành tinh (Phần 2)",
-        "origin_name": "Alien TV (Season 2)",
-        "slug": "truyen-hinh-ngoai-hanh-tinh-phan-2",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tr/truyen-hinh-ngoai-hanh-tinh-phan-2.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/tr/truyen-hinh-ngoai-hanh-tinh-phan-2.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Canada",
-            "slug": "canada"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (13/13)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-23T06:02:54.000Z"
-      },
-      {
-        "id": "62542860b89e109508087ac5",
-        "title": "Tế Công: Hàng Long Giáng Thế",
-        "origin_name": "Master Ji Gong",
-        "slug": "te-cong-hang-long-giang-the",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/te/te-cong-hang-long-giang-the.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/te/te-cong-hang-long-giang-the.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Võ Thuật",
-            "slug": "vo-thuat"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:34:32.000Z"
-      },
-      {
-        "id": "62542c72b89e10950808815d",
-        "title": "Tiến lên nào Xe Nhỏ! (Phần 4)",
-        "origin_name": "Go! Go! Cory Carson (Season 4)",
-        "slug": "tien-len-nao-xe-nho-phan-4",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ti/tien-len-nao-xe-nho-phan-4.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ti/tien-len-nao-xe-nho-phan-4.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (07/07)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:33:06.000Z"
-      },
-      {
-        "id": "62542c74b89e10950808816e",
-        "title": "Tiến lên nào Xe Nhỏ! (Phần 5)",
-        "origin_name": "Go! Go! Cory Carson (Season 5)",
-        "slug": "tien-len-nao-xe-nho-phan-5",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ti/tien-len-nao-xe-nho-phan-5.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ti/tien-len-nao-xe-nho-phan-5.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (17/17)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:32:44.000Z"
-      },
-      {
-        "id": "62542c75b89e109508088179",
-        "title": "Tiến lên nào Xe Nhỏ! (Phần 6)",
-        "origin_name": "Go! Go! Cory Carson (Season 6)",
-        "slug": "tien-len-nao-xe-nho-phan-6",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ti/tien-len-nao-xe-nho-phan-6.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ti/tien-len-nao-xe-nho-phan-6.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (18/18)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:31:43.000Z"
-      },
-      {
-        "id": "62542ee6b89e109508088461",
-        "title": "Thế giới nhân mã (Phần 2)",
-        "origin_name": "Centaurworld (Season 2)",
-        "slug": "the-gioi-nhan-ma-phan-2",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/the-gioi-nhan-ma-phan-2.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/the-gioi-nhan-ma-phan-2.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Âm Nhạc",
-            "slug": "am-nhac"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (08/08)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:31:13.000Z"
-      },
-      {
-        "id": "62542ee3b89e109508088453",
-        "title": "Thế giới nhân mã (Phần 1)",
-        "origin_name": "Centaurworld (Season 1)",
-        "slug": "the-gioi-nhan-ma-phan-1",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/the-gioi-nhan-ma-phan-1.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/the-gioi-nhan-ma-phan-1.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Âm Nhạc",
-            "slug": "am-nhac"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (10/10)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:27:47.000Z"
-      },
-      {
-        "id": "625430bbb89e1095080888dc",
-        "title": "Thế giới khủng long: Trại kỷ phấn trắng (Phần 2)",
-        "origin_name": "Jurassic World Camp Cretaceous (Season 2)",
-        "slug": "the-gioi-khung-long-trai-ky-phan-trang-phan-2",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/the-gioi-khung-long-trai-ky-phan-trang-phan-2.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/the-gioi-khung-long-trai-ky-phan-trang-phan-2.webp",
-        "year": "2021",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "name": "Gia Đình",
-            "slug": "gia-dinh"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (8/8)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:27:17.000Z"
       }
     ]
   },
@@ -3209,20 +3377,20 @@
     "ids": [
       "6252e0dcb89e109508082260",
       "625d870adb43524328aedc13",
+      "628745db9e983cdfde3acc9a",
+      "6287459a9e983cdfde3acc43",
+      "628743269e983cdfde3ac8d4",
       "628740d49e983cdfde3ac69c",
       "62695da5fa02df5563cbee20",
       "62695e74fa02df5563cbef0a",
+      "62828bdf9e983cdfde372df5",
       "628119219e983cdfde364881",
       "628115299e983cdfde364497",
       "62795aee3a2c0c6289c0d315",
       "6274dff83a2c0c6289bdbbdd",
       "62795e963a2c0c6289c0d6b0",
       "62795f093a2c0c6289c0d716",
-      "6279fc363a2c0c6289c12f37",
-      "6279fc753a2c0c6289c12f93",
-      "6279fc9b3a2c0c6289c12fdb",
-      "627bfdd9db9df06c65956f3a",
-      "627bfc9cdb9df06c65956dea"
+      "6279fc363a2c0c6289c12f37"
     ],
     "movies": [
       {
@@ -3306,26 +3474,171 @@
         "modified": "2022-05-21T09:02:26.000Z"
       },
       {
-        "id": "628740d49e983cdfde3ac69c",
-        "title": "Bí Mật Sau Lưng Mẹ",
-        "origin_name": "Secret Mother",
-        "slug": "bi-mat-sau-lung-me",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bi/bi-mat-sau-lung-me.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bi/bi-mat-sau-lung-me.webp",
-        "year": "2018",
+        "id": "628745db9e983cdfde3acc9a",
+        "title": "Nơi Này Có Em",
+        "origin_name": "Yes! Mr. Fashion",
+        "slug": "noi-nay-co-em",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/no/noi-nay-co-em.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/no/noi-nay-co-em.webp",
+        "year": 2016,
         "type": "series",
         "genre": [
           {
+            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Lồng Tiếng",
+        "episode_current": "Hoàn Tất (28/28)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:40:11.000Z"
+      },
+      {
+        "id": "6287459a9e983cdfde3acc43",
+        "title": "Lời Nói Dối Chân Thật",
+        "origin_name": "Love's Lies",
+        "slug": "loi-noi-doi-chan-that",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/lo/loi-noi-doi-chan-that.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/lo/loi-noi-doi-chan-that.webp",
+        "year": 2018,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Lồng Tiếng",
+        "episode_current": "Hoàn Tất (43/43)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:39:06.000Z"
+      },
+      {
+        "id": "628743269e983cdfde3ac8d4",
+        "title": "Hoa Khôi Và Cảnh Khuyển",
+        "origin_name": "Police Beauty & K9",
+        "slug": "hoa-khoi-va-canh-khuyen",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/hoa-khoi-va-canh-khuyen.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/hoa-khoi-va-canh-khuyen.webp",
+        "year": 2016,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
+            "name": "Phiêu Lưu",
+            "slug": "phieu-luu"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Lồng Tiếng",
+        "episode_current": "Hoàn Tất (44/44)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:28:38.000Z"
+      },
+      {
+        "id": "628740d49e983cdfde3ac69c",
+        "title": "Bí Mật Sau Lưng Mẹ",
+        "origin_name": "Secret Mother",
+        "slug": "bi-mat-sau-lung-me",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bi/bi-mat-sau-lung-me.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bi/bi-mat-sau-lung-me.webp",
+        "year": 2018,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
             "name": "Hàn Quốc",
             "slug": "han-quoc"
           }
@@ -3348,28 +3661,33 @@
         "slug": "cuc-no-dang-yeu",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cuc-no-dang-yeu.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cuc-no-dang-yeu.webp",
-        "year": "2021",
+        "year": 2021,
         "type": "series",
         "genre": [
           {
+            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           },
           {
+            "id": "620a2282e0fc277084dfd435",
             "name": "Viễn Tưởng",
             "slug": "vien-tuong"
           },
           {
+            "id": "620a229be0fc277084dfd4dd",
             "name": "Khoa Học",
             "slug": "khoa-hoc"
           }
         ],
         "country": [
           {
+            "id": "620a2347e0fc277084dfd876",
             "name": "Hồng Kông",
             "slug": "hong-kong"
           }
@@ -3392,28 +3710,33 @@
         "slug": "tiem-do-quai-di",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ti/tiem-do-quai-di.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ti/tiem-do-quai-di.webp",
-        "year": "2021",
+        "year": 2021,
         "type": "series",
         "genre": [
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           },
           {
+            "id": "620a2282e0fc277084dfd435",
             "name": "Viễn Tưởng",
             "slug": "vien-tuong"
           },
           {
+            "id": "620a229be0fc277084dfd4dd",
             "name": "Khoa Học",
             "slug": "khoa-hoc"
           },
           {
+            "id": "620a22ace0fc277084dfd531",
             "name": "Kinh Dị",
             "slug": "kinh-di"
           }
         ],
         "country": [
           {
+            "id": "620a2347e0fc277084dfd876",
             "name": "Hồng Kông",
             "slug": "hong-kong"
           }
@@ -3428,6 +3751,46 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-20T03:28:47.000Z"
+      },
+      {
+        "id": "62828bdf9e983cdfde372df5",
+        "title": "Thâm Cung Truyện",
+        "origin_name": "Love in The Imperial Palace",
+        "slug": "tham-cung-truyen",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/tham-cung-truyen.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/tham-cung-truyen.webp",
+        "year": "2018",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "name": "Cổ Trang",
+            "slug": "co-trang"
+          },
+          {
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          }
+        ],
+        "country": [
+          {
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Lồng Tiếng",
+        "episode_current": "Hoàn Tất (50/50)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-16T17:37:35.000Z"
       },
       {
         "id": "628119219e983cdfde364881",
@@ -3504,24 +3867,28 @@
         "slug": "gap-chang-dung-luc",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ga/gap-chang-dung-luc.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ga/gap-chang-dung-luc.webp",
-        "year": "2021",
+        "year": 2021,
         "type": "series",
         "genre": [
           {
+            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
+            "id": "620a222fe0fc277084dfd23d",
             "name": "Cổ Trang",
             "slug": "co-trang"
           },
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -3544,32 +3911,38 @@
         "slug": "anh-hung-thiet-quyen",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/an/anh-hung-thiet-quyen.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/an/anh-hung-thiet-quyen.webp",
-        "year": "2022",
+        "year": 2022,
         "type": "series",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           },
           {
+            "id": "620a2279e0fc277084dfd3e1",
             "name": "Võ Thuật",
             "slug": "vo-thuat"
           },
           {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
           }
         ],
         "country": [
           {
+            "id": "620a2347e0fc277084dfd876",
             "name": "Hồng Kông",
             "slug": "hong-kong"
           }
@@ -3592,20 +3965,23 @@
         "slug": "nhung-co-nang-thoi-dai",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/nh/nhung-co-nang-thoi-dai.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/nh/nhung-co-nang-thoi-dai.webp",
-        "year": "2018",
+        "year": 2018,
         "type": "single",
         "genre": [
           {
+            "id": "620a220de0fc277084dfd16d",
             "name": "Tình Cảm",
             "slug": "tinh-cam"
           },
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -3628,24 +4004,28 @@
         "slug": "the-gioi-ma-quai",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/the-gioi-ma-quai.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/the-gioi-ma-quai.webp",
-        "year": "2020",
+        "year": 2020,
         "type": "series",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
           },
           {
+            "id": "620a22ace0fc277084dfd531",
             "name": "Kinh Dị",
             "slug": "kinh-di"
           }
         ],
         "country": [
           {
+            "id": "620a2300e0fc277084dfd6d2",
             "name": "Hàn Quốc",
             "slug": "han-quoc"
           }
@@ -3696,150 +4076,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-13T07:31:02.000Z"
-      },
-      {
-        "id": "6279fc753a2c0c6289c12f93",
-        "title": "Hồ Sơ Trinh Sát (Phần 2)",
-        "origin_name": "Detective Investigation Files (Season 2)",
-        "slug": "ho-so-trinh-sat-phan-2",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/ho-so-trinh-sat-phan-2.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/ho-so-trinh-sat-phan-2.webp",
-        "year": "1995",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hồng Kông",
-            "slug": "hong-kong"
-          }
-        ],
-        "lang_key": "Lồng Tiếng",
-        "episode_current": "Hoàn Tất (40/40)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T05:23:28.000Z"
-      },
-      {
-        "id": "6279fc9b3a2c0c6289c12fdb",
-        "title": "Hồ Sơ Trinh Sát (Phần 3)",
-        "origin_name": "Detective Investigation Files (Season 3)",
-        "slug": "ho-so-trinh-sat-phan-3",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/ho-so-trinh-sat-phan-3.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/ho-so-trinh-sat-phan-3.webp",
-        "year": "1997",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hồng Kông",
-            "slug": "hong-kong"
-          }
-        ],
-        "lang_key": "Lồng Tiếng",
-        "episode_current": "Hoàn Tất (40/40)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T04:59:11.000Z"
-      },
-      {
-        "id": "627bfdd9db9df06c65956f3a",
-        "title": "Em Là Đáp Án Của Anh",
-        "origin_name": "You Are My Answer",
-        "slug": "em-la-dap-an-cua-anh",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/em/em-la-dap-an-cua-anh.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/em/em-la-dap-an-cua-anh.webp",
-        "year": "2019",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Lồng Tiếng",
-        "episode_current": "Hoàn Tất (42/42)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-11T18:18:01.000Z"
-      },
-      {
-        "id": "627bfc9cdb9df06c65956dea",
-        "title": "Khử Tà Diệt Ma 2",
-        "origin_name": "My Date With A Vampire 2",
-        "slug": "khu-ta-diet-ma-2",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/kh/khu-ta-diet-ma-2.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/kh/khu-ta-diet-ma-2.webp",
-        "year": "2001",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Lồng Tiếng",
-        "episode_current": "Hoàn Tất (43/43)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-11T18:12:44.000Z"
       }
     ]
   },
@@ -3886,19 +4122,19 @@
       "62502dc18539e6487dcf6ec3",
       "62503cc08539e6487dcf7277",
       "625182428539e6487dcfa527",
+      "628a638c9e983cdfde3d585e",
       "62542860b89e109508087ac5",
       "625429eeb89e109508087db1",
       "625af544941a26e421dc0dde",
       "625c6133941a26e421dc5cde",
       "625d831ddb43524328aed7a8",
-      "6287419d9e983cdfde3ac781",
-      "6287414a9e983cdfde3ac729",
-      "62873fa99e983cdfde3ac534",
-      "62873e969e983cdfde3ac3f4",
-      "62657441489068f643a114bc",
-      "62657710489068f643a11887",
-      "6267ec91fa02df5563cafc24",
-      "62695ac2fa02df5563cbeb4c"
+      "628789a89e983cdfde3affed",
+      "6287896a9e983cdfde3affc5",
+      "62870fa69e983cdfde3a9e04",
+      "628742fd9e983cdfde3ac8b5",
+      "628742589e983cdfde3ac815",
+      "628741f99e983cdfde3ac7d5",
+      "628741cb9e983cdfde3ac7b1"
     ],
     "movies": [
       {
@@ -4028,6 +4264,40 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-23T07:18:18.000Z"
+      },
+      {
+        "id": "628a638c9e983cdfde3d585e",
+        "title": "Hủy Kết Bạn 2: Web Ngầm",
+        "origin_name": "Unfriended 2: Dark Web",
+        "slug": "huy-ket-ban-2-web-ngam",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/hu/huy-ket-ban-2-web-ngam.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/hu/huy-ket-ban-2-web-ngam.webp",
+        "year": 2018,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a22ace0fc277084dfd531",
+            "name": "Kinh Dị",
+            "slug": "kinh-di"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a231fe0fc277084dfd7ce",
+            "name": "Âu Mỹ",
+            "slug": "au-my"
+          }
+        ],
+        "lang_key": "Thuyết Minh",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T16:23:40.000Z"
       },
       {
         "id": "62542860b89e109508087ac5",
@@ -4238,26 +4508,273 @@
         "modified": "2022-05-21T09:18:47.000Z"
       },
       {
-        "id": "6287419d9e983cdfde3ac781",
-        "title": "Đạo Mộ Bút Ký 2: Nộ Hải Tiềm Sa",
-        "origin_name": "The Lost Tomb 2: The Wrath Of The Sea",
-        "slug": "dao-mo-but-ky-2-no-hai-tiem-sa",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/da/dao-mo-but-ky-2-no-hai-tiem-sa.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/da/dao-mo-but-ky-2-no-hai-tiem-sa.webp",
-        "year": "2019",
+        "id": "628789a89e983cdfde3affed",
+        "title": "Đội Đặc Nhiệm Số 38",
+        "origin_name": "Squad 38",
+        "slug": "doi-dac-nhiem-so-38",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/do/doi-dac-nhiem-so-38.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/do/doi-dac-nhiem-so-38.webp",
+        "year": 2016,
         "type": "series",
         "genre": [
           {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Thuyết Minh",
+        "episode_current": "Hoàn Tất (16/16)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T12:29:28.000Z"
+      },
+      {
+        "id": "6287896a9e983cdfde3affc5",
+        "title": "Thành Phố Vô Cảm",
+        "origin_name": "Heartless City",
+        "slug": "thanh-pho-vo-cam",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/thanh-pho-vo-cam.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/thanh-pho-vo-cam.webp",
+        "year": 2013,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Thuyết Minh",
+        "episode_current": "Hoàn Tất (20/20)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T12:28:26.000Z"
+      },
+      {
+        "id": "62870fa69e983cdfde3a9e04",
+        "title": "Thính Tuyết Lâu",
+        "origin_name": "Listening Snow Tower",
+        "slug": "thinh-tuyet-lau",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/thinh-tuyet-lau.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/thinh-tuyet-lau.webp",
+        "year": 2019,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a222fe0fc277084dfd23d",
+            "name": "Cổ Trang",
+            "slug": "co-trang"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "id": "620a2279e0fc277084dfd3e1",
+            "name": "Võ Thuật",
+            "slug": "vo-thuat"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub + Thuyết Minh",
+        "episode_current": "Hoàn Tất (56/56)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:46:06.000Z"
+      },
+      {
+        "id": "628742fd9e983cdfde3ac8b5",
+        "title": "Xấu Nữ Chung Vô Diệm",
+        "origin_name": "The Ugly Queen",
+        "slug": "xau-nu-chung-vo-diem",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/xa/xau-nu-chung-vo-diem.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/xa/xau-nu-chung-vo-diem.webp",
+        "year": 2018,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620a222fe0fc277084dfd23d",
+            "name": "Cổ Trang",
+            "slug": "co-trang"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Thuyết Minh",
+        "episode_current": "Hoàn Tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:27:57.000Z"
+      },
+      {
+        "id": "628742589e983cdfde3ac815",
+        "title": "Luyến Hạ 38 Độ",
+        "origin_name": "Summer Fever",
+        "slug": "luyen-ha-38-do",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/lu/luyen-ha-38-do.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/lu/luyen-ha-38-do.webp",
+        "year": 2012,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2335e0fc277084dfd822",
+            "name": "Đài Loan",
+            "slug": "dai-loan"
+          }
+        ],
+        "lang_key": "Thuyết Minh",
+        "episode_current": "Hoàn Tất (30/30)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:25:12.000Z"
+      },
+      {
+        "id": "628741f99e983cdfde3ac7d5",
+        "title": "Cô Gái Ngoài Hành Tinh Sài Tiểu Thất",
+        "origin_name": "My Girlfriend Is An Alien",
+        "slug": "co-gai-ngoai-hanh-tinh-sai-tieu-that",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/co/co-gai-ngoai-hanh-tinh-sai-tieu-that.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/co/co-gai-ngoai-hanh-tinh-sai-tieu-that.webp",
+        "year": 2019,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Thuyết Minh",
+        "episode_current": "Hoàn Tất (28/28)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-20T07:23:37.000Z"
+      },
+      {
+        "id": "628741cb9e983cdfde3ac7b1",
+        "title": "Em Đứng Trên Cầu Ngắm Phong Cảnh",
+        "origin_name": "To Love, To Heal",
+        "slug": "em-dung-tren-cau-ngam-phong-canh",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/em/em-dung-tren-cau-ngam-phong-canh.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/em/em-dung-tren-cau-ngam-phong-canh.webp",
+        "year": 2018,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -4271,259 +4788,7 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2022-05-20T07:22:07.000Z"
-      },
-      {
-        "id": "6287414a9e983cdfde3ac729",
-        "title": "Chạm Mặt Giang Hồ (Phần 1)",
-        "origin_name": "Warrior (Season 1)",
-        "slug": "cham-mat-giang-ho-phan-1",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/cham-mat-giang-ho-phan-1.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/cham-mat-giang-ho-phan-1.webp",
-        "year": "2019",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Hoàn Tất (10/10)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-20T07:20:42.000Z"
-      },
-      {
-        "id": "62873fa99e983cdfde3ac534",
-        "title": "Tình Yêu Thật Sự Hay Chỉ Là Ngọn Lửa Tàn",
-        "origin_name": "Club Friday The Series 8",
-        "slug": "tinh-yeu-that-su-hay-chi-la-ngon-lua-tan",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ti/tinh-yeu-that-su-hay-chi-la-ngon-lua-tan.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ti/tinh-yeu-that-su-hay-chi-la-ngon-lua-tan.webp",
-        "year": "2017",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Hoàn Tất (5/5)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-20T07:13:45.000Z"
-      },
-      {
-        "id": "62873e969e983cdfde3ac3f4",
-        "title": "Mẹ Tuổi Teen",
-        "origin_name": "Teenage Mom The Series",
-        "slug": "me-tuoi-teen",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/me/me-tuoi-teen.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/me/me-tuoi-teen.webp",
-        "year": "2018",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Hoàn Tất (8/8)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-20T07:09:10.000Z"
-      },
-      {
-        "id": "62657441489068f643a114bc",
-        "title": "Giấc Mộng Giàu Sang",
-        "origin_name": "Dreams of Getting Rich",
-        "slug": "giac-mong-giau-sang",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/gi/giac-mong-giau-sang.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/gi/giac-mong-giau-sang.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-20T05:05:08.000Z"
-      },
-      {
-        "id": "62657710489068f643a11887",
-        "title": "Truyền Kỳ Đắc Bảo Ở Thiếu Lâm Tự",
-        "origin_name": "Shao Lin Shi Zhi De Bao Chuan Qi",
-        "slug": "truyen-ky-dac-bao-o-thieu-lam-tu",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tr/truyen-ky-dac-bao-o-thieu-lam-tu.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/tr/truyen-ky-dac-bao-o-thieu-lam-tu.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          },
-          {
-            "name": "Võ Thuật",
-            "slug": "vo-thuat"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-20T05:02:27.000Z"
-      },
-      {
-        "id": "6267ec91fa02df5563cafc24",
-        "title": "Hãy Là Gia Đình Trong Mơ Của Tôi",
-        "origin_name": "Be My Dream Family",
-        "slug": "hay-la-gia-dinh-trong-mo-cua-toi",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ha/hay-la-gia-dinh-trong-mo-cua-toi.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ha/hay-la-gia-dinh-trong-mo-cua-toi.webp",
-        "year": "2021",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Gia Đình",
-            "slug": "gia-dinh"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub + Thuyết Minh",
-        "episode_current": "Hoàn Tất (120/120)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-20T04:51:51.000Z"
-      },
-      {
-        "id": "62695ac2fa02df5563cbeb4c",
-        "title": "Cá Mực Hầm Mật 2 (Thân Ái Chí Ái / Mật Thất Vây Cá Lội)",
-        "origin_name": "Go Go Squid 2: Dt.Appledog's Time",
-        "slug": "ca-muc-ham-mat-2-than-ai-chi-ai-mat-that-vay-ca-loi",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ca/ca-muc-ham-mat-2-than-ai-chi-ai-mat-that-vay-ca-loi.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ca/ca-muc-ham-mat-2-than-ai-chi-ai-mat-that-vay-ca-loi.webp",
-        "year": "2021",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Hoàn Tất (38/38)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-20T04:49:11.000Z"
+        "modified": "2022-05-20T07:22:51.000Z"
       }
     ]
   },
@@ -4568,6 +4833,8 @@
     "featured_count_xs": 0,
     "ids": [
       "624ed63122e2bd17f08d6da9",
+      "628b47909e983cdfde3dec2a",
+      "628b47219e983cdfde3deb90",
       "624ed64322e2bd17f08d6dbb",
       "624ed65322e2bd17f08d6dcc",
       "624ed67122e2bd17f08d6dff",
@@ -4580,9 +4847,7 @@
       "624ed8d922e2bd17f08d6f43",
       "624ee74822e2bd17f08d73f9",
       "625006751cf546f8acae154d",
-      "62502dc18539e6487dcf6ec3",
-      "62502e4d8539e6487dcf6eed",
-      "62502d408539e6487dcf6ea8"
+      "62502dc18539e6487dcf6ec3"
     ],
     "movies": [
       {
@@ -4624,6 +4889,89 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-23T09:17:07.000Z"
+      },
+      {
+        "id": "628b47909e983cdfde3dec2a",
+        "title": "Ma Cà Rồng, Lập Tức Đi Chết",
+        "origin_name": "The Vampire Dies in No Time",
+        "slug": "ma-ca-rong-lap-tuc-di-chet",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ma/ma-ca-rong-lap-tuc-di-chet.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ma/ma-ca-rong-lap-tuc-di-chet.webp",
+        "year": 2021,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T09:10:58.000Z"
+      },
+      {
+        "id": "628b47219e983cdfde3deb90",
+        "title": "Chiến Cơ Cảnh Giới",
+        "origin_name": "AMAIM Warrior at the borderline",
+        "slug": "chien-co-canh-gioi",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chien-co-canh-gioi.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chien-co-canh-gioi.webp",
+        "year": 2021,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (13/13)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T09:10:27.000Z"
       },
       {
         "id": "624ed64322e2bd17f08d6dbb",
@@ -5152,94 +5500,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-23T07:23:01.000Z"
-      },
-      {
-        "id": "62502e4d8539e6487dcf6eed",
-        "title": "Vua hổ (Phần 2)",
-        "origin_name": "Tiger King (Season 2)",
-        "slug": "vua-ho-phan-2",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/vu/vua-ho-phan-2.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/vu/vua-ho-phan-2.webp",
-        "year": "2021",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Tài Liệu",
-            "slug": "tai-lieu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (05/05)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-23T07:22:39.000Z"
-      },
-      {
-        "id": "62502d408539e6487dcf6ea8",
-        "title": "Vương quốc động vật (Phần 5)",
-        "origin_name": "Animal Kingdom (Season 5)",
-        "slug": "vuong-quoc-dong-vat-phan-5",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/vu/vuong-quoc-dong-vat-phan-5.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/vu/vuong-quoc-dong-vat-phan-5.webp",
-        "year": "2021",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Chiến Tranh",
-            "slug": "chien-tranh"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (13/13)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-23T07:21:27.000Z"
       }
     ]
   },
@@ -5295,10 +5555,10 @@
       "624ed8d922e2bd17f08d6f43",
       "62503cc08539e6487dcf7277",
       "62792b073a2c0c6289c0adb6",
-      "625425dab89e109508087610",
-      "62542840b89e109508087aab",
-      "6254262ab89e109508087697",
-      "62542860b89e109508087ac5"
+      "628a65669e983cdfde3d6044",
+      "628a64939e983cdfde3d5ce1",
+      "628a63ee9e983cdfde3d59ff",
+      "628a63b19e983cdfde3d5919"
     ],
     "movies": [
       {
@@ -5760,20 +6020,23 @@
         "slug": "canh-cua-trung-sinh",
         "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ca/canh-cua-trung-sinh.webp",
         "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ca/canh-cua-trung-sinh.webp",
-        "year": "2022",
+        "year": 2022,
         "type": "series",
         "genre": [
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           },
           {
+            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -5790,38 +6053,29 @@
         "modified": "2022-05-23T06:00:17.000Z"
       },
       {
-        "id": "625425dab89e109508087610",
-        "title": "Âm Dương Sư: Thị Thần Lệnh",
-        "origin_name": "The Yinyang Master",
-        "slug": "am-duong-su-thi-than-lenh",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/am/am-duong-su-thi-than-lenh.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/am/am-duong-su-thi-than-lenh.webp",
-        "year": "2021",
+        "id": "628a65669e983cdfde3d6044",
+        "title": "Tiểu Môn Thần",
+        "origin_name": "The Guardian Brothers",
+        "slug": "tieu-mon-than",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ti/tieu-mon-than.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ti/tieu-mon-than.webp",
+        "year": 2016,
         "type": "single",
         "genre": [
           {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          },
-          {
+            "id": "620a2282e0fc277084dfd435",
             "name": "Viễn Tưởng",
             "slug": "vien-tuong"
           },
           {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
+            "id": "620a229be0fc277084dfd4dd",
             "name": "Khoa Học",
             "slug": "khoa-hoc"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -5835,89 +6089,32 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2022-05-22T08:36:53.000Z"
+        "modified": "2022-05-22T16:31:34.000Z"
       },
       {
-        "id": "62542840b89e109508087aab",
-        "title": "Tây Du Ký: Tái Thế Yêu Vương",
-        "origin_name": "The Monkey King: Reborn",
-        "slug": "tay-du-ky-tai-the-yeu-vuong",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ta/tay-du-ky-tai-the-yeu-vuong.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/tay-du-ky-tai-the-yeu-vuong.webp",
-        "year": "2021",
+        "id": "628a64939e983cdfde3d5ce1",
+        "title": "Khoa Học và Cảm Tính",
+        "origin_name": "Nuts - Science and Sensibility",
+        "slug": "khoa-hoc-va-cam-tinh",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/kh/khoa-hoc-va-cam-tinh.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/kh/khoa-hoc-va-cam-tinh.webp",
+        "year": 2018,
         "type": "single",
         "genre": [
           {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
           },
           {
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T08:35:26.000Z"
-      },
-      {
-        "id": "6254262ab89e109508087697",
-        "title": "Đảo Rùa Thần",
-        "origin_name": "The Turtle Island",
-        "slug": "dao-rua-than",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/da/dao-rua-than.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/da/dao-rua-than.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          },
-          {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
-          },
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
@@ -5931,42 +6128,37 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2022-05-22T08:35:01.000Z"
+        "modified": "2022-05-22T16:28:03.000Z"
       },
       {
-        "id": "62542860b89e109508087ac5",
-        "title": "Tế Công: Hàng Long Giáng Thế",
-        "origin_name": "Master Ji Gong",
-        "slug": "te-cong-hang-long-giang-the",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/te/te-cong-hang-long-giang-the.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/te/te-cong-hang-long-giang-the.webp",
-        "year": "2021",
+        "id": "628a63ee9e983cdfde3d59ff",
+        "title": "I Am NeZha",
+        "origin_name": "Na Tra Phiêu Lưu Ký",
+        "slug": "i-am-nezha",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/i_/i-am-nezha.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/i_/i-am-nezha.webp",
+        "year": 2016,
         "type": "hoathinh",
         "genre": [
           {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
           },
           {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Võ Thuật",
-            "slug": "vo-thuat"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
           }
         ],
         "country": [
           {
+            "id": "62093063196e9f4ab6b448b8",
             "name": "Trung Quốc",
             "slug": "trung-quoc"
           }
         ],
-        "lang_key": "Thuyết Minh",
+        "lang_key": "Vietsub",
         "episode_current": "Full",
         "quality": "HD",
         "status": "completed",
@@ -5975,7 +6167,41 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2022-05-22T08:34:32.000Z"
+        "modified": "2022-05-22T16:25:18.000Z"
+      },
+      {
+        "id": "628a63b19e983cdfde3d5919",
+        "title": "Huyền Thoại Kung Fu",
+        "origin_name": "Kung Fu League",
+        "slug": "huyen-thoai-kung-fu",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/hu/huyen-thoai-kung-fu.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/hu/huyen-thoai-kung-fu.webp",
+        "year": 2018,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a2279e0fc277084dfd3e1",
+            "name": "Võ Thuật",
+            "slug": "vo-thuat"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T16:24:17.000Z"
       }
     ]
   },
@@ -6020,8 +6246,12 @@
     "featured_count_xs": 0,
     "ids": [
       "624ed64322e2bd17f08d6dbb",
+      "628a67b19e983cdfde3d6722",
+      "628a640a9e983cdfde3d5a4d",
+      "628a58e59e983cdfde3d48bf",
       "6254102bb89e109508085c8f",
       "62540edab89e109508085ad2",
+      "6289c5169e983cdfde3cd0de",
       "6256e4556c7fada3b6652517",
       "6259946eb89b507b80d8f899",
       "62599443b89b507b80d8f876",
@@ -6030,11 +6260,7 @@
       "6275fc093a2c0c6289bea03d",
       "6275fca93a2c0c6289bea0b1",
       "625baa34941a26e421dc2c7f",
-      "6264f9b3489068f6439fec64",
-      "625c3432941a26e421dc518e",
-      "625c615c941a26e421dc5cf3",
-      "625d8947db43524328aede01",
-      "625e98a8db43524328af1f83"
+      "6264f9b3489068f6439fec64"
     ],
     "movies": [
       {
@@ -6080,6 +6306,123 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-23T07:30:16.000Z"
+      },
+      {
+        "id": "628a67b19e983cdfde3d6722",
+        "title": "Xác Chết Trở Về",
+        "origin_name": "The Vanished",
+        "slug": "xac-chet-tro-ve",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/xa/xac-chet-tro-ve.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/xa/xac-chet-tro-ve.webp",
+        "year": 2018,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620a22ace0fc277084dfd531",
+            "name": "Kinh Dị",
+            "slug": "kinh-di"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T16:41:21.000Z"
+      },
+      {
+        "id": "628a640a9e983cdfde3d5a4d",
+        "title": "Kẻ Nhại Tiếng",
+        "origin_name": "The Mimic",
+        "slug": "ke-nhai-tieng",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-nhai-tieng.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-nhai-tieng.webp",
+        "year": 2017,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a22ace0fc277084dfd531",
+            "name": "Kinh Dị",
+            "slug": "kinh-di"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T16:25:46.000Z"
+      },
+      {
+        "id": "628a58e59e983cdfde3d48bf",
+        "title": "Ảo Giác Thực Tại",
+        "origin_name": "Deja Vu",
+        "slug": "ao-giac-thuc-tai",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ao/ao-giac-thuc-tai.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ao/ao-giac-thuc-tai.webp",
+        "year": 2018,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "id": "620f84d291fa4af90ab6b3f4",
+            "name": "Bí ẩn",
+            "slug": "bi-an"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T15:38:13.000Z"
       },
       {
         "id": "6254102bb89e109508085c8f",
@@ -6148,6 +6491,45 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-22T08:41:06.000Z"
+      },
+      {
+        "id": "6289c5169e983cdfde3cd0de",
+        "title": "Tập Thơ Của Tình Đầu",
+        "origin_name": "Anthology",
+        "slug": "tap-tho-cua-tinh-dau",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ta/tap-tho-cua-tinh-dau.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/tap-tho-cua-tinh-dau.webp",
+        "year": 2018,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a2238e0fc277084dfd291",
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T05:07:34.000Z"
       },
       {
         "id": "6256e4556c7fada3b6652517",
@@ -6452,162 +6834,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-22T02:53:39.000Z"
-      },
-      {
-        "id": "625c3432941a26e421dc518e",
-        "title": "Đường Ống",
-        "origin_name": "Pipeline",
-        "slug": "duong-ong",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/du/duong-ong.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/du/duong-ong.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-21T11:16:51.000Z"
-      },
-      {
-        "id": "625c615c941a26e421dc5cf3",
-        "title": "Thành Phố Nhân Tạo",
-        "origin_name": "Artificial City",
-        "slug": "thanh-pho-nhan-tao",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/thanh-pho-nhan-tao.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/thanh-pho-nhan-tao.webp",
-        "year": "2021",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (20/20)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-21T09:20:55.000Z"
-      },
-      {
-        "id": "625d8947db43524328aede01",
-        "title": "Quái vật Chimera",
-        "origin_name": "Chimera",
-        "slug": "quai-vat-chimera",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/qu/quai-vat-chimera.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/qu/quai-vat-chimera.webp",
-        "year": "2021",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (16/16)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-21T08:58:26.000Z"
-      },
-      {
-        "id": "625e98a8db43524328af1f83",
-        "title": "Triệu Hồi",
-        "origin_name": "Recalled",
-        "slug": "trieu-hoi",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tr/trieu-hoi.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/tr/trieu-hoi.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-21T08:50:23.000Z"
       }
     ]
   },
@@ -6665,8 +6891,8 @@
       "6252e632b89e10950808258f",
       "62540dc8b89e109508085a04",
       "6252e116b89e109508082282",
-      "625426ddb89e1095080877e2",
-      "62542c72b89e10950808815d"
+      "628a675b9e983cdfde3d662f",
+      "628a66959e983cdfde3d63a6"
     ],
     "movies": [
       {
@@ -7210,34 +7436,39 @@
         "modified": "2022-05-23T06:03:23.000Z"
       },
       {
-        "id": "625426ddb89e1095080877e2",
-        "title": "Những Điều Nhỏ Nhặt",
-        "origin_name": "The Little Things",
-        "slug": "nhung-dieu-nho-nhat",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/nh/nhung-dieu-nho-nhat.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/nh/nhung-dieu-nho-nhat.webp",
-        "year": "2021",
+        "id": "628a675b9e983cdfde3d662f",
+        "title": "Trò Chơi Ái Quốc",
+        "origin_name": "Patriot Games",
+        "slug": "tro-choi-ai-quoc",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tr/tro-choi-ai-quoc.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/tr/tro-choi-ai-quoc.webp",
+        "year": 1992,
         "type": "single",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620a2238e0fc277084dfd291",
             "name": "Tâm Lý",
             "slug": "tam-ly"
           },
           {
+            "id": "620a2249e0fc277084dfd2e5",
             "name": "Hình Sự",
             "slug": "hinh-su"
           },
           {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
           }
         ],
         "country": [
           {
+            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
@@ -7251,35 +7482,53 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2022-05-22T08:40:14.000Z"
+        "modified": "2022-05-22T16:39:55.000Z"
       },
       {
-        "id": "62542c72b89e10950808815d",
-        "title": "Tiến lên nào Xe Nhỏ! (Phần 4)",
-        "origin_name": "Go! Go! Cory Carson (Season 4)",
-        "slug": "tien-len-nao-xe-nho-phan-4",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ti/tien-len-nao-xe-nho-phan-4.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ti/tien-len-nao-xe-nho-phan-4.webp",
-        "year": "2021",
-        "type": "hoathinh",
+        "id": "628a66959e983cdfde3d63a6",
+        "title": "Rồng Đất 5",
+        "origin_name": "Tremors 5: Bloodlines",
+        "slug": "rong-dat-5",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ro/rong-dat-5.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ro/rong-dat-5.webp",
+        "year": 2015,
+        "type": "single",
         "genre": [
           {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
           },
           {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          },
+          {
+            "id": "620a2293e0fc277084dfd489",
             "name": "Phiêu Lưu",
             "slug": "phieu-luu"
+          },
+          {
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
+          },
+          {
+            "id": "620a22ace0fc277084dfd531",
+            "name": "Kinh Dị",
+            "slug": "kinh-di"
           }
         ],
         "country": [
           {
+            "id": "620a231fe0fc277084dfd7ce",
             "name": "Âu Mỹ",
             "slug": "au-my"
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (07/07)",
+        "episode_current": "Full",
         "quality": "HD",
         "status": "completed",
         "showtimes": "",
@@ -7287,7 +7536,7 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2022-05-22T08:33:06.000Z"
+        "modified": "2022-05-22T16:36:37.000Z"
       }
     ]
   },
@@ -7336,13 +7585,13 @@
       "624ed85722e2bd17f08d6eaa",
       "624ed88022e2bd17f08d6ecc",
       "624ed8d922e2bd17f08d6f43",
+      "628a65499e983cdfde3d5fb1",
+      "628a5a279e983cdfde3d49d4",
       "62540edab89e109508085ad2",
       "625425dab89e109508087610",
       "62542840b89e109508087aab",
       "6254262ab89e109508087697",
-      "62583444b89b507b80d8b625",
-      "62598a78b89b507b80d8f44a",
-      "625b4bce941a26e421dc1cab"
+      "62583444b89b507b80d8b625"
     ],
     "movies": [
       {
@@ -7556,6 +7805,89 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-23T07:25:58.000Z"
+      },
+      {
+        "id": "628a65499e983cdfde3d5fb1",
+        "title": "Thủy Hử Truyện",
+        "origin_name": "All Men Are Brothers - Blood of the Leopard",
+        "slug": "thuy-hu-truyen",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/thuy-hu-truyen.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/thuy-hu-truyen.webp",
+        "year": 1993,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a220de0fc277084dfd16d",
+            "name": "Tình Cảm",
+            "slug": "tinh-cam"
+          },
+          {
+            "id": "620a222fe0fc277084dfd23d",
+            "name": "Cổ Trang",
+            "slug": "co-trang"
+          },
+          {
+            "id": "620a2279e0fc277084dfd3e1",
+            "name": "Võ Thuật",
+            "slug": "vo-thuat"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2347e0fc277084dfd876",
+            "name": "Hồng Kông",
+            "slug": "hong-kong"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T16:31:05.000Z"
+      },
+      {
+        "id": "628a5a279e983cdfde3d49d4",
+        "title": "Cổ Kiếm Kỳ Đàm: Lưu Nguyệt Chiêu Minh",
+        "origin_name": "Legend of the Ancient Sword",
+        "slug": "co-kiem-ky-dam-luu-nguyet-chieu-minh",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/co/co-kiem-ky-dam-luu-nguyet-chieu-minh.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/co/co-kiem-ky-dam-luu-nguyet-chieu-minh.webp",
+        "year": 2018,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a222fe0fc277084dfd23d",
+            "name": "Cổ Trang",
+            "slug": "co-trang"
+          },
+          {
+            "id": "620a2279e0fc277084dfd3e1",
+            "name": "Võ Thuật",
+            "slug": "vo-thuat"
+          }
+        ],
+        "country": [
+          {
+            "id": "62093063196e9f4ab6b448b8",
+            "name": "Trung Quốc",
+            "slug": "trung-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-22T15:43:35.000Z"
       },
       {
         "id": "62540edab89e109508085ad2",
@@ -7772,78 +8104,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-22T03:41:23.000Z"
-      },
-      {
-        "id": "62598a78b89b507b80d8f44a",
-        "title": "GUNJOU SENKI",
-        "origin_name": "Brave: Gunjyo Senki",
-        "slug": "gunjou-senki",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/gu/gunjou-senki.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/gu/gunjou-senki.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          }
-        ],
-        "country": [
-          {
-            "name": "Nhật Bản",
-            "slug": "nhat-ban"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T03:29:54.000Z"
-      },
-      {
-        "id": "625b4bce941a26e421dc1cab",
-        "title": "Đường Bá Hổ: Thâu Thiên Hoán Nhật",
-        "origin_name": "The Story of Tangbohu",
-        "slug": "duong-ba-ho-thau-thien-hoan-nhat",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/du/duong-ba-ho-thau-thien-hoan-nhat.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/du/duong-ba-ho-thau-thien-hoan-nhat.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Cổ Trang",
-            "slug": "co-trang"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-22T02:57:23.000Z"
       }
     ]
   },
@@ -7887,6 +8147,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "628b47909e983cdfde3dec2a",
       "624ed64322e2bd17f08d6dbb",
       "624ed68822e2bd17f08d6e10",
       "624ed85722e2bd17f08d6eaa",
@@ -7896,11 +8157,54 @@
       "62502dc18539e6487dcf6ec3",
       "62502e4d8539e6487dcf6eed",
       "62502e888539e6487dcf6f08",
-      "625182428539e6487dcfa527",
-      "6252e0dcb89e109508082260",
-      "625426ddb89e1095080877e2"
+      "628b35789e983cdfde3ddb6b",
+      "628b35769e983cdfde3ddb5a"
     ],
     "movies": [
+      {
+        "id": "628b47909e983cdfde3dec2a",
+        "title": "Ma Cà Rồng, Lập Tức Đi Chết",
+        "origin_name": "The Vampire Dies in No Time",
+        "slug": "ma-ca-rong-lap-tuc-di-chet",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ma/ma-ca-rong-lap-tuc-di-chet.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ma/ma-ca-rong-lap-tuc-di-chet.webp",
+        "year": 2021,
+        "type": "hoathinh",
+        "genre": [
+          {
+            "id": "620a21b2e0fc277084dfd0c5",
+            "name": "Hành Động",
+            "slug": "hanh-dong"
+          },
+          {
+            "id": "620a221de0fc277084dfd1c1",
+            "name": "Hài Hước",
+            "slug": "hai-huoc"
+          },
+          {
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (12/12)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-23T09:10:58.000Z"
+      },
       {
         "id": "624ed64322e2bd17f08d6dbb",
         "title": "Mouse Kẻ Săn Người (bản điện ảnh)",
@@ -8278,88 +8582,40 @@
         "modified": "2022-05-23T07:21:01.000Z"
       },
       {
-        "id": "625182428539e6487dcfa527",
-        "title": "Biệt Đội Cảm Tử (2021)",
-        "origin_name": "The Suicide Squad (2021)",
-        "slug": "biet-doi-cam-tu-2021",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bi/biet-doi-cam-tu-2021.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bi/biet-doi-cam-tu-2021.webp",
-        "year": "2021",
-        "type": "single",
+        "id": "628b35789e983cdfde3ddb6b",
+        "title": "Chiến sĩ cơ động Gundam: Thiết huyết cô nhi (Phần 2)",
+        "origin_name": "Mobile Suit Gundam: Iron-Blooded Orphans (Season 2)",
+        "slug": "chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-2",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-2.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-2.webp",
+        "year": 2015,
+        "type": "hoathinh",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
+            "id": "620a2282e0fc277084dfd435",
             "name": "Viễn Tưởng",
             "slug": "vien-tuong"
           },
           {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
+            "id": "620a229be0fc277084dfd4dd",
             "name": "Khoa Học",
             "slug": "khoa-hoc"
-          },
-          {
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
           }
         ],
         "country": [
           {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub + Thuyết Minh",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-23T07:18:18.000Z"
-      },
-      {
-        "id": "6252e0dcb89e109508082260",
-        "title": "Thám Tử Lừng Danh Conan: Viên Đạn Đỏ",
-        "origin_name": "Detective Conan: The Scarlet Bullet",
-        "slug": "tham-tu-lung-danh-conan-vien-dan-do",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/th/tham-tu-lung-danh-conan-vien-dan-do.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/th/tham-tu-lung-danh-conan-vien-dan-do.webp",
-        "year": "2021",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
+            "id": "620a2307e0fc277084dfd726",
             "name": "Nhật Bản",
             "slug": "nhat-ban"
           }
         ],
-        "lang_key": "Lồng Tiếng",
-        "episode_current": "Full",
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (25/25)",
         "quality": "HD",
         "status": "completed",
         "showtimes": "",
@@ -8367,43 +8623,43 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2022-05-23T06:06:56.000Z"
+        "modified": "2022-05-23T07:19:20.000Z"
       },
       {
-        "id": "625426ddb89e1095080877e2",
-        "title": "Những Điều Nhỏ Nhặt",
-        "origin_name": "The Little Things",
-        "slug": "nhung-dieu-nho-nhat",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/nh/nhung-dieu-nho-nhat.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/nh/nhung-dieu-nho-nhat.webp",
-        "year": "2021",
-        "type": "single",
+        "id": "628b35769e983cdfde3ddb5a",
+        "title": "Chiến sĩ cơ động Gundam: Thiết huyết cô nhi (Phần 1)",
+        "origin_name": "Mobile Suit Gundam: Iron-Blooded Orphans (Season 1)",
+        "slug": "chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-1",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-1.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chien-si-co-dong-gundam-thiet-huyet-co-nhi-phan-1.webp",
+        "year": 2015,
+        "type": "hoathinh",
         "genre": [
           {
+            "id": "620a21b2e0fc277084dfd0c5",
             "name": "Hành Động",
             "slug": "hanh-dong"
           },
           {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
+            "id": "620a2282e0fc277084dfd435",
+            "name": "Viễn Tưởng",
+            "slug": "vien-tuong"
           },
           {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
+            "id": "620a229be0fc277084dfd4dd",
+            "name": "Khoa Học",
+            "slug": "khoa-hoc"
           }
         ],
         "country": [
           {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
+            "id": "620a2307e0fc277084dfd726",
+            "name": "Nhật Bản",
+            "slug": "nhat-ban"
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Full",
+        "episode_current": "Hoàn Tất (25/25)",
         "quality": "HD",
         "status": "completed",
         "showtimes": "",
@@ -8411,7 +8667,7 @@
         "is_exclusive": false,
         "chieurap": false,
         "sub_docquyen": false,
-        "modified": "2022-05-22T08:40:14.000Z"
+        "modified": "2022-05-23T07:19:18.000Z"
       }
     ]
   }
