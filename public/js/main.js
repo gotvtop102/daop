@@ -1033,10 +1033,11 @@
   window.DAOP.sanitizeCdnRefForFetch = sanitizeCdnRef;
 
   /**
-   * URL JSON phim trên jsDelivr: `base@ref/path`. Ref là commit hex → URL cố định (CDN immutable).
+   * URL JSON phim trên raw.githubusercontent.com: `base/ref/path`.
+   * Base từ cdn.json (jsDelivr) được chuyển sang raw GitHub tự động.
    * Không phải hex (vd. main): ghép ?v= (build) + &m= (token `b` từ ver, legacy: modified) để bust theo từng phim.
    * @param {string} slug
-   * @param {{ dataRef?: string, dataModified?: string }} opts — thiếu hoặc rỗng → @main
+   * @param {{ dataRef?: string, dataModified?: string }} opts — thiếu hoặc rỗng → /main
    */
   function buildPubjsMovieUrl(slug, opts) {
     opts = opts || {};
@@ -1061,8 +1062,15 @@
         } catch (eW) {}
         return '';
       }
+      // Chuyển jsDelivr base sang raw.githubusercontent.com
+      // https://cdn.jsdelivr.net/gh/owner/repo → https://raw.githubusercontent.com/owner/repo
+      var rawBase = base;
+      var jsDelivrMatch = base.match(/^https?:\/\/cdn\.jsdelivr\.net\/gh\/(.+)$/);
+      if (jsDelivrMatch) {
+        rawBase = 'https://raw.githubusercontent.com/' + jsDelivrMatch[1];
+      }
       var path = prefix ? prefix + '/' + sh + '/' + encodeURIComponent(safe) + '.json' : sh + '/' + encodeURIComponent(safe) + '.json';
-      var url = base + '@' + ref + '/' + path;
+      var url = rawBase + '/' + ref + '/' + path;
       if (/^[0-9a-f]{7,40}$/i.test(ref)) return url;
       return (typeof window.DAOP.ensureDataCacheBust === 'function'
         ? window.DAOP.ensureDataCacheBust()
