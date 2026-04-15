@@ -4599,17 +4599,36 @@ async function main() {
      * Skip phim đã enrich đầy đủ (cast_meta có profile ảnh TMDB) để tránh lặp lại ~1600 phim mỗi lần chạy.
      * Phim chưa có cast_meta hoặc cast_meta không có ảnh profile → vẫn cần gọi TMDB để enrich.
      */
+    const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
     const need = (allMovies || []).filter((m) => {
       if (!m) return false;
       const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
       if (!tid) return false;
-      // Skip nếu đã enrich đầy đủ: cast_meta có ít nhất 1 entry với profile ảnh
+      if (forceTmdb) return true;
+
+      const idStr = m.id != null ? String(m.id) : '';
+
+      // Tối ưu 1: Nếu đã enrich và có mảng cast_meta chứa ảnh profile -> Skip
       if (Array.isArray(m.cast_meta) && m.cast_meta.length > 0) {
         const hasProfiles = m.cast_meta.some(c => c && c.profile);
         if (hasProfiles && Array.isArray(m.cast) && m.cast.length > 0) {
           return false;
         }
       }
+
+      // Tối ưu 2: Phim không có diễn viên/data từ đợt chạy trước -> Skip
+      // Nhờ vào prevTmdbById, các phim đã tốn công fetch nhưng ra 404 / rỗng sẽ không bị nhai lại.
+      if (idStr && prevTmdbById && typeof prevTmdbById.get === 'function') {
+        const prev = prevTmdbById.get(idStr);
+        if (prev) {
+          const prevTid = (prev.tmdb && prev.tmdb.id) || null;
+          // Nếu đã từng xử lý TMDB ID này, không đổi -> Skip hoàn toàn
+          if (prevTid != null && String(prevTid) === String(tid)) {
+            return false;
+          }
+        }
+      }
+
       return true;
     });
     console.log('TMDB_ONLY: movies to enrich:', need.length, '(skipped', allMovies.length - need.length, 'already enriched)');
