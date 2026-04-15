@@ -1765,7 +1765,7 @@ async function fetchCustomMoviesFromSupabase() {
     // Build cần toàn bộ phim (cần range vì PostgREST giới hạn 1000 dòng/request)
     const movieRows = [];
     for (let page = 0; ; page++) {
-      const { data, error } = await supabase.from('movies').select('*').range(page * 1000, (page + 1) * 1000 - 1);
+      const { data, error } = await supabase.from('movies').select('*').order('id').range(page * 1000, (page + 1) * 1000 - 1);
       if (error) throw error;
       if (!data || data.length === 0) break;
       movieRows.push(...data);
@@ -1775,7 +1775,7 @@ async function fetchCustomMoviesFromSupabase() {
     // Build cần toàn bộ tập (cần range vì có thể lên tới chục ngàn dòng)
     const epRows = [];
     for (let page = 0; ; page++) {
-      const { data, error } = await supabase.from('movie_episodes').select('*').order('sort_order').range(page * 1000, (page + 1) * 1000 - 1);
+      const { data, error } = await supabase.from('movie_episodes').select('*').order('movie_id').order('sort_order').range(page * 1000, (page + 1) * 1000 - 1);
       if (error) throw error;
       if (!data || data.length === 0) break;
       epRows.push(...data);
@@ -2081,6 +2081,7 @@ async function fetchJsonWithTmdbKeys(urlBuilder) {
     const url = urlBuilder(keys[ki]);
     const res = await fetch(url);
     if (res.ok) return res.json();
+    if (res.status === 404) return null;
 
     if (res.status === 429) {
       const waitMs = parseRetryAfterMs(res);
@@ -2093,6 +2094,7 @@ async function fetchJsonWithTmdbKeys(urlBuilder) {
       if (waitMs) await sleep(waitMs);
       const res2 = await fetch(url);
       if (res2.ok) return res2.json();
+      if (res2.status === 404) return null;
       if (res2.status === 429) {
         throw new Error(`HTTP 429: ${url}`);
       }
