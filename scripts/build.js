@@ -2111,8 +2111,8 @@ async function fetchJsonWithTmdbKeys(urlBuilder) {
 
 const TMDB_CACHE_DIR = path.join(PUBLIC_DATA, 'cache', 'tmdb');
 const TMDB_CACHE_ENABLED = (process.env.TMDB_CACHE !== '0' && process.env.TMDB_CACHE !== 'false');
-const _ttlRaw = Number(process.env.TMDB_CACHE_TTL_DAYS ?? 7);
-const TMDB_CACHE_TTL_DAYS = Number.isFinite(_ttlRaw) && _ttlRaw > 0 && _ttlRaw <= 365 ? _ttlRaw : 7;
+const _ttlRaw = Number(process.env.TMDB_CACHE_TTL_DAYS ?? 365);
+const TMDB_CACHE_TTL_DAYS = Number.isFinite(_ttlRaw) && _ttlRaw > 0 && _ttlRaw <= 365 ? _ttlRaw : 365;
 const TMDB_CACHE_TTL_MS = TMDB_CACHE_TTL_DAYS * 24 * 60 * 60 * 1000;
 const TMDB_CONCURRENCY = Math.max(1, Math.min(32, Number(process.env.TMDB_CONCURRENCY || 6)));
 /** Số file shard (1–256): tăng khi catalog lớn để mỗi file nhỏ hơn / ít contention ghi. */
@@ -2282,7 +2282,8 @@ async function tmdbFetchJsonCached(urlBuilder, cacheKey) {
     if (fresh) return hit.data;
   }
 
-  // Miss -> fetch
+  // Miss -> fetch (sleep chỉ khi thực sự gọi API, cache hit không cần rate-limit)
+  await sleep(40);
   const rawData = await fetchMiss();
   const data = pruneTmdbCacheEntry(key, rawData);
 
@@ -2325,7 +2326,6 @@ async function getTmdbPersonNameVi(personId) {
     _tmdbPersonNameViCache.set(id, null);
     return null;
   }
-  await sleep(40);
   try {
     const res = await tmdbFetchJsonCached(
       (k) => `${TMDB_BASE}/person/${id}/translations?api_key=${encodeURIComponent(k)}`,
@@ -2379,7 +2379,6 @@ async function enrichTmdb(movies) {
       const tid = m.tmdb?.id || m.tmdb_id;
       if (!tid) continue;
       const type = (m.type || 'movie') === 'single' ? 'movie' : 'tv';
-      await sleep(40);
       try {
         const baseKey = `${type}_${tid}`;
         const [detailRes, creditsRes, keywordsRes] = await Promise.all([
@@ -4595,15 +4594,23 @@ async function main() {
 
     /**
      * Pha TMDB_ONLY (sau CORE có SKIP_TMDB): pubjs đã có tmdb id + đôi khi cast_meta OPhim không ảnh.
-     * Logic "skip nếu đã enrich trước" (dùng cho incremental) làm need ≈ rỗng → không gọi credits TMDB → thiếu diễn viên / ảnh.
-     * Bắt buộc enrich mọi phim có TMDB id (trừ khi không có id).
+     * Skip phim đã enrich đầy đủ (cast_meta có profile ảnh TMDB) để tránh lặp lại ~1600 phim mỗi lần chạy.
+     * Phim chưa có cast_meta hoặc cast_meta không có ảnh profile → vẫn cần gọi TMDB để enrich.
      */
     const need = (allMovies || []).filter((m) => {
       if (!m) return false;
       const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
-      return !!tid;
+      if (!tid) return false;
+      // Skip nếu đã enrich đầy đủ: cast_meta có ít nhất 1 entry với profile ảnh
+      if (Array.isArray(m.cast_meta) && m.cast_meta.length > 0) {
+        const hasProfiles = m.cast_meta.some(c => c && c.profile);
+        if (hasProfiles && Array.isArray(m.cast) && m.cast.length > 0) {
+          return false;
+        }
+      }
+      return true;
     });
-    console.log('TMDB_ONLY: movies to enrich:', need.length);
+    console.log('TMDB_ONLY: movies to enrich:', need.length, '(skipped', allMovies.length - need.length, 'already enriched)');
     await timeBuildPhase('TMDB_ONLY: enrich TMDB', () => enrichTmdb(need));
 
     const tmdbById = new Map(prevTmdbById || []);
