@@ -415,9 +415,16 @@ function movieNeedsDbWrite(m, syncState, alwaysFull) {
   const st = syncState.get(id);
   if (st == null) return true;
 
-  const fp = episodeSyncFingerprintFromBatch(m);
   const batchEc = String(m.episode_current || '');
-  const epChanged = batchEc !== st.episode_current || fp !== st.episodeHash;
+  
+  const fp = episodeSyncFingerprintFromBatch(m);
+  const rows = flattenEpisodes(m);
+  const safeToSyncEpisodes = rows.length > 0 && hasAnyPlayableLink(rows);
+
+  // Nếu không safe (không có tập / không có link), bước sau sẽ SKIP đè tập.
+  // Vì nó vĩnh viễn không đè tập rỗng lên DB, mã hash local dĩ nhiên luôn lệch với DB.
+  // Do đó, ta bỏ qua sự sai lệch fp nếu nó không safe, để tránh loop sync vô tận.
+  const epChanged = batchEc !== st.episode_current || (safeToSyncEpisodes && fp !== st.episodeHash);
 
   if (m && m._from_supabase && m._supabaseExportEpisodesOnly) {
     return epChanged;
