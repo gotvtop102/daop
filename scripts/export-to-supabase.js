@@ -350,17 +350,26 @@ async function fetchExistingSyncState(supabase, ids) {
   const epByMovie = new Map();
   for (let i = 0; i < unique.length; i += chunkSize) {
     const chunk = unique.slice(i, i + chunkSize);
-    const { data, error } = await supabaseWithRetry('select movie_episodes (sync)', () =>
-      supabase
-        .from('movie_episodes')
-        .select('movie_id, episode_code, server_slug, link_m3u8, link_embed')
-        .in('movie_id', chunk)
-    );
-    if (error) throw error;
-    for (const row of data || []) {
-      const mid = String(row.movie_id);
-      if (!epByMovie.has(mid)) epByMovie.set(mid, []);
-      epByMovie.get(mid).push(row);
+    
+    // Phải paginate vì 100 phim có thể có > 1000 tập (vượt quá giới hạn trả về mặc định của PostgREST)
+    for (let page = 0; ; page++) {
+      const { data, error } = await supabaseWithRetry(`select movie_episodes (sync, p${page})`, () =>
+        supabase
+          .from('movie_episodes')
+          .select('movie_id, episode_code, server_slug, link_m3u8, link_embed')
+          .in('movie_id', chunk)
+          .order('movie_id')
+          .order('sort_order')
+          .range(page * 1000, (page + 1) * 1000 - 1)
+      );
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      for (const row of data) {
+        const mid = String(row.movie_id);
+        if (!epByMovie.has(mid)) epByMovie.set(mid, []);
+        epByMovie.get(mid).push(row);
+      }
+      if (data.length < 1000) break;
     }
   }
 
