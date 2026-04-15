@@ -2429,6 +2429,7 @@ async function enrichTmdb(movies) {
         if (!m.poster && detailRes?.poster_path) {
           m.poster = TMDB_IMG_BASE + detailRes.poster_path;
         }
+        m._tmdb_checked = true;
       } catch {}
     }
   })());
@@ -4620,7 +4621,7 @@ async function main() {
       // Nhờ vào prevTmdbById, các phim đã tốn công fetch nhưng ra 404 / rỗng sẽ không bị nhai lại.
       if (idStr && prevTmdbById && typeof prevTmdbById.get === 'function') {
         const prev = prevTmdbById.get(idStr);
-        if (prev) {
+        if (prev && prev.tmdb_checked) {
           const prevTid = (prev.tmdb && prev.tmdb.id) || null;
           // Nếu đã từng xử lý TMDB ID này, không đổi -> Skip hoàn toàn
           if (prevTid != null && String(prevTid) === String(tid)) {
@@ -4783,6 +4784,7 @@ async function main() {
       director: (Array.isArray(m.director) && m.director.length) ? m.director : ((prev && Array.isArray(prev.director)) ? prev.director : []),
       cast_meta: (Array.isArray(m.cast_meta) && m.cast_meta.length) ? m.cast_meta : ((prev && Array.isArray(prev.cast_meta)) ? prev.cast_meta : []),
       keywords: (Array.isArray(m.keywords) && m.keywords.length) ? m.keywords : ((prev && Array.isArray(prev.keywords)) ? prev.keywords : []),
+      tmdb_checked: m._tmdb_checked || (prev && prev.tmdb_checked) || false,
     });
   }
 
