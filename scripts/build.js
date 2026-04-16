@@ -4613,6 +4613,7 @@ async function main() {
 
       if (idStr && prevTmdbById && typeof prevTmdbById.get === 'function') {
         const prev = prevTmdbById.get(idStr);
+        if (prev) {
           // Ưu tiên 1: Skip phim đã check TMDB và timestamp không đổi.
           // Flag tmdb_checked được lưu trong từng file JSON của phim.
           if (prev.tmdb_checked === true && prevLastModified && typeof prevLastModified === 'object') {
