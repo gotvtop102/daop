@@ -4625,7 +4625,19 @@ async function main() {
             const curMod = normalizeModifiedValue(rawMod);
             const oldMod = normalizeModifiedValue(prevLastModified[idStr]);
             if (oldMod && curMod && oldMod === curMod) {
-              return false; // Modified chưa đổi và đã chạy qua TMDB an toàn (nếu lỗi hoặc thiếu cũng kệ) -> Bỏ qua
+              // Timestamp chưa đổi — nhưng kiểm tra xem prev có thực sự ĐÃ được enrich TMDB chưa.
+              // Sau pha CORE (SKIP_TMDB), last_modified.json được ghi mới nhưng prevTmdbById chưa có
+              // cast/keywords/overview → phải enrich. Sau pha TMDB thành công thì có đủ → Skip.
+              const hasTmdbPayload =
+                prevTid != null && (
+                  (Array.isArray(prev.keywords) && prev.keywords.length > 0) ||
+                  (Array.isArray(prev.cast) && prev.cast.length > 0) ||
+                  (prev.tmdb && prev.tmdb.overview)
+                );
+              if (hasTmdbPayload) {
+                return false; // Đã enrich TMDB đầy đủ, timestamp không đổi -> Bỏ qua
+              }
+              // Timestamp khớp nhưng chưa có TMDB payload (sau CORE) -> phải enrich
             }
           }
         }
