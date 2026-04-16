@@ -548,6 +548,7 @@ function mergeMovieWithTmdbMap(m, tmdbById) {
     director: Array.isArray(t.director) && t.director.length ? t.director : m.director || [],
     cast_meta: Array.isArray(t.cast_meta) && t.cast_meta.length ? t.cast_meta : m.cast_meta || [],
     keywords: Array.isArray(t.keywords) && t.keywords.length ? t.keywords : m.keywords || [],
+    tmdb_checked: t.tmdb_checked === true,
   };
 }
 
@@ -1269,7 +1270,7 @@ async function loadPreviousBuiltTmdbById() {
         director: m.director,
         cast_meta: m.cast_meta,
         keywords: m.keywords,
-        tmdb_checked: m._tmdb_checked === true,
+        tmdb_checked: m.tmdb_checked === true,
       });
     } catch {}
   }
@@ -2430,7 +2431,7 @@ async function enrichTmdb(movies) {
         if (!m.poster && detailRes?.poster_path) {
           m.poster = TMDB_IMG_BASE + detailRes.poster_path;
         }
-        m._tmdb_checked = true;
+        m.tmdb_checked = true;
       } catch {}
     }
   })());
@@ -4666,7 +4667,7 @@ async function main() {
         director: (Array.isArray(m.director) && m.director.length) ? m.director : ((prev && Array.isArray(prev.director)) ? prev.director : []),
         cast_meta: (Array.isArray(m.cast_meta) && m.cast_meta.length) ? m.cast_meta : ((prev && Array.isArray(prev.cast_meta)) ? prev.cast_meta : []),
         keywords: (Array.isArray(m.keywords) && m.keywords.length) ? m.keywords : ((prev && Array.isArray(prev.keywords)) ? prev.keywords : []),
-        tmdb_checked: m._tmdb_checked || (prev && prev.tmdb_checked) || false,
+        tmdb_checked: m.tmdb_checked || (prev && prev.tmdb_checked) || false,
       });
     }
 
@@ -4789,7 +4790,7 @@ async function main() {
       director: (Array.isArray(m.director) && m.director.length) ? m.director : ((prev && Array.isArray(prev.director)) ? prev.director : []),
       cast_meta: (Array.isArray(m.cast_meta) && m.cast_meta.length) ? m.cast_meta : ((prev && Array.isArray(prev.cast_meta)) ? prev.cast_meta : []),
       keywords: (Array.isArray(m.keywords) && m.keywords.length) ? m.keywords : ((prev && Array.isArray(prev.keywords)) ? prev.keywords : []),
-      tmdb_checked: m._tmdb_checked || (prev && prev.tmdb_checked) || false,
+      tmdb_checked: m.tmdb_checked || (prev && prev.tmdb_checked) || false,
     });
   }
 
