@@ -4616,13 +4616,21 @@ async function main() {
           if (prevTid != null && String(prevTid) !== String(tid)) {
             return true; // Đổi TMDB ID => phải chạy lại
           }
+          if (tid != null && prevTid == null) {
+            return true; // Chưa từng có data TMDB => phải chạy lại
+          }
           
           if (prevLastModified && typeof prevLastModified === 'object') {
             const rawMod = m.modified || m.updated_at || '';
             const curMod = normalizeModifiedValue(rawMod);
             const oldMod = normalizeModifiedValue(prevLastModified[idStr]);
             if (oldMod && curMod && oldMod === curMod) {
-              return false; // Modified chưa đổi và đã có data -> Bỏ qua
+              const hasCastMeta = Array.isArray(prev.cast_meta) && prev.cast_meta.length > 0;
+              const hasProfiles = hasCastMeta && prev.cast_meta.some(c => c && c.profile);
+              if (hasProfiles && Array.isArray(prev.cast) && prev.cast.length > 0) {
+                return false; // Modified chưa đổi và đã có đủ data xịn -> Bỏ qua
+              }
+              // Nếu data cũ thiếu ảnh diễn viên thì lọt xuống dưới để ép fetch lại (nếu phim tài liệu ko có thật thì sẽ quét qua cache ổ cứng nên vẫn rất nhanh)
             }
           }
         }
@@ -4743,13 +4751,18 @@ async function main() {
         if (!prev) return true;
         const prevTid = prev && prev.tmdb ? prev.tmdb.id : null;
         if (prevTid != null && String(prevTid) !== String(tid)) return true;
+        if (tid != null && prevTid == null) return true;
         // Nếu phim không đổi so với last_modified và đã có payload TMDB trước đó => bỏ qua gọi TMDB.
         if (prevLastModified && typeof prevLastModified === 'object') {
           const rawMod = m.modified || m.updated_at || '';
           const curMod = normalizeModifiedValue(rawMod);
           const oldMod = normalizeModifiedValue(prevLastModified[idStr]);
           if (oldMod && curMod && oldMod === curMod) {
-            return false;
+            const hasCastMeta = Array.isArray(prev.cast_meta) && prev.cast_meta.length > 0;
+            const hasProfiles = hasCastMeta && prev.cast_meta.some(c => c && c.profile);
+            if (hasProfiles && Array.isArray(prev.cast) && prev.cast.length > 0) {
+              return false;
+            }
           }
         }
         return true;
