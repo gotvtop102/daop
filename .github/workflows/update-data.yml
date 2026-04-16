@@ -222,7 +222,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '4.77.0'
+          wranglerVersion: '3.101.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
       - name: Clean public/data before restoring CORE artifact (2-phase)
@@ -333,7 +333,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '4.77.0'
+          wranglerVersion: '3.101.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
 
       - name: Dump Wrangler logs (if any)

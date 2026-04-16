@@ -4601,10 +4601,11 @@ async function main() {
      * Phim chưa có cast_meta hoặc cast_meta không có ảnh profile → vẫn cần gọi TMDB để enrich.
      */
     const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
+    const _dbg = { no_tid: 0, no_prev: 0, tid_changed: 0, prevtid_null: 0, no_lm: 0, ts_mismatch: 0, skipped: 0 };
     const need = (allMovies || []).filter((m) => {
       if (!m) return false;
       const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
-      if (!tid) return false;
+      if (!tid) { _dbg.no_tid++; return false; }
       if (forceTmdb) return true;
 
       const idStr = m.id != null ? String(m.id) : '';
@@ -4614,29 +4615,40 @@ async function main() {
         if (prev) {
           const prevTid = (prev.tmdb && prev.tmdb.id) || null;
           if (prevTid != null && String(prevTid) !== String(tid)) {
-            return true; // Đổi TMDB ID => phải chạy lại
+            _dbg.tid_changed++; return true; // Đổi TMDB ID => phải chạy lại
           }
           if (tid != null && prevTid == null) {
-            return true; // Chưa từng có data TMDB => phải chạy lại
+            _dbg.prevtid_null++; return true; // Chưa từng có data TMDB => phải chạy lại
           }
 
           // Dùng flag _tmdb_enriched trong last_modified.json để phân biệt:
           // - CORE (SKIP_TMDB) ghi false  → bỏ qua timestamp shortcut, phải enrich
           // - TMDB_ONLY/full build ghi true → có thể dùng timestamp để skip
           if (prevLastModified && prevLastModified._tmdb_enriched === true) {
-            const rawMod = m.modified || m.updated_at || '';
-            const curMod = normalizeModifiedValue(rawMod);
-            const oldMod = normalizeModifiedValue(prevLastModified[idStr]);
+            const curMod = String(m.modified || m.updated_at || '');
+            const oldMod = String(prevLastModified[idStr] || '');
             if (oldMod && curMod && oldMod === curMod) {
-              return false; // TMDB đã enrich, timestamp không đổi -> Bỏ qua
+              _dbg.skipped++; return false; // TMDB đã enrich, timestamp không đổi -> Bỏ qua
             }
+            _dbg.ts_mismatch++;
+          } else {
+            _dbg.no_lm++;
           }
           // _tmdb_enriched false/undefined → lọt xuống để enrich (sau CORE, hoặc build cũ không có flag)
+        } else {
+          _dbg.no_prev++;
         }
+      } else {
+        _dbg.no_prev++;
       }
 
       return true;
     });
+    console.log(
+      `TMDB_ONLY filter: no_tid=${_dbg.no_tid} skipped=${_dbg.skipped} | enrich_reason:` +
+      ` no_prev=${_dbg.no_prev} prevtid_null=${_dbg.prevtid_null} tid_changed=${_dbg.tid_changed}` +
+      ` no_lm_flag=${_dbg.no_lm} ts_mismatch=${_dbg.ts_mismatch}`
+    );
     console.log('TMDB_ONLY: movies to enrich:', need.length, '(skipped', allMovies.length - need.length, 'already enriched)');
     await timeBuildPhase('TMDB_ONLY: enrich TMDB', () => enrichTmdb(need));
 
