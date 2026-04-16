@@ -4609,24 +4609,30 @@ async function main() {
 
       const idStr = m.id != null ? String(m.id) : '';
 
-      // Tối ưu 1: Nếu đã enrich và có mảng cast_meta chứa ảnh profile -> Skip
+      if (idStr && prevTmdbById && typeof prevTmdbById.get === 'function') {
+        const prev = prevTmdbById.get(idStr);
+        if (prev) {
+          const prevTid = (prev.tmdb && prev.tmdb.id) || null;
+          if (prevTid != null && String(prevTid) !== String(tid)) {
+            return true; // Đổi TMDB ID => phải chạy lại
+          }
+          
+          if (prevLastModified && typeof prevLastModified === 'object') {
+            const rawMod = m.modified || m.updated_at || '';
+            const curMod = normalizeModifiedValue(rawMod);
+            const oldMod = normalizeModifiedValue(prevLastModified[idStr]);
+            if (oldMod && curMod && oldMod === curMod) {
+              return false; // Modified chưa đổi và đã có data -> Bỏ qua
+            }
+          }
+        }
+      }
+
+      // Tối ưu dự phòng: Nếu đã enrich đầy đủ (cast_meta chứa ảnh profile)
       if (Array.isArray(m.cast_meta) && m.cast_meta.length > 0) {
         const hasProfiles = m.cast_meta.some(c => c && c.profile);
         if (hasProfiles && Array.isArray(m.cast) && m.cast.length > 0) {
           return false;
-        }
-      }
-
-      // Tối ưu 2: Phim không có diễn viên/data từ đợt chạy trước -> Skip
-      // Nhờ vào prevTmdbById, các phim đã tốn công fetch nhưng ra 404 / rỗng sẽ không bị nhai lại.
-      if (idStr && prevTmdbById && typeof prevTmdbById.get === 'function') {
-        const prev = prevTmdbById.get(idStr);
-        if (prev && prev.tmdb_checked) {
-          const prevTid = (prev.tmdb && prev.tmdb.id) || null;
-          // Nếu đã từng xử lý TMDB ID này, không đổi -> Skip hoàn toàn
-          if (prevTid != null && String(prevTid) === String(tid)) {
-            return false;
-          }
         }
       }
 
