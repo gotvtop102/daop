@@ -4657,6 +4657,7 @@ async function main() {
       // Nếu không ghi, lần chạy sau prevTmdbById.get() = null → enrich lại vô hạn.
       if (!tid) continue;
       tmdbIdSeen.add(idStr);
+      const prev = tmdbById.get(idStr);
       tmdbById.set(idStr, {
         id: idStr,
         tmdb: m.tmdb || (prev && prev.tmdb) || { id: tid },
