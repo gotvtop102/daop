@@ -4669,9 +4669,18 @@ async function main() {
       newLastModifiedTmdb = r && r.newLastModified ? r.newLastModified : null;
     });
     try {
-      // Ghi _tmdb_enriched: true vào last_modified để lần chạy sau biết TMDB đã hoàn thành.
-      const lmToWrite = Object.assign({}, newLastModifiedTmdb || prevLastModified || {}, { _tmdb_enriched: true });
-      fs.writeFileSync(lastModifiedPath, JSON.stringify(lmToWrite, null, 2));
+      // Tự build last_modified.json đầy đủ từ toàn bộ allMovies.
+      // KHÔNG dùng newLastModifiedTmdb (chỉ là delta phim thay đổi) vì sẽ làm mất
+      // timestamp của các phim "giữ nguyên" → lần sau chúng lại bị enrich lại vô hạn.
+      const lmFull = Object.assign({}, prevLastModified || {});
+      for (const m of allMovies) {
+        const midStr = m && m.id != null ? String(m.id) : '';
+        if (!midStr) continue;
+        const rawMod = m.modified || m.updated_at || '';
+        if (rawMod) lmFull[midStr] = rawMod;
+      }
+      lmFull._tmdb_enriched = true;
+      fs.writeFileSync(lastModifiedPath, JSON.stringify(lmFull, null, 2));
     } catch {}
 
     timeBuildPhaseSync('TMDB_ONLY: writeIndex + search', () => writeIndexAndSearchShards(allMovies, null));
