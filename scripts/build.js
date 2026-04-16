@@ -4619,35 +4619,19 @@ async function main() {
           if (tid != null && prevTid == null) {
             return true; // Chưa từng có data TMDB => phải chạy lại
           }
-          
-          if (prevLastModified && typeof prevLastModified === 'object') {
+
+          // Dùng flag _tmdb_enriched trong last_modified.json để phân biệt:
+          // - CORE (SKIP_TMDB) ghi false  → bỏ qua timestamp shortcut, phải enrich
+          // - TMDB_ONLY/full build ghi true → có thể dùng timestamp để skip
+          if (prevLastModified && prevLastModified._tmdb_enriched === true) {
             const rawMod = m.modified || m.updated_at || '';
             const curMod = normalizeModifiedValue(rawMod);
             const oldMod = normalizeModifiedValue(prevLastModified[idStr]);
             if (oldMod && curMod && oldMod === curMod) {
-              // Timestamp chưa đổi — nhưng kiểm tra xem prev có thực sự ĐÃ được enrich TMDB chưa.
-              // Sau pha CORE (SKIP_TMDB), last_modified.json được ghi mới nhưng prevTmdbById chưa có
-              // cast/keywords/overview → phải enrich. Sau pha TMDB thành công thì có đủ → Skip.
-              const hasTmdbPayload =
-                prevTid != null && (
-                  (Array.isArray(prev.keywords) && prev.keywords.length > 0) ||
-                  (Array.isArray(prev.cast) && prev.cast.length > 0) ||
-                  (prev.tmdb && prev.tmdb.overview)
-                );
-              if (hasTmdbPayload) {
-                return false; // Đã enrich TMDB đầy đủ, timestamp không đổi -> Bỏ qua
-              }
-              // Timestamp khớp nhưng chưa có TMDB payload (sau CORE) -> phải enrich
+              return false; // TMDB đã enrich, timestamp không đổi -> Bỏ qua
             }
           }
-        }
-      }
-
-      // Tối ưu dự phòng: Nếu đã enrich đầy đủ (cast_meta chứa ảnh profile)
-      if (Array.isArray(m.cast_meta) && m.cast_meta.length > 0) {
-        const hasProfiles = m.cast_meta.some(c => c && c.profile);
-        if (hasProfiles && Array.isArray(m.cast) && m.cast.length > 0) {
-          return false;
+          // _tmdb_enriched false/undefined → lọt xuống để enrich (sau CORE, hoặc build cũ không có flag)
         }
       }
 
@@ -4657,22 +4641,19 @@ async function main() {
     await timeBuildPhase('TMDB_ONLY: enrich TMDB', () => enrichTmdb(need));
 
     const tmdbById = new Map(prevTmdbById || []);
+    const tmdbIdSeen = new Set();
     for (const m of allMovies) {
       const idStr = m && m.id != null ? String(m.id) : '';
       if (!idStr) continue;
-      const hasAnyTmdbField =
-        !!m.tmdb ||
-        !!m.imdb ||
-        (Array.isArray(m.cast) && m.cast.length) ||
-        (Array.isArray(m.director) && m.director.length) ||
-        (Array.isArray(m.cast_meta) && m.cast_meta.length) ||
-        (Array.isArray(m.keywords) && m.keywords.length);
-      if (!hasAnyTmdbField) continue;
-
+      const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
+      // Luôn ghi phim có tmdb_id vào tmdbById, kể cả khi TMDB trả về rỗng.
+      // Nếu không ghi, lần chạy sau prevTmdbById.get() = null → enrich lại vô hạn.
+      if (!tid) continue;
+      tmdbIdSeen.add(idStr);
       const prev = tmdbById.get(idStr);
       tmdbById.set(idStr, {
         id: idStr,
-        tmdb: m.tmdb || (prev && prev.tmdb) || null,
+        tmdb: m.tmdb || (prev && prev.tmdb) || { id: tid },
         imdb: m.imdb || (prev && prev.imdb) || null,
         cast: (Array.isArray(m.cast) && m.cast.length) ? m.cast : ((prev && Array.isArray(prev.cast)) ? prev.cast : []),
         director: (Array.isArray(m.director) && m.director.length) ? m.director : ((prev && Array.isArray(prev.director)) ? prev.director : []),
@@ -4688,9 +4669,9 @@ async function main() {
       newLastModifiedTmdb = r && r.newLastModified ? r.newLastModified : null;
     });
     try {
-      if (newLastModifiedTmdb) {
-        writeLastModifiedIfChanged(lastModifiedPath, newLastModifiedTmdb);
-      }
+      // Ghi _tmdb_enriched: true vào last_modified để lần chạy sau biết TMDB đã hoàn thành.
+      const lmToWrite = Object.assign({}, newLastModifiedTmdb || prevLastModified || {}, { _tmdb_enriched: true });
+      fs.writeFileSync(lastModifiedPath, JSON.stringify(lmToWrite, null, 2));
     } catch {}
 
     timeBuildPhaseSync('TMDB_ONLY: writeIndex + search', () => writeIndexAndSearchShards(allMovies, null));
@@ -4880,7 +4861,10 @@ async function main() {
 
   const lastBuild = { builtAt: new Date().toISOString(), movieCount: allMovies.length };
   fs.writeFileSync(path.join(PUBLIC_DATA, 'last_build.json'), JSON.stringify(lastBuild, null, 2));
-  const lastModifiedOut = newLastModified || {};
+  // Ghi _tmdb_enriched: true/false vào last_modified để TMDB_ONLY pha sau biết trạng thái.
+  // CORE (skipTmdb=true): false → TMDB_ONLY sẽ enrich lại toàn bộ.
+  // Full build (skipTmdb=false): true → TMDB_ONLY (nếu chạy) có thể dựa vào timestamp.
+  const lastModifiedOut = Object.assign({}, newLastModified || {}, { _tmdb_enriched: !skipTmdb });
   fs.writeFileSync(lastModifiedPath, JSON.stringify(lastModifiedOut, null, 2));
   await maybeMinifyPublicAssets();
   if (skipTmdb) {
