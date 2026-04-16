@@ -4625,12 +4625,7 @@ async function main() {
             const curMod = normalizeModifiedValue(rawMod);
             const oldMod = normalizeModifiedValue(prevLastModified[idStr]);
             if (oldMod && curMod && oldMod === curMod) {
-              const hasCastMeta = Array.isArray(prev.cast_meta) && prev.cast_meta.length > 0;
-              const hasProfiles = hasCastMeta && prev.cast_meta.some(c => c && c.profile);
-              if (hasProfiles && Array.isArray(prev.cast) && prev.cast.length > 0) {
-                return false; // Modified chưa đổi và đã có đủ data xịn -> Bỏ qua
-              }
-              // Nếu data cũ thiếu ảnh diễn viên thì lọt xuống dưới để ép fetch lại (nếu phim tài liệu ko có thật thì sẽ quét qua cache ổ cứng nên vẫn rất nhanh)
+              return false; // Modified chưa đổi và đã chạy qua TMDB an toàn (nếu lỗi hoặc thiếu cũng kệ) -> Bỏ qua
             }
           }
         }
@@ -4758,11 +4753,7 @@ async function main() {
           const curMod = normalizeModifiedValue(rawMod);
           const oldMod = normalizeModifiedValue(prevLastModified[idStr]);
           if (oldMod && curMod && oldMod === curMod) {
-            const hasCastMeta = Array.isArray(prev.cast_meta) && prev.cast_meta.length > 0;
-            const hasProfiles = hasCastMeta && prev.cast_meta.some(c => c && c.profile);
-            if (hasProfiles && Array.isArray(prev.cast) && prev.cast.length > 0) {
-              return false;
-            }
+            return false;
           }
         }
         return true;
