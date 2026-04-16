@@ -4723,10 +4723,10 @@ async function main() {
   if (!skipTmdb) {
     console.log('3. Enriching TMDB...');
     await timeBuildPhase('3. TMDB enrich', async () => {
-    if (tmdbOnly) {
       const forceTmdb = (process.env.FORCE_TMDB === '1' || process.env.FORCE_TMDB === 'true');
       const shouldEnrich = (m) => {
         if (!m) return false;
+        if (m._skip_tmdb) return false;
         const tid = (m.tmdb && m.tmdb.id) || m.tmdb_id;
         if (!tid) return false;
         if (forceTmdb) return true;
@@ -4750,13 +4750,9 @@ async function main() {
       };
       const needOphim = (ophim || []).filter(shouldEnrich);
       const needCustom = (custom || []).filter(shouldEnrich);
-      console.log('   TMDB_ONLY: movies to enrich:', needOphim.length + needCustom.length);
+      console.log('   Movies to enrich TMDB:', needOphim.length + needCustom.length, '(OPhim:', needOphim.length, '| Custom:', needCustom.length, ')');
       await enrichTmdb(needOphim);
       await enrichTmdb(needCustom);
-    } else {
-      await enrichTmdb((ophim || []).filter((m) => m && !m._skip_tmdb));
-      await enrichTmdb(custom);
-    }
     });
   } else {
     console.log('3. Enriching TMDB... (SKIP_TMDB)');
