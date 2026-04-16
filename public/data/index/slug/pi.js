@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["pi"] = {"pipeline":{"id":"6235c9383d016a3b6717c64a","i":113,"title":"Pipeline","origin_name":"Pipeline","slug":"pipeline","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/pi/pipeline.webp","year":"2021","type":"single","episode_current":"Full"}};
