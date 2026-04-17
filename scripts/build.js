@@ -4686,7 +4686,10 @@ async function main() {
         if (!midStr) continue;
         const rawMod = m.modified || m.updated_at || '';
         if (rawMod) {
-          const isT = tmdbById.get(midStr)?.tmdb_checked === true;
+          const prevEntry = String(prevLastModified[midStr] || '');
+          const [prevTs, prevTag] = prevEntry.split('|');
+          const wasEnriched = prevTag === 't';
+          const isT = (tmdbById.get(midStr)?.tmdb_checked === true) || (wasEnriched && prevTs === rawMod);
           lmFull[midStr] = isT ? `${rawMod}|t` : rawMod;
         }
       }
@@ -4884,7 +4887,10 @@ async function main() {
     if (!midStr) continue;
     const rawMod = m.modified || m.updated_at || '';
     if (rawMod) {
-      const isT = tmdbById.get(midStr)?.tmdb_checked === true;
+      const prevEntry = String(prevLastModified[midStr] || '');
+      const [prevTs, prevTag] = prevEntry.split('|');
+      const wasEnriched = prevTag === 't';
+      const isT = (tmdbById.get(midStr)?.tmdb_checked === true) || (wasEnriched && prevTs === rawMod);
       lmFull[midStr] = isT ? `${rawMod}|t` : rawMod;
     }
   }
