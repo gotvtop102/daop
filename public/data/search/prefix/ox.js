@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["ox"] = [{"id":"6218e496a2d0f024a9de4721","title":"Oxygen","origin_name":"Oxygen","slug":"oxygen","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ox/oxygen.webp","year":"2021","episode_current":"Full","_t":"oxygen oxygen oxygen"}];

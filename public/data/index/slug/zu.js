@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["zu"] = {"zulu":{"id":"64c5d0456f63d8738aee53ab","i":16420,"title":"Zulu","origin_name":"Zulu","slug":"zulu","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/zu/zulu.webp","year":2013,"type":"single","episode_current":"Full"}};

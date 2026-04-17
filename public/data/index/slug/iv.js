@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["iv"] = {"ivanna":{"id":"64e731006f63d8738afd4406","i":16738,"title":"Ivanna","origin_name":"Ivanna","slug":"ivanna","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/iv/ivanna.webp","year":2022,"type":"single","episode_current":"Full"}};

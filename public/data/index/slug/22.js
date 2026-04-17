@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["22"] = {"222":{"id":"64acd2269cf511dc3ea11bd4","i":16004,"title":"2:22","origin_name":"2:22","slug":"222","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/22/222.webp","year":"2017","type":"single","episode_current":"Full"}};

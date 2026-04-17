@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ec"] = {"echo":{"id":"659a568b7074f826ccbf6016","i":17671,"title":"Echo","origin_name":"Echo","slug":"echo","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ec/echo.webp","year":2024,"type":"series","episode_current":"Hoàn tất (5/5)"}};
