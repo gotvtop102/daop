@@ -4615,11 +4615,13 @@ async function main() {
       if (idStr && prevTmdbById && typeof prevTmdbById.get === 'function') {
         const prev = prevTmdbById.get(idStr);
         if (prev) {
+          const entry = String(prevLastModified[idStr] || '');
+          const [oldMod, tag] = entry.split('|');
+          const isEnriched = tag === 't';
+          
           // Ưu tiên 1: Skip phim đã check TMDB và timestamp không đổi.
-          // Flag tmdb_checked được lưu trong từng file JSON của phim.
-          if (prev.tmdb_checked === true && prevLastModified && typeof prevLastModified === 'object') {
+          if (isEnriched && prevLastModified && typeof prevLastModified === 'object') {
             const curMod = String(m.modified || m.updated_at || '');
-            const oldMod = String(prevLastModified[idStr] || '');
             if (oldMod && curMod && oldMod === curMod) {
               _dbg.skipped++; return false; 
             }
@@ -4628,9 +4630,8 @@ async function main() {
             _dbg.no_lm++;
           }
           // Lọt xuống đây tức là:
-          // - Chưa từng check TMDB (CORE phase mới fetch)
+          // - Chưa từng check TMDB (CORE phase mới fetch nên tag không phải 't')
           // - Hoặc timestamp bị đổi
-          // - Hoặc build cũ chưa có flag tmdb_checked
         } else {
           _dbg.no_prev++;
         }
@@ -4684,7 +4685,10 @@ async function main() {
         const midStr = m && m.id != null ? String(m.id) : '';
         if (!midStr) continue;
         const rawMod = m.modified || m.updated_at || '';
-        if (rawMod) lmFull[midStr] = rawMod;
+        if (rawMod) {
+          const isT = tmdbById.get(midStr)?.tmdb_checked === true;
+          lmFull[midStr] = isT ? `${rawMod}|t` : rawMod;
+        }
       }
       fs.writeFileSync(lastModifiedPath, JSON.stringify(lmFull, null, 2));
     } catch {}
@@ -4753,10 +4757,14 @@ async function main() {
         const prev = prevTmdbById.get(idStr);
         if (!prev) return true;
         const prevTid = prev && prev.tmdb ? prev.tmdb.id : null;
+        if (prevTid != null && String(prevTid) !== String(tid)) return true; // TID đổi -> build lại
+
         // Ưu tiên 1: Skip phim đã check TMDB và timestamp không đổi.
-        if (prev.tmdb_checked === true && prevLastModified && typeof prevLastModified === 'object') {
+        const entry = String(prevLastModified[idStr] || '');
+        const [oldMod, tag] = entry.split('|');
+        const isEnriched = tag === 't';
+        if (isEnriched && prevLastModified && typeof prevLastModified === 'object') {
           const curMod = String(m.modified || m.updated_at || '');
-          const oldMod = String(prevLastModified[idStr] || '');
           if (oldMod && curMod && oldMod === curMod) {
             return false;
           }
@@ -4875,7 +4883,10 @@ async function main() {
     const midStr = m && m.id != null ? String(m.id) : '';
     if (!midStr) continue;
     const rawMod = m.modified || m.updated_at || '';
-    if (rawMod) lmFull[midStr] = rawMod;
+    if (rawMod) {
+      const isT = tmdbById.get(midStr)?.tmdb_checked === true;
+      lmFull[midStr] = isT ? `${rawMod}|t` : rawMod;
+    }
   }
   fs.writeFileSync(lastModifiedPath, JSON.stringify(lmFull, null, 2));
   await maybeMinifyPublicAssets();
