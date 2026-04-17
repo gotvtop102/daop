@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["bh"] = {"bholaa":{"id":"64660386119a8f27d3c50e19","i":10892,"title":"Bholaa","origin_name":"Bholaa","slug":"bholaa","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/bh/bholaa.webp","year":2023,"type":"single","episode_current":"Full"}};
