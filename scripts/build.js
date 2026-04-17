@@ -45,6 +45,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
+const TMDB_PERSISTENCE_DIR = path.join(PUBLIC_DATA, 'tmdb');
 const ACTORS_DATA_DIR = path.join(PUBLIC_DATA, 'actors');
 const BATCH_SIZE = 120;
 const BATCH_MAX_BYTES_DEFAULT = 300_000;
@@ -1246,35 +1247,103 @@ async function loadPreviousBuiltTmdbById() {
   const byId = new Map();
   const manifestPath = path.join(PUBLIC_DATA, 'movies-manifest.json');
   const pubjsRoot = getPubjsOutputDir();
-  if (!(await fs.pathExists(manifestPath))) return byId;
-  let list = [];
-  try {
-    const j = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
-    list = j.movies || [];
-  } catch {
-    return byId;
-  }
-  for (const row of list) {
-    if (!row || !row.slug) continue;
-    const fp = path.join(pubjsRoot, row.shard || getSlugShard2(row.slug), `${row.slug}.json`);
-    if (!(await fs.pathExists(fp))) continue;
+
+  // 1. Phục hồi từ TMDB Persistence Shards (được lưu trong repo)
+  if (await fs.pathExists(TMDB_PERSISTENCE_DIR)) {
     try {
-      const m = JSON.parse(await fs.readFile(fp, 'utf8'));
-      const idStr = m && m.id != null ? String(m.id) : '';
-      if (!idStr) continue;
-      byId.set(idStr, {
-        id: idStr,
-        tmdb: m.tmdb,
-        imdb: m.imdb,
-        cast: m.cast,
-        director: m.director,
-        cast_meta: m.cast_meta,
-        keywords: m.keywords,
-        tmdb_checked: m.tmdb_checked === true,
-      });
+      const files = await fs.readdir(TMDB_PERSISTENCE_DIR);
+      const shardFiles = files.filter(f => f.startsWith('shard_') && f.endsWith('.json'));
+      for (const f of shardFiles) {
+        try {
+          const content = await fs.readFile(path.join(TMDB_PERSISTENCE_DIR, f), 'utf8');
+          const shardData = JSON.parse(content);
+          for (const [idStr, data] of Object.entries(shardData || {})) {
+            if (data && data.tmdb_checked) byId.set(idStr, data);
+          }
+        } catch {}
+      }
     } catch {}
   }
+
+  // 2. Phục hồi từ pubjs-output (nếu có - thường là FRESHER nhưng không bền vững trên CI)
+  if (await fs.pathExists(manifestPath) && await fs.pathExists(pubjsRoot)) {
+    try {
+      const j = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+      const list = j.movies || [];
+      for (const row of list) {
+        if (!row || !row.slug) continue;
+        const fp = path.join(pubjsRoot, row.shard || getSlugShard2(row.slug), `${row.slug}.json`);
+        if (!(await fs.pathExists(fp))) continue;
+        try {
+          const m = JSON.parse(await fs.readFile(fp, 'utf8'));
+          const idStr = m && m.id != null ? String(m.id) : '';
+          if (!idStr) continue;
+          // Ghi đè bằng dữ liệu trong pubjs nếu có
+          byId.set(idStr, {
+            id: idStr,
+            tmdb: m.tmdb,
+            imdb: m.imdb,
+            cast: m.cast,
+            director: m.director,
+            cast_meta: m.cast_meta,
+            keywords: m.keywords,
+            tmdb_checked: m.tmdb_checked === true,
+          });
+        } catch {}
+      }
+    } catch {}
+  }
+
   return byId;
+}
+
+async function writeTmdbPersistenceShards(tmdbByIdMap) {
+  if (!tmdbByIdMap || !(tmdbByIdMap instanceof Map)) return;
+  await fs.ensureDir(TMDB_PERSISTENCE_DIR);
+
+  const SHARD_COUNT = 256;
+  const buckets = Array.from({ length: SHARD_COUNT }, () => ({}));
+  
+  for (const [idStr, data] of tmdbByIdMap.entries()) {
+    if (!data || !data.tmdb_checked) continue; // Chỉ lưu phim đã enrich thành công
+    const h = hashStringDjb2(idStr);
+    const idx = Math.abs(h) % SHARD_COUNT;
+    buckets[idx][idStr] = {
+      id: idStr,
+      tmdb: data.tmdb,
+      imdb: data.imdb,
+      cast: data.cast,
+      director: data.director,
+      cast_meta: data.cast_meta,
+      keywords: data.keywords,
+      tmdb_checked: true
+    };
+  }
+
+  let writeCount = 0;
+  for (let i = 0; i < SHARD_COUNT; i++) {
+    const shardPath = path.join(TMDB_PERSISTENCE_DIR, `shard_${i}.json`);
+    const newContent = JSON.stringify(buckets[i], null, 0); // No spaces for size
+    
+    // Tối ưu: Chỉ ghi nếu nội dung thay đổi (tránh Git noise)
+    let unchanged = false;
+    if (fs.existsSync(shardPath)) {
+      const oldContent = fs.readFileSync(shardPath, 'utf8');
+      if (oldContent === newContent) unchanged = true;
+    }
+
+    if (!unchanged) {
+      if (Object.keys(buckets[i]).length === 0) {
+        if (fs.existsSync(shardPath)) await fs.remove(shardPath);
+      } else {
+        await fs.writeFile(shardPath, newContent, 'utf8');
+        writeCount++;
+      }
+    }
+  }
+  if (writeCount > 0) {
+    console.log(`   TMDB Persistence: ghi ${writeCount}/${SHARD_COUNT} shards mi.`);
+  }
 }
 
 async function loadOphimIndex() {
@@ -4620,9 +4689,11 @@ async function main() {
           const isEnriched = tag === 't';
           
           // Ưu tiên 1: Skip phim đã check TMDB và timestamp không đổi.
-          if (isEnriched && prevLastModified && typeof prevLastModified === 'object') {
-            const curMod = String(m.modified || m.updated_at || '');
-            if (oldMod && curMod && oldMod === curMod) {
+          // ĐIỀU KIỆN QUYẾT ĐỊNH: Phải có dữ liệu TMDB trong cache (prev.tmdb_checked).
+          if (isEnriched && prev.tmdb_checked && prevLastModified && typeof prevLastModified === 'object') {
+            const curMod = normalizeModifiedValue(m.modified || m.updated_at || '');
+            const oldModNorm = normalizeModifiedValue(oldMod);
+            if (oldModNorm && curMod && oldModNorm === curMod) {
               _dbg.skipped++; return false; 
             }
             _dbg.ts_mismatch++;
@@ -4671,6 +4742,8 @@ async function main() {
         tmdb_checked: m.tmdb_checked || (prev && prev.tmdb_checked) || false,
       });
     }
+
+    await writeTmdbPersistenceShards(tmdbById);
 
     console.log('Writing TMDB pubjs + ver...');
     let newLastModifiedTmdb = null;
@@ -4733,14 +4806,38 @@ async function main() {
   }
 
   console.log('1. Fetching OPhim...');
-  const ophim = await timeBuildPhase('1. OPhim (fetch list + detail)', () =>
+  const fetchedOphim = await timeBuildPhase('1. OPhim (fetch list + detail)', () =>
     fetchOPhimMovies(prevMoviesById, prevOphimIndex, cleanOldData)
   );
-  console.log('   OPhim count:', ophim.length);
+  console.log('   OPhim count:', fetchedOphim.length);
 
   console.log('2. Fetching custom (Supabase / Excel)...');
-  const custom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies());
-  console.log('   Custom count:', custom.length);
+  const fetchedCustom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies());
+  console.log('   Custom count (fetched):', fetchedCustom.length);
+
+  // GỘP THƯ VIỆN: Nếu không phải clean build, gộp phim mới fetch với phim cũ đã có trong manifest
+  let ophim = fetchedOphim || [];
+  let custom = fetchedCustom || [];
+  
+  if (!cleanOldData && prevMoviesById && prevMoviesById.size > 0) {
+    console.log('   Incremental: merging fetched movies with previous library records...');
+    const mergedOphim = new Map();
+    const mergedCustom = new Map();
+    
+    // Nạp dữ liệu cũ
+    for (const [id, m] of prevMoviesById.entries()) {
+      if (m._source === 'ophim' || !m._from_supabase) mergedOphim.set(id, m);
+      else mergedCustom.set(id, m);
+    }
+    
+    // Ghi đè bằng dữ liệu mới fetch
+    for (const m of (fetchedOphim || [])) mergedOphim.set(String(m.id), m);
+    for (const m of (fetchedCustom || [])) mergedCustom.set(String(m.id), m);
+    
+    ophim = Array.from(mergedOphim.values());
+    custom = Array.from(mergedCustom.values());
+    console.log(`   Library merged: OPhim=${ophim.length}, Custom=${custom.length} (Total: ${ophim.length + custom.length})`);
+  }
 
   // NEW: ảnh custom (metadata trong DB / batch, không ghi URL ngược Excel)
   await timeBuildPhase('2b. Repo images (custom new)', () => ensureRepoImagesForNewCustomMovies(custom));
@@ -4766,9 +4863,10 @@ async function main() {
         const entry = String(prevLastModified[idStr] || '');
         const [oldMod, tag] = entry.split('|');
         const isEnriched = tag === 't';
-        if (isEnriched && prevLastModified && typeof prevLastModified === 'object') {
-          const curMod = String(m.modified || m.updated_at || '');
-          if (oldMod && curMod && oldMod === curMod) {
+        if (isEnriched && prev.tmdb_checked && prevLastModified && typeof prevLastModified === 'object') {
+          const curMod = normalizeModifiedValue(m.modified || m.updated_at || '');
+          const oldModNorm = normalizeModifiedValue(oldMod);
+          if (oldModNorm && curMod && oldModNorm === curMod) {
             return false;
           }
         }
@@ -4804,6 +4902,8 @@ async function main() {
       tmdb_checked: m.tmdb_checked || (prev && prev.tmdb_checked) || false,
     });
   }
+
+  await writeTmdbPersistenceShards(tmdbById);
 
   const allMovies = timeBuildPhaseSync('4. merge movies (ophim + custom)', () => mergeMovies(ophim, custom));
   console.log('4. Total movies:', allMovies.length);
