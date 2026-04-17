@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["sx"] = {"sx-tape":{"id":"64c5cc33ee400b53d2c7eb59","i":16408,"title":"Sx_Tape","origin_name":"Sx_Tape","slug":"sx-tape","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/sx/sx-tape.webp","year":2013,"type":"single","episode_current":"Full"}};
