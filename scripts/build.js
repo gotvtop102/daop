@@ -4686,7 +4686,7 @@ async function main() {
         if (!midStr) continue;
         const rawMod = m.modified || m.updated_at || '';
         if (rawMod) {
-          const prevEntry = String(prevLastModified[midStr] || '');
+          const prevEntry = String((prevLastModified && prevLastModified[midStr]) || '');
           const [prevTs, prevTag] = prevEntry.split('|');
           const wasEnriched = prevTag === 't';
           const isT = (tmdbById.get(midStr)?.tmdb_checked === true) || (wasEnriched && prevTs === rawMod);
@@ -4887,7 +4887,7 @@ async function main() {
     if (!midStr) continue;
     const rawMod = m.modified || m.updated_at || '';
     if (rawMod) {
-      const prevEntry = String(prevLastModified[midStr] || '');
+      const prevEntry = String((prevLastModified && prevLastModified[midStr]) || '');
       const [prevTs, prevTag] = prevEntry.split('|');
       const wasEnriched = prevTag === 't';
       const isT = (tmdbById.get(midStr)?.tmdb_checked === true) || (wasEnriched && prevTs === rawMod);
