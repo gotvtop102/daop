@@ -123,6 +123,7 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "6279fc363a2c0c6289c12f37",
       "627d3c069e983cdfde34471c",
       "627d3bbf9e983cdfde3446b9",
       "6279fc753a2c0c6289c12f93",
@@ -134,10 +135,45 @@
       "627a2fd83a2c0c6289c1d0ee",
       "627a2fde3a2c0c6289c1d10f",
       "627a2fe13a2c0c6289c1d133",
-      "627a2fe63a2c0c6289c1d146",
-      "627a317f3a2c0c6289c1d432"
+      "627a2fe63a2c0c6289c1d146"
     ],
     "movies": [
+      {
+        "id": "6279fc363a2c0c6289c12f37",
+        "title": "Hồ Sơ Trinh Sát (Phần 1)",
+        "origin_name": "Detective Investigation Files (Season 1)",
+        "slug": "ho-so-trinh-sat-phan-1",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/ho-so-trinh-sat-phan-1.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/ho-so-trinh-sat-phan-1.webp",
+        "year": "1995",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          }
+        ],
+        "country": [
+          {
+            "name": "Hồng Kông",
+            "slug": "hong-kong"
+          }
+        ],
+        "lang_key": "Lồng Tiếng",
+        "episode_current": "Hoàn Tất (20/20)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-13T07:31:02.000Z"
+      },
       {
         "id": "627d3c069e983cdfde34471c",
         "title": "Maverix",
@@ -577,38 +613,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-13T03:21:19.000Z"
-      },
-      {
-        "id": "627a317f3a2c0c6289c1d432",
-        "title": "Chốn tốt đẹp (Phần 1)",
-        "origin_name": "The Good Place (Season 1)",
-        "slug": "chon-tot-dep-phan-1",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chon-tot-dep-phan-1.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chon-tot-dep-phan-1.webp",
-        "year": "2016",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (13/13)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T03:20:43.000Z"
       }
     ]
   },
@@ -1963,6 +1967,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "6279fc363a2c0c6289c12f37",
       "6279fc753a2c0c6289c12f93",
       "6279fc9b3a2c0c6289c12fdb",
       "627bfdd9db9df06c65956f3a",
@@ -1970,6 +1975,42 @@
       "627ab2f2db9df06c65947c23"
     ],
     "movies": [
+      {
+        "id": "6279fc363a2c0c6289c12f37",
+        "title": "Hồ Sơ Trinh Sát (Phần 1)",
+        "origin_name": "Detective Investigation Files (Season 1)",
+        "slug": "ho-so-trinh-sat-phan-1",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/ho-so-trinh-sat-phan-1.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/ho-so-trinh-sat-phan-1.webp",
+        "year": "1995",
+        "type": "series",
+        "genre": [
+          {
+            "name": "Tâm Lý",
+            "slug": "tam-ly"
+          },
+          {
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          }
+        ],
+        "country": [
+          {
+            "name": "Hồng Kông",
+            "slug": "hong-kong"
+          }
+        ],
+        "lang_key": "Lồng Tiếng",
+        "episode_current": "Hoàn Tất (20/20)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-13T07:31:02.000Z"
+      },
       {
         "id": "6279fc753a2c0c6289c12f93",
         "title": "Hồ Sơ Trinh Sát (Phần 2)",

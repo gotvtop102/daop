@@ -1,6 +1,6 @@
 {
   "buildVersion": {
-    "builtAt": "2026-04-17T09:58:29.463Z"
+    "builtAt": "2026-04-17T11:26:17.828Z"
   },
   "siteSettings": {
     "site_name": "GoTV",
@@ -955,6 +955,7 @@
       "featured_count_sm": 1,
       "featured_count_xs": 1,
       "ids": [
+        "6279fc363a2c0c6289c12f37",
         "627d3c069e983cdfde34471c",
         "627d3bbf9e983cdfde3446b9",
         "6279fc753a2c0c6289c12f93",
@@ -966,10 +967,45 @@
         "627a2fd83a2c0c6289c1d0ee",
         "627a2fde3a2c0c6289c1d10f",
         "627a2fe13a2c0c6289c1d133",
-        "627a2fe63a2c0c6289c1d146",
-        "627a317f3a2c0c6289c1d432"
+        "627a2fe63a2c0c6289c1d146"
       ],
       "movies": [
+        {
+          "id": "6279fc363a2c0c6289c12f37",
+          "title": "Hồ Sơ Trinh Sát (Phần 1)",
+          "origin_name": "Detective Investigation Files (Season 1)",
+          "slug": "ho-so-trinh-sat-phan-1",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/ho-so-trinh-sat-phan-1.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/ho-so-trinh-sat-phan-1.webp",
+          "year": "1995",
+          "type": "series",
+          "genre": [
+            {
+              "name": "Tâm Lý",
+              "slug": "tam-ly"
+            },
+            {
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            }
+          ],
+          "country": [
+            {
+              "name": "Hồng Kông",
+              "slug": "hong-kong"
+            }
+          ],
+          "lang_key": "Lồng Tiếng",
+          "episode_current": "Hoàn Tất (20/20)",
+          "quality": "HD",
+          "status": "completed",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2022-05-13T07:31:02.000Z"
+        },
         {
           "id": "627d3c069e983cdfde34471c",
           "title": "Maverix",
@@ -1409,38 +1445,6 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2022-05-13T03:21:19.000Z"
-        },
-        {
-          "id": "627a317f3a2c0c6289c1d432",
-          "title": "Chốn tốt đẹp (Phần 1)",
-          "origin_name": "The Good Place (Season 1)",
-          "slug": "chon-tot-dep-phan-1",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chon-tot-dep-phan-1.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chon-tot-dep-phan-1.webp",
-          "year": "2016",
-          "type": "series",
-          "genre": [
-            {
-              "name": "Hài Hước",
-              "slug": "hai-huoc"
-            }
-          ],
-          "country": [
-            {
-              "name": "Âu Mỹ",
-              "slug": "au-my"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Hoàn Tất (13/13)",
-          "quality": "HD",
-          "status": "completed",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2022-05-13T03:20:43.000Z"
         }
       ]
     },
@@ -2795,6 +2799,7 @@
       "featured_count_sm": 0,
       "featured_count_xs": 0,
       "ids": [
+        "6279fc363a2c0c6289c12f37",
         "6279fc753a2c0c6289c12f93",
         "6279fc9b3a2c0c6289c12fdb",
         "627bfdd9db9df06c65956f3a",
@@ -2802,6 +2807,42 @@
         "627ab2f2db9df06c65947c23"
       ],
       "movies": [
+        {
+          "id": "6279fc363a2c0c6289c12f37",
+          "title": "Hồ Sơ Trinh Sát (Phần 1)",
+          "origin_name": "Detective Investigation Files (Season 1)",
+          "slug": "ho-so-trinh-sat-phan-1",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ho/ho-so-trinh-sat-phan-1.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/ho-so-trinh-sat-phan-1.webp",
+          "year": "1995",
+          "type": "series",
+          "genre": [
+            {
+              "name": "Tâm Lý",
+              "slug": "tam-ly"
+            },
+            {
+              "name": "Hình Sự",
+              "slug": "hinh-su"
+            }
+          ],
+          "country": [
+            {
+              "name": "Hồng Kông",
+              "slug": "hong-kong"
+            }
+          ],
+          "lang_key": "Lồng Tiếng",
+          "episode_current": "Hoàn Tất (20/20)",
+          "quality": "HD",
+          "status": "completed",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2022-05-13T07:31:02.000Z"
+        },
         {
           "id": "6279fc753a2c0c6289c12f93",
           "title": "Hồ Sơ Trinh Sát (Phần 2)",
@@ -7367,6 +7408,20 @@
   ],
   "sliderAuto": [
     {
+      "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ho/ho-so-trinh-sat-phan-1.webp",
+      "link_url": "/phim/ho-so-trinh-sat-phan-1.html",
+      "title": "Hồ Sơ Trinh Sát (Phần 1)",
+      "year": "1995",
+      "country": "Hồng Kông",
+      "episode_current": "Hoàn Tất (20/20)",
+      "genres": [
+        "Tâm Lý",
+        "Hình Sự"
+      ],
+      "sort_order": 0,
+      "enabled": true
+    },
+    {
       "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ma/maverix.webp",
       "link_url": "/phim/maverix.html",
       "title": "Maverix",
@@ -7376,7 +7431,7 @@
       "genres": [
         "Chính kịch"
       ],
-      "sort_order": 0,
+      "sort_order": 1,
       "enabled": true
     },
     {
@@ -7389,7 +7444,7 @@
       "genres": [
         "Chính kịch"
       ],
-      "sort_order": 1,
+      "sort_order": 2,
       "enabled": true
     },
     {
@@ -7402,7 +7457,7 @@
       "genres": [
         "Phim 18+"
       ],
-      "sort_order": 2,
+      "sort_order": 3,
       "enabled": true
     },
     {
@@ -7415,7 +7470,7 @@
       "genres": [
         "Phim 18+"
       ],
-      "sort_order": 3,
+      "sort_order": 4,
       "enabled": true
     },
     {
@@ -7430,7 +7485,7 @@
         "Tâm Lý",
         "Hình Sự"
       ],
-      "sort_order": 4,
+      "sort_order": 5,
       "enabled": true
     },
     {
@@ -7444,7 +7499,7 @@
         "Hành Động",
         "Chiến Tranh"
       ],
-      "sort_order": 5,
+      "sort_order": 6,
       "enabled": true
     },
     {
@@ -7457,7 +7512,7 @@
       "genres": [
         "Tâm Lý"
       ],
-      "sort_order": 6,
+      "sort_order": 7,
       "enabled": true
     },
     {
@@ -7473,7 +7528,7 @@
         "Kinh Dị",
         "Bí ẩn"
       ],
-      "sort_order": 7,
+      "sort_order": 8,
       "enabled": true
     },
     {
@@ -7489,7 +7544,7 @@
         "Kinh Dị",
         "Bí ẩn"
       ],
-      "sort_order": 8,
+      "sort_order": 9,
       "enabled": true
     },
     {
@@ -7503,7 +7558,7 @@
         "Hành Động",
         "Kinh Dị"
       ],
-      "sort_order": 9,
+      "sort_order": 10,
       "enabled": true
     },
     {
@@ -7513,20 +7568,6 @@
       "year": "2018",
       "country": "Âu Mỹ",
       "episode_current": "Hoàn Tất (8/8)",
-      "genres": [
-        "Hành Động",
-        "Kinh Dị"
-      ],
-      "sort_order": 10,
-      "enabled": true
-    },
-    {
-      "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ca/castlevania-phan-3.webp",
-      "link_url": "/phim/castlevania-phan-3.html",
-      "title": "Castlevania (Phần 3)",
-      "year": "2020",
-      "country": "Âu Mỹ",
-      "episode_current": "Hoàn Tất (10/10)",
       "genres": [
         "Hành Động",
         "Kinh Dị"
