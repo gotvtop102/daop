@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["tc"] = {"tc-2000":{"id":"63bd8418c9122e59be587062","i":6321,"title":"TC 2000","origin_name":"TC 2000","slug":"tc-2000","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tc/tc-2000.webp","year":1993,"type":"single","episode_current":"Full"}};

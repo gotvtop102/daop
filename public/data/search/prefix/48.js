@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["48"] = [{"id":"636cdac6dcaeab7814b86509","title":"48 Hrs.","origin_name":"48 Hrs.","slug":"48-hrs","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/48/48-hrs.webp","year":1982,"episode_current":"Full","_t":"48 hrs 48 hrs 48 hrs"}];
