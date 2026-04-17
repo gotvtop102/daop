@@ -123,6 +123,8 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "627d3c069e983cdfde34471c",
+      "627d3bbf9e983cdfde3446b9",
       "6279fc753a2c0c6289c12f93",
       "6279fc9b3a2c0c6289c12fdb",
       "627a2bba3a2c0c6289c1b920",
@@ -133,11 +135,77 @@
       "627a2fde3a2c0c6289c1d10f",
       "627a2fe13a2c0c6289c1d133",
       "627a2fe63a2c0c6289c1d146",
-      "627a317f3a2c0c6289c1d432",
-      "627a31ae3a2c0c6289c1d515",
-      "627a31d33a2c0c6289c1d561"
+      "627a317f3a2c0c6289c1d432"
     ],
     "movies": [
+      {
+        "id": "627d3c069e983cdfde34471c",
+        "title": "Maverix",
+        "origin_name": "Maverix",
+        "slug": "maverix",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ma/maverix.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ma/maverix.webp",
+        "year": 2022,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62135c8f1f1609c9d9346bb1",
+            "name": "Úc",
+            "slug": "uc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (10/10)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-13T07:09:21.000Z"
+      },
+      {
+        "id": "627d3bbf9e983cdfde3446b9",
+        "title": "Sắc đẹp tàn khốc",
+        "origin_name": "Savage Beauty",
+        "slug": "sac-dep-tan-khoc",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/sa/sac-dep-tan-khoc.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/sa/sac-dep-tan-khoc.webp",
+        "year": 2022,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "621f64bca666e8a57f65c51a",
+            "name": "Nam Phi",
+            "slug": "nam-phi"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (6/6)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-13T07:08:55.000Z"
+      },
       {
         "id": "6279fc753a2c0c6289c12f93",
         "title": "Hồ Sơ Trinh Sát (Phần 2)",
@@ -545,70 +613,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-13T03:20:43.000Z"
-      },
-      {
-        "id": "627a31ae3a2c0c6289c1d515",
-        "title": "Chốn tốt đẹp (Phần 2)",
-        "origin_name": "The Good Place (Season 2)",
-        "slug": "chon-tot-dep-phan-2",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chon-tot-dep-phan-2.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chon-tot-dep-phan-2.webp",
-        "year": "2017",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (12/12)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T03:20:11.000Z"
-      },
-      {
-        "id": "627a31d33a2c0c6289c1d561",
-        "title": "Chốn tốt đẹp (Phần 3)",
-        "origin_name": "The Good Place (Season 3)",
-        "slug": "chon-tot-dep-phan-3",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chon-tot-dep-phan-3.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chon-tot-dep-phan-3.webp",
-        "year": "2018",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (12/12)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T03:19:27.000Z"
       }
     ]
   },
@@ -636,6 +640,7 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "627dea129e983cdfde349c94",
       "627de9579e983cdfde349c09",
       "627d0b6e9e983cdfde3424ac",
       "627a34d63a2c0c6289c1d8f8",
@@ -646,10 +651,43 @@
       "627a94cf3a2c0c6289c2b00e",
       "627a94fa3a2c0c6289c2b03b",
       "627a95163a2c0c6289c2b058",
-      "627a95793a2c0c6289c2b0fa",
-      "627a95913a2c0c6289c2b11c"
+      "627a95793a2c0c6289c2b0fa"
     ],
     "movies": [
+      {
+        "id": "627dea129e983cdfde349c94",
+        "title": "Sự cám dỗ của cô em gái nhỏ",
+        "origin_name": "Temptation Of The Little Sister",
+        "slug": "su-cam-do-cua-co-em-gai-nho",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/su/su-cam-do-cua-co-em-gai-nho.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/su/su-cam-do-cua-co-em-gai-nho.webp",
+        "year": 2021,
+        "type": "single",
+        "genre": [
+          {
+            "id": "6242b89cc78eb57bbfe29f91",
+            "name": "Phim 18+",
+            "slug": "phim-18"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2022-05-13T05:34:01.000Z"
+      },
       {
         "id": "627de9579e983cdfde349c09",
         "title": "Người Mẹ Gợi Cảm",
@@ -1097,46 +1135,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-13T03:10:03.000Z"
-      },
-      {
-        "id": "627a95913a2c0c6289c2b11c",
-        "title": "Đặc Khu B13: Tối Hậu Thư",
-        "origin_name": "Banlieue 13: Ultimatum - District 13: Ultimatum",
-        "slug": "dac-khu-b13-toi-hau-thu",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/da/dac-khu-b13-toi-hau-thu.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/da/dac-khu-b13-toi-hau-thu.webp",
-        "year": "2009",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          }
-        ],
-        "country": [
-          {
-            "name": "Pháp",
-            "slug": "phap"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Full",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T03:09:21.000Z"
       }
     ]
   },
@@ -2880,6 +2878,9 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "627d3c069e983cdfde34471c",
+      "627d3bbf9e983cdfde3446b9",
+      "627dea129e983cdfde349c94",
       "627de9579e983cdfde349c09",
       "627d0b6e9e983cdfde3424ac",
       "627a2bba3a2c0c6289c1b920",
@@ -2892,12 +2893,111 @@
       "627a2fd13a2c0c6289c1d0e2",
       "627a2fd83a2c0c6289c1d0ee",
       "627a2fde3a2c0c6289c1d10f",
-      "627a2fe13a2c0c6289c1d133",
-      "627a2fe63a2c0c6289c1d146",
-      "627a317f3a2c0c6289c1d432",
-      "627a31ae3a2c0c6289c1d515"
+      "627a2fe13a2c0c6289c1d133"
     ],
     "movies": [
+      {
+        "id": "627d3c069e983cdfde34471c",
+        "title": "Maverix",
+        "origin_name": "Maverix",
+        "slug": "maverix",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ma/maverix.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ma/maverix.webp",
+        "year": 2022,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "62135c8f1f1609c9d9346bb1",
+            "name": "Úc",
+            "slug": "uc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (10/10)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-13T07:09:21.000Z"
+      },
+      {
+        "id": "627d3bbf9e983cdfde3446b9",
+        "title": "Sắc đẹp tàn khốc",
+        "origin_name": "Savage Beauty",
+        "slug": "sac-dep-tan-khoc",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/sa/sac-dep-tan-khoc.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/sa/sac-dep-tan-khoc.webp",
+        "year": 2022,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "621f64bca666e8a57f65c51a",
+            "name": "Nam Phi",
+            "slug": "nam-phi"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Hoàn Tất (6/6)",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2022-05-13T07:08:55.000Z"
+      },
+      {
+        "id": "627dea129e983cdfde349c94",
+        "title": "Sự cám dỗ của cô em gái nhỏ",
+        "origin_name": "Temptation Of The Little Sister",
+        "slug": "su-cam-do-cua-co-em-gai-nho",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/su/su-cam-do-cua-co-em-gai-nho.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/su/su-cam-do-cua-co-em-gai-nho.webp",
+        "year": 2021,
+        "type": "single",
+        "genre": [
+          {
+            "id": "6242b89cc78eb57bbfe29f91",
+            "name": "Phim 18+",
+            "slug": "phim-18"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2022-05-13T05:34:01.000Z"
+      },
       {
         "id": "627de9579e983cdfde349c09",
         "title": "Người Mẹ Gợi Cảm",
@@ -3377,106 +3477,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-13T03:21:49.000Z"
-      },
-      {
-        "id": "627a2fe63a2c0c6289c1d146",
-        "title": "Nhà Trọ Hoàn Hảo (Phần 5)",
-        "origin_name": "Chesapeake Shores (Season 5)",
-        "slug": "nha-tro-hoan-hao-phan-5",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/nh/nha-tro-hoan-hao-phan-5.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/nh/nha-tro-hoan-hao-phan-5.webp",
-        "year": "2021",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Gia Đình",
-            "slug": "gia-dinh"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (10/10)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T03:21:19.000Z"
-      },
-      {
-        "id": "627a317f3a2c0c6289c1d432",
-        "title": "Chốn tốt đẹp (Phần 1)",
-        "origin_name": "The Good Place (Season 1)",
-        "slug": "chon-tot-dep-phan-1",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chon-tot-dep-phan-1.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chon-tot-dep-phan-1.webp",
-        "year": "2016",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (13/13)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T03:20:43.000Z"
-      },
-      {
-        "id": "627a31ae3a2c0c6289c1d515",
-        "title": "Chốn tốt đẹp (Phần 2)",
-        "origin_name": "The Good Place (Season 2)",
-        "slug": "chon-tot-dep-phan-2",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ch/chon-tot-dep-phan-2.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ch/chon-tot-dep-phan-2.webp",
-        "year": "2017",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Hoàn Tất (12/12)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-13T03:20:11.000Z"
       }
     ]
   },
@@ -4220,6 +4220,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "627dea129e983cdfde349c94",
       "627de9579e983cdfde349c09",
       "627a967c3a2c0c6289c2b24d",
       "627a976d3a2c0c6289c2b3c4",
@@ -4234,10 +4235,43 @@
       "627bfe50db9df06c65956fb8",
       "627bfc14db9df06c65956d78",
       "627bfba0db9df06c65956d27",
-      "627bfb1cdb9df06c65956cba",
-      "627bf8b4db9df06c65956a90"
+      "627bfb1cdb9df06c65956cba"
     ],
     "movies": [
+      {
+        "id": "627dea129e983cdfde349c94",
+        "title": "Sự cám dỗ của cô em gái nhỏ",
+        "origin_name": "Temptation Of The Little Sister",
+        "slug": "su-cam-do-cua-co-em-gai-nho",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/su/su-cam-do-cua-co-em-gai-nho.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/su/su-cam-do-cua-co-em-gai-nho.webp",
+        "year": 2021,
+        "type": "single",
+        "genre": [
+          {
+            "id": "6242b89cc78eb57bbfe29f91",
+            "name": "Phim 18+",
+            "slug": "phim-18"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Full",
+        "quality": "HD",
+        "status": "completed",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": true,
+        "modified": "2022-05-13T05:34:01.000Z"
+      },
       {
         "id": "627de9579e983cdfde349c09",
         "title": "Người Mẹ Gợi Cảm",
@@ -4785,46 +4819,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2022-05-11T18:06:20.000Z"
-      },
-      {
-        "id": "627bf8b4db9df06c65956a90",
-        "title": "Duyên Phận Đáng Sợ",
-        "origin_name": "Lovely Horribly",
-        "slug": "duyen-phan-dang-so",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/du/duyen-phan-dang-so.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/du/duyen-phan-dang-so.webp",
-        "year": "2018",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Tình Cảm",
-            "slug": "tinh-cam"
-          },
-          {
-            "name": "Tâm Lý",
-            "slug": "tam-ly"
-          },
-          {
-            "name": "Kinh Dị",
-            "slug": "kinh-di"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Thuyết Minh",
-        "episode_current": "Hoàn Tất (32/32)",
-        "quality": "HD",
-        "status": "completed",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2022-05-11T17:56:04.000Z"
       }
     ]
   },
