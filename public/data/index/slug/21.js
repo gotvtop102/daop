@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["21"] = {"21-gram":{"id":"630fb6760048e70b82ac8d35","i":6398,"title":"21 Gram","origin_name":"21 Grams","slug":"21-gram","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/21/21-gram.webp","year":2003,"type":"single","episode_current":"Full"}};

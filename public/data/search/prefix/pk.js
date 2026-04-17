@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.searchPrefix = window.DAOP.searchPrefix || {};window.DAOP.searchPrefix["pk"] = [{"id":"62ae0b387a956fb5db17955d","title":"Ngây Thơ","origin_name":"PK","slug":"ngay-tho","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ng/ngay-tho.webp","year":2014,"episode_current":"Full","_t":"ngay tho pk ngay tho"}];
