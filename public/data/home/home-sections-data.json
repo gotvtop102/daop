@@ -123,6 +123,7 @@
     "featured_count_sm": 1,
     "featured_count_xs": 1,
     "ids": [
+      "69e3a4edf616ee3807d9403c",
       "69e211ba748ca16f085e500b",
       "69d5d574748ca16f085b0087",
       "69cb7a5e458948c679afe323",
@@ -134,10 +135,43 @@
       "69abb1c2f063d23bbbd03d3e",
       "69d09f12f937c3b5a11d24b6",
       "69d33ec932adc86a1e8728b0",
-      "69d8779e6d4243e068ecd2e4",
-      "69db44ff6d4243e068ed8c79"
+      "69d8779e6d4243e068ecd2e4"
     ],
     "movies": [
+      {
+        "id": "69e3a4edf616ee3807d9403c",
+        "title": "Cuộc Chiến Trong Chúng Ta",
+        "origin_name": "We Are All Trying Here",
+        "slug": "cuoc-chien-trong-chung-ta",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cuoc-chien-trong-chung-ta.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cuoc-chien-trong-chung-ta.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-04-18T22:36:13.000Z"
+      },
       {
         "id": "69e211ba748ca16f085e500b",
         "title": "Phạm Vi 800m",
@@ -472,7 +506,7 @@
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Tập 11",
+        "episode_current": "Tập 12",
         "quality": "HD",
         "status": "ongoing",
         "showtimes": "",
@@ -577,38 +611,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-04-18T14:15:43.000Z"
-      },
-      {
-        "id": "69db44ff6d4243e068ed8c79",
-        "title": "Cung Nữ Này Không Mấy Bình Tĩnh",
-        "origin_name": "This Palace Maid Isn't Very Calm",
-        "slug": "cung-nu-nay-khong-may-binh-tinh",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cung-nu-nay-khong-may-binh-tinh.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cung-nu-nay-khong-may-binh-tinh.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 15",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-04-18T14:15:27.000Z"
       }
     ]
   },
@@ -636,6 +638,7 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69e39d6893c48ff6bfead2a8",
       "69e338dc377c8aaad542aceb",
       "69b381364da3bf6eb341317d",
       "69e0687e4a74b3cede0cc7f2",
@@ -646,10 +649,48 @@
       "69e06654da7d8940685c5109",
       "69e065f416bc1b4174f2f97a",
       "69e06575377c8aaad54172f8",
-      "69df3f92006591e10814c7ef",
-      "69e044f64a74b3cede0cba48"
+      "69df3f92006591e10814c7ef"
     ],
     "movies": [
+      {
+        "id": "69e39d6893c48ff6bfead2a8",
+        "title": "180",
+        "origin_name": "180",
+        "slug": "180",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/18/180.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/18/180.webp",
+        "year": 2026,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "621f64bca666e8a57f65c51a",
+            "name": "Nam Phi",
+            "slug": "nam-phi"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-04-18T22:04:08.000Z"
+      },
       {
         "id": "69e338dc377c8aaad542aceb",
         "title": "Bạn Cùng Phòng",
@@ -1041,42 +1082,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-04-16T11:26:38.000Z"
-      },
-      {
-        "id": "69e044f64a74b3cede0cba48",
-        "title": "Mrithyunjay",
-        "origin_name": "Mrithyunjay",
-        "slug": "mrithyunjay",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mr/mrithyunjay.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mr/mrithyunjay.webp",
-        "year": "2026",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          }
-        ],
-        "country": [
-          {
-            "name": "Ấn Độ",
-            "slug": "an-do"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-04-16T09:10:02.000Z"
       }
     ]
   },
@@ -1104,6 +1109,8 @@
     "grid_columns_sm": 3,
     "grid_columns_xs": 2,
     "ids": [
+      "69e3a4edf616ee3807d9403c",
+      "69e39d6893c48ff6bfead2a8",
       "69e211ba748ca16f085e500b",
       "69d5d574748ca16f085b0087",
       "69e3398b31aa2678f8c99a1b",
@@ -1113,11 +1120,82 @@
       "69b4da44b06c99c722fca67d",
       "69b381364da3bf6eb341317d",
       "69df0f79e53e6a47ad5a61d4",
-      "69e1c722f616ee3807d82950",
-      "69c75361eea244e3e8b93ab3",
-      "69abb1c2f063d23bbbd03d3e"
+      "69e1c722f616ee3807d82950"
     ],
     "movies": [
+      {
+        "id": "69e3a4edf616ee3807d9403c",
+        "title": "Cuộc Chiến Trong Chúng Ta",
+        "origin_name": "We Are All Trying Here",
+        "slug": "cuoc-chien-trong-chung-ta",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cuoc-chien-trong-chung-ta.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cuoc-chien-trong-chung-ta.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-04-18T22:36:13.000Z"
+      },
+      {
+        "id": "69e39d6893c48ff6bfead2a8",
+        "title": "180",
+        "origin_name": "180",
+        "slug": "180",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/18/180.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/18/180.webp",
+        "year": 2026,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "621f64bca666e8a57f65c51a",
+            "name": "Nam Phi",
+            "slug": "nam-phi"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-04-18T22:04:08.000Z"
+      },
       {
         "id": "69e211ba748ca16f085e500b",
         "title": "Phạm Vi 800m",
@@ -1497,90 +1575,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-04-18T14:39:54.000Z"
-      },
-      {
-        "id": "69c75361eea244e3e8b93ab3",
-        "title": "Love Upon A Time: Duyên Kiếp Bên Người",
-        "origin_name": "Love Upon a Time",
-        "slug": "love-upon-a-time-duyen-kiep-ben-nguoi",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/lo/love-upon-a-time-duyen-kiep-ben-nguoi.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/lo/love-upon-a-time-duyen-kiep-ben-nguoi.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Thái Lan",
-            "slug": "thai-lan"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 4",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-04-18T14:38:18.000Z"
-      },
-      {
-        "id": "69abb1c2f063d23bbbd03d3e",
-        "title": "Luật Sư Bóng Ma",
-        "origin_name": "Phantom Lawyer",
-        "slug": "luat-su-bong-ma",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/lu/luat-su-bong-ma.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/lu/luat-su-bong-ma.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          },
-          {
-            "name": "Bí ẩn",
-            "slug": "bi-an"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 11",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-04-18T14:38:02.000Z"
       }
     ]
   },
@@ -2017,7 +2011,7 @@
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Tập 11",
+        "episode_current": "Tập 12",
         "quality": "HD",
         "status": "ongoing",
         "showtimes": "",
@@ -2197,6 +2191,8 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69e3a4edf616ee3807d9403c",
+      "69e39d6893c48ff6bfead2a8",
       "69e06d4331aa2678f8c86718",
       "69e069f34a74b3cede0cc89a",
       "69e069b37e5a0662d4df484b",
@@ -2206,11 +2202,82 @@
       "69e0675593c48ff6bfe95a3c",
       "69e06732db41bcecb8dfd2d4",
       "69e06654da7d8940685c5109",
-      "69e065f416bc1b4174f2f97a",
-      "69e06575377c8aaad54172f8",
-      "69e044f64a74b3cede0cba48"
+      "69e065f416bc1b4174f2f97a"
     ],
     "movies": [
+      {
+        "id": "69e3a4edf616ee3807d9403c",
+        "title": "Cuộc Chiến Trong Chúng Ta",
+        "origin_name": "We Are All Trying Here",
+        "slug": "cuoc-chien-trong-chung-ta",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cuoc-chien-trong-chung-ta.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cuoc-chien-trong-chung-ta.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-04-18T22:36:13.000Z"
+      },
+      {
+        "id": "69e39d6893c48ff6bfead2a8",
+        "title": "180",
+        "origin_name": "180",
+        "slug": "180",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/18/180.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/18/180.webp",
+        "year": 2026,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "621f64bca666e8a57f65c51a",
+            "name": "Nam Phi",
+            "slug": "nam-phi"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-04-18T22:04:08.000Z"
+      },
       {
         "id": "69e06d4331aa2678f8c86718",
         "title": "Ký Ức Không Gian",
@@ -2570,78 +2637,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-04-16T11:31:29.000Z"
-      },
-      {
-        "id": "69e06575377c8aaad54172f8",
-        "title": "Cú Sốc",
-        "origin_name": "The Drama",
-        "slug": "cu-soc",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cu-soc.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cu-soc.webp",
-        "year": "2026",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Âu Mỹ",
-            "slug": "au-my"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-04-16T11:30:05.000Z"
-      },
-      {
-        "id": "69e044f64a74b3cede0cba48",
-        "title": "Mrithyunjay",
-        "origin_name": "Mrithyunjay",
-        "slug": "mrithyunjay",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mr/mrithyunjay.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mr/mrithyunjay.webp",
-        "year": "2026",
-        "type": "single",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Hình Sự",
-            "slug": "hinh-su"
-          }
-        ],
-        "country": [
-          {
-            "name": "Ấn Độ",
-            "slug": "an-do"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Trailer",
-        "quality": "HD",
-        "status": "trailer",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-04-16T09:10:02.000Z"
       }
     ]
   },
@@ -5651,6 +5646,8 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69e3a4edf616ee3807d9403c",
+      "69e39d6893c48ff6bfead2a8",
       "69e211ba748ca16f085e500b",
       "69d5d574748ca16f085b0087",
       "69cb7a5e458948c679afe323",
@@ -5664,11 +5661,82 @@
       "69e1c722f616ee3807d82950",
       "69c75361eea244e3e8b93ab3",
       "69abb1c2f063d23bbbd03d3e",
-      "69d09f12f937c3b5a11d24b6",
-      "69d5e11f7e5a0662d4dc7c5f",
-      "69800ed8da6ce23e8e97b912"
+      "69d09f12f937c3b5a11d24b6"
     ],
     "movies": [
+      {
+        "id": "69e3a4edf616ee3807d9403c",
+        "title": "Cuộc Chiến Trong Chúng Ta",
+        "origin_name": "We Are All Trying Here",
+        "slug": "cuoc-chien-trong-chung-ta",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cuoc-chien-trong-chung-ta.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cuoc-chien-trong-chung-ta.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-04-18T22:36:13.000Z"
+      },
+      {
+        "id": "69e39d6893c48ff6bfead2a8",
+        "title": "180",
+        "origin_name": "180",
+        "slug": "180",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/18/180.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/18/180.webp",
+        "year": 2026,
+        "type": "single",
+        "genre": [
+          {
+            "id": "620a2249e0fc277084dfd2e5",
+            "name": "Hình Sự",
+            "slug": "hinh-su"
+          },
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "621f64bca666e8a57f65c51a",
+            "name": "Nam Phi",
+            "slug": "nam-phi"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-04-18T22:04:08.000Z"
+      },
       {
         "id": "69e211ba748ca16f085e500b",
         "title": "Phạm Vi 800m",
@@ -6163,7 +6231,7 @@
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Tập 11",
+        "episode_current": "Tập 12",
         "quality": "HD",
         "status": "ongoing",
         "showtimes": "",
@@ -6204,102 +6272,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-04-18T14:36:04.000Z"
-      },
-      {
-        "id": "69d5e11f7e5a0662d4dc7c5f",
-        "title": "Lúc Đó Tôi Đã Chuyển Sinh Thành Slime (Phần 4)",
-        "origin_name": "That Time I Got Reincarnated as a Slime (Season 4)",
-        "slug": "luc-do-toi-da-chuyen-sinh-thanh-slime-phan-4",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/lu/luc-do-toi-da-chuyen-sinh-thanh-slime-phan-4.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/lu/luc-do-toi-da-chuyen-sinh-thanh-slime-phan-4.webp",
-        "year": "2026",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          }
-        ],
-        "country": [
-          {
-            "name": "Nhật Bản",
-            "slug": "nhat-ban"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 3",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-04-18T14:30:39.000Z"
-      },
-      {
-        "id": "69800ed8da6ce23e8e97b912",
-        "title": "Trạch Thiên Ký",
-        "origin_name": "Fighter of the Destiny 3D",
-        "slug": "trach-thien-ky-2026",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tr/trach-thien-ky-2026.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/tr/trach-thien-ky-2026.webp",
-        "year": "2026",
-        "type": "hoathinh",
-        "genre": [
-          {
-            "name": "Hành Động",
-            "slug": "hanh-dong"
-          },
-          {
-            "name": "Viễn Tưởng",
-            "slug": "vien-tuong"
-          },
-          {
-            "name": "Phiêu Lưu",
-            "slug": "phieu-luu"
-          },
-          {
-            "name": "Khoa Học",
-            "slug": "khoa-hoc"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Trung Quốc",
-            "slug": "trung-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 14",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-04-18T14:28:33.000Z"
       }
     ]
   },
@@ -6859,7 +6831,7 @@
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Tập 12",
+        "episode_current": "Tập 14",
         "quality": "HD",
         "status": "ongoing",
         "showtimes": "",
@@ -6979,6 +6951,7 @@
     "featured_count_sm": 0,
     "featured_count_xs": 0,
     "ids": [
+      "69e3a4edf616ee3807d9403c",
       "69e3398b31aa2678f8c99a1b",
       "69abb1c2f063d23bbbd03d3e",
       "69e2471341d6bb2c315422e6",
@@ -6993,10 +6966,43 @@
       "69b926dbe263b2a9462406e4",
       "69b8cf9ef65d22d617b5c6f0",
       "699c7307f063d23bbbcb694f",
-      "69b7bd3a0a0114095c81ade4",
-      "69bd063ef063d23bbbd48d45"
+      "69b7bd3a0a0114095c81ade4"
     ],
     "movies": [
+      {
+        "id": "69e3a4edf616ee3807d9403c",
+        "title": "Cuộc Chiến Trong Chúng Ta",
+        "origin_name": "We Are All Trying Here",
+        "slug": "cuoc-chien-trong-chung-ta",
+        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cuoc-chien-trong-chung-ta.webp",
+        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cuoc-chien-trong-chung-ta.webp",
+        "year": 2026,
+        "type": "series",
+        "genre": [
+          {
+            "id": "620f3d2b91fa4af90ab697fe",
+            "name": "Chính kịch",
+            "slug": "chinh-kich"
+          }
+        ],
+        "country": [
+          {
+            "id": "620a2300e0fc277084dfd6d2",
+            "name": "Hàn Quốc",
+            "slug": "han-quoc"
+          }
+        ],
+        "lang_key": "Vietsub",
+        "episode_current": "Trailer",
+        "quality": "HD",
+        "status": "trailer",
+        "showtimes": "",
+        "is_4k": false,
+        "is_exclusive": false,
+        "chieurap": false,
+        "sub_docquyen": false,
+        "modified": "2026-04-18T22:36:13.000Z"
+      },
       {
         "id": "69e3398b31aa2678f8c99a1b",
         "title": "Hương Vị Của Biển (Phần 3)",
@@ -7067,7 +7073,7 @@
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Tập 11",
+        "episode_current": "Tập 12",
         "quality": "HD",
         "status": "ongoing",
         "showtimes": "",
@@ -7147,7 +7153,7 @@
           }
         ],
         "lang_key": "Vietsub",
-        "episode_current": "Tập 3",
+        "episode_current": "Tập 4",
         "quality": "HD",
         "status": "ongoing",
         "showtimes": "",
@@ -7536,42 +7542,6 @@
         "chieurap": false,
         "sub_docquyen": false,
         "modified": "2026-04-14T11:29:14.000Z"
-      },
-      {
-        "id": "69bd063ef063d23bbbd48d45",
-        "title": "Các Tế Bào Của Yumi (Phần 3)",
-        "origin_name": "Yumi's Cells (Season 3)",
-        "slug": "cac-te-bao-cua-yumi-phan-3",
-        "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ca/cac-te-bao-cua-yumi-phan-3.webp",
-        "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ca/cac-te-bao-cua-yumi-phan-3.webp",
-        "year": "2026",
-        "type": "series",
-        "genre": [
-          {
-            "name": "Hài Hước",
-            "slug": "hai-huoc"
-          },
-          {
-            "name": "Chính kịch",
-            "slug": "chinh-kich"
-          }
-        ],
-        "country": [
-          {
-            "name": "Hàn Quốc",
-            "slug": "han-quoc"
-          }
-        ],
-        "lang_key": "Vietsub",
-        "episode_current": "Tập 2",
-        "quality": "HD",
-        "status": "ongoing",
-        "showtimes": "",
-        "is_4k": false,
-        "is_exclusive": false,
-        "chieurap": false,
-        "sub_docquyen": false,
-        "modified": "2026-04-13T20:48:35.000Z"
       }
     ]
   },
