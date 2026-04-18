@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["79"] = {"79-dem":{"id":"634f72972805d71a493f6937","i":8289,"title":"79 Đêm","origin_name":"Seventy-Nine","slug":"79-dem","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/79/79-dem.webp","year":2013,"type":"single","episode_current":"Full"}};
