@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ih"] = {"ihostage":{"id":"68022f8e75ad98043e305509","i":28761,"title":"iHostage","origin_name":"iHostage","slug":"ihostage","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ih/ihostage.webp","year":2025,"type":"single","episode_current":"Full"}};

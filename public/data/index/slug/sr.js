@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["sr"] = {"sr":{"id":"638ab45c36cf17cbf44d71c1","i":17841,"title":"Sr.","origin_name":"Sr.","slug":"sr","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/sr/sr.webp","year":2022,"type":"single","episode_current":"Full"}};
