@@ -4847,13 +4847,20 @@ async function main() {
 
   let customSinceTime = null;
   if (!cleanOldData && prevMoviesById && prevMoviesById.size > 0) {
-    try {
-      const pubjsRoot = typeof getPubjsOutputDir === 'function' ? getPubjsOutputDir() : path.join(ROOT, 'pubjs-output');
-      const lb = JSON.parse(fs.readFileSync(path.join(pubjsRoot, 'last_sync.json'), 'utf8'));
-      if (lb && lb.builtAt) {
-        customSinceTime = new Date(new Date(lb.builtAt).getTime() - 600000).toISOString();
+    let maxTs = 0;
+    for (const m of prevMoviesById.values()) {
+      if (m._source === 'custom' || m._from_supabase) {
+        let tsStr = m.updated_at;
+        if (!tsStr && m.modified) tsStr = typeof m.modified === 'object' ? m.modified.time : m.modified;
+        if (tsStr && typeof tsStr === 'string') {
+          const t = new Date(tsStr).getTime();
+          if (!isNaN(t) && t > maxTs) maxTs = t;
+        }
       }
-    } catch(e) {}
+    }
+    if (maxTs > 0) {
+      customSinceTime = new Date(maxTs - 600000).toISOString();
+    }
   }
 
   const fetchedCustom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies(customSinceTime));
