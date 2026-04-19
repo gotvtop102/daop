@@ -1836,15 +1836,22 @@ async function fetchCustomMoviesFromSupabase(sinceTime = null) {
     
     let modifiedIds = null;
     if (sinceTime) {
-      console.log('   [Supabase] Incremental fetch from:', sinceTime);
-      const modMovies = await supabase.from('movies').select('id').gte('updated_at', sinceTime);
-      const modEps = await supabase.from('movie_episodes').select('movie_id').gte('updated_at', sinceTime);
+      console.log('   [Supabase] Checking for changes since:', sinceTime);
+      const [modMovies, modEps] = await Promise.all([
+        supabase.from('movies').select('id').gte('updated_at', sinceTime),
+        supabase.from('movie_episodes').select('movie_id').gte('updated_at', sinceTime)
+      ]);
+      
+      if (modMovies.error) throw new Error('Movies mod check failed: ' + modMovies.error.message);
+      if (modEps.error) throw new Error('Episodes mod check failed: ' + modEps.error.message);
+
       modifiedIds = new Set([
         ...(modMovies.data || []).map((r) => String(r.id)),
         ...(modEps.data || []).map((r) => String(r.movie_id))
       ]);
-      console.log(`   [Supabase] Changed custom movies: ${modifiedIds.size}`);
-      if (modifiedIds.size === 0) return [];
+      
+      console.log(`   [Supabase] Changes detected: ${modifiedIds.size} movies.`);
+      if (modifiedIds.size === 0) return []; // Trả về mảng rỗng nghĩa là "Không có gì thay đổi"
     }
 
     const movieRows = [];
@@ -1853,9 +1860,11 @@ async function fetchCustomMoviesFromSupabase(sinceTime = null) {
       for (let i = 0; i < idArr.length; i += 200) {
         const chunk = idArr.slice(i, i + 200);
         const { data, error } = await supabase.from('movies').select('*').in('id', chunk);
-        if (!error && data) movieRows.push(...data);
+        if (error) throw error;
+        if (data) movieRows.push(...data);
       }
     } else {
+      console.log('   [Supabase] Fetching full library (no incremental sinceTime or fresh build)...');
       for (let page = 0; ; page++) {
         const { data, error } = await supabase.from('movies').select('*').order('id').range(page * 1000, (page + 1) * 1000 - 1);
         if (error) throw error;
@@ -1871,7 +1880,8 @@ async function fetchCustomMoviesFromSupabase(sinceTime = null) {
       for (let i = 0; i < idArr.length; i += 200) {
         const chunk = idArr.slice(i, i + 200);
         const { data, error } = await supabase.from('movie_episodes').select('*').order('movie_id').order('sort_order').in('movie_id', chunk);
-        if (!error && data) epRows.push(...data);
+        if (error) throw error;
+        if (data) epRows.push(...data);
       }
     } else {
       for (let page = 0; ; page++) {
@@ -1882,9 +1892,15 @@ async function fetchCustomMoviesFromSupabase(sinceTime = null) {
         if (data.length < 1000) break;
       }
     }
+    
+    // Nếu fetch full mà không có gì thì có vấn đề
+    if (!sinceTime && movieRows.length === 0) {
+       console.warn('   [Supabase] Warning: Fetch result is empty for full fetch.');
+    }
+
     return buildMoviesFromSupabase(movieRows || [], epRows || []);
   } catch (e) {
-    console.warn('Supabase custom movies fetch failed, fallback Excel (nếu có):', e.message || e);
+    console.error('   [Supabase] Error fetchCustomMoviesFromSupabase:', e.message || e);
     return null;
   }
 }
@@ -3352,7 +3368,12 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
   const exclusiveIds = [];
   const showtimesIds = [];
   const yearsSet = new Set();
-  const sortedDescMovies = [...movies].sort((a, b) => String(b.id || '').localeCompare(String(a.id || '')));
+  const sortedDescMovies = [...movies].sort((a, b) => {
+    const idA = parseInt(a.id, 10) || 0;
+    const idB = parseInt(b.id, 10) || 0;
+    if (idA !== idB) return idB - idA;
+    return String(b.id || '').localeCompare(String(a.id || ''));
+  });
   for (const m of sortedDescMovies) {
     const q = (m.quality || '').toString().toLowerCase();
     const is4k = !!m.is_4k || /4k|uhd|2160p/.test(q);
@@ -3764,7 +3785,12 @@ function writeActors(movies) {
   const names = {};
   const meta = {};
   const movieById = new Map();
-  const sortedDescMovies = [...movies].sort((a, b) => String(b.id || '').localeCompare(String(a.id || '')));
+  const sortedDescMovies = [...movies].sort((a, b) => {
+    const idA = parseInt(a.id, 10) || 0;
+    const idB = parseInt(b.id, 10) || 0;
+    if (idA !== idB) return idB - idA;
+    return String(b.id || '').localeCompare(String(a.id || ''));
+  });
   for (const m of sortedDescMovies) {
     movieById.set(String(m.id), toLightMovie(m));
     const castList = Array.isArray(m.cast_meta) && m.cast_meta.length
@@ -4882,12 +4908,28 @@ async function main() {
     }
     
     // Ghi đè bằng dữ liệu mới fetch
-    for (const m of (fetchedOphim || [])) mergedOphim.set(String(m.id), m);
-    for (const m of (fetchedCustom || [])) mergedCustom.set(String(m.id), m);
+    for (const m of (fetchedOphim || [])) if (m && m.id) mergedOphim.set(String(m.id), m);
+    for (const m of (fetchedCustom || [])) if (m && m.id) mergedCustom.set(String(m.id), m);
     
-    ophim = Array.from(mergedOphim.values());
-    custom = Array.from(mergedCustom.values());
+    const newOphim = Array.from(mergedOphim.values());
+    const newCustom = Array.from(mergedCustom.values());
+    const totalNew = newOphim.length + newCustom.length;
+    const totalPrev = prevMoviesById.size;
+
+    // BẢO VỆ DỮ LIỆU: Nếu số lượng phim giảm đột ngột (giảm hơn 50% và mất hơn 1000 phim) mà không phải Clean Build
+    if (totalPrev > 5000 && totalNew < totalPrev * 0.5) {
+      console.error(`!!! CẢNH BÁO MẤT DỮ LIỆU !!!`);
+      console.error(`Số lượng phim giảm đột ngột: ${totalPrev} -> ${totalNew}`);
+      console.error(`Hệ thống dừng build để bảo vệ dữ liệu. Vui lòng kiểm tra lại Supabase hoặc CI cache.`);
+      process.exit(1);
+    }
+
+    ophim = newOphim;
+    custom = newCustom;
     console.log(`   Library merged: OPhim=${ophim.length}, Custom=${custom.length} (Total: ${ophim.length + custom.length})`);
+  } else if (!cleanOldData && (!fetchedCustom || fetchedCustom.length === 0)) {
+     // Nếu không có dữ liệu cũ và fetch custom cũng trống -> Có thể fetch lỗi hoặc trống thật
+     console.warn('   [Warning] No previous movies and no custom movies fetched.');
   }
 
   // NEW: ảnh custom (metadata trong DB / batch, không ghi URL ngược Excel)
