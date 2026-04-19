@@ -630,40 +630,8 @@ to authenticated
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);`;
 
-    const fixRlsSql = `-- Sửa RLS: role admin nằm trong app_metadata của JWT (từ raw_app_meta_data)
--- Chạy trong SQL Editor của project Supabase Admin nếu Admin đăng nhập được nhưng không đọc/ghi được dữ liệu
-
-create or replace function public.is_admin()
-returns boolean
-language sql
-stable
-as $$
-  select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', false);
-$$;
-
-drop policy if exists "Admin only" on public.ad_banners;
-drop policy if exists "Admin only" on public.ad_preroll;
-drop policy if exists "Admin only" on public.homepage_sections;
-drop policy if exists "Admin only" on public.server_sources;
-drop policy if exists "Admin only" on public.site_settings;
-drop policy if exists "Admin only" on public.static_pages;
-drop policy if exists "Admin only" on public.donate_settings;
-drop policy if exists "Admin only" on public.player_settings;
-drop policy if exists "Admin only" on public.audit_logs;
-drop policy if exists "Admin only" on public.movies;
-drop policy if exists "Admin only" on public.movie_episodes;
-
-create policy "Admin only" on public.ad_banners for all using (public.is_admin());
-create policy "Admin only" on public.ad_preroll for all using (public.is_admin());
-create policy "Admin only" on public.homepage_sections for all using (public.is_admin());
-create policy "Admin only" on public.server_sources for all using (public.is_admin());
-create policy "Admin only" on public.site_settings for all using (public.is_admin());
-create policy "Admin only" on public.static_pages for all using (public.is_admin());
-create policy "Admin only" on public.donate_settings for all using (public.is_admin());
-create policy "Admin only" on public.player_settings for all using (public.is_admin());
-create policy "Admin only" on public.audit_logs for all using (public.is_admin());
-create policy "Admin only" on public.movies for all using (public.is_admin());
-create policy "Admin only" on public.movie_episodes for all using (public.is_admin());`;
+    // Dự án đang triển khai mới theo mô hình 4 project (Admin/User/Movies/Episodes),
+    // nên không đưa script "fix RLS" thành 1 mục riêng trong SQL Toolkit nữa.
 
     const auditTriggersSql = `-- Auto Audit Logs triggers for Supabase Admin tables
 -- Run this script in Supabase SQL Editor (Admin project)
@@ -805,11 +773,17 @@ set raw_app_meta_data = jsonb_set(
 )
 where email = 'admin@example.com';`;
 
-    const moviesSchemaSql = `-- Bảng phim + tập — đồng bộ với docs/supabase/schema-movies-episodes.sql
--- Mô hình mới tách project:
--- - Project Movies (Org B): chạy phần tạo bảng public.movies
--- - Project Episodes (Org B): chạy phần tạo bảng public.movie_episodes
--- (không có FK cross-project)
+    const authAdminRoleSql = `-- Role admin nằm trong app_metadata (raw_app_meta_data)
+-- Dùng chung cho mọi project Supabase (Admin/User/Movies/Episodes)
+create or replace function public.is_admin() returns boolean language sql stable as $$
+  select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', false);
+$$;`;
+
+    const moviesSchemaSql = `-- Project Movies (Org B): bảng public.movies
+-- Đồng bộ với docs/supabase/schema-movies-episodes.sql
+-- Lưu ý: project Movies/Episodes độc lập, không FK cross-project.
+
+${authAdminRoleSql}
 
 create table if not exists public.movies (
   id text primary key,
@@ -847,9 +821,30 @@ create index if not exists movies_slug_idx on public.movies (slug);
 create index if not exists movies_type_idx on public.movies (type);
 create index if not exists movies_update_flag_idx on public.movies ("update");
 
+create or replace function public.movies_duplicate_slugs()
+returns table (slug text)
+language sql
+stable
+as $$
+  select m.slug::text
+  from public.movies m
+  where m.slug is not null and trim(m.slug) <> ''
+  group by m.slug
+  having count(*) > 1;
+$$;
+
+alter table public.movies enable row level security;
+drop policy if exists "Admin only" on public.movies;
+create policy "Admin only" on public.movies for all using (public.is_admin());`;
+
+    const episodesSchemaSql = `-- Project Episodes (Org B): bảng public.movie_episodes
+-- Đồng bộ với docs/supabase/schema-movies-episodes.sql
+-- Không FK cross-project; liên kết logic bằng movie_id text.
+
+${authAdminRoleSql}
+
 create table if not exists public.movie_episodes (
   id uuid primary key default gen_random_uuid(),
-  -- Không thể FK cross-project, nên chỉ giữ movie_id dạng text
   movie_id text not null,
   episode_code text,
   episode_name text,
@@ -871,76 +866,33 @@ create table if not exists public.movie_episodes (
 
 create index if not exists movie_episodes_movie_id_idx on public.movie_episodes (movie_id);
 
-create or replace function public.movies_duplicate_slugs()
-returns table (slug text)
-language sql
-stable
-as $$
-  select m.slug::text
-  from public.movies m
-  where m.slug is not null and trim(m.slug) <> ''
-  group by m.slug
-  having count(*) > 1;
-$$;
-
-alter table public.movies enable row level security;
 alter table public.movie_episodes enable row level security;
-
-drop policy if exists "Admin only" on public.movies;
-create policy "Admin only" on public.movies for all using (public.is_admin());
-
 drop policy if exists "Admin only" on public.movie_episodes;
-create policy "Admin only" on public.movie_episodes for all using (public.is_admin());
-
-insert into public.site_settings (key, value)
-values ('movies_data_source', 'supabase')
-on conflict (key) do nothing;`;
-
-    const migrateDonateMethodsSql = `-- Bổ sung cột methods cho donate_settings (DB tạo từ schema cũ, thiếu cột)
--- Chạy trong SQL Editor — project Supabase Admin. Repo: docs/supabase/migrate-donate-settings-add-methods.sql
--- Sau khi chạy: Settings → API → Reload schema nếu PostgREST cache schema cũ.
-
-alter table public.donate_settings
-  add column if not exists methods jsonb;
-
-comment on column public.donate_settings.methods is
-  'Danh sách phương thức donate (PayPal, crypto, …) — đồng bộ donate.json và trang Quản lý Donate.';
-
-`;
+create policy "Admin only" on public.movie_episodes for all using (public.is_admin());`;
 
     const adminInstallSql = [
       '-- =============================================================================',
-      '-- [Admin] Khởi tạo đầy đủ — chạy một lần trên project Supabase Admin (theo thứ tự các phần)',
+      '-- [Admin] Khởi tạo project Supabase Admin (Org A) — chạy một lần (theo thứ tự các phần)',
       '-- =============================================================================',
       '',
       '-- ----- Phần A: Bảng cấu hình site, quảng cáo, donate, RLS, VIP access, ... -----',
       schemaAdminSql,
       '',
-      '-- ----- Phần B: Bảng movies + movie_episodes (phụ thuộc is_admin trong Phần A) -----',
-      moviesSchemaSql,
-      '',
-      '-- ----- Phần C: Triggers ghi audit_logs -----',
+      '-- ----- Phần B: Triggers ghi audit_logs -----',
       auditTriggersSql,
       '',
-      '-- ----- Phần D: Seed trang tĩnh mẫu (tùy chọn) -----',
+      '-- ----- Phần C: Seed trang tĩnh mẫu (tùy chọn) -----',
       seedStaticPagesSql,
-    ].join('\n');
-
-    const adminMaintenanceSql = [
-      '-- =============================================================================',
-      '-- [Admin] Bảo trì — chỉ chạy khi cần (DB cũ hoặc lỗi quyền)',
-      '-- =============================================================================',
       '',
-      '-- ----- Migration: DB cũ thiếu cột methods trên donate_settings -----',
-      migrateDonateMethodsSql.trim(),
-      '',
-      '-- ----- Sửa RLS: đăng nhập Admin được nhưng không đọc/ghi bảng -----',
-      fixRlsSql.trim(),
+      '-- ----- Phần D: Site setting movies_data_source=supabase (tùy chọn) -----',
+      `insert into public.site_settings (key, value)
+values ('movies_data_source', 'supabase')
+on conflict (key) do nothing;`,
     ].join('\n');
 
     const userInstallSql = [
       '-- =============================================================================',
-      '-- [User] Khởi tạo project Supabase User — bảng người dùng + gán admin',
+      '-- [User] Khởi tạo project Supabase User (Org A) — bảng người dùng + gán admin',
       '-- =============================================================================',
       '',
       '-- ----- Phần A: profiles, favorites, watch_history, user_changes + RLS -----',
@@ -951,9 +903,10 @@ comment on column public.donate_settings.methods is
     ].join('\n');
 
     return [
-      { key: 'admin-install', title: '[Admin] Khởi tạo database (bảng, RLS, phim/tập, audit, seed)', sql: adminInstallSql },
-      { key: 'admin-maint', title: '[Admin] Migration & sửa RLS (DB cũ / lỗi quyền)', sql: adminMaintenanceSql },
-      { key: 'user-install', title: '[User] Tạo bảng, RLS và gán role admin', sql: userInstallSql },
+      { key: 'admin-install', title: '[Admin] Tạo bảng + RLS + audit + seed', sql: adminInstallSql },
+      { key: 'user-install', title: '[User] Tạo bảng + RLS + gán role admin', sql: userInstallSql },
+      { key: 'movies-install', title: '[Movies] Tạo bảng movies + RLS', sql: moviesSchemaSql },
+      { key: 'episodes-install', title: '[Episodes] Tạo bảng movie_episodes + RLS', sql: episodesSchemaSql },
     ];
   }, []);
 
@@ -1099,7 +1052,7 @@ comment on column public.donate_settings.methods is
           (msg.includes('does not exist') || msg.includes('schema cache'))
         ) {
           message.error(
-            'Import thất bại: DB thiếu cột methods trên donate_settings. Tab SQL Toolkit → «[Admin] Migration & sửa RLS», copy phần migration donate_settings rồi chạy trên Supabase Admin, sau đó import lại.',
+            'Import thất bại: DB thiếu cột methods trên donate_settings. Dự án đang triển khai mới: hãy chạy lại SQL khởi tạo [Admin] (schema-admin.sql) hoặc chạy migration donate_settings (docs/supabase/migrate-donate-settings-add-methods.sql) trên Supabase Admin rồi import lại.',
             10
           );
         } else {
