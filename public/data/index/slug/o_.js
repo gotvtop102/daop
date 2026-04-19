@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["o_"] = {"o-romeo":{"id":"69cc98b3988d934ea9f95509","i":283,"title":"O' Romeo","origin_name":"O' Romeo","slug":"o-romeo","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/o_/o-romeo.webp","year":2026,"type":"single","episode_current":"Full"}};

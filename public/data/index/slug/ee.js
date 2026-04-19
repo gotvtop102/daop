@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["ee"] = {"eephus":{"id":"695f4e59ccc6cea26871eb48","i":34102,"title":"Eephus","origin_name":"Eephus","slug":"eephus","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ee/eephus.webp","year":"2025","type":"single","episode_current":"Full"}};

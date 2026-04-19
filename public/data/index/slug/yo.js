@@ -1,1 +1,0 @@
-window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["yo"] = {"yogida":{"id":"69cc96a5d88856be77268a90","i":280,"title":"Yogida","origin_name":"Yogida","slug":"yogida","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/yo/yogida.webp","year":2026,"type":"single","episode_current":"Full"}};
