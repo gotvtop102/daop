@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from './admin-guard.js';
 
 try {
   // Local dev convenience: Vercel production injects env vars, but local Node may not.
@@ -108,6 +109,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return fail(res, 405, 'Method not allowed');
   }
+
+  if (!(await requireAdmin(req, res))) return;
 
   try {
     const url = getEnv('SUPABASE_USER_URL');

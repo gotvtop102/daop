@@ -2,12 +2,14 @@
 
 **Mục lục tổng:** [../README.md](../README.md).
 
-DAOP dùng **hai project Supabase tách biệt** (không gộp một project):
+DAOP dùng **bốn project Supabase tách biệt**:
 
 | Project | Đối tượng dùng | Key nào xuất hiện ở đâu |
 |---------|----------------|-------------------------|
 | **User** | Khách xem phim (web), comment (verify JWT), import/export bulk qua API | **Anon** → Admin *Cài đặt chung* → build ra site; **JWT Secret** → Cloudflare Pages (comment); **service_role** → optional chỉ Vercel `/api/supabase-user` |
-| **Admin** | Admin Panel, script `npm run build` / GitHub Actions | **Anon** → Vercel `VITE_SUPABASE_ADMIN_*`; **service_role** → GitHub Secrets (không đưa lên frontend) |
+| **Admin** | Admin Panel + settings/config site | **Anon** → Vercel `VITE_SUPABASE_ADMIN_*`; **service_role** → GitHub Secrets `SUPABASE_ADMIN_*` |
+| **Movies** | Dữ liệu bảng `movies` | **service_role** → GitHub/Vercel secrets `SUPABASE_MOVIES_*` |
+| **Episodes** | Dữ liệu bảng `movie_episodes` | **service_role** → GitHub/Vercel secrets `SUPABASE_EPISODES_*` |
 
 Luồng triển khai tổng thể: [../TRIEN-KHAI.md](../TRIEN-KHAI.md) (Bước 1), checklist nhanh: [../BAT-DAU-NHANH.md](../BAT-DAU-NHANH.md) (Bước 3).
 
@@ -60,6 +62,7 @@ Luồng triển khai tổng thể: [../TRIEN-KHAI.md](../TRIEN-KHAI.md) (Bước
 | 2 | **Authentication → Users → Add user** (email + mật khẩu) — tài khoản đăng nhập Admin. |
 | 3 | **SQL Editor** — gán `role: admin` trong `raw_app_meta_data` cho đúng email user vừa tạo (xem đoạn SQL mẫu bên dưới). |
 | 4 | **Settings → API:** **URL** + **anon** → Vercel; **service_role** → GitHub Secrets `SUPABASE_ADMIN_*`. |
+| 5 | Tạo thêm project **Movies** và **Episodes**, chạy schema tương ứng (xem `schema-movies-episodes.sql`). |
 
 **Gán role admin (mẫu):**
 
@@ -86,7 +89,9 @@ Chạy **`schema-admin.sql` trước**; các file migrate/seed/fix sau tùy nhu 
 | Giá trị | Nơi cấu hình |
 |---------|----------------|
 | URL + **anon** | **Vercel** → `VITE_SUPABASE_ADMIN_URL`, `VITE_SUPABASE_ADMIN_ANON_KEY`. |
-| URL + **service_role** | **GitHub** → Secrets `SUPABASE_ADMIN_URL`, `SUPABASE_ADMIN_SERVICE_ROLE_KEY` (build + workflow). |
+| URL + **service_role (Admin)** | **GitHub/Vercel** → `SUPABASE_ADMIN_URL`, `SUPABASE_ADMIN_SERVICE_ROLE_KEY`. |
+| URL + **service_role (Movies)** | **GitHub/Vercel** → `SUPABASE_MOVIES_URL`, `SUPABASE_MOVIES_SERVICE_ROLE_KEY`. |
+| URL + **service_role (Episodes)** | **GitHub/Vercel** → `SUPABASE_EPISODES_URL`, `SUPABASE_EPISODES_SERVICE_ROLE_KEY`. |
 | **Không** đưa **service_role** lên | Frontend, `VITE_*`, hay commit Git. |
 
 ---
@@ -95,7 +100,7 @@ Chạy **`schema-admin.sql` trước**; các file migrate/seed/fix sau tùy nhu 
 
 | STT | Việc | Project |
 |-----|------|---------|
-| 1 | Tài khoản + **project User** + **project Admin** | — |
+| 1 | Tài khoản + project **User/Admin/Movies/Episodes** | — |
 | 2 | Chạy **`schema-user.sql`** | User |
 | 3 | Bật Auth (Email / Google), cấu hình URL nếu cần | User |
 | 4 | Chạy **`schema-admin.sql`** | Admin |
@@ -117,4 +122,4 @@ Chạy **`schema-admin.sql` trước**; các file migrate/seed/fix sau tùy nhu 
 ## 6. Gợi ý xử lý sự cố
 
 - **Đăng nhập Admin được nhưng bảng trống / lỗi RLS:** chạy **`fix-admin-rls.sql`** trong SQL Editor project **Admin**, rồi thử lại. Chi tiết thêm: [../TRIEN-KHAI.md](../TRIEN-KHAI.md) (Bước 7).
-- **Build trên GitHub không xuất config từ Admin:** kiểm tra đủ `SUPABASE_ADMIN_URL` + `SUPABASE_ADMIN_SERVICE_ROLE_KEY` (đúng **service_role**, không nhầm anon).
+- **Build/export phim lỗi:** kiểm tra đủ bộ secrets cho `SUPABASE_MOVIES_*` và `SUPABASE_EPISODES_*`.

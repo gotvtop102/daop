@@ -27,6 +27,8 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getApiBaseUrl } from '../lib/api';
+import { getAdminApiAuthHeaders } from '../lib/adminAuth';
+import { useAdminRole } from '../context/AdminRoleContext';
 const { Title } = Typography;
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -77,6 +79,7 @@ export default function EpisodeEdit() {
   const [episodePages, setEpisodePages] = useState<Record<string, number>>({});
   const [movieTitle, setMovieTitle] = useState('');
   const [configReady, setConfigReady] = useState<boolean>(false);
+  const { isAdmin } = useAdminRole();
 
   useEffect(() => {
     setConfigReady(true);
@@ -98,7 +101,7 @@ export default function EpisodeEdit() {
 
       const res = await fetch(`${base}/api/movies`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
         body: JSON.stringify({
           action: 'episodes',
           movie_id: src,
@@ -164,7 +167,7 @@ export default function EpisodeEdit() {
       // First get movie info
       const movieRes = await fetch(`${base}/api/movies`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
         body: JSON.stringify({
           action: 'get',
           id: movieId,
@@ -180,7 +183,7 @@ export default function EpisodeEdit() {
       // Get episodes
       const res = await fetch(`${base}/api/movies`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
         body: JSON.stringify({
           action: 'episodes',
           movie_id: movieId,
@@ -247,6 +250,10 @@ export default function EpisodeEdit() {
   };
 
   const handleSave = async () => {
+    if (!isAdmin) {
+      message.warning('Chế độ chỉ xem: tài khoản không có quyền lưu tập.');
+      return;
+    }
     if (!id) {
       message.error('Thiếu movie ID');
       return;
@@ -269,7 +276,7 @@ export default function EpisodeEdit() {
 
       const res = await fetch(`${base}/api/movies?action=episodes&movie_id=${id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
         body: JSON.stringify({
           episodes: allEpisodes,
         }),
@@ -542,6 +549,8 @@ export default function EpisodeEdit() {
               icon={<SaveOutlined />}
               onClick={handleSave}
               loading={saving}
+              disabled={!isAdmin}
+              title={!isAdmin ? 'Chỉ admin mới được lưu.' : undefined}
             >
               Lưu
             </Button>

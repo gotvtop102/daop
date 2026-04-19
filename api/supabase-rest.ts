@@ -2,11 +2,35 @@
  * Gọi Supabase PostgREST bằng fetch — không dùng @supabase/supabase-js (tránh lỗi bundle / FUNCTION_INVOCATION_FAILED trên Vercel).
  */
 
-export function getRestEnv() {
-  const url = String(process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || '')
-    .trim()
-    .replace(/\/$/, '');
-  const key = String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim();
+export type RestScope = 'admin' | 'movies' | 'episodes';
+
+function pickByScope(scope: RestScope): { url: string; key: string } {
+  if (scope === 'movies') {
+    return {
+      url: String(process.env.SUPABASE_MOVIES_URL || process.env.VITE_SUPABASE_MOVIES_URL || '')
+        .trim()
+        .replace(/\/$/, ''),
+      key: String(process.env.SUPABASE_MOVIES_SERVICE_ROLE_KEY || '').trim(),
+    };
+  }
+  if (scope === 'episodes') {
+    return {
+      url: String(process.env.SUPABASE_EPISODES_URL || process.env.VITE_SUPABASE_EPISODES_URL || '')
+        .trim()
+        .replace(/\/$/, ''),
+      key: String(process.env.SUPABASE_EPISODES_SERVICE_ROLE_KEY || '').trim(),
+    };
+  }
+  return {
+    url: String(process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || '')
+      .trim()
+      .replace(/\/$/, ''),
+    key: String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim(),
+  };
+}
+
+export function getRestEnv(scope: RestScope = 'admin') {
+  const { url, key } = pickByScope(scope);
   return { url, key };
 }
 
@@ -42,7 +66,22 @@ export function parseContentRangeTotal(res: Response): number | undefined {
 
 export async function restFetch(path: string, init: RequestInit & { key: string }): Promise<Response> {
   const { key, ...rest } = init;
-  const { url } = getRestEnv();
+  const { url } = getRestEnv('admin');
+  const fullUrl = `${url}/rest/v1${path.startsWith('/') ? path : `/${path}`}`;
+  const headers = new Headers(rest.headers);
+  if (!headers.has('apikey')) headers.set('apikey', key);
+  if (!headers.has('Authorization')) headers.set('Authorization', `Bearer ${key}`);
+  if (!headers.has('Content-Type') && rest.body) headers.set('Content-Type', 'application/json');
+  return fetch(fullUrl, { ...rest, headers });
+}
+
+export async function restFetchByScope(
+  scope: RestScope,
+  path: string,
+  init: RequestInit & { key: string }
+): Promise<Response> {
+  const { key, ...rest } = init;
+  const { url } = getRestEnv(scope);
   const fullUrl = `${url}/rest/v1${path.startsWith('/') ? path : `/${path}`}`;
   const headers = new Headers(rest.headers);
   if (!headers.has('apikey')) headers.set('apikey', key);

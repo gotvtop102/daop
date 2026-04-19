@@ -29,6 +29,8 @@ import {
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
+import { getAdminApiAuthHeaders } from '../lib/adminAuth';
+import { useAdminRole } from '../context/AdminRoleContext';
 import {
   buildCdnMovieImageUrlBySlug,
   buildOphimUploadsImageUrlByStem,
@@ -281,6 +283,7 @@ export default function MovieEdit() {
   const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
   const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
   const [configReady, setConfigReady] = useState<boolean>(false);
+  const { isAdmin } = useAdminRole();
   const isNew = id === 'new';
 
   const refreshSourcePreviews = (next?: { poster?: any; thumb?: any }) => {
@@ -414,7 +417,7 @@ export default function MovieEdit() {
       const apiBase = getApiBaseUrl();
       const res = await fetch(`${apiBase}/api/movies`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
         body: JSON.stringify({
           action: 'get',
           id: movieId,
@@ -611,6 +614,10 @@ export default function MovieEdit() {
   };
 
   const handleSave = async (values: MovieForm) => {
+    if (!isAdmin) {
+      message.warning('Chế độ chỉ xem: tài khoản không có quyền lưu/cập nhật.');
+      return;
+    }
     setSaving(true);
     try {
       const apiBase = getApiBaseUrl();
@@ -628,7 +635,7 @@ export default function MovieEdit() {
 
         const res = await fetch(`${apiBase}/api/movies?action=updateShowtimesExclusive`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
           body: JSON.stringify({
             id: movieId,
             showtimes: String(values.showtimes || '').trim(),
@@ -650,7 +657,7 @@ export default function MovieEdit() {
         try {
           await fetch(`${apiBase}/api/trigger-build`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
             body: JSON.stringify({ reason: 'update_showtimes_exclusive', id: movieId }),
           });
         } catch (e) {
@@ -676,7 +683,7 @@ export default function MovieEdit() {
 
       const res = await fetch(`${apiBase}/api/movies?action=save`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
         body: JSON.stringify(payload),
       });
 
@@ -747,6 +754,8 @@ export default function MovieEdit() {
                 icon={<SaveOutlined />}
                 onClick={() => form.submit()}
                 loading={saving}
+                disabled={!isAdmin}
+                title={!isAdmin ? 'Chỉ admin mới được lưu.' : undefined}
               >
                 Lưu
               </Button>

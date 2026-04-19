@@ -5,6 +5,8 @@ import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
 import { useAccess } from '../context/AccessContext';
+import { useAdminRole } from '../context/AdminRoleContext';
+import { getAdminApiAuthHeaders } from '../lib/adminAuth';
 import { setAccessEnabled } from '../lib/accessGate';
 import type { MenuProps } from 'antd';
 import {
@@ -121,6 +123,7 @@ export default function Layout() {
   const screens = useBreakpoint();
   const isMobile = !screens.md; // md = 768px and up
   const { hasAccess, unlockModalOpen, setUnlockModalOpen, submitCode } = useAccess();
+  const { isAdmin } = useAdminRole();
   const [codeInput, setCodeInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -165,9 +168,10 @@ export default function Layout() {
   const triggerBuild = async () => {
     try {
       const base = getApiBaseUrl();
+      const authH = await getAdminApiAuthHeaders();
       const res = await fetch(`${base}/api/trigger-build`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authH },
         body: JSON.stringify({}),
       });
       const data = await res.json().catch(async () => ({ error: await res.text() }));
@@ -220,7 +224,13 @@ export default function Layout() {
               Active
             </Button>
           )}
-          <Button type="primary" size={isMobile ? 'small' : 'middle'} onClick={triggerBuild}>
+          <Button
+            type="primary"
+            size={isMobile ? 'small' : 'middle'}
+            onClick={triggerBuild}
+            disabled={!isAdmin}
+            title={!isAdmin ? 'Chỉ tài khoản role=admin mới được chạy build.' : undefined}
+          >
             {isMobile ? 'Build' : 'Build website'}
           </Button>
           <Button icon={<LogoutOutlined />} size={isMobile ? 'small' : 'middle'} onClick={handleLogout}>

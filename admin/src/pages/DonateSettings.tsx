@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Card, Form, Input, InputNumber, Button, message, Select } from 'antd';
+import { Card, Form, Input, InputNumber, Button, message, Select } from 'antd';
 import { supabase } from '../lib/supabase';
 
 const METHOD_PRESETS: Array<{ value: string; label: string }> = [
@@ -118,12 +118,6 @@ export default function DonateSettings() {
       <p style={{ color: '#666', marginBottom: 16 }}>
         Sau khi lưu, cần chạy Build website để áp dụng lên trang donate.
       </p>
-      <Alert
-        type="info"
-        showIcon
-        style={{ marginBottom: 16 }}
-        message="Project Supabase Admin cần bảng donate_settings đủ cột (trong repo: docs/supabase/schema-admin.sql). Nếu bảng tạo từ bản cũ thiếu cột methods, chạy docs/supabase/migrate-donate-settings-add-methods.sql — khi đó mới lưu được danh sách phương thức từ form này."
-      />
       <Card loading={loading}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item name="id" hidden><Input type="hidden" /></Form.Item>

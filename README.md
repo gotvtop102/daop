@@ -28,7 +28,7 @@ Hệ thống gồm: **Website phim tĩnh** (Cloudflare Pages), **Admin Panel** (
 
 1. Cài **Git** trên máy (nếu chưa có). Không cần cài Node.js.
 2. Đẩy toàn bộ code lên GitHub (clone/pull rồi `git add .` → `git commit` → `git push`). Kể cả khi chưa có thư mục `public/data` đầy đủ (hoặc chỉ có file mẫu rỗng) vẫn push bình thường.
-3. Trên **GitHub**: vào Settings → Secrets, thêm TMDB_API_KEY, SUPABASE_ADMIN_*, CLOUDFLARE_* (theo `docs/TRIEN-KHAI.md`).
+3. Trên **GitHub**: vào Settings → Secrets, thêm TMDB_API_KEY, `SUPABASE_ADMIN_*`, `SUPABASE_MOVIES_*`, `SUPABASE_EPISODES_*`, `CLOUDFLARE_*` (theo `docs/TRIEN-KHAI.md`).
 4. **Cloudflare Pages**: tạo project **Direct Upload**. Deploy dùng GitHub Actions (`deploy.yml`) để đẩy thư mục `public`.
 5. **Vercel**: import repo, cấu hình build Admin. Vercel tự chạy `npm install` và build trên server.
 6. **Build dữ liệu lần đầu**: vào GitHub → Actions → chạy workflow **update-data** (hoặc đợi lịch). Workflow sẽ chạy `npm run build` trên server GitHub, tạo `public/data/` rồi commit + push.
@@ -78,7 +78,8 @@ cd ..
 
 2. Mở file `.env` bằng notepad/editor và điền (ít nhất các dòng cần thiết để chạy):
    - **TMDB:** lấy API key tại [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) → điền `TMDB_API_KEY=...`
-   - **Supabase Admin:** nếu đã tạo project Supabase (xem `docs/supabase/`), điền `SUPABASE_ADMIN_URL` và `SUPABASE_ADMIN_SERVICE_ROLE_KEY`.
+   - **Supabase Admin Core:** điền `SUPABASE_ADMIN_URL` và `SUPABASE_ADMIN_SERVICE_ROLE_KEY` (site settings/admin data).
+   - **Supabase Movies/Episodes:** điền `SUPABASE_MOVIES_URL`, `SUPABASE_MOVIES_SERVICE_ROLE_KEY`, `SUPABASE_EPISODES_URL`, `SUPABASE_EPISODES_SERVICE_ROLE_KEY`.
    - Các biến khác (OPhim, R2, GitHub…) có thể để trống khi chạy thử; build vẫn chạy nhưng có thể không lấy đủ dữ liệu hoặc không upload ảnh.
 
 3. **Admin Panel:** trong thư mục `admin/`, tạo file `.env` (hoặc copy từ `admin/.env.example`) và điền:

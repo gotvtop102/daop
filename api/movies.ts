@@ -8,6 +8,7 @@ import {
   deleteMovieSb,
   deleteMoviesByIdsSb,
   exportFullMovieTablesSb,
+  importFullMovieTablesSb,
   getEpisodesSb,
   getMovieBySlugSb,
   getMovieSb,
@@ -17,6 +18,7 @@ import {
   updateShowtimesExclusiveSb,
   updateShowtimesSb,
 } from './movies-supabase.js';
+import { guardAdmin } from './admin-guard.js';
 
 type DashboardStatsCache = {
   version: string;
@@ -42,12 +44,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!isSupabaseMoviesConfigured()) {
     return res.status(500).json({
       error:
-        'Chưa cấu hình Supabase cho API phim: SUPABASE_ADMIN_SERVICE_ROLE_KEY và URL (SUPABASE_ADMIN_URL hoặc VITE_SUPABASE_ADMIN_URL).',
+        'Chưa cấu hình Supabase cho API phim: cần cả Movies và Episodes project (SUPABASE_MOVIES_URL + SUPABASE_MOVIES_SERVICE_ROLE_KEY, SUPABASE_EPISODES_URL + SUPABASE_EPISODES_SERVICE_ROLE_KEY).',
     });
   }
 
   try {
     const action = String((req.query as any)?.action || (req.body as any)?.action || '').trim();
+
+    const g = await guardAdmin(req, res);
+    if (!g.ok) return res.status(g.status).json({ error: g.error });
 
     if (action === 'authInfo') {
       return res.status(200).json(authInfoSb());
@@ -133,6 +138,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ ok: true, data });
       }
 
+      case 'importFull': {
+        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được import.' });
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        const mode = String((req.body as any)?.mode || 'upsert').trim();
+        if (mode !== 'upsert' && mode !== 'replace') {
+          return res.status(400).json({ error: 'mode phải là upsert hoặc replace' });
+        }
+        const data = (req.body as any)?.data;
+        if (!data || typeof data !== 'object') {
+          return res.status(400).json({ error: 'Thiếu data' });
+        }
+        const movies = Array.isArray((data as any).movies) ? (data as any).movies : null;
+        const eps = Array.isArray((data as any).movie_episodes) ? (data as any).movie_episodes : null;
+        if (!movies && !eps) {
+          return res.status(400).json({ error: 'data cần có movies và/hoặc movie_episodes' });
+        }
+        const out = await importFullMovieTablesSb(mode as any, { movies, movie_episodes: eps });
+        return res.status(200).json({ ok: true, ...out });
+      }
+
       case 'deleteRows': {
         return res.status(400).json({
           error: 'deleteRows không còn hỗ trợ. Dùng action deleteIds hoặc deleteAll (tab Supabase phim trên GitHub Actions).',
@@ -140,6 +167,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'deleteIds': {
+        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -150,6 +178,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'deleteAll': {
+        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -158,7 +187,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Cụm xác nhận không đúng (XOA HET PHIM SUPABASE).' });
         }
         await deleteAllMoviesSb();
-        return res.status(200).json({ ok: true, message: 'Đã xóa toàn bộ phim; tập (movie_episodes) đã CASCADE.' });
+        return res.status(200).json({ ok: true, message: 'Đã xóa toàn bộ phim và tập liên quan.' });
       }
 
       case 'list': {
@@ -185,6 +214,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'save': {
+        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được lưu.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -194,6 +224,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'delete': {
+        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -204,6 +235,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'updateShowtimes': {
+        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được cập nhật.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -214,6 +246,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'updateShowtimesExclusive': {
+        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được cập nhật.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -230,6 +263,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const debug = !!(req.body as any)?.debug;
 
         if (Array.isArray(episodesPayload)) {
+          if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được lưu tập.' });
           if (req.method !== 'POST') {
             return res.status(405).json({ error: 'Method not allowed' });
           }

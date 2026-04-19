@@ -1828,28 +1828,37 @@ function buildMoviesFromSupabase(movieRows, epRows) {
 }
 
 async function fetchCustomMoviesFromSupabase(sinceTime = null) {
-  const url = String(process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || '').trim();
-  const key = String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim();
-  if (!url || !key) return null;
+  const moviesUrl = String(process.env.SUPABASE_MOVIES_URL || process.env.VITE_SUPABASE_MOVIES_URL || '').trim();
+  const moviesKey = String(process.env.SUPABASE_MOVIES_SERVICE_ROLE_KEY || '').trim();
+  const episodesUrl = String(process.env.SUPABASE_EPISODES_URL || process.env.VITE_SUPABASE_EPISODES_URL || '').trim();
+  const episodesKey = String(process.env.SUPABASE_EPISODES_SERVICE_ROLE_KEY || '').trim();
+  if (!moviesUrl || !moviesKey || !episodesUrl || !episodesKey) return null;
   try {
-    const supabase = createClient(url, key);
-    
+    const moviesSb = createClient(moviesUrl, moviesKey);
+    const episodesSb = createClient(episodesUrl, episodesKey);
+    const useNewOnlyIncremental = !/^0|false|no$/i.test(String(process.env.SUPABASE_CUSTOM_INCREMENTAL_NEW_ONLY || '1').trim());
+
     let modifiedIds = null;
     if (sinceTime) {
-      console.log('   [Supabase] Checking for changes since:', sinceTime);
-      const [modMovies, modEps] = await Promise.all([
-        supabase.from('movies').select('id').gte('updated_at', sinceTime),
-        supabase.from('movie_episodes').select('movie_id').gte('updated_at', sinceTime)
-      ]);
-      
-      if (modMovies.error) throw new Error('Movies mod check failed: ' + modMovies.error.message);
-      if (modEps.error) throw new Error('Episodes mod check failed: ' + modEps.error.message);
+      if (useNewOnlyIncremental) {
+        console.log('   [Supabase] Incremental NEW-only: loading ids from movies.update=NEW');
+        const modMovies = await moviesSb.from('movies').select('id').eq('update', 'NEW');
+        if (modMovies.error) throw new Error('Movies NEW check failed: ' + modMovies.error.message);
+        modifiedIds = new Set([...(modMovies.data || []).map((r) => String(r.id))]);
+      } else {
+        console.log('   [Supabase] Checking for changes since:', sinceTime);
+        const [modMovies, modEps] = await Promise.all([
+          moviesSb.from('movies').select('id').gte('updated_at', sinceTime),
+          episodesSb.from('movie_episodes').select('movie_id').gte('updated_at', sinceTime)
+        ]);
+        if (modMovies.error) throw new Error('Movies mod check failed: ' + modMovies.error.message);
+        if (modEps.error) throw new Error('Episodes mod check failed: ' + modEps.error.message);
+        modifiedIds = new Set([
+          ...(modMovies.data || []).map((r) => String(r.id)),
+          ...(modEps.data || []).map((r) => String(r.movie_id))
+        ]);
+      }
 
-      modifiedIds = new Set([
-        ...(modMovies.data || []).map((r) => String(r.id)),
-        ...(modEps.data || []).map((r) => String(r.movie_id))
-      ]);
-      
       console.log(`   [Supabase] Changes detected: ${modifiedIds.size} movies.`);
       if (modifiedIds.size === 0) return []; // Trả về mảng rỗng nghĩa là "Không có gì thay đổi"
     }
@@ -1859,14 +1868,14 @@ async function fetchCustomMoviesFromSupabase(sinceTime = null) {
       const idArr = Array.from(modifiedIds);
       for (let i = 0; i < idArr.length; i += 200) {
         const chunk = idArr.slice(i, i + 200);
-        const { data, error } = await supabase.from('movies').select('*').in('id', chunk);
+        const { data, error } = await moviesSb.from('movies').select('*').in('id', chunk);
         if (error) throw error;
         if (data) movieRows.push(...data);
       }
     } else {
       console.log('   [Supabase] Fetching full library (no incremental sinceTime or fresh build)...');
       for (let page = 0; ; page++) {
-        const { data, error } = await supabase.from('movies').select('*').order('id').range(page * 1000, (page + 1) * 1000 - 1);
+        const { data, error } = await moviesSb.from('movies').select('*').order('id').range(page * 1000, (page + 1) * 1000 - 1);
         if (error) throw error;
         if (!data || data.length === 0) break;
         movieRows.push(...data);
@@ -1879,13 +1888,23 @@ async function fetchCustomMoviesFromSupabase(sinceTime = null) {
       const idArr = Array.from(modifiedIds);
       for (let i = 0; i < idArr.length; i += 200) {
         const chunk = idArr.slice(i, i + 200);
-        const { data, error } = await supabase.from('movie_episodes').select('*').order('movie_id').order('sort_order').in('movie_id', chunk);
+        const { data, error } = await episodesSb
+          .from('movie_episodes')
+          .select('*')
+          .order('movie_id')
+          .order('sort_order')
+          .in('movie_id', chunk);
         if (error) throw error;
         if (data) epRows.push(...data);
       }
     } else {
       for (let page = 0; ; page++) {
-        const { data, error } = await supabase.from('movie_episodes').select('*').order('movie_id').order('sort_order').range(page * 1000, (page + 1) * 1000 - 1);
+        const { data, error } = await episodesSb
+          .from('movie_episodes')
+          .select('*')
+          .order('movie_id')
+          .order('sort_order')
+          .range(page * 1000, (page + 1) * 1000 - 1);
         if (error) throw error;
         if (!data || data.length === 0) break;
         epRows.push(...data);
@@ -2097,8 +2116,8 @@ function parseCustomMoviesFromExcelRows(moviesRows, episodesRows) {
  * - Đồng bộ `slug` nếu merge đã đổi slug (tránh trùng OPhim)
  */
 async function applySupabaseUpdateStatuses(custom) {
-  const url = String(process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || '').trim();
-  const key = String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim();
+  const url = String(process.env.SUPABASE_MOVIES_URL || process.env.VITE_SUPABASE_MOVIES_URL || '').trim();
+  const key = String(process.env.SUPABASE_MOVIES_SERVICE_ROLE_KEY || '').trim();
   if (!url || !key) return;
 
   const need = (custom || []).filter(

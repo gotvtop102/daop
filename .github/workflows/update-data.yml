@@ -128,6 +128,10 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          SUPABASE_MOVIES_URL: ${{ secrets.SUPABASE_MOVIES_URL }}
+          SUPABASE_MOVIES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_MOVIES_SERVICE_ROLE_KEY }}
+          SUPABASE_EPISODES_URL: ${{ secrets.SUPABASE_EPISODES_URL }}
+          SUPABASE_EPISODES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_EPISODES_SERVICE_ROLE_KEY }}
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Upload movie images to repo (after 1-phase build)
@@ -187,6 +191,10 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          SUPABASE_MOVIES_URL: ${{ secrets.SUPABASE_MOVIES_URL }}
+          SUPABASE_MOVIES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_MOVIES_SERVICE_ROLE_KEY }}
+          SUPABASE_EPISODES_URL: ${{ secrets.SUPABASE_EPISODES_URL }}
+          SUPABASE_EPISODES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_EPISODES_SERVICE_ROLE_KEY }}
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Upload CORE public data artifact (2-phase)
@@ -256,6 +264,10 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          SUPABASE_MOVIES_URL: ${{ secrets.SUPABASE_MOVIES_URL }}
+          SUPABASE_MOVIES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_MOVIES_SERVICE_ROLE_KEY }}
+          SUPABASE_EPISODES_URL: ${{ secrets.SUPABASE_EPISODES_URL }}
+          SUPABASE_EPISODES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_EPISODES_SERVICE_ROLE_KEY }}
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Upload movie images to repo (after 2-phase TMDB build)
@@ -351,11 +363,13 @@ jobs:
 
       # Cùng job + always(): deploy Pages (continue-on-error) làm success() = false nhưng vẫn phải export.
       # HAVE_BATCHES=1 chỉ ghi sau build 1-phase hoặc sau build TMDB (2-phase), không ghi sau CORE (data sẽ bị xóa).
-      - name: Export movies (pubjs manifest) → Supabase (movies + movie_episodes)
+      - name: Export movies (pubjs manifest) → Supabase (Movies project + Episodes project)
         if: ${{ always() && !cancelled() && env.HAVE_BATCHES == '1' }}
         env:
-          SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
-          SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          SUPABASE_MOVIES_URL: ${{ secrets.SUPABASE_MOVIES_URL }}
+          SUPABASE_MOVIES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_MOVIES_SERVICE_ROLE_KEY }}
+          SUPABASE_EPISODES_URL: ${{ secrets.SUPABASE_EPISODES_URL }}
+          SUPABASE_EPISODES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_EPISODES_SERVICE_ROLE_KEY }}
           EXPORT_TO_SUPABASE_SCOPE: ${{ vars.EXPORT_TO_SUPABASE_SCOPE || 'all' }}
           SKIP_EXPORT_TO_SUPABASE: ${{ vars.SKIP_EXPORT_TO_SUPABASE }}
         run: |
@@ -368,8 +382,8 @@ jobs:
             echo "::notice title=Export Supabase::Bỏ qua: Repository Variable SKIP_EXPORT_TO_SUPABASE=1"
             exit 0
           fi
-          if [ -z "${SUPABASE_ADMIN_URL}" ] || [ -z "${SUPABASE_ADMIN_SERVICE_ROLE_KEY}" ]; then
-            echo "::error::Thiếu secrets SUPABASE_ADMIN_URL hoặc SUPABASE_ADMIN_SERVICE_ROLE_KEY."
+          if [ -z "${SUPABASE_MOVIES_URL}" ] || [ -z "${SUPABASE_MOVIES_SERVICE_ROLE_KEY}" ] || [ -z "${SUPABASE_EPISODES_URL}" ] || [ -z "${SUPABASE_EPISODES_SERVICE_ROLE_KEY}" ]; then
+            echo "::error::Thiếu secrets Movies/Episodes Supabase (URL + SERVICE_ROLE_KEY)."
             exit 1
           fi
           npm run check-public

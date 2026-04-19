@@ -137,6 +137,10 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          SUPABASE_MOVIES_URL: ${{ secrets.SUPABASE_MOVIES_URL }}
+          SUPABASE_MOVIES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_MOVIES_SERVICE_ROLE_KEY }}
+          SUPABASE_EPISODES_URL: ${{ secrets.SUPABASE_EPISODES_URL }}
+          SUPABASE_EPISODES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_EPISODES_SERVICE_ROLE_KEY }}
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Build (full)
@@ -153,6 +157,10 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          SUPABASE_MOVIES_URL: ${{ secrets.SUPABASE_MOVIES_URL }}
+          SUPABASE_MOVIES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_MOVIES_SERVICE_ROLE_KEY }}
+          SUPABASE_EPISODES_URL: ${{ secrets.SUPABASE_EPISODES_URL }}
+          SUPABASE_EPISODES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_EPISODES_SERVICE_ROLE_KEY }}
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Build CORE (two_phase)
@@ -170,6 +178,10 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          SUPABASE_MOVIES_URL: ${{ secrets.SUPABASE_MOVIES_URL }}
+          SUPABASE_MOVIES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_MOVIES_SERVICE_ROLE_KEY }}
+          SUPABASE_EPISODES_URL: ${{ secrets.SUPABASE_EPISODES_URL }}
+          SUPABASE_EPISODES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_EPISODES_SERVICE_ROLE_KEY }}
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Build TMDB ONLY (two_phase)
@@ -187,6 +199,10 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           SUPABASE_ADMIN_URL: ${{ secrets.SUPABASE_ADMIN_URL }}
           SUPABASE_ADMIN_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_ADMIN_SERVICE_ROLE_KEY }}
+          SUPABASE_MOVIES_URL: ${{ secrets.SUPABASE_MOVIES_URL }}
+          SUPABASE_MOVIES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_MOVIES_SERVICE_ROLE_KEY }}
+          SUPABASE_EPISODES_URL: ${{ secrets.SUPABASE_EPISODES_URL }}
+          SUPABASE_EPISODES_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_EPISODES_SERVICE_ROLE_KEY }}
           IMAGE_CDN_BASE: ${{ secrets.IMAGE_CDN_BASE }}
 
       - name: Upload movie images to repo (after build)

@@ -12,6 +12,8 @@ import {
 } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
+import { getAdminApiAuthHeaders } from '../lib/adminAuth';
+import { useAdminRole } from '../context/AdminRoleContext';
 import { buildCdnMovieImageUrlBySlug } from '../lib/movie-image-urls';
 
 const { Text } = Typography;
@@ -91,6 +93,7 @@ const EXTRA_ACTIONS = [
 ];
 
 export default function GitHubActions() {
+  const { isAdmin } = useAdminRole();
   const [actions, setActions] = useState<ActionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [triggering, setTriggering] = useState<string | null>(null);
@@ -683,6 +686,10 @@ export default function GitHubActions() {
   };
 
   const handleTrigger = async (actionId: string) => {
+    if (!isAdmin) {
+      message.warning('Chế độ chỉ xem: tài khoản không có quyền kích hoạt workflow.');
+      return;
+    }
     if (actionId === 'clean-rebuild') {
       Modal.confirm({
         title: 'Xác nhận Clean & Rebuild',
@@ -754,9 +761,10 @@ export default function GitHubActions() {
           body.reupload_existing = reuploadExisting ? 'true' : 'false';
         }
       }
+      const authH = await getAdminApiAuthHeaders();
       const res = await fetch(`${getApiBaseUrl()}/api/trigger-action`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authH },
         body: JSON.stringify(body),
       });
       const data = await res.json().catch(async () => ({ error: await res.text() }));
@@ -775,9 +783,10 @@ export default function GitHubActions() {
   const fetchSbTableCounts = async () => {
     setSbCountsLoading(true);
     try {
+      const authH = await getAdminApiAuthHeaders();
       const res = await fetch(`${getApiBaseUrl()}/api/movies`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authH },
         body: JSON.stringify({ action: 'countRows', tables: ['movies', 'movie_episodes'] }),
       });
       const data = await res.json().catch(async () => ({ error: await res.text() }));
@@ -818,7 +827,7 @@ export default function GitHubActions() {
         try {
           const res = await fetch(`${getApiBaseUrl()}/api/movies`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
             body: JSON.stringify({ action: 'deleteIds', ids }),
           });
           const data = await res.json().catch(async () => ({ error: await res.text() }));
@@ -863,7 +872,7 @@ export default function GitHubActions() {
         try {
           const res = await fetch(`${getApiBaseUrl()}/api/movies`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
             body: JSON.stringify({ action: 'deleteAll', confirmPhrase: PHRASE }),
           });
           const data = await res.json().catch(async () => ({ error: await res.text() }));
@@ -914,6 +923,130 @@ export default function GitHubActions() {
 
   const updateDataExcludeIds = new Set(['upload-movie-images-r2', 'delete-movie-images-r2']);
   const updateDataTriggerList = allList.filter((a: ActionItem) => !updateDataExcludeIds.has(a.id));
+
+  const updateDataTabChildren = (
+    <>
+      <Card title="Cài đặt Update data">
+        <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+          Chỉ chọn khoảng trang để lấy. API mặc định: 24 phim/trang, trang 1 là mới nhất. Lấy theo kiểu lùi và kết thúc ở trang 1.
+        </Text>
+        <Form form={form} layout="vertical" initialValues={updateSettings} style={{ maxWidth: '100%' }}>
+          <Text strong style={{ width: '100%', marginBottom: 8 }}>Chế độ chạy:</Text>
+          <Form.Item style={{ marginBottom: 8 }}>
+            <Radio.Group
+              value={twoPhase ? '2' : '1'}
+              onChange={(e: RadioChangeEvent) => setTwoPhase(e.target.value === '2')}
+              optionType="button"
+              buttonStyle="solid"
+            >
+              <Radio.Button value="1">1 pha (full)</Radio.Button>
+              <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+
+          <Text strong style={{ width: '100%', marginBottom: 8 }}>Tự động (schedule):</Text>
+          <Form.Item style={{ marginBottom: 8 }}>
+            <Radio.Group
+              value={autoTwoPhase ? '2' : '1'}
+              onChange={(e: RadioChangeEvent) => setAutoTwoPhase(e.target.value === '2')}
+              optionType="button"
+              buttonStyle="solid"
+            >
+              <Radio.Button value="1">1 pha (full)</Radio.Button>
+              <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+              <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                Tự động ghi ảnh vào repo sau khi Update data:
+              </Text>
+              <Switch checked={autoUploadImagesAfterBuild} onChange={setAutoUploadImagesAfterBuild} />
+            </div>
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+              <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                Chỉ deploy Cloudflare sau khi ghi ảnh xong (khi chạy 2 pha):
+              </Text>
+              <Switch checked={deployAfterR2Upload} onChange={setDeployAfterR2Upload} />
+            </div>
+          </Form.Item>
+
+          <Text strong style={{ width: '100%' }}>Thủ công (khi bấm Kích hoạt):</Text>
+          <Form.Item name="start_page" label="Trang bắt đầu" rules={[{ required: true }]} style={{ marginBottom: 8 }}>
+            <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
+          </Form.Item>
+          <Form.Item name="end_page" label="Trang kết thúc" style={{ marginBottom: 8 }}>
+            <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
+          </Form.Item>
+          <Form.Item>
+            <Button icon={<SaveOutlined />} onClick={handleSaveUpdateSettings} loading={savingSettings} disabled={!isAdmin}>
+              Lưu mặc định
+            </Button>
+          </Form.Item>
+          <Text strong style={{ width: '100%', marginTop: 16 }}>Tự động (0h, 6h, 12h, 18h):</Text>
+          <Form.Item name="auto_start_page" label="Auto: Trang bắt đầu" style={{ marginBottom: 8 }}>
+            <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
+          </Form.Item>
+          <Form.Item name="auto_end_page" label="Auto: Trang kết thúc" style={{ marginBottom: 8 }}>
+            <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
+          </Form.Item>
+          <Form.Item>
+            <Space direction="vertical" size={4}>
+              <Button onClick={handleFetchTotalPages} loading={fetchingTotalPages}>
+                Lấy tổng số trang/phim
+              </Button>
+              {totalMovies != null && totalPages != null && (
+                <Text type="secondary">Tổng phim: {totalMovies} • Tổng trang: {totalPages}</Text>
+              )}
+            </Space>
+          </Form.Item>
+        </Form>
+      </Card>
+
+      <div style={{ marginTop: 16 }}>
+        {loading ? (
+          <Spin tip="Đang tải danh sách..." />
+        ) : (
+          <List
+            grid={{ gutter: 16, xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }}
+            dataSource={updateDataTriggerList}
+            renderItem={(item: ActionItem & { triggerable?: boolean; danger?: boolean }) => (
+              <List.Item>
+                <Card
+                  title={item.name}
+                  extra={
+                    item.triggerable !== false ? (
+                      <Button
+                        type={item.danger ? 'default' : 'primary'}
+                        danger={!!item.danger}
+                        icon={triggering === item.id ? <Spin size="small" /> : item.danger ? <DeleteOutlined /> : <PlayCircleOutlined />}
+                        onClick={() => handleTrigger(item.id)}
+                        loading={triggering === item.id}
+                        disabled={!isAdmin || !!triggering}
+                        title={!isAdmin ? 'Chỉ admin mới được kích hoạt workflow.' : undefined}
+                      >
+                        {item.danger ? 'Clean & Build' : 'Kích hoạt'}
+                      </Button>
+                    ) : (
+                      <Button type="text" icon={<InfoCircleOutlined />} disabled>
+                        Tự động (push main)
+                      </Button>
+                    )
+                  }
+                >
+                  <Text type="secondary">{item.description}</Text>
+                </Card>
+              </List.Item>
+            )}
+          />
+        )}
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -987,6 +1120,11 @@ export default function GitHubActions() {
             ),
           },
           {
+            key: 'update-data',
+            label: 'Update Data',
+            children: updateDataTabChildren,
+          },
+          {
             key: 'supabase-movies',
             label: (
               <span>
@@ -997,13 +1135,13 @@ export default function GitHubActions() {
               <Card
                 title="Bảng Supabase: phim & tập"
                 extra={
-                  <Button type="primary" onClick={fetchSbTableCounts} loading={sbCountsLoading}>
+                  <Button type="primary" onClick={fetchSbTableCounts} loading={sbCountsLoading} disabled={!isAdmin}>
                     Làm mới số hàng
                   </Button>
                 }
               >
                 <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-                  Đếm số dòng <code>movies</code> và <code>movie_episodes</code> (qua API Vercel + service role). Xóa phim sẽ CASCADE xóa tập.
+                  Đếm số dòng <code>movies</code> (Movies project) và <code>movie_episodes</code> (Episodes project) qua API Vercel + service role.
                 </Text>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   <div>
@@ -1032,7 +1170,8 @@ export default function GitHubActions() {
                       style={{ marginTop: 12 }}
                       onClick={handleDeleteSbByIds}
                       loading={sbDeleting}
-                      disabled={sbDeleting || sbDeletingAll}
+                      disabled={!isAdmin || sbDeleting || sbDeletingAll}
+                      title={!isAdmin ? 'Chỉ admin mới được xóa.' : undefined}
                     >
                       Xóa các id đã nhập
                     </Button>
@@ -1042,144 +1181,37 @@ export default function GitHubActions() {
                     <Text type="danger" style={{ display: 'block', marginBottom: 12 }}>
                       Xóa hết phim trong Supabase (giống xóa sạch bảng sheet). Chỉ dùng khi chắc chắn.
                     </Text>
+                    <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+                      Mẹo nhanh (chạy trong SQL Editor từng project): Movies → <code>truncate table public.movies;</code> • Episodes →{' '}
+                      <code>truncate table public.movie_episodes;</code>
+                    </Text>
                     <Button
                       danger
                       type="primary"
                       onClick={handleDeleteAllSbMovies}
                       loading={sbDeletingAll}
-                      disabled={sbDeleting || sbDeletingAll}
+                      disabled={!isAdmin || sbDeleting || sbDeletingAll}
+                      title={!isAdmin ? 'Chỉ admin mới được xóa.' : undefined}
                     >
                       Xóa toàn bộ phim &amp; tập
                     </Button>
+                    <Divider style={{ margin: '12px 0' }} />
+                    <Text strong>SQL làm rỗng bảng (copy chạy trực tiếp)</Text>
+                    <Input.TextArea
+                      rows={4}
+                      readOnly
+                      value={[
+                        '-- Movies project (Org B / project Movies)',
+                        'truncate table public.movies;',
+                        '',
+                        '-- Episodes project (Org B / project Episodes)',
+                        'truncate table public.movie_episodes;',
+                      ].join('\n')}
+                      style={{ marginTop: 8, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace' }}
+                    />
                   </Card>
                 </Space>
               </Card>
-            ),
-          },
-          {
-            key: 'update-data',
-            label: 'Update Data',
-            children: (
-              <>
-                <Card title="Cài đặt Update data">
-                  <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                    Chỉ chọn khoảng trang để lấy. API mặc định: 24 phim/trang, trang 1 là mới nhất. Lấy theo kiểu lùi và kết thúc ở trang 1.
-                  </Text>
-                  <Form form={form} layout="vertical" initialValues={updateSettings} style={{ maxWidth: '100%' }}>
-                    <Text strong style={{ width: '100%', marginBottom: 8 }}>Chế độ chạy:</Text>
-                    <Form.Item style={{ marginBottom: 8 }}>
-                      <Radio.Group
-                        value={twoPhase ? '2' : '1'}
-                        onChange={(e: RadioChangeEvent) => setTwoPhase(e.target.value === '2')}
-                        optionType="button"
-                        buttonStyle="solid"
-                      >
-                        <Radio.Button value="1">1 pha (full)</Radio.Button>
-                        <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
-                      </Radio.Group>
-                    </Form.Item>
-
-                    <Text strong style={{ width: '100%', marginBottom: 8 }}>Tự động (schedule):</Text>
-                    <Form.Item style={{ marginBottom: 8 }}>
-                      <Radio.Group
-                        value={autoTwoPhase ? '2' : '1'}
-                        onChange={(e: RadioChangeEvent) => setAutoTwoPhase(e.target.value === '2')}
-                        optionType="button"
-                        buttonStyle="solid"
-                      >
-                        <Radio.Button value="1">1 pha (full)</Radio.Button>
-                        <Radio.Button value="2">2 pha (core → tmdb)</Radio.Button>
-                      </Radio.Group>
-                    </Form.Item>
-
-                    <Form.Item style={{ marginBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                        <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                          Tự động ghi ảnh vào repo sau khi Update data:
-                        </Text>
-                        <Switch checked={autoUploadImagesAfterBuild} onChange={setAutoUploadImagesAfterBuild} />
-                      </div>
-                    </Form.Item>
-
-                    <Form.Item style={{ marginBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                        <Text style={{ flex: '1 1 240px', minWidth: 0, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                          Chỉ deploy Cloudflare sau khi ghi ảnh xong (khi chạy 2 pha):
-                        </Text>
-                        <Switch checked={deployAfterR2Upload} onChange={setDeployAfterR2Upload} />
-                      </div>
-                    </Form.Item>
-
-                    <Text strong style={{ width: '100%' }}>Thủ công (khi bấm Kích hoạt):</Text>
-                    <Form.Item name="start_page" label="Trang bắt đầu" rules={[{ required: true }]} style={{ marginBottom: 8 }}>
-                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
-                    </Form.Item>
-                    <Form.Item name="end_page" label="Trang kết thúc" style={{ marginBottom: 8 }}>
-                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
-                    </Form.Item>
-                    <Form.Item>
-                      <Button icon={<SaveOutlined />} onClick={handleSaveUpdateSettings} loading={savingSettings}>
-                        Lưu mặc định
-                      </Button>
-                    </Form.Item>
-                    <Text strong style={{ width: '100%', marginTop: 16 }}>Tự động (0h, 6h, 12h, 18h):</Text>
-                    <Form.Item name="auto_start_page" label="Auto: Trang bắt đầu" style={{ marginBottom: 8 }}>
-                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
-                    </Form.Item>
-                    <Form.Item name="auto_end_page" label="Auto: Trang kết thúc" style={{ marginBottom: 8 }}>
-                      <InputNumber min={1} max={100000} placeholder="1" style={{ width: '100%', maxWidth: 200 }} />
-                    </Form.Item>
-                    <Form.Item>
-                      <Space direction="vertical" size={4}>
-                        <Button onClick={handleFetchTotalPages} loading={fetchingTotalPages}>
-                          Lấy tổng số trang/phim
-                        </Button>
-                        {totalMovies != null && totalPages != null && (
-                          <Text type="secondary">Tổng phim: {totalMovies} • Tổng trang: {totalPages}</Text>
-                        )}
-                      </Space>
-                    </Form.Item>
-                  </Form>
-                </Card>
-
-                <div style={{ marginTop: 16 }}>
-                  {loading ? (
-                    <Spin tip="Đang tải danh sách..." />
-                  ) : (
-                    <List
-                      grid={{ gutter: 16, xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }}
-                      dataSource={updateDataTriggerList}
-                      renderItem={(item: ActionItem & { triggerable?: boolean; danger?: boolean }) => (
-                        <List.Item>
-                          <Card
-                            title={item.name}
-                            extra={
-                              item.triggerable !== false ? (
-                                <Button
-                                  type={item.danger ? 'default' : 'primary'}
-                                  danger={!!item.danger}
-                                  icon={triggering === item.id ? <Spin size="small" /> : item.danger ? <DeleteOutlined /> : <PlayCircleOutlined />}
-                                  onClick={() => handleTrigger(item.id)}
-                                  loading={triggering === item.id}
-                                  disabled={!!triggering}
-                                >
-                                  {item.danger ? 'Clean & Build' : 'Kích hoạt'}
-                                </Button>
-                              ) : (
-                                <Button type="text" icon={<InfoCircleOutlined />} disabled>
-                                  Tự động (push main)
-                                </Button>
-                              )
-                            }
-                          >
-                            <Text type="secondary">{item.description}</Text>
-                          </Card>
-                        </List.Item>
-                      )}
-                    />
-                  )}
-                </div>
-              </>
             ),
           },
           {

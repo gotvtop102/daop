@@ -1,5 +1,6 @@
 // Vercel Serverless: kích hoạt GitHub Actions (repository_dispatch hoặc workflow_dispatch)
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { requireAdmin } from './admin-guard.js';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPO = process.env.GITHUB_REPO;
@@ -41,6 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
+  if (!(await requireAdmin(req, res))) return;
   if (!GITHUB_TOKEN || !GITHUB_REPO) {
     res.status(500).json({ error: 'Missing GITHUB_TOKEN or GITHUB_REPO' });
     return;

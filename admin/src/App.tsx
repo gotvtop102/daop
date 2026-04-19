@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import AuthGuard from './components/AuthGuard';
 import AccessRouteGuard from './components/AccessRouteGuard';
 import { AccessProvider } from './context/AccessContext';
+import { AdminRoleProvider } from './context/AdminRoleContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Ads from './pages/Ads';
@@ -29,7 +30,18 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<AuthGuard><AccessProvider><Layout /></AccessProvider></AuthGuard>}>
+        <Route
+          path="/"
+          element={
+            <AuthGuard>
+              <AdminRoleProvider>
+                <AccessProvider>
+                  <Layout />
+                </AccessProvider>
+              </AdminRoleProvider>
+            </AuthGuard>
+          }
+        >
           <Route index element={<Dashboard />} />
           <Route path="ads" element={<AccessRouteGuard><Ads /></AccessRouteGuard>} />
           <Route path="banners" element={<Navigate to="/ads" replace />} />

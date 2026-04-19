@@ -25,13 +25,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         navigate('/login', { replace: true, state: { from: location.pathname } });
         return;
       }
-      const role = (session.user?.app_metadata as { role?: string })?.role;
-      if (role !== 'admin') {
-        await supabase.auth.signOut();
-        navigate('/login', { replace: true });
-        setLoading(false);
-        return;
-      }
       setAuthenticated(true);
       setLoading(false);
     };

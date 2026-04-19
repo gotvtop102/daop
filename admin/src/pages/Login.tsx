@@ -12,8 +12,7 @@ export default function Login() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      const role = (session?.user?.app_metadata as { role?: string })?.role;
-      if (session && role === 'admin') navigate('/', { replace: true });
+      if (session) navigate('/', { replace: true });
     });
   }, [navigate]);
 
@@ -30,13 +29,11 @@ export default function Login() {
         return;
       }
       const role = (data.user?.app_metadata as { role?: string })?.role;
-      if (role !== 'admin') {
-        await supabase.auth.signOut();
-        message.error('Tài khoản không có quyền admin.');
-        setLoading(false);
-        return;
+      if (String(role || '').trim().toLowerCase() !== 'admin') {
+        message.warning('Đăng nhập thành công (chế độ chỉ xem). Tài khoản không có quyền admin để lưu/chạy build.');
+      } else {
+        message.success('Đăng nhập thành công');
       }
-      message.success('Đăng nhập thành công');
       navigate('/', { replace: true });
     } catch (e: any) {
       message.error(e?.message || 'Lỗi đăng nhập');

@@ -1,7 +1,7 @@
 /**
  * Đẩy dữ liệu phim đã build (movies-manifest + pubjs-output) lên Supabase.
  *
- * Cần: SUPABASE_ADMIN_URL (hoặc VITE_SUPABASE_ADMIN_URL), SUPABASE_ADMIN_SERVICE_ROLE_KEY
+ * Cần: SUPABASE_MOVIES_URL (+ SERVICE_ROLE_KEY) và SUPABASE_EPISODES_URL (+ SERVICE_ROLE_KEY)
  *
  * EXPORT_TO_SUPABASE_SCOPE:
  *   - all (mặc định): toàn bộ phim trong batch
@@ -96,8 +96,8 @@ function movieToRow(m, dbSt) {
   return {
     id: String(m.id),
     slug: String(m.slug || ''),
-    title: String(m.title || ''),
-    name: String(m.title || m.name || ''),
+    title: String(m.title || m.name || ''),
+    name: null,
     origin_name: String(m.origin_name || ''),
     type: String(m.type || 'single'),
     year: String(m.year ?? ''),
@@ -106,10 +106,12 @@ function movieToRow(m, dbSt) {
     language: String(m.lang_key || m.language || ''),
     quality: String(m.quality || ''),
     episode_current: String(m.episode_current || ''),
-    thumb_url: String(m.thumb || m.thumb_url || ''),
-    poster_url: String(m.poster || m.poster_url || ''),
-    description: String(m.description || ''),
-    content: String(m.description || m.content || ''),
+    // URL ảnh có thể dựng từ slug/id + site_settings.r2_img_domain → không lưu để tránh lãng phí.
+    // Nếu cần override ảnh theo phim, hãy lưu theo cơ chế khác (vd: repo/R2 theo slug) thay vì lưu URL lặp.
+    thumb_url: null,
+    poster_url: null,
+    description: String(m.description || m.content || ''),
+    content: null,
     status: String(m.status || ''),
     chieurap: m.chieurap ? '1' : '0',
     showtimes: String(m.showtimes || ''),
@@ -332,14 +334,14 @@ async function supabaseWithRetry(label, run, retries = 4) {
 /**
  * Trạng thái DB để incremental: null = chưa có dòng movies (cần full upsert).
  */
-async function fetchExistingSyncState(supabase, ids) {
+async function fetchExistingSyncState(supabaseMovies, supabaseEpisodes, ids) {
   const chunkSize = 100;
   const unique = [...new Set(ids.map((id) => String(id)))];
   const movieRows = new Map();
   for (let i = 0; i < unique.length; i += chunkSize) {
     const chunk = unique.slice(i, i + chunkSize);
     const { data, error } = await supabaseWithRetry('select movies (sync)', () =>
-      supabase.from('movies').select('id, modified, episode_current').in('id', chunk)
+      supabaseMovies.from('movies').select('id, modified, episode_current').in('id', chunk)
     );
     if (error) throw error;
     for (const row of data || []) {
@@ -354,7 +356,7 @@ async function fetchExistingSyncState(supabase, ids) {
     // Phải paginate vì 100 phim có thể có > 1000 tập (vượt quá giới hạn trả về mặc định của PostgREST)
     for (let page = 0; ; page++) {
       const { data, error } = await supabaseWithRetry(`select movie_episodes (sync, p${page})`, () =>
-        supabase
+        supabaseEpisodes
           .from('movie_episodes')
           .select('movie_id, episode_code, server_slug, link_m3u8, link_embed')
           .in('movie_id', chunk)
@@ -443,22 +445,24 @@ function isEpisodesOnlyExport(m) {
   return !!(m && m._from_supabase && m._supabaseExportEpisodesOnly);
 }
 
-async function updateEpisodeCurrentOnly(supabase, movies) {
+async function updateEpisodeCurrentOnly(supabaseMovies, movies) {
   for (const m of movies) {
     const id = String(m.id);
     const ec = String(m.episode_current || '');
     const { error } = await supabaseWithRetry('update episode_current (ophim sync)', () =>
-      supabase.from('movies').update({ episode_current: ec }).eq('id', id)
+      supabaseMovies.from('movies').update({ episode_current: ec }).eq('id', id)
     );
     if (error) console.warn('   episode_current update failed', id, error.message);
   }
 }
 
 async function main() {
-  const url = String(process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || '').trim();
-  const key = String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim();
-  if (!url || !key) {
-    console.error('Thiếu SUPABASE_ADMIN_URL (hoặc VITE_SUPABASE_ADMIN_URL) hoặc SUPABASE_ADMIN_SERVICE_ROLE_KEY.');
+  const moviesUrl = String(process.env.SUPABASE_MOVIES_URL || process.env.VITE_SUPABASE_MOVIES_URL || '').trim();
+  const moviesKey = String(process.env.SUPABASE_MOVIES_SERVICE_ROLE_KEY || '').trim();
+  const episodesUrl = String(process.env.SUPABASE_EPISODES_URL || process.env.VITE_SUPABASE_EPISODES_URL || '').trim();
+  const episodesKey = String(process.env.SUPABASE_EPISODES_SERVICE_ROLE_KEY || '').trim();
+  if (!moviesUrl || !moviesKey || !episodesUrl || !episodesKey) {
+    console.error('Thiếu biến môi trường Movies/Episodes Supabase (URL + SERVICE_ROLE_KEY).');
     process.exit(1);
   }
 
@@ -503,14 +507,15 @@ async function main() {
     return;
   }
 
-  const supabase = createClient(url, key);
+  const supabaseMovies = createClient(moviesUrl, moviesKey);
+  const supabaseEpisodes = createClient(episodesUrl, episodesKey);
   let upserted = 0;
   let epInserted = 0;
   let skippedUnchanged = 0;
   let episodesOnlyCount = 0;
 
   const ids = movies.map((m) => String(m.id));
-  const syncState = await fetchExistingSyncState(supabase, ids);
+  const syncState = await fetchExistingSyncState(supabaseMovies, supabaseEpisodes, ids);
 
   let toSync = movies;
   if (!alwaysFull) {
@@ -534,7 +539,7 @@ async function main() {
       .slice(i, i + batchSize)
       .map((m) => movieToRow(m, syncState.get(String(m.id))));
     try {
-      await upsertMoviesChunked(supabase, chunk);
+      await upsertMoviesChunked(supabaseMovies, chunk);
     } catch (e) {
       console.error('Upsert movies failed:', e?.message || e);
       process.exit(1);
@@ -544,7 +549,7 @@ async function main() {
   }
 
   if (episodesOnly.length) {
-    await updateEpisodeCurrentOnly(supabase, episodesOnly);
+    await updateEpisodeCurrentOnly(supabaseMovies, episodesOnly);
   }
 
   const episodeRowsByMovie = new Map();
@@ -575,21 +580,21 @@ async function main() {
     const group = safeEpisodeSyncMovies.slice(g, g + epMovieBatch);
     const mids = group.map((m) => String(m.id));
     const { error: delErr } = await supabaseWithRetry('delete movie_episodes (batch movie_id)', () =>
-      supabase.from('movie_episodes').delete().in('movie_id', mids)
+      supabaseEpisodes.from('movie_episodes').delete().in('movie_id', mids)
     );
     if (delErr) {
       console.warn('   Xóa tập theo batch thất bại, fallback từng phim:', delErr.message || delErr);
       for (const m of group) {
         const mid = String(m.id);
         const { error: d1 } = await supabaseWithRetry('delete movie_episodes (one)', () =>
-          supabase.from('movie_episodes').delete().eq('movie_id', mid)
+          supabaseEpisodes.from('movie_episodes').delete().eq('movie_id', mid)
         );
         if (d1) console.warn('   Delete episodes failed', mid, d1.message);
         const rows = episodeRowsByMovie.get(mid) || [];
         for (let j = 0; j < rows.length; j += epInsertChunk) {
           const part = rows.slice(j, j + epInsertChunk);
           const { error: insErr } = await supabaseWithRetry('insert movie_episodes', () =>
-            supabase.from('movie_episodes').insert(part)
+            supabaseEpisodes.from('movie_episodes').insert(part)
           );
           if (insErr) console.warn('   Insert episodes failed', mid, insErr.message);
           else epInserted += part.length;
@@ -606,7 +611,7 @@ async function main() {
     for (let j = 0; j < allEpRows.length; j += epInsertChunk) {
       const part = allEpRows.slice(j, j + epInsertChunk);
       const { error: insErr } = await supabaseWithRetry('insert movie_episodes', () =>
-        supabase.from('movie_episodes').insert(part)
+        supabaseEpisodes.from('movie_episodes').insert(part)
       );
       if (insErr) {
         console.warn('   Insert episodes chunk failed:', insErr.message);

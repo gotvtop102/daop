@@ -17,6 +17,8 @@ import { CopyOutlined, DownloadOutlined, UploadOutlined, SaveOutlined } from '@a
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
 import { normalizeCommentsAdminSecret } from '../lib/commentAdminSecret';
+import { getAdminApiAuthHeaders } from '../lib/adminAuth';
+import { useAdminRole } from '../context/AdminRoleContext';
 
 type ExportPayload = Record<string, any[]>;
 
@@ -32,7 +34,7 @@ type TableKey =
   | 'movies'
   | 'movie_episodes';
 
-const TABLES: Array<{ key: TableKey; label: string }> = [
+const ADMIN_TABLES: Array<{ key: TableKey; label: string }> = [
   { key: 'site_settings', label: 'Site settings' },
   { key: 'player_settings', label: 'Player settings' },
   { key: 'homepage_sections', label: 'Homepage sections' },
@@ -41,17 +43,36 @@ const TABLES: Array<{ key: TableKey; label: string }> = [
   { key: 'server_sources', label: 'Server sources' },
   { key: 'static_pages', label: 'Static pages' },
   { key: 'donate_settings', label: 'Donate settings' },
-  { key: 'movies', label: 'Movies (phim — Admin/API)' },
-  { key: 'movie_episodes', label: 'Movie episodes (tập)' },
 ];
 
-/** Mặc định không chọn phim/tập (có thể rất lớn); bật tay khi cần backup. */
-const DEFAULT_SELECTED_TABLES: TableKey[] = TABLES.filter(
-  (t) => t.key !== 'movies' && t.key !== 'movie_episodes'
-).map((t) => t.key);
+const DEFAULT_SELECTED_ADMIN_TABLES: TableKey[] = ADMIN_TABLES.map((t) => t.key);
 
-/** Phim/tập: RLS + anon có thể trả [] dù DB có dữ liệu — export qua /api/movies (service role) giống trang Danh sách phim. */
-const MOVIE_EXPORT_TABLES: TableKey[] = ['movies', 'movie_episodes'];
+async function importMovieTablesViaApi(mode: 'upsert' | 'replace', data: Record<string, any[]>) {
+  const base = getApiBaseUrl().replace(/\/$/, '');
+  if (!base) throw new Error('Thiếu URL gọi API (dev: proxy /api; production: VITE_API_URL hoặc cùng host với deploy API).');
+  const authH = await getAdminApiAuthHeaders();
+  const res = await fetch(`${base}/api/movies?action=importFull`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authH },
+    body: JSON.stringify({ mode, data }),
+  });
+  const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+  if (!res.ok || !j?.ok) throw new Error(j?.error || `HTTP ${res.status}`);
+}
+
+async function exportMovieTablesViaApi(tables: Array<'movies' | 'movie_episodes'>): Promise<Record<string, any[]>> {
+  const base = getApiBaseUrl().replace(/\/$/, '');
+  if (!base) throw new Error('Thiếu URL gọi API (dev: proxy /api; production: VITE_API_URL hoặc cùng host với deploy API).');
+  const authH = await getAdminApiAuthHeaders();
+  const res = await fetch(`${base}/api/movies?action=exportFull`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authH },
+    body: JSON.stringify({ tables }),
+  });
+  const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; data?: Record<string, any[]> };
+  if (!res.ok || !j?.ok) throw new Error(j?.error || `HTTP ${res.status}`);
+  return j.data || {};
+}
 
 async function selectAllRowsForExport(table: TableKey): Promise<any[]> {
   const r = await supabase.from(table).select('*');
@@ -81,12 +102,23 @@ async function copyToClipboard(text: string) {
 }
 
 export default function SupabaseTools() {
-  const [selectedTables, setSelectedTables] = useState<TableKey[]>(DEFAULT_SELECTED_TABLES);
-  const [exporting, setExporting] = useState(false);
+  const { isAdmin } = useAdminRole();
+  const [selectedAdminTables, setSelectedAdminTables] = useState<TableKey[]>(DEFAULT_SELECTED_ADMIN_TABLES);
+  const [adminExporting, setAdminExporting] = useState(false);
 
-  const [importMode, setImportMode] = useState<'upsert' | 'replace'>('upsert');
-  const [importText, setImportText] = useState('');
-  const [importing, setImporting] = useState(false);
+  const [adminImportMode, setAdminImportMode] = useState<'upsert' | 'replace'>('upsert');
+  const [adminImportText, setAdminImportText] = useState('');
+  const [adminImporting, setAdminImporting] = useState(false);
+
+  const [moviesExporting, setMoviesExporting] = useState(false);
+  const [moviesImportMode, setMoviesImportMode] = useState<'upsert' | 'replace'>('upsert');
+  const [moviesImportText, setMoviesImportText] = useState('');
+  const [moviesImporting, setMoviesImporting] = useState(false);
+
+  const [episodesExporting, setEpisodesExporting] = useState(false);
+  const [episodesImportMode, setEpisodesImportMode] = useState<'upsert' | 'replace'>('upsert');
+  const [episodesImportText, setEpisodesImportText] = useState('');
+  const [episodesImporting, setEpisodesImporting] = useState(false);
 
   const USER_TABLES = useMemo(
     () => [
@@ -234,6 +266,10 @@ export default function SupabaseTools() {
 
   const exportUserTables = async () => {
     try {
+      if (!isAdmin) {
+        message.warning('Chế độ chỉ xem: tài khoản không có quyền export/import.');
+        return;
+      }
       if (!selectedUserTables.length) {
         message.warning('Chọn ít nhất 1 bảng để export');
         return;
@@ -241,7 +277,7 @@ export default function SupabaseTools() {
       setUserExporting(true);
       const r = await fetch('/api/supabase-user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
         body: JSON.stringify({ action: 'export', tables: selectedUserTables }),
       }).then((x) => x.json());
       if (!r?.ok) throw new Error(r?.message || 'Export thất bại');
@@ -259,6 +295,10 @@ export default function SupabaseTools() {
   };
 
   const importUserTables = async () => {
+    if (!isAdmin) {
+      message.warning('Chế độ chỉ xem: tài khoản không có quyền export/import.');
+      return;
+    }
     let parsed: any = null;
     try {
       parsed = JSON.parse(userImportText || '');
@@ -276,7 +316,7 @@ export default function SupabaseTools() {
       try {
         const r = await fetch('/api/supabase-user', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
           body: JSON.stringify({
             action: 'import',
             mode: userImportMode,
@@ -766,7 +806,10 @@ set raw_app_meta_data = jsonb_set(
 where email = 'admin@example.com';`;
 
     const moviesSchemaSql = `-- Bảng phim + tập — đồng bộ với docs/supabase/schema-movies-episodes.sql
--- Chạy sau schema-admin.sql (cần public.is_admin()).
+-- Mô hình mới tách project:
+-- - Project Movies (Org B): chạy phần tạo bảng public.movies
+-- - Project Episodes (Org B): chạy phần tạo bảng public.movie_episodes
+-- (không có FK cross-project)
 
 create table if not exists public.movies (
   id text primary key,
@@ -806,7 +849,8 @@ create index if not exists movies_update_flag_idx on public.movies ("update");
 
 create table if not exists public.movie_episodes (
   id uuid primary key default gen_random_uuid(),
-  movie_id text not null references public.movies(id) on delete cascade,
+  -- Không thể FK cross-project, nên chỉ giữ movie_id dạng text
+  movie_id text not null,
   episode_code text,
   episode_name text,
   server_slug text,
@@ -913,53 +957,40 @@ comment on column public.donate_settings.methods is
     ];
   }, []);
 
-  const handleExport = async () => {
+  const handleExportAdmin = async () => {
     try {
-      if (!selectedTables.length) {
+      if (!isAdmin) {
+        message.warning('Chế độ chỉ xem: tài khoản không có quyền export/import.');
+        return;
+      }
+      if (!selectedAdminTables.length) {
         message.warning('Chọn ít nhất 1 bảng để export');
         return;
       }
-      setExporting(true);
+      setAdminExporting(true);
       const payload: ExportPayload = {};
 
-      const viaApi = selectedTables.filter((t) => MOVIE_EXPORT_TABLES.includes(t));
-      const viaSb = selectedTables.filter((t) => !MOVIE_EXPORT_TABLES.includes(t));
-
-      if (viaApi.length) {
-        const base = getApiBaseUrl().replace(/\/$/, '');
-        if (!base) throw new Error('Thiếu URL gọi API (dev: proxy /api; production: VITE_API_URL hoặc cùng host với deploy API).');
-        const res = await fetch(`${base}/api/movies?action=exportFull`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tables: viaApi }),
-        });
-        const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; data?: Record<string, any[]> };
-        if (!res.ok) throw new Error(j?.error || `HTTP ${res.status}`);
-        if (!j?.ok) throw new Error(j?.error || 'Export phim/tập thất bại');
-        const data = j.data || {};
-        for (const t of viaApi) {
-          payload[t] = Array.isArray(data[t]) ? data[t] : [];
-        }
-      }
-
       await Promise.all(
-        viaSb.map(async (t: TableKey) => {
+        selectedAdminTables.map(async (t: TableKey) => {
           payload[t] = await selectAllRowsForExport(t);
         })
       );
       payload.__meta = [
         {
           exported_at: new Date().toISOString(),
-          tables: selectedTables,
+          tables: selectedAdminTables,
         },
       ];
 
-      downloadJson(`supabase-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`, payload);
-      message.success('Đã export JSON');
+      downloadJson(
+        `supabase-admin-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`,
+        payload
+      );
+      message.success('Đã export (Admin)');
     } catch (e: any) {
       message.error(e?.message || 'Export thất bại');
     } finally {
-      setExporting(false);
+      setAdminExporting(false);
     }
   };
 
@@ -991,15 +1022,9 @@ comment on column public.donate_settings.methods is
       return;
     }
 
-    if (table === 'movies') {
-      const r: any = await supabase.from(table).upsert(list, { onConflict: 'id' });
-      if (r.error) throw r.error;
-      return;
-    }
-
-    if (table === 'movie_episodes') {
-      const r: any = await supabase.from(table).upsert(list, { onConflict: 'id' });
-      if (r.error) throw r.error;
+    // movies/movie_episodes đã tách sang project khác → import qua /api/movies (service role)
+    if (table === 'movies' || table === 'movie_episodes') {
+      await importMovieTablesViaApi('upsert', { [table]: list });
       return;
     }
 
@@ -1010,26 +1035,9 @@ comment on column public.donate_settings.methods is
   const replaceTable = async (table: TableKey, rows: any[]) => {
     const list = Array.isArray(rows) ? rows : [];
 
-    if (table === 'movies') {
-      const del: any = await supabase.from('movies').delete().not('id', 'is', null);
-      if (del.error) throw del.error;
-      if (list.length) {
-        const ins: any = await supabase.from('movies').insert(list);
-        if (ins.error) throw ins.error;
-      }
-      return;
-    }
-
-    if (table === 'movie_episodes') {
-      const del: any = await supabase
-        .from('movie_episodes')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000');
-      if (del.error) throw del.error;
-      if (list.length) {
-        const ins: any = await supabase.from('movie_episodes').insert(list);
-        if (ins.error) throw ins.error;
-      }
+    // movies/movie_episodes đã tách sang project khác → import qua /api/movies (service role)
+    if (table === 'movies' || table === 'movie_episodes') {
+      await importMovieTablesViaApi('replace', { [table]: list });
       return;
     }
 
@@ -1051,33 +1059,39 @@ comment on column public.donate_settings.methods is
     }
   };
 
-  const handleImport = async () => {
+  const handleImportAdmin = async () => {
+    if (!isAdmin) {
+      message.warning('Chế độ chỉ xem: tài khoản không có quyền export/import.');
+      return;
+    }
     let parsed: any = null;
     try {
-      parsed = JSON.parse(importText || '');
+      parsed = JSON.parse(adminImportText || '');
     } catch {
       message.error('JSON không hợp lệ');
       return;
     }
 
-    const tablesInJson = TABLES.map((t) => t.key).filter((k) => parsed && Object.prototype.hasOwnProperty.call(parsed, k));
+    const tablesInJson = ADMIN_TABLES.map((t) => t.key).filter(
+      (k) => parsed && Object.prototype.hasOwnProperty.call(parsed, k)
+    );
     if (!tablesInJson.length) {
       message.warning('Không tìm thấy bảng hợp lệ trong JSON');
       return;
     }
 
     const run = async () => {
-      setImporting(true);
+      setAdminImporting(true);
       try {
         for (const t of tablesInJson) {
           const rows = Array.isArray(parsed[t]) ? parsed[t] : [];
-          if (importMode === 'replace') {
+          if (adminImportMode === 'replace') {
             await replaceTable(t, rows);
           } else {
             await upsertTable(t, rows);
           }
         }
-        message.success('Import thành công');
+        message.success('Import thành công (Admin)');
       } catch (e: any) {
         const msg = String(e?.message || e || '');
         if (
@@ -1092,11 +1106,11 @@ comment on column public.donate_settings.methods is
           message.error(msg || 'Import thất bại');
         }
       } finally {
-        setImporting(false);
+        setAdminImporting(false);
       }
     };
 
-    if (importMode === 'replace') {
+    if (adminImportMode === 'replace') {
       Modal.confirm({
         title: 'Replace sẽ xóa dữ liệu hiện tại rồi nhập lại. Bạn chắc chắn?',
         content: 'Hãy chắc chắn bạn đang import đúng JSON. Thao tác này không thể hoàn tác.',
@@ -1111,6 +1125,122 @@ comment on column public.donate_settings.methods is
     await run();
   };
 
+  const handleExportMovies = async () => {
+    if (!isAdmin) {
+      message.warning('Chế độ chỉ xem: tài khoản không có quyền export/import.');
+      return;
+    }
+    setMoviesExporting(true);
+    try {
+      const data = await exportMovieTablesViaApi(['movies']);
+      downloadJson(`supabase-movies-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`, {
+        movies: Array.isArray(data.movies) ? data.movies : [],
+        __meta: [{ exported_at: new Date().toISOString(), tables: ['movies'] }],
+      });
+      message.success('Đã export (Movies)');
+    } catch (e: any) {
+      message.error(e?.message || 'Export movies thất bại');
+    } finally {
+      setMoviesExporting(false);
+    }
+  };
+
+  const handleImportMovies = async () => {
+    if (!isAdmin) {
+      message.warning('Chế độ chỉ xem: tài khoản không có quyền export/import.');
+      return;
+    }
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(moviesImportText || '');
+    } catch {
+      message.error('JSON không hợp lệ');
+      return;
+    }
+    const rows = Array.isArray(parsed?.movies) ? parsed.movies : [];
+    const run = async () => {
+      setMoviesImporting(true);
+      try {
+        await importMovieTablesViaApi(moviesImportMode, { movies: rows });
+        message.success('Import thành công (Movies)');
+      } catch (e: any) {
+        message.error(e?.message || 'Import movies thất bại');
+      } finally {
+        setMoviesImporting(false);
+      }
+    };
+    if (moviesImportMode === 'replace') {
+      Modal.confirm({
+        title: 'Replace (Movies) — bạn chắc chắn?',
+        content: 'Replace sẽ xóa toàn bộ bảng movies rồi ghi lại. Thao tác này không thể hoàn tác.',
+        okText: 'Tiếp tục',
+        okButtonProps: { danger: true },
+        cancelText: 'Hủy',
+        onOk: run,
+      });
+      return;
+    }
+    await run();
+  };
+
+  const handleExportEpisodes = async () => {
+    if (!isAdmin) {
+      message.warning('Chế độ chỉ xem: tài khoản không có quyền export/import.');
+      return;
+    }
+    setEpisodesExporting(true);
+    try {
+      const data = await exportMovieTablesViaApi(['movie_episodes']);
+      downloadJson(`supabase-episodes-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`, {
+        movie_episodes: Array.isArray(data.movie_episodes) ? data.movie_episodes : [],
+        __meta: [{ exported_at: new Date().toISOString(), tables: ['movie_episodes'] }],
+      });
+      message.success('Đã export (Episodes)');
+    } catch (e: any) {
+      message.error(e?.message || 'Export movie_episodes thất bại');
+    } finally {
+      setEpisodesExporting(false);
+    }
+  };
+
+  const handleImportEpisodes = async () => {
+    if (!isAdmin) {
+      message.warning('Chế độ chỉ xem: tài khoản không có quyền export/import.');
+      return;
+    }
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(episodesImportText || '');
+    } catch {
+      message.error('JSON không hợp lệ');
+      return;
+    }
+    const rows = Array.isArray(parsed?.movie_episodes) ? parsed.movie_episodes : [];
+    const run = async () => {
+      setEpisodesImporting(true);
+      try {
+        await importMovieTablesViaApi(episodesImportMode, { movie_episodes: rows });
+        message.success('Import thành công (Episodes)');
+      } catch (e: any) {
+        message.error(e?.message || 'Import movie_episodes thất bại');
+      } finally {
+        setEpisodesImporting(false);
+      }
+    };
+    if (episodesImportMode === 'replace') {
+      Modal.confirm({
+        title: 'Replace (Episodes) — bạn chắc chắn?',
+        content: 'Replace sẽ xóa toàn bộ bảng movie_episodes rồi ghi lại. Thao tác này không thể hoàn tác.',
+        okText: 'Tiếp tục',
+        okButtonProps: { danger: true },
+        cancelText: 'Hủy',
+        onOk: run,
+      });
+      return;
+    }
+    await run();
+  };
+
   return (
     <>
       <Space direction="vertical" size={6} style={{ width: '100%', marginBottom: 12 }}>
@@ -1118,10 +1248,8 @@ comment on column public.donate_settings.methods is
           Supabase Tools
         </Typography.Title>
         <Typography.Text type="secondary">
-          Backup/restore dữ liệu cấu hình + phim (movies / movie_episodes), và copy SQL setup. Phim/tập được lấy qua{' '}
-          <Typography.Text code>/api/movies?action=exportFull</Typography.Text> (service role, không phụ thuộc RLS trình duyệt).
-          Dev: cần <Typography.Text code>VITE_API_URL</Typography.Text> trong admin để proxy <Typography.Text code>/api</Typography.Text>{' '}
-          tới Vercel. Export phim/tập mặc định <strong>không chọn</strong> — bật tay khi cần (file có thể rất lớn).
+          Công cụ backup/restore tách theo 4 project Supabase: <strong>Admin</strong>, <strong>User</strong>,{' '}
+          <strong>Movies</strong>, <strong>Episodes</strong>. Movies/Episodes thao tác qua API service-role.
         </Typography.Text>
       </Space>
 
@@ -1129,19 +1257,19 @@ comment on column public.donate_settings.methods is
         items={[
           {
             key: 'data',
-            label: 'Xuất / Nhập dữ liệu',
+            label: 'Admin',
             children: (
               <Space direction="vertical" size={12} style={{ width: '100%' }}>
-                <Card title="Xuất dữ liệu (JSON)" bordered={false} style={{ borderRadius: 12 }}>
+                <Card title="Xuất dữ liệu (Admin project)" bordered={false} style={{ borderRadius: 12 }}>
                   <Space direction="vertical" style={{ width: '100%' }} size={10}>
                     <div>
                       <Typography.Text strong>Chọn bảng</Typography.Text>
                       <div style={{ marginTop: 8 }}>
                         <Select
                           mode="multiple"
-                          value={selectedTables}
-                          onChange={(v: unknown) => setSelectedTables(v as TableKey[])}
-                          options={TABLES.map((t) => ({ value: t.key, label: t.label }))}
+                          value={selectedAdminTables}
+                          onChange={(v: unknown) => setSelectedAdminTables(v as TableKey[])}
+                          options={ADMIN_TABLES.map((t) => ({ value: t.key, label: t.label }))}
                           style={{ width: '100%' }}
                         />
                       </div>
@@ -1150,24 +1278,24 @@ comment on column public.donate_settings.methods is
                       <Button
                         icon={<DownloadOutlined />}
                         type="primary"
-                        onClick={handleExport}
-                        loading={exporting}
+                        onClick={handleExportAdmin}
+                        loading={adminExporting}
                       >
                         Export JSON
                       </Button>
-                      <Button onClick={() => setSelectedTables(TABLES.map((t) => t.key))}>Chọn tất cả</Button>
-                      <Button onClick={() => setSelectedTables([])}>Bỏ chọn</Button>
+                      <Button onClick={() => setSelectedAdminTables(ADMIN_TABLES.map((t) => t.key))}>Chọn tất cả</Button>
+                      <Button onClick={() => setSelectedAdminTables([])}>Bỏ chọn</Button>
                     </Space>
                   </Space>
                 </Card>
 
-                <Card title="Nhập dữ liệu (JSON)" bordered={false} style={{ borderRadius: 12 }}>
+                <Card title="Nhập dữ liệu (Admin project)" bordered={false} style={{ borderRadius: 12 }}>
                   <Space direction="vertical" style={{ width: '100%' }} size={10}>
                     <Space wrap>
                       <Typography.Text strong>Chế độ import</Typography.Text>
                       <Select
-                        value={importMode}
-                        onChange={(v: 'upsert' | 'replace') => setImportMode(v)}
+                        value={adminImportMode}
+                        onChange={(v: 'upsert' | 'replace') => setAdminImportMode(v)}
                         options={[
                           { value: 'upsert', label: 'Upsert (khuyến nghị)' },
                           { value: 'replace', label: 'Replace (nguy hiểm)' },
@@ -1178,8 +1306,8 @@ comment on column public.donate_settings.methods is
 
                     <Input.TextArea
                       rows={10}
-                      value={importText}
-                      onChange={(e: any) => setImportText(e.target.value)}
+                      value={adminImportText}
+                      onChange={(e: any) => setAdminImportText(e.target.value)}
                       placeholder="Dán JSON export vào đây..."
                     />
 
@@ -1187,16 +1315,16 @@ comment on column public.donate_settings.methods is
                       <Button
                         type="primary"
                         icon={<UploadOutlined />}
-                        onClick={handleImport}
-                        loading={importing}
+                        onClick={handleImportAdmin}
+                        loading={adminImporting}
                       >
                         Import
                       </Button>
-                      <Button onClick={() => setImportText('')}>Xóa nội dung</Button>
+                      <Button onClick={() => setAdminImportText('')}>Xóa nội dung</Button>
                     </Space>
 
                     <Typography.Text type="secondary">
-                      Lưu ý: Sau khi import cấu hình / phim, chạy Build website để cập nhật site. Replace trên phim/tập là thao tác mạnh — nên có bản export trước.
+                      Lưu ý: Tab Admin chỉ chứa bảng cấu hình. Movies/Episodes nằm ở tab riêng.
                     </Typography.Text>
                   </Space>
                 </Card>
@@ -1277,6 +1405,108 @@ comment on column public.donate_settings.methods is
             ),
           },
           {
+            key: 'movies',
+            label: 'Movies',
+            children: (
+              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Card title="Xuất / Nhập dữ liệu (Movies project)" bordered={false} style={{ borderRadius: 12 }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={10}>
+                    <Space wrap>
+                      <Button icon={<DownloadOutlined />} type="primary" onClick={handleExportMovies} loading={moviesExporting} disabled={!isAdmin}>
+                        Export movies
+                      </Button>
+                    </Space>
+                    <Divider style={{ margin: '8px 0' }} />
+                    <Space wrap>
+                      <Typography.Text strong>Chế độ import</Typography.Text>
+                      <Select
+                        value={moviesImportMode}
+                        onChange={(v: 'upsert' | 'replace') => setMoviesImportMode(v)}
+                        options={[
+                          { value: 'upsert', label: 'Upsert (khuyến nghị)' },
+                          { value: 'replace', label: 'Replace (nguy hiểm)' },
+                        ]}
+                        style={{ width: 220 }}
+                      />
+                    </Space>
+                    <Input.TextArea
+                      rows={10}
+                      value={moviesImportText}
+                      onChange={(e: any) => setMoviesImportText(e.target.value)}
+                      placeholder="Dán JSON (key: movies) vào đây..."
+                    />
+                    <Space wrap>
+                      <Button type="primary" icon={<UploadOutlined />} onClick={handleImportMovies} loading={moviesImporting} disabled={!isAdmin}>
+                        Import movies
+                      </Button>
+                      <Button onClick={() => setMoviesImportText('')}>Xóa nội dung</Button>
+                    </Space>
+                    <Typography.Text type="secondary">
+                      Lưu ý: thao tác qua API server-side (service role). Replace sẽ xóa toàn bộ bảng movies.
+                    </Typography.Text>
+                  </Space>
+                </Card>
+              </Space>
+            ),
+          },
+          {
+            key: 'episodes',
+            label: 'Episodes',
+            children: (
+              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Card title="Xuất / Nhập dữ liệu (Episodes project)" bordered={false} style={{ borderRadius: 12 }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={10}>
+                    <Space wrap>
+                      <Button
+                        icon={<DownloadOutlined />}
+                        type="primary"
+                        onClick={handleExportEpisodes}
+                        loading={episodesExporting}
+                        disabled={!isAdmin}
+                      >
+                        Export movie_episodes
+                      </Button>
+                    </Space>
+                    <Divider style={{ margin: '8px 0' }} />
+                    <Space wrap>
+                      <Typography.Text strong>Chế độ import</Typography.Text>
+                      <Select
+                        value={episodesImportMode}
+                        onChange={(v: 'upsert' | 'replace') => setEpisodesImportMode(v)}
+                        options={[
+                          { value: 'upsert', label: 'Upsert (khuyến nghị)' },
+                          { value: 'replace', label: 'Replace (nguy hiểm)' },
+                        ]}
+                        style={{ width: 220 }}
+                      />
+                    </Space>
+                    <Input.TextArea
+                      rows={10}
+                      value={episodesImportText}
+                      onChange={(e: any) => setEpisodesImportText(e.target.value)}
+                      placeholder="Dán JSON (key: movie_episodes) vào đây..."
+                    />
+                    <Space wrap>
+                      <Button
+                        type="primary"
+                        icon={<UploadOutlined />}
+                        onClick={handleImportEpisodes}
+                        loading={episodesImporting}
+                        disabled={!isAdmin}
+                      >
+                        Import movie_episodes
+                      </Button>
+                      <Button onClick={() => setEpisodesImportText('')}>Xóa nội dung</Button>
+                    </Space>
+                    <Typography.Text type="secondary">
+                      Lưu ý: thao tác qua API server-side (service role). Replace sẽ xóa toàn bộ bảng movie_episodes.
+                    </Typography.Text>
+                  </Space>
+                </Card>
+              </Space>
+            ),
+          },
+          {
             key: 'comments-d1',
             label: 'Comment (D1)',
             children: (
@@ -1285,21 +1515,6 @@ comment on column public.donate_settings.methods is
                   type="info"
                   showIcon
                   message="Bình luận lưu trên Cloudflare D1 (Pages Functions), không nằm trong Supabase."
-                  description={
-                    <span>
-                      Nếu project dùng <Typography.Text code>wrangler.toml</Typography.Text>, biến plaintext thường
-                      không thêm được trên Dashboard — chỉ thêm{' '}
-                      <Typography.Text code>COMMENTS_ADMIN_SECRET</Typography.Text> dạng{' '}
-                      <strong>Secret (mã hóa)</strong>: Pages → Settings → Variables and Secrets →{' '}
-                      <strong>Add</strong> → bật <strong>Encrypt</strong> / chọn loại Secret; hoặc CLI:{' '}
-                      <Typography.Text code>
-                        npx wrangler pages secret put COMMENTS_ADMIN_SECRET --project-name=TÊN_PROJECT
-                      </Typography.Text>
-                      . Giá trị: chuỗi ngẫu nhiên ≥32 ký tự. Sau đó deploy lại. API:{' '}
-                      <Typography.Text code>/api/comment/admin-export</Typography.Text>,{' '}
-                      <Typography.Text code>/api/comment/admin-import</Typography.Text>.
-                    </span>
-                  }
                 />
                 <Card title="Kết nối" bordered={false} style={{ borderRadius: 12 }}>
                   <Space direction="vertical" style={{ width: '100%' }} size={10}>
@@ -1311,9 +1526,6 @@ comment on column public.donate_settings.methods is
                         value={commentSiteBase}
                         onChange={(e) => persistCommentSiteBase(e.target.value)}
                       />
-                      <Typography.Text type="secondary" style={{ display: 'block', marginTop: 4 }}>
-                        Lưu trong trình duyệt (localStorage). Phải là site đã bật comment + D1.
-                      </Typography.Text>
                     </div>
                     <div>
                       <Typography.Text strong>COMMENTS_ADMIN_SECRET</Typography.Text>
@@ -1329,12 +1541,7 @@ comment on column public.donate_settings.methods is
                 </Card>
                 <Card title="Export" bordered={false} style={{ borderRadius: 12 }}>
                   <Space wrap>
-                    <Button
-                      type="primary"
-                      icon={<DownloadOutlined />}
-                      onClick={exportCommentsD1}
-                      loading={commentExporting}
-                    >
+                    <Button type="primary" icon={<DownloadOutlined />} onClick={exportCommentsD1} loading={commentExporting}>
                       Tải JSON (comments + comment_reactions)
                     </Button>
                   </Space>
@@ -1360,12 +1567,7 @@ comment on column public.donate_settings.methods is
                       placeholder='Dán JSON từ export (có "comments" và "comment_reactions")...'
                     />
                     <Space wrap>
-                      <Button
-                        type="primary"
-                        icon={<UploadOutlined />}
-                        onClick={importCommentsD1}
-                        loading={commentImporting}
-                      >
+                      <Button type="primary" icon={<UploadOutlined />} onClick={importCommentsD1} loading={commentImporting}>
                         Import
                       </Button>
                       <Button onClick={() => setCommentImportText('')}>Xóa nội dung</Button>
@@ -1384,7 +1586,7 @@ comment on column public.donate_settings.methods is
             children: (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  Chạy trong Supabase SQL Editor (đúng project Admin/User). Mở từng mục để xem SQL; Copy nằm trên dòng tiêu đề.
+                  Chạy trong Supabase SQL Editor (đúng project Admin/User/Movies/Episodes). Mở từng mục để xem SQL; Copy nằm trên dòng tiêu đề.
                 </Typography.Text>
                 <Collapse
                   size="small"

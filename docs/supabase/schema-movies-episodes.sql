@@ -1,6 +1,8 @@
--- Bảng phim + tập (phim tùy chỉnh) — chạy trong SQL Editor project Supabase Admin
--- Yêu cầu đã chạy schema-admin.sql (bảng site_settings). Build script (scripts/build.js) đọc phim tùy chỉnh từ Supabase hoặc custom_movies.xlsx.
--- API Vercel dùng SUPABASE_ADMIN_SERVICE_ROLE_KEY (bypass RLS). Không expose dữ liệu này cho anon nếu không có policy.
+-- Bảng phim + tập (phim tùy chỉnh).
+-- Mô hình đa project:
+-- - Project Movies (Org B): tạo bảng public.movies
+-- - Project Episodes (Org B): tạo bảng public.movie_episodes
+-- API Vercel dùng SUPABASE_MOVIES_SERVICE_ROLE_KEY + SUPABASE_EPISODES_SERVICE_ROLE_KEY.
 
 create table if not exists public.movies (
   id text primary key,
@@ -40,7 +42,8 @@ create index if not exists movies_update_flag_idx on public.movies ("update");
 
 create table if not exists public.movie_episodes (
   id uuid primary key default gen_random_uuid(),
-  movie_id text not null references public.movies(id) on delete cascade,
+  -- Không thể FK cross-project, nên liên kết logic bằng movie_id text.
+  movie_id text not null,
   episode_code text,
   episode_name text,
   server_slug text,
