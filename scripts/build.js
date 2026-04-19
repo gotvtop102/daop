@@ -4848,7 +4848,8 @@ async function main() {
   let customSinceTime = null;
   if (!cleanOldData && prevMoviesById && prevMoviesById.size > 0) {
     try {
-      const lb = JSON.parse(fs.readFileSync(path.join(PUBLIC_DATA, 'last_build.json'), 'utf8'));
+      const pubjsRoot = typeof getPubjsOutputDir === 'function' ? getPubjsOutputDir() : path.join(ROOT, 'pubjs-output');
+      const lb = JSON.parse(fs.readFileSync(path.join(pubjsRoot, 'last_sync.json'), 'utf8'));
       if (lb && lb.builtAt) {
         customSinceTime = new Date(new Date(lb.builtAt).getTime() - 600000).toISOString();
       }
@@ -5022,6 +5023,10 @@ async function main() {
 
   const lastBuild = { builtAt: new Date().toISOString(), movieCount: allMovies.length };
   fs.writeFileSync(path.join(PUBLIC_DATA, 'last_build.json'), JSON.stringify(lastBuild, null, 2));
+  try {
+    const pubjsRoot = typeof getPubjsOutputDir === 'function' ? getPubjsOutputDir() : path.join(ROOT, 'pubjs-output');
+    fs.writeFileSync(path.join(pubjsRoot, 'last_sync.json'), JSON.stringify(lastBuild, null, 2));
+  } catch (e) {}
   
   // Ghi last_modified.json đầy đủ từ toàn bộ allMovies để tránh mất timestamp của phim "giữ nguyên".
   const lmFull = Object.assign({}, prevLastModified || {});
