@@ -1827,41 +1827,71 @@ function buildMoviesFromSupabase(movieRows, epRows) {
   return movies;
 }
 
-async function fetchCustomMoviesFromSupabase() {
+async function fetchCustomMoviesFromSupabase(sinceTime = null) {
   const url = String(process.env.SUPABASE_ADMIN_URL || process.env.VITE_SUPABASE_ADMIN_URL || '').trim();
   const key = String(process.env.SUPABASE_ADMIN_SERVICE_ROLE_KEY || '').trim();
   if (!url || !key) return null;
   try {
     const supabase = createClient(url, key);
-    // Build cần toàn bộ phim (cần range vì PostgREST giới hạn 1000 dòng/request)
-    const movieRows = [];
-    for (let page = 0; ; page++) {
-      const { data, error } = await supabase.from('movies').select('*').order('id').range(page * 1000, (page + 1) * 1000 - 1);
-      if (error) throw error;
-      if (!data || data.length === 0) break;
-      movieRows.push(...data);
-      if (data.length < 1000) break;
+    
+    let modifiedIds = null;
+    if (sinceTime) {
+      console.log('   [Supabase] Incremental fetch from:', sinceTime);
+      const modMovies = await supabase.from('movies').select('id').gte('updated_at', sinceTime);
+      const modEps = await supabase.from('movie_episodes').select('movie_id').gte('updated_at', sinceTime);
+      modifiedIds = new Set([
+        ...(modMovies.data || []).map((r) => String(r.id)),
+        ...(modEps.data || []).map((r) => String(r.movie_id))
+      ]);
+      console.log(`   [Supabase] Changed custom movies: ${modifiedIds.size}`);
+      if (modifiedIds.size === 0) return [];
     }
 
-    // Build cần toàn bộ tập (cần range vì có thể lên tới chục ngàn dòng)
+    const movieRows = [];
+    if (modifiedIds) {
+      const idArr = Array.from(modifiedIds);
+      for (let i = 0; i < idArr.length; i += 200) {
+        const chunk = idArr.slice(i, i + 200);
+        const { data, error } = await supabase.from('movies').select('*').in('id', chunk);
+        if (!error && data) movieRows.push(...data);
+      }
+    } else {
+      for (let page = 0; ; page++) {
+        const { data, error } = await supabase.from('movies').select('*').order('id').range(page * 1000, (page + 1) * 1000 - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        movieRows.push(...data);
+        if (data.length < 1000) break;
+      }
+    }
+
     const epRows = [];
-    for (let page = 0; ; page++) {
-      const { data, error } = await supabase.from('movie_episodes').select('*').order('movie_id').order('sort_order').range(page * 1000, (page + 1) * 1000 - 1);
-      if (error) throw error;
-      if (!data || data.length === 0) break;
-      epRows.push(...data);
-      if (data.length < 1000) break;
+    if (modifiedIds) {
+      const idArr = Array.from(modifiedIds);
+      for (let i = 0; i < idArr.length; i += 200) {
+        const chunk = idArr.slice(i, i + 200);
+        const { data, error } = await supabase.from('movie_episodes').select('*').order('movie_id').order('sort_order').in('movie_id', chunk);
+        if (!error && data) epRows.push(...data);
+      }
+    } else {
+      for (let page = 0; ; page++) {
+        const { data, error } = await supabase.from('movie_episodes').select('*').order('movie_id').order('sort_order').range(page * 1000, (page + 1) * 1000 - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        epRows.push(...data);
+        if (data.length < 1000) break;
+      }
     }
     return buildMoviesFromSupabase(movieRows || [], epRows || []);
-    } catch (e) {
+  } catch (e) {
     console.warn('Supabase custom movies fetch failed, fallback Excel (nếu có):', e.message || e);
     return null;
-    }
   }
+}
 
 /** 2. Đọc Supabase Admin (ưu tiên) hoặc Excel fallback */
-async function fetchCustomMovies() {
-  const fromDb = await fetchCustomMoviesFromSupabase();
+async function fetchCustomMovies(sinceTime = null) {
+  const fromDb = await fetchCustomMoviesFromSupabase(sinceTime);
   if (fromDb !== null) return fromDb;
   const xlsxPath = path.join(ROOT, 'custom_movies.xlsx');
   if (await fs.pathExists(xlsxPath)) {
@@ -4814,7 +4844,18 @@ async function main() {
   console.log('   OPhim count:', fetchedOphim.length);
 
   console.log('2. Fetching custom (Supabase / Excel)...');
-  const fetchedCustom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies());
+
+  let customSinceTime = null;
+  if (!cleanOldData && prevMoviesById && prevMoviesById.size > 0) {
+    try {
+      const lb = JSON.parse(fs.readFileSync(path.join(PUBLIC_DATA, 'last_build.json'), 'utf8'));
+      if (lb && lb.builtAt) {
+        customSinceTime = new Date(new Date(lb.builtAt).getTime() - 600000).toISOString();
+      }
+    } catch(e) {}
+  }
+
+  const fetchedCustom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies(customSinceTime));
   console.log('   Custom count (fetched):', fetchedCustom.length);
 
   // GỘP THƯ VIỆN: Nếu không phải clean build, gộp phim mới fetch với phim cũ đã có trong manifest
@@ -5012,3 +5053,4 @@ main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
+
