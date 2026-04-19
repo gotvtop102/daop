@@ -1,6 +1,6 @@
 {
   "buildVersion": {
-    "builtAt": "2026-04-19T07:19:40.874Z"
+    "builtAt": "2026-04-19T07:37:15.051Z"
   },
   "siteSettings": {
     "site_name": "GoTV",
@@ -955,6 +955,8 @@
       "featured_count_sm": 1,
       "featured_count_xs": 1,
       "ids": [
+        "69e4847031aa2678f8ca4219",
+        "69e483fe7e5a0662d4e1278f",
         "69e4710f15072466aced2d59",
         "69e46939cec790794bf6c1bb",
         "69e4682dda7d8940685e1fb7",
@@ -965,18 +967,50 @@
         "69cb7a5e458948c679afe323",
         "69e3398b31aa2678f8c99a1b",
         "69dba5ff15072466ace9ef7a",
-        "69b4da44b06c99c722fca67d",
-        "69e1c722f616ee3807d82950",
-        "69c75361eea244e3e8b93ab3"
+        "69b4da44b06c99c722fca67d"
       ],
       "movies": [
         {
-          "id": "69e4710f15072466aced2d59",
-          "title": "Ronaldinho: Độc nhất vô nhị",
-          "origin_name": "Ronaldinho: The One and Only",
-          "slug": "ronaldinho-doc-nhat-vo-nhi",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ro/ronaldinho-doc-nhat-vo-nhi.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ro/ronaldinho-doc-nhat-vo-nhi.webp",
+          "id": "69e4847031aa2678f8ca4219",
+          "title": "Tẫn Hoa Duyên",
+          "origin_name": "Embers of Love",
+          "slug": "tan-hoa-duyen",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ta/tan-hoa-duyen.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/tan-hoa-duyen.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:29:52.000Z"
+        },
+        {
+          "id": "69e483fe7e5a0662d4e1278f",
+          "title": "Full Swing: Những Tay Golf Chuyên Nghiệp (Phần 4)",
+          "origin_name": "Full Swing (Season 4)",
+          "slug": "full-swing-nhung-tay-golf-chuyen-nghiep-phan-4",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
           "year": 2026,
           "type": "series",
           "genre": [
@@ -993,7 +1027,43 @@
               "slug": "au-my"
             },
             {
-              "id": "62159c501f1609c9d934830a",
+              "id": "620a2370e0fc277084dfd91e",
+              "name": "Anh",
+              "slug": "anh"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:28:10.000Z"
+        },
+        {
+          "id": "69e4710f15072466aced2d59",
+          "title": "Ronaldinho: Độc nhất vô nhị",
+          "origin_name": "Ronaldinho: The One and Only",
+          "slug": "ronaldinho-doc-nhat-vo-nhi",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ro/ronaldinho-doc-nhat-vo-nhi.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ro/ronaldinho-doc-nhat-vo-nhi.webp",
+          "year": "2026",
+          "type": "series",
+          "genre": [
+            {
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
+            }
+          ],
+          "country": [
+            {
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            },
+            {
               "name": "Brazil",
               "slug": "brazil"
             }
@@ -1016,23 +1086,20 @@
           "slug": "mf-ghost-phan-3",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mf/mf-ghost-phan-3.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mf/mf-ghost-phan-3.webp",
-          "year": 2023,
+          "year": "2023",
           "type": "series",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
               "slug": "hanh-dong"
             },
             {
-              "id": "620a2293e0fc277084dfd489",
               "name": "Phiêu Lưu",
               "slug": "phieu-luu"
             }
           ],
           "country": [
             {
-              "id": "620a2307e0fc277084dfd726",
               "name": "Nhật Bản",
               "slug": "nhat-ban"
             }
@@ -1055,23 +1122,20 @@
           "slug": "mf-ghost",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mf/mf-ghost.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mf/mf-ghost.webp",
-          "year": 2023,
+          "year": "2023",
           "type": "series",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
               "slug": "hanh-dong"
             },
             {
-              "id": "620a2293e0fc277084dfd489",
               "name": "Phiêu Lưu",
               "slug": "phieu-luu"
             }
           ],
           "country": [
             {
-              "id": "620a2307e0fc277084dfd726",
               "name": "Nhật Bản",
               "slug": "nhat-ban"
             }
@@ -1094,23 +1158,20 @@
           "slug": "bat-hoa-phan-2",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ba/bat-hoa-phan-2.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ba/bat-hoa-phan-2.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "series",
           "genre": [
             {
-              "id": "620a221de0fc277084dfd1c1",
               "name": "Hài Hước",
               "slug": "hai-huoc"
             },
             {
-              "id": "620f3d2b91fa4af90ab697fe",
               "name": "Chính kịch",
               "slug": "chinh-kich"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             }
@@ -1377,86 +1438,6 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2026-04-18T14:53:33.000Z"
-        },
-        {
-          "id": "69e1c722f616ee3807d82950",
-          "title": "Giải Mã Trọng Án",
-          "origin_name": "Case X Decoded",
-          "slug": "giai-ma-trong-an",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/gi/giai-ma-trong-an.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/gi/giai-ma-trong-an.webp",
-          "year": "2026",
-          "type": "series",
-          "genre": [
-            {
-              "name": "Hình Sự",
-              "slug": "hinh-su"
-            },
-            {
-              "name": "Chính kịch",
-              "slug": "chinh-kich"
-            }
-          ],
-          "country": [
-            {
-              "name": "Trung Quốc",
-              "slug": "trung-quoc"
-            },
-            {
-              "name": "Hồng Kông",
-              "slug": "hong-kong"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Tập 4",
-          "quality": "HD",
-          "status": "ongoing",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-18T14:39:54.000Z"
-        },
-        {
-          "id": "69c75361eea244e3e8b93ab3",
-          "title": "Love Upon A Time: Duyên Kiếp Bên Người",
-          "origin_name": "Love Upon a Time",
-          "slug": "love-upon-a-time-duyen-kiep-ben-nguoi",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/lo/love-upon-a-time-duyen-kiep-ben-nguoi.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/lo/love-upon-a-time-duyen-kiep-ben-nguoi.webp",
-          "year": "2026",
-          "type": "series",
-          "genre": [
-            {
-              "name": "Viễn Tưởng",
-              "slug": "vien-tuong"
-            },
-            {
-              "name": "Khoa Học",
-              "slug": "khoa-hoc"
-            },
-            {
-              "name": "Chính kịch",
-              "slug": "chinh-kich"
-            }
-          ],
-          "country": [
-            {
-              "name": "Thái Lan",
-              "slug": "thai-lan"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Tập 4",
-          "quality": "HD",
-          "status": "ongoing",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-18T14:38:18.000Z"
         }
       ]
     },
@@ -1505,28 +1486,24 @@
           "slug": "ke-huyt-sao",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-huyt-sao.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "single",
           "genre": [
             {
-              "id": "620a22ace0fc277084dfd531",
               "name": "Kinh Dị",
               "slug": "kinh-di"
             },
             {
-              "id": "620f84d291fa4af90ab6b3f4",
               "name": "Bí ẩn",
               "slug": "bi-an"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             },
             {
-              "id": "625ff28adb43524328afc13f",
               "name": "Colombia",
               "slug": "colombia"
             }
@@ -1549,18 +1526,16 @@
           "slug": "hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "single",
           "genre": [
             {
-              "id": "620e0e64d9648f114cde7728",
               "name": "Tài Liệu",
               "slug": "tai-lieu"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             }
@@ -1962,6 +1937,8 @@
       "grid_columns_sm": 3,
       "grid_columns_xs": 2,
       "ids": [
+        "69e4847031aa2678f8ca4219",
+        "69e483fe7e5a0662d4e1278f",
         "69e478ed15072466aced31d0",
         "69e4710f15072466aced2d59",
         "69e470c54e2efe728847bbf2",
@@ -1971,30 +1948,57 @@
         "69e211ba748ca16f085e500b",
         "69d5d574748ca16f085b0087",
         "69e3398b31aa2678f8c99a1b",
-        "69e338dc377c8aaad542aceb",
-        "69dba5ff15072466ace9ef7a",
-        "69d5e08d93c48ff6bfe68daa"
+        "69e338dc377c8aaad542aceb"
       ],
       "movies": [
         {
-          "id": "69e478ed15072466aced31d0",
-          "title": "Kẻ Huýt Sáo",
-          "origin_name": "The Whistler",
-          "slug": "ke-huyt-sao",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-huyt-sao.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
+          "id": "69e4847031aa2678f8ca4219",
+          "title": "Tẫn Hoa Duyên",
+          "origin_name": "Embers of Love",
+          "slug": "tan-hoa-duyen",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ta/tan-hoa-duyen.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/tan-hoa-duyen.webp",
           "year": 2026,
-          "type": "single",
+          "type": "series",
           "genre": [
             {
-              "id": "620a22ace0fc277084dfd531",
-              "name": "Kinh Dị",
-              "slug": "kinh-di"
-            },
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
             {
-              "id": "620f84d291fa4af90ab6b3f4",
-              "name": "Bí ẩn",
-              "slug": "bi-an"
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:29:52.000Z"
+        },
+        {
+          "id": "69e483fe7e5a0662d4e1278f",
+          "title": "Full Swing: Những Tay Golf Chuyên Nghiệp (Phần 4)",
+          "origin_name": "Full Swing (Season 4)",
+          "slug": "full-swing-nhung-tay-golf-chuyen-nghiep-phan-4",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620e0e64d9648f114cde7728",
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
             }
           ],
           "country": [
@@ -2004,7 +2008,47 @@
               "slug": "au-my"
             },
             {
-              "id": "625ff28adb43524328afc13f",
+              "id": "620a2370e0fc277084dfd91e",
+              "name": "Anh",
+              "slug": "anh"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:28:10.000Z"
+        },
+        {
+          "id": "69e478ed15072466aced31d0",
+          "title": "Kẻ Huýt Sáo",
+          "origin_name": "The Whistler",
+          "slug": "ke-huyt-sao",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-huyt-sao.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
+          "year": "2026",
+          "type": "single",
+          "genre": [
+            {
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            },
+            {
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            },
+            {
               "name": "Colombia",
               "slug": "colombia"
             }
@@ -2027,23 +2071,20 @@
           "slug": "ronaldinho-doc-nhat-vo-nhi",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ro/ronaldinho-doc-nhat-vo-nhi.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ro/ronaldinho-doc-nhat-vo-nhi.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "series",
           "genre": [
             {
-              "id": "620e0e64d9648f114cde7728",
               "name": "Tài Liệu",
               "slug": "tai-lieu"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             },
             {
-              "id": "62159c501f1609c9d934830a",
               "name": "Brazil",
               "slug": "brazil"
             }
@@ -2066,18 +2107,16 @@
           "slug": "hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "single",
           "genre": [
             {
-              "id": "620e0e64d9648f114cde7728",
               "name": "Tài Liệu",
               "slug": "tai-lieu"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             }
@@ -2100,23 +2139,20 @@
           "slug": "bat-hoa-phan-2",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ba/bat-hoa-phan-2.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ba/bat-hoa-phan-2.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "series",
           "genre": [
             {
-              "id": "620a221de0fc277084dfd1c1",
               "name": "Hài Hước",
               "slug": "hai-huoc"
             },
             {
-              "id": "620f3d2b91fa4af90ab697fe",
               "name": "Chính kịch",
               "slug": "chinh-kich"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             }
@@ -2331,86 +2367,6 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2026-04-18T15:14:28.000Z"
-        },
-        {
-          "id": "69dba5ff15072466ace9ef7a",
-          "title": "Huyền Thoại Làng Hài (Phần 5)",
-          "origin_name": "Hacks (Season 5)",
-          "slug": "huyen-thoai-lang-hai-phan-5",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/hu/huyen-thoai-lang-hai-phan-5.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/hu/huyen-thoai-lang-hai-phan-5.webp",
-          "year": "2026",
-          "type": "series",
-          "genre": [
-            {
-              "name": "Hài Hước",
-              "slug": "hai-huoc"
-            },
-            {
-              "name": "Chính kịch",
-              "slug": "chinh-kich"
-            }
-          ],
-          "country": [
-            {
-              "name": "Âu Mỹ",
-              "slug": "au-my"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Tập 2",
-          "quality": "HD",
-          "status": "ongoing",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-18T15:14:21.000Z"
-        },
-        {
-          "id": "69d5e08d93c48ff6bfe68daa",
-          "title": "Trái Đất Đóng Băng",
-          "origin_name": "SNOWBALL EARTH",
-          "slug": "trai-dat-dong-bang",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tr/trai-dat-dong-bang.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/tr/trai-dat-dong-bang.webp",
-          "year": "2026",
-          "type": "hoathinh",
-          "genre": [
-            {
-              "name": "Hành Động",
-              "slug": "hanh-dong"
-            },
-            {
-              "name": "Viễn Tưởng",
-              "slug": "vien-tuong"
-            },
-            {
-              "name": "Phiêu Lưu",
-              "slug": "phieu-luu"
-            },
-            {
-              "name": "Khoa Học",
-              "slug": "khoa-hoc"
-            }
-          ],
-          "country": [
-            {
-              "name": "Nhật Bản",
-              "slug": "nhat-ban"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Tập 3",
-          "quality": "HD",
-          "status": "ongoing",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-18T14:53:44.000Z"
         }
       ]
     },
@@ -3027,6 +2983,8 @@
       "featured_count_sm": 0,
       "featured_count_xs": 0,
       "ids": [
+        "69e4847031aa2678f8ca4219",
+        "69e483fe7e5a0662d4e1278f",
         "69e478ed15072466aced31d0",
         "69e4710f15072466aced2d59",
         "69e470c54e2efe728847bbf2",
@@ -3036,30 +2994,57 @@
         "69e39d6893c48ff6bfead2a8",
         "69e06d4331aa2678f8c86718",
         "69e069f34a74b3cede0cc89a",
-        "69e069b37e5a0662d4df484b",
-        "69e0687e4a74b3cede0cc7f2",
-        "69e06861377c8aaad54174d3"
+        "69e069b37e5a0662d4df484b"
       ],
       "movies": [
         {
-          "id": "69e478ed15072466aced31d0",
-          "title": "Kẻ Huýt Sáo",
-          "origin_name": "The Whistler",
-          "slug": "ke-huyt-sao",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-huyt-sao.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
+          "id": "69e4847031aa2678f8ca4219",
+          "title": "Tẫn Hoa Duyên",
+          "origin_name": "Embers of Love",
+          "slug": "tan-hoa-duyen",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ta/tan-hoa-duyen.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/tan-hoa-duyen.webp",
           "year": 2026,
-          "type": "single",
+          "type": "series",
           "genre": [
             {
-              "id": "620a22ace0fc277084dfd531",
-              "name": "Kinh Dị",
-              "slug": "kinh-di"
-            },
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
             {
-              "id": "620f84d291fa4af90ab6b3f4",
-              "name": "Bí ẩn",
-              "slug": "bi-an"
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:29:52.000Z"
+        },
+        {
+          "id": "69e483fe7e5a0662d4e1278f",
+          "title": "Full Swing: Những Tay Golf Chuyên Nghiệp (Phần 4)",
+          "origin_name": "Full Swing (Season 4)",
+          "slug": "full-swing-nhung-tay-golf-chuyen-nghiep-phan-4",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620e0e64d9648f114cde7728",
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
             }
           ],
           "country": [
@@ -3069,7 +3054,47 @@
               "slug": "au-my"
             },
             {
-              "id": "625ff28adb43524328afc13f",
+              "id": "620a2370e0fc277084dfd91e",
+              "name": "Anh",
+              "slug": "anh"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:28:10.000Z"
+        },
+        {
+          "id": "69e478ed15072466aced31d0",
+          "title": "Kẻ Huýt Sáo",
+          "origin_name": "The Whistler",
+          "slug": "ke-huyt-sao",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-huyt-sao.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
+          "year": "2026",
+          "type": "single",
+          "genre": [
+            {
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            },
+            {
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            },
+            {
               "name": "Colombia",
               "slug": "colombia"
             }
@@ -3092,23 +3117,20 @@
           "slug": "ronaldinho-doc-nhat-vo-nhi",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ro/ronaldinho-doc-nhat-vo-nhi.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ro/ronaldinho-doc-nhat-vo-nhi.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "series",
           "genre": [
             {
-              "id": "620e0e64d9648f114cde7728",
               "name": "Tài Liệu",
               "slug": "tai-lieu"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             },
             {
-              "id": "62159c501f1609c9d934830a",
               "name": "Brazil",
               "slug": "brazil"
             }
@@ -3131,18 +3153,16 @@
           "slug": "hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "single",
           "genre": [
             {
-              "id": "620e0e64d9648f114cde7728",
               "name": "Tài Liệu",
               "slug": "tai-lieu"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             }
@@ -3165,23 +3185,20 @@
           "slug": "mf-ghost-phan-3",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mf/mf-ghost-phan-3.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mf/mf-ghost-phan-3.webp",
-          "year": 2023,
+          "year": "2023",
           "type": "series",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
               "slug": "hanh-dong"
             },
             {
-              "id": "620a2293e0fc277084dfd489",
               "name": "Phiêu Lưu",
               "slug": "phieu-luu"
             }
           ],
           "country": [
             {
-              "id": "620a2307e0fc277084dfd726",
               "name": "Nhật Bản",
               "slug": "nhat-ban"
             }
@@ -3204,23 +3221,20 @@
           "slug": "mf-ghost",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mf/mf-ghost.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mf/mf-ghost.webp",
-          "year": 2023,
+          "year": "2023",
           "type": "series",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
               "slug": "hanh-dong"
             },
             {
-              "id": "620a2293e0fc277084dfd489",
               "name": "Phiêu Lưu",
               "slug": "phieu-luu"
             }
           ],
           "country": [
             {
-              "id": "620a2307e0fc277084dfd726",
               "name": "Nhật Bản",
               "slug": "nhat-ban"
             }
@@ -3415,78 +3429,6 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2026-04-16T11:46:45.000Z"
-        },
-        {
-          "id": "69e0687e4a74b3cede0cc7f2",
-          "title": "Phi Vụ Cuối Cùng",
-          "origin_name": "The Last Shot",
-          "slug": "phi-vu-cuoi-cungg",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ph/phi-vu-cuoi-cungg.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ph/phi-vu-cuoi-cungg.webp",
-          "year": "2025",
-          "type": "single",
-          "genre": [
-            {
-              "name": "Hành Động",
-              "slug": "hanh-dong"
-            },
-            {
-              "name": "Hình Sự",
-              "slug": "hinh-su"
-            },
-            {
-              "name": "Chính kịch",
-              "slug": "chinh-kich"
-            }
-          ],
-          "country": [
-            {
-              "name": "Thái Lan",
-              "slug": "thai-lan"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Trailer",
-          "quality": "HD",
-          "status": "trailer",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-16T11:42:13.000Z"
-        },
-        {
-          "id": "69e06861377c8aaad54174d3",
-          "title": "Ta Khon: Quỷ Đội Lốt Người",
-          "origin_name": "Ta Khon : The Cursed Mask",
-          "slug": "ta-khon-quy-doi-lot-nguoi",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ta/ta-khon-quy-doi-lot-nguoi.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/ta-khon-quy-doi-lot-nguoi.webp",
-          "year": "2025",
-          "type": "single",
-          "genre": [
-            {
-              "name": "Kinh Dị",
-              "slug": "kinh-di"
-            }
-          ],
-          "country": [
-            {
-              "name": "Thái Lan",
-              "slug": "thai-lan"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Trailer",
-          "quality": "HD",
-          "status": "trailer",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-16T11:41:07.000Z"
         }
       ]
     },
@@ -6496,6 +6438,8 @@
       "featured_count_sm": 0,
       "featured_count_xs": 0,
       "ids": [
+        "69e4847031aa2678f8ca4219",
+        "69e483fe7e5a0662d4e1278f",
         "69e478ed15072466aced31d0",
         "69e4710f15072466aced2d59",
         "69e470c54e2efe728847bbf2",
@@ -6509,30 +6453,57 @@
         "69cb7a5e458948c679afe323",
         "69e3398b31aa2678f8c99a1b",
         "69e338dc377c8aaad542aceb",
-        "69dba5ff15072466ace9ef7a",
-        "69d5e08d93c48ff6bfe68daa",
-        "69b4da44b06c99c722fca67d"
+        "69dba5ff15072466ace9ef7a"
       ],
       "movies": [
         {
-          "id": "69e478ed15072466aced31d0",
-          "title": "Kẻ Huýt Sáo",
-          "origin_name": "The Whistler",
-          "slug": "ke-huyt-sao",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-huyt-sao.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
+          "id": "69e4847031aa2678f8ca4219",
+          "title": "Tẫn Hoa Duyên",
+          "origin_name": "Embers of Love",
+          "slug": "tan-hoa-duyen",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ta/tan-hoa-duyen.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/tan-hoa-duyen.webp",
           "year": 2026,
-          "type": "single",
+          "type": "series",
           "genre": [
             {
-              "id": "620a22ace0fc277084dfd531",
-              "name": "Kinh Dị",
-              "slug": "kinh-di"
-            },
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
             {
-              "id": "620f84d291fa4af90ab6b3f4",
-              "name": "Bí ẩn",
-              "slug": "bi-an"
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:29:52.000Z"
+        },
+        {
+          "id": "69e483fe7e5a0662d4e1278f",
+          "title": "Full Swing: Những Tay Golf Chuyên Nghiệp (Phần 4)",
+          "origin_name": "Full Swing (Season 4)",
+          "slug": "full-swing-nhung-tay-golf-chuyen-nghiep-phan-4",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620e0e64d9648f114cde7728",
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
             }
           ],
           "country": [
@@ -6542,7 +6513,47 @@
               "slug": "au-my"
             },
             {
-              "id": "625ff28adb43524328afc13f",
+              "id": "620a2370e0fc277084dfd91e",
+              "name": "Anh",
+              "slug": "anh"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:28:10.000Z"
+        },
+        {
+          "id": "69e478ed15072466aced31d0",
+          "title": "Kẻ Huýt Sáo",
+          "origin_name": "The Whistler",
+          "slug": "ke-huyt-sao",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-huyt-sao.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
+          "year": "2026",
+          "type": "single",
+          "genre": [
+            {
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            },
+            {
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            },
+            {
               "name": "Colombia",
               "slug": "colombia"
             }
@@ -6565,23 +6576,20 @@
           "slug": "ronaldinho-doc-nhat-vo-nhi",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ro/ronaldinho-doc-nhat-vo-nhi.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ro/ronaldinho-doc-nhat-vo-nhi.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "series",
           "genre": [
             {
-              "id": "620e0e64d9648f114cde7728",
               "name": "Tài Liệu",
               "slug": "tai-lieu"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             },
             {
-              "id": "62159c501f1609c9d934830a",
               "name": "Brazil",
               "slug": "brazil"
             }
@@ -6604,18 +6612,16 @@
           "slug": "hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "single",
           "genre": [
             {
-              "id": "620e0e64d9648f114cde7728",
               "name": "Tài Liệu",
               "slug": "tai-lieu"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             }
@@ -6638,23 +6644,20 @@
           "slug": "mf-ghost-phan-3",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mf/mf-ghost-phan-3.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mf/mf-ghost-phan-3.webp",
-          "year": 2023,
+          "year": "2023",
           "type": "series",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
               "slug": "hanh-dong"
             },
             {
-              "id": "620a2293e0fc277084dfd489",
               "name": "Phiêu Lưu",
               "slug": "phieu-luu"
             }
           ],
           "country": [
             {
-              "id": "620a2307e0fc277084dfd726",
               "name": "Nhật Bản",
               "slug": "nhat-ban"
             }
@@ -6677,23 +6680,20 @@
           "slug": "mf-ghost",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mf/mf-ghost.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mf/mf-ghost.webp",
-          "year": 2023,
+          "year": "2023",
           "type": "series",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
               "slug": "hanh-dong"
             },
             {
-              "id": "620a2293e0fc277084dfd489",
               "name": "Phiêu Lưu",
               "slug": "phieu-luu"
             }
           ],
           "country": [
             {
-              "id": "620a2307e0fc277084dfd726",
               "name": "Nhật Bản",
               "slug": "nhat-ban"
             }
@@ -6716,23 +6716,20 @@
           "slug": "bat-hoa-phan-2",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ba/bat-hoa-phan-2.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ba/bat-hoa-phan-2.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "series",
           "genre": [
             {
-              "id": "620a221de0fc277084dfd1c1",
               "name": "Hài Hước",
               "slug": "hai-huoc"
             },
             {
-              "id": "620f3d2b91fa4af90ab697fe",
               "name": "Chính kịch",
               "slug": "chinh-kich"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             }
@@ -7023,94 +7020,6 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2026-04-18T15:14:21.000Z"
-        },
-        {
-          "id": "69d5e08d93c48ff6bfe68daa",
-          "title": "Trái Đất Đóng Băng",
-          "origin_name": "SNOWBALL EARTH",
-          "slug": "trai-dat-dong-bang",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/tr/trai-dat-dong-bang.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/tr/trai-dat-dong-bang.webp",
-          "year": "2026",
-          "type": "hoathinh",
-          "genre": [
-            {
-              "name": "Hành Động",
-              "slug": "hanh-dong"
-            },
-            {
-              "name": "Viễn Tưởng",
-              "slug": "vien-tuong"
-            },
-            {
-              "name": "Phiêu Lưu",
-              "slug": "phieu-luu"
-            },
-            {
-              "name": "Khoa Học",
-              "slug": "khoa-hoc"
-            }
-          ],
-          "country": [
-            {
-              "name": "Nhật Bản",
-              "slug": "nhat-ban"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Tập 3",
-          "quality": "HD",
-          "status": "ongoing",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-18T14:53:44.000Z"
-        },
-        {
-          "id": "69b4da44b06c99c722fca67d",
-          "title": "Người Ngoại Tộc (Phần 8)",
-          "origin_name": "Outlander (Season 8)",
-          "slug": "nguoi-ngoai-toc-phan-8",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ng/nguoi-ngoai-toc-phan-8.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ng/nguoi-ngoai-toc-phan-8.webp",
-          "year": "2026",
-          "type": "series",
-          "genre": [
-            {
-              "name": "Viễn Tưởng",
-              "slug": "vien-tuong"
-            },
-            {
-              "name": "Khoa Học",
-              "slug": "khoa-hoc"
-            },
-            {
-              "name": "Chính kịch",
-              "slug": "chinh-kich"
-            }
-          ],
-          "country": [
-            {
-              "name": "Âu Mỹ",
-              "slug": "au-my"
-            },
-            {
-              "name": "Anh",
-              "slug": "anh"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Tập 7",
-          "quality": "HD",
-          "status": "ongoing",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-18T14:53:33.000Z"
         }
       ]
     },
@@ -7154,6 +7063,7 @@
       "featured_count_sm": 0,
       "featured_count_xs": 0,
       "ids": [
+        "69e4847031aa2678f8ca4219",
         "69e211ba748ca16f085e500b",
         "69d5d574748ca16f085b0087",
         "69e1c722f616ee3807d82950",
@@ -7168,10 +7078,43 @@
         "69e05ef4748ca16f085dcbcc",
         "69e32daa91cc1b96d587e559",
         "69ddbf5f748ca16f085d0742",
-        "69d86c1e91cc1b96d58478a5",
-        "69cd0970eea244e3e8ba91fc"
+        "69d86c1e91cc1b96d58478a5"
       ],
       "movies": [
+        {
+          "id": "69e4847031aa2678f8ca4219",
+          "title": "Tẫn Hoa Duyên",
+          "origin_name": "Embers of Love",
+          "slug": "tan-hoa-duyen",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ta/tan-hoa-duyen.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/tan-hoa-duyen.webp",
+          "year": 2026,
+          "type": "series",
+          "genre": [
+            {
+              "id": "620f3d2b91fa4af90ab697fe",
+              "name": "Chính kịch",
+              "slug": "chinh-kich"
+            }
+          ],
+          "country": [
+            {
+              "id": "62093063196e9f4ab6b448b8",
+              "name": "Trung Quốc",
+              "slug": "trung-quoc"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:29:52.000Z"
+        },
         {
           "id": "69e211ba748ca16f085e500b",
           "title": "Phạm Vi 800m",
@@ -7538,7 +7481,7 @@
             }
           ],
           "lang_key": "Vietsub",
-          "episode_current": "Tập 15",
+          "episode_current": "Tập 16",
           "quality": "HD",
           "status": "ongoing",
           "showtimes": "",
@@ -7570,7 +7513,7 @@
             }
           ],
           "lang_key": "Vietsub",
-          "episode_current": "Tập 12",
+          "episode_current": "Tập 14",
           "quality": "HD",
           "status": "ongoing",
           "showtimes": "",
@@ -7711,42 +7654,6 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2026-04-17T18:13:06.000Z"
-        },
-        {
-          "id": "69cd0970eea244e3e8ba91fc",
-          "title": "Anh Vũ",
-          "origin_name": "Unpredictable",
-          "slug": "anh-vu-2026",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/an/anh-vu-2026.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/an/anh-vu-2026.webp",
-          "year": "2026",
-          "type": "series",
-          "genre": [
-            {
-              "name": "Chính kịch",
-              "slug": "chinh-kich"
-            },
-            {
-              "name": "Bí ẩn",
-              "slug": "bi-an"
-            }
-          ],
-          "country": [
-            {
-              "name": "Trung Quốc",
-              "slug": "trung-quoc"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Hoàn tất (16/16)",
-          "quality": "HD",
-          "status": "completed",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-17T17:58:08.000Z"
         }
       ]
     },
@@ -8422,6 +8329,7 @@
       "featured_count_sm": 0,
       "featured_count_xs": 0,
       "ids": [
+        "69e483fe7e5a0662d4e1278f",
         "69e478ed15072466aced31d0",
         "69e4710f15072466aced2d59",
         "69e470c54e2efe728847bbf2",
@@ -8436,29 +8344,23 @@
         "69d899c9db41bcecb8dda433",
         "6966276b4da3bf6eb331cdd6",
         "69d74fed91cc1b96d584364e",
-        "69a255c81d0b515454af0815",
-        "69c64b534da3bf6eb345b5c0"
+        "69a255c81d0b515454af0815"
       ],
       "movies": [
         {
-          "id": "69e478ed15072466aced31d0",
-          "title": "Kẻ Huýt Sáo",
-          "origin_name": "The Whistler",
-          "slug": "ke-huyt-sao",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-huyt-sao.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
+          "id": "69e483fe7e5a0662d4e1278f",
+          "title": "Full Swing: Những Tay Golf Chuyên Nghiệp (Phần 4)",
+          "origin_name": "Full Swing (Season 4)",
+          "slug": "full-swing-nhung-tay-golf-chuyen-nghiep-phan-4",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
           "year": 2026,
-          "type": "single",
+          "type": "series",
           "genre": [
             {
-              "id": "620a22ace0fc277084dfd531",
-              "name": "Kinh Dị",
-              "slug": "kinh-di"
-            },
-            {
-              "id": "620f84d291fa4af90ab6b3f4",
-              "name": "Bí ẩn",
-              "slug": "bi-an"
+              "id": "620e0e64d9648f114cde7728",
+              "name": "Tài Liệu",
+              "slug": "tai-lieu"
             }
           ],
           "country": [
@@ -8468,7 +8370,47 @@
               "slug": "au-my"
             },
             {
-              "id": "625ff28adb43524328afc13f",
+              "id": "620a2370e0fc277084dfd91e",
+              "name": "Anh",
+              "slug": "anh"
+            }
+          ],
+          "lang_key": "Vietsub",
+          "episode_current": "Trailer",
+          "quality": "HD",
+          "status": "trailer",
+          "showtimes": "",
+          "is_4k": false,
+          "is_exclusive": false,
+          "chieurap": false,
+          "sub_docquyen": false,
+          "modified": "2026-04-19T14:28:10.000Z"
+        },
+        {
+          "id": "69e478ed15072466aced31d0",
+          "title": "Kẻ Huýt Sáo",
+          "origin_name": "The Whistler",
+          "slug": "ke-huyt-sao",
+          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ke/ke-huyt-sao.webp",
+          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
+          "year": "2026",
+          "type": "single",
+          "genre": [
+            {
+              "name": "Kinh Dị",
+              "slug": "kinh-di"
+            },
+            {
+              "name": "Bí ẩn",
+              "slug": "bi-an"
+            }
+          ],
+          "country": [
+            {
+              "name": "Âu Mỹ",
+              "slug": "au-my"
+            },
+            {
               "name": "Colombia",
               "slug": "colombia"
             }
@@ -8491,23 +8433,20 @@
           "slug": "ronaldinho-doc-nhat-vo-nhi",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ro/ronaldinho-doc-nhat-vo-nhi.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ro/ronaldinho-doc-nhat-vo-nhi.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "series",
           "genre": [
             {
-              "id": "620e0e64d9648f114cde7728",
               "name": "Tài Liệu",
               "slug": "tai-lieu"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             },
             {
-              "id": "62159c501f1609c9d934830a",
               "name": "Brazil",
               "slug": "brazil"
             }
@@ -8530,18 +8469,16 @@
           "slug": "hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ha/hanh-trinh-cua-khi-dot-qua-giong-ke-david-attenborough.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "single",
           "genre": [
             {
-              "id": "620e0e64d9648f114cde7728",
               "name": "Tài Liệu",
               "slug": "tai-lieu"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             }
@@ -8564,23 +8501,20 @@
           "slug": "bat-hoa-phan-2",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/ba/bat-hoa-phan-2.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ba/bat-hoa-phan-2.webp",
-          "year": 2026,
+          "year": "2026",
           "type": "series",
           "genre": [
             {
-              "id": "620a221de0fc277084dfd1c1",
               "name": "Hài Hước",
               "slug": "hai-huoc"
             },
             {
-              "id": "620f3d2b91fa4af90ab697fe",
               "name": "Chính kịch",
               "slug": "chinh-kich"
             }
           ],
           "country": [
             {
-              "id": "620a231fe0fc277084dfd7ce",
               "name": "Âu Mỹ",
               "slug": "au-my"
             }
@@ -9051,46 +8985,6 @@
           "chieurap": false,
           "sub_docquyen": false,
           "modified": "2026-04-17T14:55:19.000Z"
-        },
-        {
-          "id": "69c64b534da3bf6eb345b5c0",
-          "title": "Cuộc Chiến Không Gian (Phần 5)",
-          "origin_name": "For All Mankind (Season 5)",
-          "slug": "cuoc-chien-khong-gianphan-5",
-          "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/cu/cuoc-chien-khong-gianphan-5.webp",
-          "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/cu/cuoc-chien-khong-gianphan-5.webp",
-          "year": "2026",
-          "type": "series",
-          "genre": [
-            {
-              "name": "Viễn Tưởng",
-              "slug": "vien-tuong"
-            },
-            {
-              "name": "Khoa Học",
-              "slug": "khoa-hoc"
-            },
-            {
-              "name": "Chính kịch",
-              "slug": "chinh-kich"
-            }
-          ],
-          "country": [
-            {
-              "name": "Âu Mỹ",
-              "slug": "au-my"
-            }
-          ],
-          "lang_key": "Vietsub",
-          "episode_current": "Tập 4",
-          "quality": "HD",
-          "status": "ongoing",
-          "showtimes": "",
-          "is_4k": false,
-          "is_exclusive": false,
-          "chieurap": false,
-          "sub_docquyen": false,
-          "modified": "2026-04-17T14:55:05.000Z"
         }
       ]
     },
@@ -9691,23 +9585,20 @@
           "slug": "mf-ghost-phan-3",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mf/mf-ghost-phan-3.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mf/mf-ghost-phan-3.webp",
-          "year": 2023,
+          "year": "2023",
           "type": "series",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
               "slug": "hanh-dong"
             },
             {
-              "id": "620a2293e0fc277084dfd489",
               "name": "Phiêu Lưu",
               "slug": "phieu-luu"
             }
           ],
           "country": [
             {
-              "id": "620a2307e0fc277084dfd726",
               "name": "Nhật Bản",
               "slug": "nhat-ban"
             }
@@ -9730,23 +9621,20 @@
           "slug": "mf-ghost",
           "thumb": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/mf/mf-ghost.webp",
           "poster": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/mf/mf-ghost.webp",
-          "year": 2023,
+          "year": "2023",
           "type": "series",
           "genre": [
             {
-              "id": "620a21b2e0fc277084dfd0c5",
               "name": "Hành Động",
               "slug": "hanh-dong"
             },
             {
-              "id": "620a2293e0fc277084dfd489",
               "name": "Phiêu Lưu",
               "slug": "phieu-luu"
             }
           ],
           "country": [
             {
-              "id": "620a2307e0fc277084dfd726",
               "name": "Nhật Bản",
               "slug": "nhat-ban"
             }
@@ -10104,7 +9992,7 @@
             }
           ],
           "lang_key": "Vietsub",
-          "episode_current": "Tập 12",
+          "episode_current": "Tập 14",
           "quality": "HD",
           "status": "ongoing",
           "showtimes": "",
@@ -10203,6 +10091,32 @@
   ],
   "sliderAuto": [
     {
+      "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ta/tan-hoa-duyen.webp",
+      "link_url": "/phim/tan-hoa-duyen.html",
+      "title": "Tẫn Hoa Duyên",
+      "year": "2026",
+      "country": "Trung Quốc",
+      "episode_current": "Trailer",
+      "genres": [
+        "Chính kịch"
+      ],
+      "sort_order": 0,
+      "enabled": true
+    },
+    {
+      "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/fu/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.webp",
+      "link_url": "/phim/full-swing-nhung-tay-golf-chuyen-nghiep-phan-4.html",
+      "title": "Full Swing: Những Tay Golf Chuyên Nghiệp (Phần 4)",
+      "year": "2026",
+      "country": "Âu Mỹ",
+      "episode_current": "Trailer",
+      "genres": [
+        "Tài Liệu"
+      ],
+      "sort_order": 1,
+      "enabled": true
+    },
+    {
       "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/ke/ke-huyt-sao.webp",
       "link_url": "/phim/ke-huyt-sao.html",
       "title": "Kẻ Huýt Sáo",
@@ -10213,7 +10127,7 @@
         "Kinh Dị",
         "Bí ẩn"
       ],
-      "sort_order": 0,
+      "sort_order": 2,
       "enabled": true
     },
     {
@@ -10226,7 +10140,7 @@
       "genres": [
         "Tài Liệu"
       ],
-      "sort_order": 1,
+      "sort_order": 3,
       "enabled": true
     },
     {
@@ -10239,7 +10153,7 @@
       "genres": [
         "Tài Liệu"
       ],
-      "sort_order": 2,
+      "sort_order": 4,
       "enabled": true
     },
     {
@@ -10253,7 +10167,7 @@
         "Hành Động",
         "Phiêu Lưu"
       ],
-      "sort_order": 3,
+      "sort_order": 5,
       "enabled": true
     },
     {
@@ -10267,7 +10181,7 @@
         "Hành Động",
         "Phiêu Lưu"
       ],
-      "sort_order": 4,
+      "sort_order": 6,
       "enabled": true
     },
     {
@@ -10281,7 +10195,7 @@
         "Hài Hước",
         "Chính kịch"
       ],
-      "sort_order": 5,
+      "sort_order": 7,
       "enabled": true
     },
     {
@@ -10294,7 +10208,7 @@
       "genres": [
         "Chính kịch"
       ],
-      "sort_order": 6,
+      "sort_order": 8,
       "enabled": true
     },
     {
@@ -10308,7 +10222,7 @@
         "Hình Sự",
         "Chính kịch"
       ],
-      "sort_order": 7,
+      "sort_order": 9,
       "enabled": true
     },
     {
@@ -10321,7 +10235,7 @@
       "genres": [
         "Chính kịch"
       ],
-      "sort_order": 8,
+      "sort_order": 10,
       "enabled": true
     },
     {
@@ -10333,35 +10247,6 @@
       "episode_current": "Tập 25",
       "genres": [
         "Chính kịch"
-      ],
-      "sort_order": 9,
-      "enabled": true
-    },
-    {
-      "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/bi/bi-kich-duoi-chan-cau.webp",
-      "link_url": "/phim/bi-kich-duoi-chan-cau.html",
-      "title": "Bi Kịch Dưới Chân Cầu",
-      "year": "2024",
-      "country": "Âu Mỹ",
-      "episode_current": "Tập 7",
-      "genres": [
-        "Hình Sự",
-        "Chính kịch",
-        "Tâm Lý"
-      ],
-      "sort_order": 10,
-      "enabled": true
-    },
-    {
-      "image_url": "https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/posters/hu/huong-vi-cua-bien-phan-3.webp",
-      "link_url": "/phim/huong-vi-cua-bien-phan-3.html",
-      "title": "Hương Vị Của Biển (Phần 3)",
-      "year": "2026",
-      "country": "Hàn Quốc",
-      "episode_current": "Tập 1",
-      "genres": [
-        "Tài Liệu",
-        "Gia Đình"
       ],
       "sort_order": 11,
       "enabled": true
