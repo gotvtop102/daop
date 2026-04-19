@@ -884,10 +884,7 @@ create policy "Admin only" on public.movie_episodes for all using (public.is_adm
       '-- ----- Phần C: Seed trang tĩnh mẫu (tùy chọn) -----',
       seedStaticPagesSql,
       '',
-      '-- ----- Phần D: Gán role admin cho tài khoản đăng nhập Admin project -----',
-      setAdminRoleSql.trim(),
-      '',
-      '-- ----- Phần E: Site setting movies_data_source=supabase (tùy chọn) -----',
+      '-- ----- Phần D: Site setting movies_data_source=supabase (tùy chọn) -----',
       `insert into public.site_settings (key, value)
 values ('movies_data_source', 'supabase')
 on conflict (key) do nothing;`,
@@ -903,7 +900,8 @@ on conflict (key) do nothing;`,
     ].join('\n');
 
     return [
-      { key: 'admin-install', title: '[Admin] Tạo bảng + RLS + audit + seed + gán role admin', sql: adminInstallSql },
+      { key: 'admin-install', title: '[Admin] Tạo bảng + RLS + audit + seed', sql: adminInstallSql },
+      { key: 'set-admin-role', title: '[Admin] Gán role admin (Auth user)', sql: setAdminRoleSql.trim() },
       { key: 'user-install', title: '[User] Tạo bảng + RLS', sql: userInstallSql },
       { key: 'movies-install', title: '[Movies] Tạo bảng movies + RLS', sql: moviesSchemaSql },
       { key: 'episodes-install', title: '[Episodes] Tạo bảng movie_episodes + RLS', sql: episodesSchemaSql },
