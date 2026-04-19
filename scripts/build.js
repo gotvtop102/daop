@@ -3322,7 +3322,8 @@ function writeFilters(movies, genreNames = {}, countryNames = {}) {
   const exclusiveIds = [];
   const showtimesIds = [];
   const yearsSet = new Set();
-  for (const m of movies) {
+  const sortedDescMovies = [...movies].sort((a, b) => String(b.id || '').localeCompare(String(a.id || '')));
+  for (const m of sortedDescMovies) {
     const q = (m.quality || '').toString().toLowerCase();
     const is4k = !!m.is_4k || /4k|uhd|2160p/.test(q);
     if (is4k) quality4kIds.push(m.id);
@@ -3733,7 +3734,8 @@ function writeActors(movies) {
   const names = {};
   const meta = {};
   const movieById = new Map();
-  for (const m of movies) {
+  const sortedDescMovies = [...movies].sort((a, b) => String(b.id || '').localeCompare(String(a.id || '')));
+  for (const m of sortedDescMovies) {
     movieById.set(String(m.id), toLightMovie(m));
     const castList = Array.isArray(m.cast_meta) && m.cast_meta.length
       ? m.cast_meta
