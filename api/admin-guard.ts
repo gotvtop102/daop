@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-type GuardResult = { ok: true; isAdmin: boolean } | { ok: false; status: number; error: string };
+export type GuardResult = { ok: true; isAdmin: boolean } | { ok: false; status: number; error: string };
 
 function bearerFromReq(req: VercelRequest): string {
   const h = String((req.headers as any)?.authorization || '').trim();

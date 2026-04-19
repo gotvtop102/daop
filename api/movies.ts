@@ -18,7 +18,7 @@ import {
   updateShowtimesExclusiveSb,
   updateShowtimesSb,
 } from './movies-supabase.js';
-import { guardAdmin } from './admin-guard.js';
+import { guardAdmin, type GuardResult } from './admin-guard.js';
 
 type DashboardStatsCache = {
   version: string;
@@ -51,8 +51,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const action = String((req.query as any)?.action || (req.body as any)?.action || '').trim();
 
-    const g = await guardAdmin(req, res);
-    if (!g.ok) return res.status(g.status).json({ error: g.error });
+    const g: GuardResult = await guardAdmin(req, res);
+    if (g.ok === false) return res.status(g.status).json({ error: g.error });
 
     if (action === 'authInfo') {
       return res.status(200).json(authInfoSb());
