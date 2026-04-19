@@ -884,7 +884,10 @@ create policy "Admin only" on public.movie_episodes for all using (public.is_adm
       '-- ----- Phần C: Seed trang tĩnh mẫu (tùy chọn) -----',
       seedStaticPagesSql,
       '',
-      '-- ----- Phần D: Site setting movies_data_source=supabase (tùy chọn) -----',
+      '-- ----- Phần D: Gán role admin cho tài khoản đăng nhập Admin project -----',
+      setAdminRoleSql.trim(),
+      '',
+      '-- ----- Phần E: Site setting movies_data_source=supabase (tùy chọn) -----',
       `insert into public.site_settings (key, value)
 values ('movies_data_source', 'supabase')
 on conflict (key) do nothing;`,
@@ -892,19 +895,16 @@ on conflict (key) do nothing;`,
 
     const userInstallSql = [
       '-- =============================================================================',
-      '-- [User] Khởi tạo project Supabase User (Org A) — bảng người dùng + gán admin',
+      '-- [User] Khởi tạo project Supabase User (Org A) — bảng người dùng',
       '-- =============================================================================',
       '',
       '-- ----- Phần A: profiles, favorites, watch_history, user_changes + RLS -----',
       schemaUserSql,
-      '',
-      '-- ----- Phần B: Gán role admin (đổi email, tạo user trong Auth trước) -----',
-      setAdminRoleSql.trim(),
     ].join('\n');
 
     return [
-      { key: 'admin-install', title: '[Admin] Tạo bảng + RLS + audit + seed', sql: adminInstallSql },
-      { key: 'user-install', title: '[User] Tạo bảng + RLS + gán role admin', sql: userInstallSql },
+      { key: 'admin-install', title: '[Admin] Tạo bảng + RLS + audit + seed + gán role admin', sql: adminInstallSql },
+      { key: 'user-install', title: '[User] Tạo bảng + RLS', sql: userInstallSql },
       { key: 'movies-install', title: '[Movies] Tạo bảng movies + RLS', sql: moviesSchemaSql },
       { key: 'episodes-install', title: '[Episodes] Tạo bảng movie_episodes + RLS', sql: episodesSchemaSql },
     ];
@@ -1539,7 +1539,7 @@ on conflict (key) do nothing;`,
             children: (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  Chạy trong Supabase SQL Editor (đúng project Admin/User/Movies/Episodes). Mở từng mục để xem SQL; Copy nằm trên dòng tiêu đề.
+                  Cấu trúc 4 project: Org A gồm Admin + User, Org B gồm Movies + Episodes. Chạy SQL đúng project tương ứng trong SQL Editor; thứ tự khuyến nghị: Admin → User → Movies → Episodes. Mở từng mục để xem SQL, nút Copy nằm trên dòng tiêu đề.
                 </Typography.Text>
                 <Collapse
                   size="small"
