@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getGithubImagesRepoConfig, githubFetchTreeRecursive } from './lib/github-contents.js';
+import { getGithubImagesRepoConfig, githubFetchTreeRecursive } from '../lib/github-contents.js';
 
 const MAX_KEYS_DEFAULT = 200_000;
 

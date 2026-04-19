@@ -3,7 +3,7 @@ import {
   getGithubImagesRepoConfig,
   githubGetFileSha,
   githubPutFileBase64,
-} from './lib/github-contents.js';
+} from '../lib/github-contents.js';
 
 /** Lazy-load sharp (native) — import tĩnh hay gây FUNCTION_INVOCATION_FAILED trên Vercel. */
 async function getSharp() {

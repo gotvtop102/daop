@@ -8,7 +8,7 @@ import {
   ensurePublicFolderInRemoteRepo,
   getGithubImagesRepoConfig,
   githubPutFileBase64,
-} from './lib/github-contents.js';
+} from '../lib/github-contents.js';
 
 const MAX_SIZE = 4 * 1024 * 1024; // 4MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
