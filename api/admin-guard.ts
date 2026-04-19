@@ -31,7 +31,7 @@ export async function guardAdmin(req: VercelRequest, _res: VercelResponse): Prom
 
 export async function requireAdmin(req: VercelRequest, res: VercelResponse): Promise<boolean> {
   const g = await guardAdmin(req, res);
-  if (!g.ok) {
+  if (g.ok === false) {
     res.status(g.status).json({ ok: false, error: g.error });
     return false;
   }
