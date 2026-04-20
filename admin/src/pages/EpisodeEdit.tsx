@@ -372,153 +372,183 @@ export default function EpisodeEdit() {
   };
 
   const columns = (serverIndex: number) => [
-    {
+    // Keep edits stable across paginated view by mapping visible rows to original index.
+    // Ant Table `idx` is index within current page, not global index in full `episodes`.
+    // We store original index at `__absIdx` in dataSource and use it for updates.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (({
       title: 'Mã tập',
       dataIndex: 'episode_code',
       key: 'episode_code',
       width: 110,
-      render: (_: any, __: any, idx: number) => (
-        <Input
-          value={servers[serverIndex].episodes[idx].episode_code}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'episode_code', e.target.value)}
-          placeholder="1 / S01E01"
-        />
-      ),
-    },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
+          <Input
+            value={servers[serverIndex].episodes[absIdx]?.episode_code ?? ''}
+            onChange={(e) => updateEpisode(serverIndex, absIdx, 'episode_code', e.target.value)}
+            placeholder="1 / S01E01"
+          />
+        );
+      },
+    }) as any),
     {
       title: 'Tên tập',
       dataIndex: 'episode_name',
       key: 'episode_name',
       width: 160,
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].episode_name}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'episode_name', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.episode_name ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'episode_name', e.target.value)}
           placeholder="Tập 1"
         />
-      ),
+      );},
     },
     {
       title: 'Link M3U8',
       dataIndex: 'link_m3u8',
       key: 'link_m3u8',
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].link_m3u8}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'link_m3u8', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.link_m3u8 ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'link_m3u8', e.target.value)}
           placeholder="https://.../index.m3u8"
         />
-      ),
+      );},
     },
     {
       title: 'Link Embed',
       dataIndex: 'link_embed',
       key: 'link_embed',
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].link_embed}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'link_embed', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.link_embed ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'link_embed', e.target.value)}
           placeholder="https://player..."
         />
-      ),
+      );},
     },
     {
       title: 'Backup',
       dataIndex: 'link_backup',
       key: 'link_backup',
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].link_backup}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'link_backup', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.link_backup ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'link_backup', e.target.value)}
           placeholder="https://..."
         />
-      ),
+      );},
     },
     {
       title: 'VIP 1',
       dataIndex: 'link_vip1',
       key: 'link_vip1',
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].link_vip1}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'link_vip1', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.link_vip1 ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'link_vip1', e.target.value)}
           placeholder="https://..."
         />
-      ),
+      );},
     },
     {
       title: 'VIP 2',
       dataIndex: 'link_vip2',
       key: 'link_vip2',
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].link_vip2}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'link_vip2', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.link_vip2 ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'link_vip2', e.target.value)}
           placeholder="https://..."
         />
-      ),
+      );},
     },
     {
       title: 'VIP 3',
       dataIndex: 'link_vip3',
       key: 'link_vip3',
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].link_vip3}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'link_vip3', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.link_vip3 ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'link_vip3', e.target.value)}
           placeholder="https://..."
         />
-      ),
+      );},
     },
     {
       title: 'VIP 4',
       dataIndex: 'link_vip4',
       key: 'link_vip4',
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].link_vip4}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'link_vip4', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.link_vip4 ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'link_vip4', e.target.value)}
           placeholder="https://..."
         />
-      ),
+      );},
     },
     {
       title: 'VIP 5',
       dataIndex: 'link_vip5',
       key: 'link_vip5',
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].link_vip5}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'link_vip5', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.link_vip5 ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'link_vip5', e.target.value)}
           placeholder="https://..."
         />
-      ),
+      );},
     },
     {
       title: 'Ghi chú',
       dataIndex: 'note',
       key: 'note',
       width: 160,
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Input
-          value={servers[serverIndex].episodes[idx].note}
-          onChange={(e) => updateEpisode(serverIndex, idx, 'note', e.target.value)}
+          value={servers[serverIndex].episodes[absIdx]?.note ?? ''}
+          onChange={(e) => updateEpisode(serverIndex, absIdx, 'note', e.target.value)}
           placeholder="..."
         />
-      ),
+      );},
     },
     {
       title: '',
       key: 'action',
       width: 60,
-      render: (_: any, __: any, idx: number) => (
+      render: (_: any, record: any, idx: number) => {
+        const absIdx = Number.isInteger(record?.__absIdx) ? Number(record.__absIdx) : idx;
+        return (
         <Button
           danger
           icon={<DeleteOutlined />}
           size="small"
-          onClick={() => removeEpisode(serverIndex, idx)}
+          onClick={() => removeEpisode(serverIndex, absIdx)}
         />
-      ),
+      );},
     },
   ];
 
@@ -625,6 +655,7 @@ export default function EpisodeEdit() {
                           onChange={(value) => updateServerSlug(serverIndex, value)}
                           style={{ width: 180 }}
                           showSearch
+                          getPopupContainer={(node) => node.parentElement || document.body}
                         >
                           {SERVER_SLUG_PRESETS.map((slug) => (
                             <Option key={slug} value={slug}>
@@ -681,13 +712,18 @@ export default function EpisodeEdit() {
                   columns={columns(serverIndex)}
                   dataSource={
                     typeFromQuery === 'series'
-                      ? server.episodes.slice(
-                          ((episodePages[String(serverIndex)] || 1) - 1) * 10,
-                          ((episodePages[String(serverIndex)] || 1) - 1) * 10 + 10
-                        )
-                      : server.episodes
+                      ? server.episodes
+                          .slice(
+                            ((episodePages[String(serverIndex)] || 1) - 1) * 10,
+                            ((episodePages[String(serverIndex)] || 1) - 1) * 10 + 10
+                          )
+                          .map((ep, idx) => ({
+                            ...ep,
+                            __absIdx: ((episodePages[String(serverIndex)] || 1) - 1) * 10 + idx,
+                          }))
+                      : server.episodes.map((ep, idx) => ({ ...ep, __absIdx: idx }))
                   }
-                  rowKey={(r: any, idx?: number) => `${serverIndex}-${idx ?? 0}-${r.episode_code || ''}`}
+                  rowKey={(r: any) => `${serverIndex}-${Number(r.__absIdx || 0)}-${r.episode_code || ''}`}
                   pagination={
                     typeFromQuery === 'series'
                       ? {
