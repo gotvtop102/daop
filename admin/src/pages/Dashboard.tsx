@@ -10,6 +10,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { getApiBaseUrl } from '../lib/api';
+import { getAdminApiAuthHeaders } from '../lib/adminAuth';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -24,7 +25,12 @@ export default function Dashboard() {
     const statsUrl = new URL(`${base}/api/movies`);
     statsUrl.searchParams.append('action', 'dashboardStats');
 
-    const res = await fetch(statsUrl.toString(), { cache: 'no-store' });
+    const res = await fetch(statsUrl.toString(), {
+      cache: 'no-store',
+      headers: {
+        ...(await getAdminApiAuthHeaders()),
+      },
+    });
     const data = await res.json().catch(async () => ({ error: await res.text() }));
     if (!res.ok) return;
 

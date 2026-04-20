@@ -26,6 +26,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getApiBaseUrl } from '../lib/api';
+import { getAdminApiAuthHeaders } from '../lib/adminAuth';
 import { buildCdnMovieImageUrlBySlug, buildOphimUploadsImageUrlByStem } from '../lib/movie-image-urls';
 
 const { Title } = Typography;
@@ -132,7 +133,11 @@ export default function MovieList() {
         url.searchParams.append('search', search.trim());
       }
 
-      const res = await fetch(url.toString());
+      const res = await fetch(url.toString(), {
+        headers: {
+          ...(await getAdminApiAuthHeaders()),
+        },
+      });
       if (!res.ok) {
         const err = await res.text();
         throw new Error(err || `HTTP ${res.status}`);
@@ -186,7 +191,7 @@ export default function MovieList() {
       url.searchParams.append('id', id);
       const res = await fetch(url.toString(), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
         body: JSON.stringify({ action: 'delete', id }),
       });
 
