@@ -3811,6 +3811,14 @@ function buildActorSearchIndex(names = {}) {
   return index;
 }
 
+function pushUniqueMovieId(list, movieId) {
+  const id = String(movieId || '');
+  if (!id) return;
+  if (!Array.isArray(list)) return;
+  if (list[list.length - 1] === id) return;
+  if (!list.includes(id)) list.push(id);
+}
+
 /** Gộp map từ actors-{a-z|other}.json khi actors.js chỉ còn names+meta (tránh một file >25 MiB trên Cloudflare Pages). */
 function mergeActorsMapFromShards() {
   const map = {};
@@ -3847,13 +3855,18 @@ function writeActors(movies) {
       ? m.cast_meta
       : (m.cast || []).map((n) => ({ name: n }));
     for (const c of castList) {
-      const displayName = c && (c.name_vi || c.name) ? String(c.name_vi || c.name) : '';
-      const slugSourceName = c && (c.name_original || c.name) ? String(c.name_original || c.name) : '';
-      const s = slugify(slugSourceName, { lower: true });
-      if (!s) continue;
-      if (!map[s]) map[s] = [];
-      map[s].push(String(m.id));
-      names[s] = displayName;
+      const displayName = c && (c.name_vi || c.name || c.name_original)
+        ? String(c.name_vi || c.name || c.name_original)
+        : '';
+      // Canonical slug: ưu tiên tên hiển thị (VN) để URL + search đồng bộ với UI.
+      const canonicalSlug = slugify(displayName, { lower: true });
+      const legacySourceName = c && (c.name_original || c.name || c.name_vi)
+        ? String(c.name_original || c.name || c.name_vi)
+        : '';
+      const legacySlug = slugify(legacySourceName, { lower: true });
+      const keys = [canonicalSlug, legacySlug].filter(Boolean);
+      if (!keys.length) continue;
+
       const pp = c && c.profile_path != null ? String(c.profile_path).trim() : '';
       const profileAbs = c && c.profile
         ? String(c.profile).trim()
@@ -3864,13 +3877,22 @@ function writeActors(movies) {
       const profileOut = profileAbs || profileFallback;
       const tid = c && c.tmdb_id != null ? c.tmdb_id : null;
       const tmdbUrl = c && c.tmdb_url ? String(c.tmdb_url) : (tid ? `https://www.themoviedb.org/person/${tid}` : null);
-      if (tid || profileOut || tmdbUrl) {
-        const next = { tmdb_id: tid || null, profile: profileOut || null, tmdb_url: tmdbUrl || null };
-        if (!meta[s]) meta[s] = next;
-        else {
-          if (!meta[s].profile && next.profile) meta[s].profile = next.profile;
-          if (!meta[s].tmdb_id && next.tmdb_id) meta[s].tmdb_id = next.tmdb_id;
-          if (!meta[s].tmdb_url && next.tmdb_url) meta[s].tmdb_url = next.tmdb_url;
+      const nextMeta = { tmdb_id: tid || null, profile: profileOut || null, tmdb_url: tmdbUrl || null };
+
+      for (const s of keys) {
+        if (!map[s]) map[s] = [];
+        pushUniqueMovieId(map[s], m.id);
+        // Không ghi đè tên hiển thị đã có bằng tên rỗng/ít thông tin.
+        if (!names[s] || String(names[s]).trim().length < String(displayName).trim().length) {
+          names[s] = displayName;
+        }
+        if (tid || profileOut || tmdbUrl) {
+          if (!meta[s]) meta[s] = nextMeta;
+          else {
+            if (!meta[s].profile && nextMeta.profile) meta[s].profile = nextMeta.profile;
+            if (!meta[s].tmdb_id && nextMeta.tmdb_id) meta[s].tmdb_id = nextMeta.tmdb_id;
+            if (!meta[s].tmdb_url && nextMeta.tmdb_url) meta[s].tmdb_url = nextMeta.tmdb_url;
+          }
         }
       }
     }
