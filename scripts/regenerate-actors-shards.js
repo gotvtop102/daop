@@ -48,6 +48,12 @@ function buildActorSearchIndex(names = {}) {
   return index;
 }
 
+function actorShardKeyFromName(name, slug) {
+  const nrm = normalizeActorSearchText(name) || normalizeActorSearchText(slug);
+  const c = (nrm[0] || '').toLowerCase();
+  return c >= 'a' && c <= 'z' ? c : 'other';
+}
+
 function mergeActorsMapFromShards() {
   const map = {};
   for (const key of ACTORS_SHARD_KEYS) {
@@ -146,8 +152,7 @@ function main() {
   const slugs = Object.keys(n);
   const byFirst = {};
   for (const slug of slugs) {
-    const c = (slug[0] || '').toLowerCase();
-    const key = c >= 'a' && c <= 'z' ? c : 'other';
+    const key = actorShardKeyFromName(n[slug], slug);
     if (!byFirst[key]) byFirst[key] = { map: {}, names: {}, movies: {} };
     byFirst[key].map[slug] = m[slug] || [];
     byFirst[key].names[slug] = n[slug];
