@@ -303,7 +303,10 @@
       if (Array.isArray(movie && movie.cast_meta) && movie.cast_meta.length) {
         list = movie.cast_meta.slice(0, 10).map(function (c) {
           var display = (c && (c.name_vi || c.name)) ? String(c.name_vi || c.name) : '';
-          var slugSource = (c && (c.name_original || c.name)) ? String(c.name_original || c.name) : display;
+          // Ưu tiên slug theo tên hiển thị (VN) để đồng bộ với trang diễn viên.
+          var slugSource = (c && (c.name_vi || c.name || c.name_original))
+            ? String(c.name_vi || c.name || c.name_original)
+            : display;
           return { display: display, slug: slugifyActorName(slugSource) };
         }).filter(function (x) { return x && x.display; });
       } else if (Array.isArray(movie && movie.cast) && movie.cast.length) {
