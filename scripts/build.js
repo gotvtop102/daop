@@ -3780,6 +3780,37 @@ const ACTORS_SHARD_KEYS = [
   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'other',
 ];
 
+function normalizeActorSearchText(v) {
+  if (v == null) return '';
+  let s = String(v).toLowerCase();
+  try {
+    s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  } catch {}
+  s = s.replace(/đ/g, 'd').replace(/\s+/g, ' ').trim();
+  return s;
+}
+
+function buildActorSearchIndex(names = {}) {
+  const index = {};
+  for (const [slug, name] of Object.entries(names || {})) {
+    const nSlug = normalizeActorSearchText(slug);
+    const nName = normalizeActorSearchText(name);
+    const seeds = [nSlug, nName].filter(Boolean);
+    const seen = new Set();
+    for (const seed of seeds) {
+      const max = Math.min(6, seed.length);
+      for (let len = 2; len <= max; len++) {
+        const pref = seed.slice(0, len);
+        if (!pref || seen.has(pref)) continue;
+        seen.add(pref);
+        if (!index[pref]) index[pref] = [];
+        index[pref].push(slug);
+      }
+    }
+  }
+  return index;
+}
+
 /** Gộp map từ actors-{a-z|other}.json khi actors.js chỉ còn names+meta (tránh một file >25 MiB trên Cloudflare Pages). */
 function mergeActorsMapFromShards() {
   const map = {};
@@ -3861,6 +3892,11 @@ function writeActors(movies) {
     JSON.stringify({ names, meta }),
     'utf8'
   );
+  fs.writeFileSync(
+    path.join(ACTORS_DATA_DIR, 'actors-search-index.json'),
+    JSON.stringify(buildActorSearchIndex(names)),
+    'utf8'
+  );
   // Shard theo ký tự đầu (a-z, other), mỗi shard có thêm movies: { slug: [light objects] }
   const byFirst = {};
   for (const slug of slugs) {
@@ -3898,6 +3934,11 @@ function writeActorsShardsFromData(map = {}, names = {}, movieById = null, meta 
   fs.writeFileSync(
     path.join(ACTORS_DATA_DIR, 'actors-index.json'),
     JSON.stringify({ names, meta }),
+    'utf8'
+  );
+  fs.writeFileSync(
+    path.join(ACTORS_DATA_DIR, 'actors-search-index.json'),
+    JSON.stringify(buildActorSearchIndex(names)),
     'utf8'
   );
   const byFirst = {};

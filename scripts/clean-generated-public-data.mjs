@@ -49,7 +49,8 @@ async function main() {
       /^actors-[a-z]+\.(js|json)$/i.test(ent.name) ||
       /^actors-other\.(js|json)$/i.test(ent.name) ||
       ent.name === 'actors.js' ||
-      ent.name === 'actors-index.json'
+      ent.name === 'actors-index.json' ||
+      ent.name === 'actors-search-index.json'
     ) {
       const p = path.join(dataDir, ent.name);
       await fs.remove(p);
