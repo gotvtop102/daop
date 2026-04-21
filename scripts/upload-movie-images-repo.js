@@ -57,6 +57,67 @@ async function headUrlOk(url, timeoutMs = 8000) {
   }
 }
 
+function envInt(name, def) {
+  const raw = process.env[name];
+  if (raw == null || String(raw).trim() === '') return def;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : def;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Tải bytes (ảnh) với timeout + retry — tránh treo/ghi đè index khi CDN reset giữa chừng (ECONNRESET). */
+async function fetchBytesWithRetries(url) {
+  const timeoutMs = envInt('REPO_IMAGE_FETCH_TIMEOUT_MS', 45_000);
+  const retries = Math.max(0, Number(process.env.REPO_IMAGE_FETCH_RETRIES || '2'));
+  const baseDelayMs = envInt('REPO_IMAGE_FETCH_RETRY_BASE_MS', 500);
+  const ua = String(process.env.REPO_IMAGE_FETCH_UA || 'daop-upload-movie-images-repo/1').trim();
+
+  let lastErr = null;
+  let lastRes = null;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        signal: ac.signal,
+        headers: {
+          Accept: 'image/*,*/*;q=0.8',
+          ...(ua ? { 'User-Agent': ua } : {}),
+        },
+      });
+      lastRes = res;
+      if (!res.ok) {
+        clearTimeout(t);
+        const err = new Error(`http_${res.status}`);
+        if (attempt < retries && (res.status === 429 || (res.status >= 500 && res.status <= 599))) {
+          const jitter = Math.floor(Math.random() * 250);
+          await sleep(baseDelayMs * 2 ** attempt + jitter);
+          continue;
+        }
+        return { ok: false, res, buf: null, err };
+      }
+      const buf = Buffer.from(await res.arrayBuffer());
+      clearTimeout(t);
+      return { ok: true, res, buf, err: null };
+    } catch (e) {
+      clearTimeout(t);
+      lastErr = e;
+      if (attempt < retries) {
+        const jitter = Math.floor(Math.random() * 250);
+        await sleep(baseDelayMs * 2 ** attempt + jitter);
+        continue;
+      }
+      return { ok: false, res: lastRes, buf: null, err: lastErr || e };
+    }
+  }
+  return { ok: false, res: lastRes, buf: null, err: lastErr || new Error('fetch_failed') };
+}
+
 function guessExtFromContentType(ct) {
   const t = String(ct || '').toLowerCase();
   if (t.includes('image/png')) return 'png';
@@ -374,29 +435,64 @@ async function fetchOphimDetailBySlug(base, slug) {
   if (!b || !s) return null;
 
   const url = `${b}/phim/${encodeURIComponent(s)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`ophim_http_${res.status}`);
-  const detail = await res.json().catch(() => null);
+  const timeoutMs = envInt('REPO_IMAGE_OPHIM_TIMEOUT_MS', 30_000);
+  const retries = Math.max(0, Number(process.env.REPO_IMAGE_OPHIM_RETRIES || '2'));
+  const baseDelayMs = envInt('REPO_IMAGE_OPHIM_RETRY_BASE_MS', 400);
+  const ua = String(process.env.REPO_IMAGE_FETCH_UA || 'daop-upload-movie-images-repo/1').trim();
 
-  const movie = detail?.data?.item || detail?.data?.movie || detail?.data || null;
-  if (!movie) return null;
+  let lastErr = null;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, {
+        signal: ac.signal,
+        headers: {
+          Accept: 'application/json',
+          ...(ua ? { 'User-Agent': ua } : {}),
+        },
+      });
+      clearTimeout(t);
+      if (!res.ok) {
+        lastErr = new Error(`ophim_http_${res.status}`);
+        if (attempt < retries && (res.status === 429 || (res.status >= 500 && res.status <= 599))) {
+          await sleep(baseDelayMs * 2 ** attempt + Math.floor(Math.random() * 200));
+          continue;
+        }
+        throw lastErr;
+      }
+      const detail = await res.json().catch(() => null);
 
-  const cdnBase = String(detail?.data?.APP_DOMAIN_CDN_IMAGE || '').replace(/\/$/, '');
+      const movie = detail?.data?.item || detail?.data?.movie || detail?.data || null;
+      if (!movie) return null;
 
-  const idStr = (movie?._id != null ? String(movie._id)
-    : (movie?.id != null ? String(movie.id)
-      : (movie?.movie_id != null ? String(movie.movie_id) : '')));
+      const cdnBase = String(detail?.data?.APP_DOMAIN_CDN_IMAGE || '').replace(/\/$/, '');
 
-  const thumbRaw = movie?.thumb_url || movie?.thumb || '';
-  const posterRaw = movie?.poster_url || movie?.poster || '';
-  const thumb = normalizeOphimCdnUrl(thumbRaw, cdnBase);
-  const poster = normalizeOphimCdnUrl(posterRaw, cdnBase);
-  return {
-    id: idStr || s,
-    slug: s,
-    thumb,
-    poster,
-  };
+      const idStr = (movie?._id != null ? String(movie._id)
+        : (movie?.id != null ? String(movie.id)
+          : (movie?.movie_id != null ? String(movie.movie_id) : '')));
+
+      const thumbRaw = movie?.thumb_url || movie?.thumb || '';
+      const posterRaw = movie?.poster_url || movie?.poster || '';
+      const thumb = normalizeOphimCdnUrl(thumbRaw, cdnBase);
+      const poster = normalizeOphimCdnUrl(posterRaw, cdnBase);
+      return {
+        id: idStr || s,
+        slug: s,
+        thumb,
+        poster,
+      };
+    } catch (e) {
+      clearTimeout(t);
+      lastErr = e;
+      if (attempt < retries) {
+        await sleep(baseDelayMs * 2 ** attempt + Math.floor(Math.random() * 200));
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastErr || new Error('ophim_fetch_failed');
 }
 
 async function main() {
@@ -434,6 +530,11 @@ async function main() {
         forceSlugs: forceSlugSet ? forceSlugSet.size : 0,
         limit: args.limit != null ? String(args.limit) : '',
         concurrency: args.concurrency != null ? String(args.concurrency) : '',
+        fetch_timeout_ms: envInt('REPO_IMAGE_FETCH_TIMEOUT_MS', 45_000),
+        fetch_retries: Math.max(0, Number(process.env.REPO_IMAGE_FETCH_RETRIES || '2')),
+        fetch_retry_base_ms: envInt('REPO_IMAGE_FETCH_RETRY_BASE_MS', 500),
+        ophim_timeout_ms: envInt('REPO_IMAGE_OPHIM_TIMEOUT_MS', 30_000),
+        ophim_retries: Math.max(0, Number(process.env.REPO_IMAGE_OPHIM_RETRIES || '2')),
       },
       null,
       2
@@ -626,26 +727,25 @@ async function main() {
         continue;
       }
 
-      let res;
-      try {
-        res = await fetch(url);
-      } catch (e) {
+      const fetched = await fetchBytesWithRetries(url);
+      if (!fetched.ok || !fetched.buf) {
         failed++;
-        const reason = e && e.message ? `fetch_failed:${e.message}` : 'fetch_failed';
+        const err = fetched.err;
+        const reason =
+          err && err.name === 'AbortError'
+            ? 'fetch_timeout_or_abort'
+            : err && err.message
+              ? `fetch_failed:${err.message}`
+              : fetched.res && !fetched.res.ok
+                ? `http_${fetched.res.status}`
+                : 'fetch_failed';
         markStateFail(state, idStr, kind, reason);
         if (failureSamples.length < 8) failureSamples.push({ id: idStr, kind, url, reason });
         continue;
       }
 
-      if (!res.ok) {
-        failed++;
-        const reason = `http_${res.status}`;
-        markStateFail(state, idStr, kind, reason);
-        if (failureSamples.length < 8) failureSamples.push({ id: idStr, kind, url, reason });
-        continue;
-      }
-
-      const buf = Buffer.from(await res.arrayBuffer());
+      const res = fetched.res;
+      const buf = fetched.buf;
       const ct = res.headers.get('content-type') || '';
       const ext = guessExtFromContentType(ct) || guessExtFromUrl(url) || 'jpg';
 
