@@ -42,15 +42,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  if (!isSupabaseMoviesConfigured()) {
-    return res.status(500).json({
-      error:
-        'Chưa cấu hình Supabase cho API phim: cần cả Movies và Episodes project (SUPABASE_MOVIES_URL + SUPABASE_MOVIES_SERVICE_ROLE_KEY, SUPABASE_EPISODES_URL + SUPABASE_EPISODES_SERVICE_ROLE_KEY).',
-    });
-  }
-
   try {
     const action = String((req.query as any)?.action || (req.body as any)?.action || '').trim();
+    const actionNeedsMoviesConfig = ![
+      'readonlySections',
+      'readonlySiteConfig',
+    ].includes(action);
+
+    if (actionNeedsMoviesConfig && !isSupabaseMoviesConfigured()) {
+      return res.status(500).json({
+        error:
+          'Chưa cấu hình Supabase cho API phim: cần cả Movies và Episodes project (SUPABASE_MOVIES_URL + SUPABASE_MOVIES_SERVICE_ROLE_KEY, SUPABASE_EPISODES_URL + SUPABASE_EPISODES_SERVICE_ROLE_KEY).',
+      });
+    }
 
     const g: GuardResult = await guardAdmin(req, res);
     if (g.ok === false) return res.status(g.status).json({ error: g.error });

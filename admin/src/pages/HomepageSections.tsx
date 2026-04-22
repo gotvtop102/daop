@@ -91,8 +91,10 @@ export default function HomepageSections() {
   const loadData = async () => {
     setLoading(true);
     const r = await supabase.from('homepage_sections').select('*').order('sort_order');
-    if (!r.error && Array.isArray(r.data)) {
-      setData((r.data as SectionRow[]) ?? []);
+    const directRows = Array.isArray(r.data) ? (r.data as SectionRow[]) : [];
+    const shouldUseDirectRows = !r.error && (isAdmin || directRows.length > 0);
+    if (shouldUseDirectRows) {
+      setData(directRows);
       setLoading(false);
       return;
     }
@@ -110,7 +112,7 @@ export default function HomepageSections() {
       const fallbackData = Array.isArray((fallbackJson as any)?.data) ? (fallbackJson as any).data : [];
       if (fallbackRes.ok && fallbackData.length >= 0) {
         setData(fallbackData as SectionRow[]);
-        if (r.error) {
+        if (r.error || (!isAdmin && directRows.length === 0)) {
           message.warning('Tài khoản đang ở chế độ chỉ xem sections.');
         }
       } else {

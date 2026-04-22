@@ -87,9 +87,12 @@ export default function MovieList() {
         .select('key, value')
         .in('key', ['r2_img_domain', 'ophim_img_domain']);
 
-      if (!error && settings) {
-        const r2Domain = settings.find((s) => s.key === 'r2_img_domain')?.value;
-        const ophimDomain = settings.find((s) => s.key === 'ophim_img_domain')?.value;
+      const directSettings = Array.isArray(settings) ? settings : [];
+      const hasDirectR2 = !!directSettings.find((s) => s.key === 'r2_img_domain')?.value;
+      const hasDirectOphim = !!directSettings.find((s) => s.key === 'ophim_img_domain')?.value;
+      if (!error && (hasDirectR2 || hasDirectOphim)) {
+        const r2Domain = directSettings.find((s) => s.key === 'r2_img_domain')?.value;
+        const ophimDomain = directSettings.find((s) => s.key === 'ophim_img_domain')?.value;
         if (r2Domain) setR2ImgDomain(r2Domain);
         if (ophimDomain) setOphimImgDomain(ophimDomain);
       } else {
