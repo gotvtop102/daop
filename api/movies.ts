@@ -1,3 +1,4 @@
+import { VercelRequest, VercelResponse } from '@vercel/node';
 import {
   authInfoSb,
   getDashboardStatsCountsSb,
@@ -20,20 +21,6 @@ import {
 import { authHeaders, errFromRes, getRestEnv, restFetchByScope, restJson } from './supabase-rest.js';
 import { guardAdmin, type GuardResult } from './admin-guard.js';
 
-type ApiRequest = {
-  method?: string;
-  query: Record<string, unknown>;
-  body?: any;
-  headers: Record<string, unknown>;
-};
-
-type ApiResponse = {
-  status: (code: number) => ApiResponse;
-  json: (payload: any) => ApiResponse;
-  setHeader: (name: string, value: string | string[]) => ApiResponse;
-  end: () => void;
-};
-
 type DashboardStatsCache = {
   version: string;
   stats: Record<string, number>;
@@ -46,7 +33,7 @@ let dashboardVersionCacheValue: string = '';
 
 const DASHBOARD_VERSION_CACHE_TTL_MS = 25_000;
 
-export default async function handler(req: ApiRequest, res: ApiResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -57,6 +44,16 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
 
   try {
     const action = String((req.query as any)?.action || (req.body as any)?.action || '').trim();
+    const readOnlyActions = new Set([
+      'authInfo',
+      'list',
+      'get',
+      'getBySlug',
+      'readonlySections',
+      'readonlySiteConfig',
+      'episodes',
+      'dashboardStats',
+    ]);
     const actionNeedsMoviesConfig = ![
       'readonlySections',
       'readonlySiteConfig',
@@ -69,8 +66,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       });
     }
 
-    const g: GuardResult = await guardAdmin(req, res);
-    if (g.ok === false) return res.status(g.status).json({ error: g.error });
+    let g: GuardResult | null = null;
+    if (!readOnlyActions.has(action)) {
+      g = await guardAdmin(req, res);
+      if (g.ok === false) return res.status(g.status).json({ error: g.error });
+    }
 
     if (action === 'authInfo') {
       return res.status(200).json(authInfoSb());
@@ -157,7 +157,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       }
 
       case 'importFull': {
-        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được import.' });
+        if (!g || !g.ok || !g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được import.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -185,7 +185,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       }
 
       case 'deleteIds': {
-        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa.' });
+        if (!g || !g.ok || !g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -196,7 +196,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       }
 
       case 'deleteAll': {
-        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa.' });
+        if (!g || !g.ok || !g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -262,7 +262,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       }
 
       case 'save': {
-        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được lưu.' });
+        if (!g || !g.ok || !g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được lưu.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -272,7 +272,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       }
 
       case 'delete': {
-        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa.' });
+        if (!g || !g.ok || !g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -283,7 +283,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       }
 
       case 'updateShowtimes': {
-        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được cập nhật.' });
+        if (!g || !g.ok || !g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được cập nhật.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -294,7 +294,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       }
 
       case 'updateShowtimesExclusive': {
-        if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được cập nhật.' });
+        if (!g || !g.ok || !g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được cập nhật.' });
         if (req.method !== 'POST') {
           return res.status(405).json({ error: 'Method not allowed' });
         }
@@ -311,7 +311,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
         const debug = !!(req.body as any)?.debug;
 
         if (Array.isArray(episodesPayload)) {
-          if (!g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được lưu tập.' });
+          if (!g || !g.ok || !g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được lưu tập.' });
           if (req.method !== 'POST') {
             return res.status(405).json({ error: 'Method not allowed' });
           }
