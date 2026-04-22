@@ -15,6 +15,9 @@ import {
 import { PlusOutlined, EditOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import { supabase } from '../lib/supabase';
 import defaultSectionsJson from '../../../config/default-sections.json';
+import { useAdminRole } from '../context/AdminRoleContext';
+import { getApiBaseUrl } from '../lib/api';
+import { getAdminApiAuthHeaders } from '../lib/adminAuth';
 
 type SectionRow = {
   id: string;
@@ -72,6 +75,7 @@ const IMAGE_TYPE_OPTIONS = [
 const DEFAULT_SECTIONS = defaultSectionsJson as Array<Omit<SectionRow, 'id'>>;
 
 export default function HomepageSections() {
+  const { isAdmin } = useAdminRole();
   const [data, setData] = useState<SectionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -87,7 +91,37 @@ export default function HomepageSections() {
   const loadData = async () => {
     setLoading(true);
     const r = await supabase.from('homepage_sections').select('*').order('sort_order');
-    setData((r.data as SectionRow[]) ?? []);
+    if (!r.error && Array.isArray(r.data)) {
+      setData((r.data as SectionRow[]) ?? []);
+      setLoading(false);
+      return;
+    }
+
+    // Non-admin accounts can be blocked by RLS on homepage_sections.
+    // Fallback to server-side readonly API (service role) so sections still display.
+    try {
+      const base = getApiBaseUrl();
+      const fallbackRes = await fetch(`${base}/api/admin-readonly?action=sections`, {
+        headers: {
+          ...(await getAdminApiAuthHeaders()),
+        },
+      });
+      const fallbackJson = await fallbackRes.json().catch(() => ({}));
+      const fallbackData = Array.isArray((fallbackJson as any)?.data) ? (fallbackJson as any).data : [];
+      if (fallbackRes.ok && fallbackData.length >= 0) {
+        setData(fallbackData as SectionRow[]);
+        if (r.error) {
+          message.warning('Tài khoản đang ở chế độ chỉ xem sections.');
+        }
+      } else {
+        throw new Error((fallbackJson as any)?.error || `HTTP ${fallbackRes.status}`);
+      }
+    } catch {
+      setData([]);
+      if (r.error) {
+        message.error(r.error.message || 'Không tải được sections');
+      }
+    }
     setLoading(false);
   };
 
@@ -243,10 +277,10 @@ export default function HomepageSections() {
         Sau khi lưu, cần chạy Build website để áp dụng sections lên trang chủ.
       </p>
       <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={openAdd}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={openAdd} disabled={!isAdmin}>
           Thêm section
         </Button>
-        <Button onClick={seedDefaults} disabled={data.length > 0}>
+        <Button onClick={seedDefaults} disabled={data.length > 0 || !isAdmin}>
           Thêm sections mặc định
         </Button>
       </div>
@@ -312,19 +346,19 @@ export default function HomepageSections() {
                 <Button
                   size="small"
                   icon={<ArrowUpOutlined />}
-                  disabled={index === 0}
+                  disabled={index === 0 || !isAdmin}
                   onClick={() => changeOrder(row, 'up')}
                 />
                 <Button
                   size="small"
                   icon={<ArrowDownOutlined />}
-                  disabled={index === data.length - 1}
+                  disabled={index === data.length - 1 || !isAdmin}
                   onClick={() => changeOrder(row, 'down')}
                 />
-                <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(row)}>
+                <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(row)} disabled={!isAdmin}>
                   Sửa
                 </Button>
-                <Button size="small" onClick={() => toggleActive(row)}>
+                <Button size="small" onClick={() => toggleActive(row)} disabled={!isAdmin}>
                   {row.is_active ? 'Tắt' : 'Bật'}
                 </Button>
               </Space>

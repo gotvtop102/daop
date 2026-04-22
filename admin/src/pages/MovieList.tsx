@@ -92,6 +92,23 @@ export default function MovieList() {
         const ophimDomain = settings.find((s) => s.key === 'ophim_img_domain')?.value;
         if (r2Domain) setR2ImgDomain(r2Domain);
         if (ophimDomain) setOphimImgDomain(ophimDomain);
+      } else {
+        try {
+          const base = getApiBaseUrl();
+          const fallbackRes = await fetch(`${base}/api/admin-readonly?action=site-config`, {
+            headers: {
+              ...(await getAdminApiAuthHeaders()),
+            },
+          });
+          const fallbackJson = await fallbackRes.json().catch(() => ({}));
+          const fallbackSettings = (fallbackJson as any)?.data || {};
+          if (fallbackRes.ok) {
+            if (fallbackSettings?.r2_img_domain) setR2ImgDomain(String(fallbackSettings.r2_img_domain));
+            if (fallbackSettings?.ophim_img_domain) setOphimImgDomain(String(fallbackSettings.ophim_img_domain));
+          }
+        } catch {
+          // Keep empty domains; render fallback URLs from movie data below.
+        }
       }
       setConfigReady(true);
     };
@@ -99,13 +116,17 @@ export default function MovieList() {
   }, []);
 
   const listMoviePosterSrc = (record: Movie) => {
+    const directPoster = String(record.poster_url || '').trim();
+    const directThumb = String(record.thumb_url || '').trim();
     const slug = String(record.slug || '').trim();
     const stem = slug || String(record.id || '').trim();
-    if (!stem) return '';
-    return (
+    const generated = stem
+      ? (
       buildCdnMovieImageUrlBySlug(r2ImgDomain, stem, 'poster') ||
       buildOphimUploadsImageUrlByStem(ophimImgDomain, stem, 'poster')
-    );
+      )
+      : '';
+    return generated || directPoster || directThumb || '';
   };
 
   const loadMovies = async (opts?: { nextPage?: number; nextPageSize?: number }) => {

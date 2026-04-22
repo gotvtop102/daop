@@ -2,7 +2,7 @@ import { authHeaders, errFromRes, getRestEnv, parseContentRangeTotal, restFetchB
 
 /** Không gồm description/content (thường rất dài) — chỉ dùng cho list / tab trùng slug. Không select `name` (trùng title, giữ null trên DB). */
 const MOVIE_LIST_SELECT =
-  'id,slug,title,origin_name,type,year,genre,country,language,quality,episode_current,status,showtimes,chieurap,is_exclusive,tmdb_id,modified,update,note,director,actor,tmdb_type,created_at,updated_at';
+  'id,slug,title,origin_name,poster_url,thumb_url,type,year,genre,country,language,quality,episode_current,status,showtimes,chieurap,is_exclusive,tmdb_id,modified,update,note,director,actor,tmdb_type,created_at,updated_at';
 
 /** Tập phim: đủ field hiểnịh/sửa link, không cần uuid nội bộ nếu không dùng. */
 const EPISODE_ROW_SELECT =

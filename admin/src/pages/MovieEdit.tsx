@@ -313,6 +313,23 @@ export default function MovieEdit() {
         const ophimDomain = settings.find((s) => s.key === 'ophim_img_domain')?.value;
         if (r2Domain) setR2ImgDomain(r2Domain);
         if (ophimDomain) setOphimImgDomain(ophimDomain);
+      } else {
+        try {
+          const apiBase = getApiBaseUrl();
+          const fallbackRes = await fetch(`${apiBase}/api/admin-readonly?action=site-config`, {
+            headers: {
+              ...(await getAdminApiAuthHeaders()),
+            },
+          });
+          const fallbackJson = await fallbackRes.json().catch(() => ({}));
+          const fallbackSettings = (fallbackJson as any)?.data || {};
+          if (fallbackRes.ok) {
+            if (fallbackSettings?.r2_img_domain) setR2ImgDomain(String(fallbackSettings.r2_img_domain));
+            if (fallbackSettings?.ophim_img_domain) setOphimImgDomain(String(fallbackSettings.ophim_img_domain));
+          }
+        } catch {
+          // Keep empty domains and rely on raw URLs.
+        }
       }
       setConfigReady(true);
     };
