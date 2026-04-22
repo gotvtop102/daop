@@ -1,4 +1,3 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
 import {
   authInfoSb,
   getDashboardStatsCountsSb,
@@ -21,6 +20,20 @@ import {
 import { authHeaders, errFromRes, getRestEnv, restFetchByScope, restJson } from './supabase-rest.js';
 import { guardAdmin, type GuardResult } from './admin-guard.js';
 
+type ApiRequest = {
+  method?: string;
+  query: Record<string, unknown>;
+  body?: any;
+  headers: Record<string, unknown>;
+};
+
+type ApiResponse = {
+  status: (code: number) => ApiResponse;
+  json: (payload: any) => ApiResponse;
+  setHeader: (name: string, value: string | string[]) => ApiResponse;
+  end: () => void;
+};
+
 type DashboardStatsCache = {
   version: string;
   stats: Record<string, number>;
@@ -33,7 +46,7 @@ let dashboardVersionCacheValue: string = '';
 
 const DASHBOARD_VERSION_CACHE_TTL_MS = 25_000;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
