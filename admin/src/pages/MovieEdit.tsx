@@ -316,7 +316,7 @@ export default function MovieEdit() {
       } else {
         try {
           const apiBase = getApiBaseUrl();
-          const fallbackRes = await fetch(`${apiBase}/api/admin-readonly?action=site-config`, {
+          const fallbackRes = await fetch(`${apiBase}/api/movies?action=readonlySiteConfig`, {
             headers: {
               ...(await getAdminApiAuthHeaders()),
             },

@@ -95,7 +95,7 @@ export default function MovieList() {
       } else {
         try {
           const base = getApiBaseUrl();
-          const fallbackRes = await fetch(`${base}/api/admin-readonly?action=site-config`, {
+          const fallbackRes = await fetch(`${base}/api/movies?action=readonlySiteConfig`, {
             headers: {
               ...(await getAdminApiAuthHeaders()),
             },

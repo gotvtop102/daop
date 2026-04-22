@@ -18,6 +18,7 @@ import {
   updateShowtimesExclusiveSb,
   updateShowtimesSb,
 } from './movies-supabase.js';
+import { authHeaders, errFromRes, getRestEnv, restFetchByScope, restJson } from './supabase-rest.js';
 import { guardAdmin, type GuardResult } from './admin-guard.js';
 
 type DashboardStatsCache = {
@@ -211,6 +212,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!slug) return res.status(400).json({ error: 'Missing slug' });
         const movie = await getMovieBySlugSb(slug as string);
         return res.status(200).json(movie);
+      }
+
+      case 'readonlySections': {
+        const { key } = getRestEnv('admin');
+        if (!key) return res.status(500).json({ error: 'Thiếu SUPABASE_ADMIN_SERVICE_ROLE_KEY trên Vercel.' });
+        const r = await restFetchByScope('admin', '/homepage_sections?select=*&order=sort_order.asc', {
+          method: 'GET',
+          key,
+          headers: authHeaders(key),
+        });
+        if (!r.ok) throw await errFromRes(r);
+        const rows = await restJson<any[]>(r);
+        return res.status(200).json({ ok: true, data: rows || [] });
+      }
+
+      case 'readonlySiteConfig': {
+        const { key } = getRestEnv('admin');
+        if (!key) return res.status(500).json({ error: 'Thiếu SUPABASE_ADMIN_SERVICE_ROLE_KEY trên Vercel.' });
+        const r = await restFetchByScope('admin', '/site_settings?select=key,value&key=in.(r2_img_domain,ophim_img_domain)', {
+          method: 'GET',
+          key,
+          headers: authHeaders(key),
+        });
+        if (!r.ok) throw await errFromRes(r);
+        const rows = await restJson<Array<{ key: string; value: string }>>(r);
+        const data = (rows || []).reduce<Record<string, string>>((acc, row) => {
+          acc[String(row.key || '')] = String(row.value || '');
+          return acc;
+        }, {});
+        return res.status(200).json({ ok: true, data });
       }
 
       case 'save': {

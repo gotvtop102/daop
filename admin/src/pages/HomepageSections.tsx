@@ -101,7 +101,7 @@ export default function HomepageSections() {
     // Fallback to server-side readonly API (service role) so sections still display.
     try {
       const base = getApiBaseUrl();
-      const fallbackRes = await fetch(`${base}/api/admin-readonly?action=sections`, {
+      const fallbackRes = await fetch(`${base}/api/movies?action=readonlySections`, {
         headers: {
           ...(await getAdminApiAuthHeaders()),
         },
