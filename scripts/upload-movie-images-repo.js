@@ -510,9 +510,18 @@ async function main() {
   const posterH = Number(args.poster_height || 274);
 
   const forceSlugSet = normalizeSlugSet(parseSlugList(args.force_slugs));
-  const reuploadExisting = parseBool(args.reupload_existing, false)
+  const reuploadExistingRequested = parseBool(args.reupload_existing, false)
     || parseBool(process.env.REPO_IMAGE_REUPLOAD_EXISTING, false)
     || parseBool(process.env.R2_REUPLOAD_EXISTING, false);
+  // Safety: avoid accidental full reupload in normal update-data runs.
+  // Reupload mode is only meaningful for targeted runs with force_slugs.
+  const reuploadExisting = !!forceSlugSet && reuploadExistingRequested;
+  if (reuploadExistingRequested && !forceSlugSet) {
+    console.log(
+      '[upload-images] reupload_existing was requested but ignored because force_slugs is empty. ' +
+      'Use --force_slugs with specific slugs to reupload intentionally.'
+    );
+  }
 
   const ophimBase = String(args.ophim_base || process.env.OPHIM_BASE_URL || 'https://ophim1.com/v1/api').replace(/\/$/, '');
   const fallbackOphim = parseBool(args.fallback_ophim, true);
