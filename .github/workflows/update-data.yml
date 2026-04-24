@@ -86,20 +86,32 @@ jobs:
         run: |
           if [ "${{ inputs.phase }}" = "2" ]; then
             echo "TWO_PHASE=true" >> $GITHUB_ENV
+            echo "::notice::Chế độ 2 pha: bật (workflow input phase=2)"
+          elif [ "${UPDATE_DATA_TWO_PHASE:-0}" = "1" ]; then
+            echo "TWO_PHASE=true" >> $GITHUB_ENV
+            echo "::notice::Chế độ 2 pha: bật (site_settings update_data_two_phase qua Supabase → UPDATE_DATA_TWO_PHASE)"
           elif [ "${{ vars.UPDATE_DATA_TWO_PHASE }}" = "1" ]; then
             echo "TWO_PHASE=true" >> $GITHUB_ENV
+            echo "::notice::Chế độ 2 pha: bật (repository variable UPDATE_DATA_TWO_PHASE=1)"
           else
             echo "TWO_PHASE=false" >> $GITHUB_ENV
+            echo "::notice::Chế độ 2 pha: tắt (chạy 1 pha full)"
           fi
 
       - name: Decide upload images mode
         run: |
           if [ "${{ inputs.upload_images }}" = "true" ]; then
             echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
+            echo "::notice::Upload ảnh: bật (workflow input upload_images=true)"
+          elif [ "${UPLOAD_IMAGES_AFTER_BUILD:-0}" = "1" ]; then
+            echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
+            echo "::notice::Upload ảnh: bật (site_settings upload_images_after_build qua Supabase → UPLOAD_IMAGES_AFTER_BUILD)"
           elif [ "${{ vars.UPLOAD_IMAGES_AFTER_BUILD }}" = "1" ]; then
             echo "UPLOAD_IMAGES=true" >> $GITHUB_ENV
+            echo "::notice::Upload ảnh: bật (repository variable UPLOAD_IMAGES_AFTER_BUILD=1)"
           else
             echo "UPLOAD_IMAGES=false" >> $GITHUB_ENV
+            echo "::notice::Upload ảnh: tắt — đặt upload_images=true hoặc bật upload_images_after_build"
           fi
 
       - name: Export / deploy flags (repository variables → env)
