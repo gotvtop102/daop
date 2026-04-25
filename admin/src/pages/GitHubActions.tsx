@@ -133,6 +133,9 @@ export default function GitHubActions() {
   const [sbDeleteIdsText, setSbDeleteIdsText] = useState('');
   const [sbDeleting, setSbDeleting] = useState(false);
   const [sbDeletingAll, setSbDeletingAll] = useState(false);
+  const [queueStats, setQueueStats] = useState<{ total: number; pending: number; processed: number } | null>(null);
+  const [queueStatsLoading, setQueueStatsLoading] = useState(false);
+  const [queueClearing, setQueueClearing] = useState(false);
 
   const parseR2PrefixPresets = (raw: string) => {
     const s = String(raw || '').trim();
@@ -619,6 +622,7 @@ export default function GitHubActions() {
     fetchActions();
     loadUpdateSettings();
     fetchRuns({ silent: true });
+    fetchChangeQueueStats();
   }, []);
 
   useEffect(() => {
@@ -889,6 +893,71 @@ export default function GitHubActions() {
     });
   };
 
+  const fetchChangeQueueStats = async () => {
+    setQueueStatsLoading(true);
+    try {
+      const res = await fetch(`${getApiBaseUrl()}/api/movies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
+        body: JSON.stringify({ action: 'changeQueueStats' }),
+      });
+      const data = await res.json().catch(async () => ({ error: await res.text() }));
+      if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+      setQueueStats({
+        total: Number(data?.total || 0),
+        pending: Number(data?.pending || 0),
+        processed: Number(data?.processed || 0),
+      });
+    } catch (e: any) {
+      message.error(e?.message || 'Không lấy được thống kê change queue.');
+    } finally {
+      setQueueStatsLoading(false);
+    }
+  };
+
+  const handleClearChangeQueue = () => {
+    const PHRASE = 'XOA QUEUE PHIM';
+    let typed = '';
+    Modal.confirm({
+      title: 'Xóa toàn bộ movie_change_queue',
+      okText: 'Xóa queue',
+      okType: 'danger',
+      content: (
+        <div>
+          <p style={{ marginBottom: 8 }}>
+            Thao tác này sẽ xóa toàn bộ phim trong queue thay đổi. Build sau đó sẽ không còn danh sách pending hiện tại.
+          </p>
+          <p style={{ marginBottom: 8 }}>
+            Nhập chính xác: <b>{PHRASE}</b>
+          </p>
+          <Input placeholder={PHRASE} onChange={(e) => { typed = e.target.value || ''; }} />
+        </div>
+      ),
+      onOk: async () => {
+        if ((typed || '').trim() !== PHRASE) {
+          message.error('Cụm xác nhận không đúng.');
+          return Promise.reject();
+        }
+        setQueueClearing(true);
+        try {
+          const res = await fetch(`${getApiBaseUrl()}/api/movies`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
+            body: JSON.stringify({ action: 'clearChangeQueue' }),
+          });
+          const data = await res.json().catch(async () => ({ error: await res.text() }));
+          if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+          message.success(data?.message || 'Đã xóa queue.');
+          await fetchChangeQueueStats();
+        } catch (e: any) {
+          message.error(e?.message || 'Xóa queue thất bại.');
+        } finally {
+          setQueueClearing(false);
+        }
+      },
+    });
+  };
+
   const handleFetchTotalPages = async () => {
     setFetchingTotalPages(true);
     try {
@@ -1144,6 +1213,34 @@ export default function GitHubActions() {
                   Đếm số dòng <code>movies</code> (Movies project) và <code>movie_episodes</code> (Episodes project) qua API Vercel + service role.
                 </Text>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  <Card
+                    size="small"
+                    title="Change queue (movie_change_queue)"
+                    type="inner"
+                    extra={(
+                      <Space>
+                        <Button onClick={fetchChangeQueueStats} loading={queueStatsLoading} disabled={!isAdmin || queueClearing}>
+                          Xem số lượng queue
+                        </Button>
+                        <Button
+                          danger
+                          onClick={handleClearChangeQueue}
+                          loading={queueClearing}
+                          disabled={!isAdmin || queueClearing || queueStatsLoading}
+                        >
+                          Xóa queue
+                        </Button>
+                      </Space>
+                    )}
+                  >
+                    <Text type="secondary" style={{ display: 'block', marginBottom: 8 }}>
+                      Queue chứa danh sách phim thay đổi để build incremental chỉ xử lý phim mới sửa.
+                    </Text>
+                    <Tag color="blue">total: {queueStats?.total ?? '—'}</Tag>
+                    <Tag color="gold">pending: {queueStats?.pending ?? '—'}</Tag>
+                    <Tag color="green">processed: {queueStats?.processed ?? '—'}</Tag>
+                  </Card>
+
                   <div>
                     <Text strong>Số hàng hiện tại:</Text>
                     <div style={{ marginTop: 8 }}>

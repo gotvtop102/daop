@@ -870,6 +870,36 @@ alter table public.movie_episodes enable row level security;
 drop policy if exists "Admin only" on public.movie_episodes;
 create policy "Admin only" on public.movie_episodes for all using (public.is_admin());`;
 
+    const movieChangeQueueSql = `-- Project Movies (Org B): change queue cho incremental build (cach 3)
+-- Chay trong SQL Editor cua project Movies (noi co bang public.movies)
+
+create table if not exists public.movie_change_queue (
+  movie_id text primary key,
+  slug text,
+  reason text,
+  processed boolean not null default false,
+  updated_at timestamptz not null default now(),
+  processed_at timestamptz
+);
+
+create index if not exists movie_change_queue_processed_updated_at_idx
+  on public.movie_change_queue (processed, updated_at desc);
+
+create or replace function public.movie_change_queue_touch_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_movie_change_queue_touch on public.movie_change_queue;
+create trigger trg_movie_change_queue_touch
+before update on public.movie_change_queue
+for each row execute function public.movie_change_queue_touch_updated_at();`;
+
     const adminInstallSql = [
       '-- =============================================================================',
       '-- [Admin] Khởi tạo project Supabase Admin (Org A) — chạy một lần (theo thứ tự các phần)',
@@ -904,6 +934,7 @@ on conflict (key) do nothing;`,
       { key: 'set-admin-role', title: '[Admin] Gán role admin (Auth user)', sql: setAdminRoleSql.trim() },
       { key: 'user-install', title: '[User] Tạo bảng + RLS', sql: userInstallSql },
       { key: 'movies-install', title: '[Movies] Tạo bảng movies + RLS', sql: moviesSchemaSql },
+      { key: 'movies-change-queue', title: '[Movies] Tạo bảng movie_change_queue', sql: movieChangeQueueSql },
       { key: 'episodes-install', title: '[Episodes] Tạo bảng movie_episodes + RLS', sql: episodesSchemaSql },
     ];
   }, []);

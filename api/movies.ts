@@ -12,12 +12,15 @@ import {
   getEpisodesSb,
   getMovieBySlugSb,
   getMovieSb,
+  getMovieChangeQueueStatsSb,
   isSupabaseMoviesConfigured,
   listMoviesSb,
   saveEpisodesSb,
   updateShowtimesExclusiveSb,
   updateShowtimesSb,
+  clearMovieChangeQueueSb,
 } from './movies-supabase.js';
+import { queueMovieChangeSb } from './movies-supabase.js';
 import { authHeaders, errFromRes, getRestEnv, restFetchByScope, restJson } from './supabase-rest.js';
 import { guardAdmin, type GuardResult } from './admin-guard.js';
 
@@ -95,6 +98,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .filter(Boolean);
         const out = await countRowsSb(tableNames);
         return res.status(200).json(out);
+      }
+
+      case 'changeQueueStats': {
+        const out = await getMovieChangeQueueStatsSb();
+        return res.status(200).json({ ok: true, ...out });
+      }
+
+      case 'clearChangeQueue': {
+        if (!g || !g.ok || !g.isAdmin) return res.status(403).json({ error: 'Chỉ admin mới được xóa queue.' });
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        await clearMovieChangeQueueSb();
+        return res.status(200).json({ ok: true, message: 'Đã xóa toàn bộ movie_change_queue.' });
       }
 
       case 'dashboardStats': {
@@ -316,6 +333,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(405).json({ error: 'Method not allowed' });
           }
           const result = await saveEpisodesSb(String(movieId), episodesPayload);
+          try {
+            await queueMovieChangeSb({ movie_id: String(movieId), reason: 'admin_save_episodes' });
+          } catch {
+            // ignore queue failures
+          }
           return res.status(200).json(result);
         }
 

@@ -1839,7 +1839,31 @@ async function fetchCustomMoviesFromSupabase(sinceTime = null) {
     const useNewOnlyIncremental = !/^0|false|no$/i.test(String(process.env.SUPABASE_CUSTOM_INCREMENTAL_NEW_ONLY || '1').trim());
 
     let modifiedIds = null;
-    if (sinceTime) {
+    // Change queue: chỉ lấy id đã thay đổi (admin save) thay vì full fetch.
+    const useQueue = (process.env.SUPABASE_USE_CHANGE_QUEUE === '1' || process.env.SUPABASE_USE_CHANGE_QUEUE === 'true');
+    if (useQueue) {
+      try {
+        const limit = Math.max(1, Math.min(5000, Number(process.env.SUPABASE_CHANGE_QUEUE_LIMIT || '800') || 800));
+        console.log(`   [Supabase] Change queue enabled: loading up to ${limit} id(s) from movie_change_queue...`);
+        const q = await moviesSb
+          .from('movie_change_queue')
+          .select('movie_id')
+          .eq('processed', false)
+          .order('updated_at', { ascending: false })
+          .limit(limit);
+        if (q.error) throw new Error('Change queue fetch failed: ' + q.error.message);
+        const ids = (q.data || []).map((r) => String(r.movie_id || '').trim()).filter(Boolean);
+        modifiedIds = new Set(ids);
+        // Store to mark processed later (best-effort).
+        globalThis.__daop_change_queue_ids = ids;
+        console.log(`   [Supabase] Change queue: ${modifiedIds.size} movie(s)`);
+        if (modifiedIds.size === 0) return [];
+      } catch (e) {
+        console.warn('   [Supabase] Change queue failed, fallback to incremental/full:', e && e.message ? e.message : String(e));
+        modifiedIds = null;
+      }
+    }
+    if (!modifiedIds && sinceTime) {
       if (useNewOnlyIncremental) {
         console.log('   [Supabase] Incremental NEW-only: loading ids from movies.update=NEW');
         const modMovies = await moviesSb.from('movies').select('id').eq('update', 'NEW');
@@ -1921,6 +1945,28 @@ async function fetchCustomMoviesFromSupabase(sinceTime = null) {
   } catch (e) {
     console.error('   [Supabase] Error fetchCustomMoviesFromSupabase:', e.message || e);
     return null;
+  }
+}
+
+async function markChangeQueueProcessedBestEffort() {
+  try {
+    const ids = Array.isArray(globalThis.__daop_change_queue_ids) ? globalThis.__daop_change_queue_ids : [];
+    if (!ids.length) return;
+    const moviesUrl = String(process.env.SUPABASE_MOVIES_URL || process.env.VITE_SUPABASE_MOVIES_URL || '').trim();
+    const moviesKey = String(process.env.SUPABASE_MOVIES_SERVICE_ROLE_KEY || '').trim();
+    if (!moviesUrl || !moviesKey) return;
+    const moviesSb = createClient(moviesUrl, moviesKey);
+    for (let i = 0; i < ids.length; i += 200) {
+      const chunk = ids.slice(i, i + 200);
+      const r = await moviesSb
+        .from('movie_change_queue')
+        .update({ processed: true, processed_at: new Date().toISOString() })
+        .in('movie_id', chunk);
+      if (r.error) throw new Error(r.error.message);
+    }
+    console.log(`   [Supabase] Change queue: marked processed for ${ids.length} movie(s).`);
+  } catch (e) {
+    console.warn('   [Supabase] Change queue: failed to mark processed:', e && e.message ? e.message : String(e));
   }
 }
 
@@ -5147,6 +5193,11 @@ async function main() {
 
   if (process.env.VALIDATE_BUILD !== '0' && process.env.VALIDATE_BUILD !== 'false') {
     timeBuildPhaseSync('validate build outputs', () => validateBuildOutputs(allMovies));
+  }
+
+  // Change queue: only mark processed after outputs are valid.
+  if (process.env.SUPABASE_USE_CHANGE_QUEUE === '1' || process.env.SUPABASE_USE_CHANGE_QUEUE === 'true') {
+    await markChangeQueueProcessedBestEffort();
   }
 
   const lastBuild = { builtAt: new Date().toISOString(), movieCount: allMovies.length };

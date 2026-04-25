@@ -93,6 +93,7 @@ jobs:
         run: npm run build
         env:
           CLEAN_OLD_DATA: ${{ inputs.clean == 'true' && '1' || '0' }}
+          SUPABASE_USE_CHANGE_QUEUE: '1'
           SKIP_TMDB: '1'
           OPHIM_BASE_URL: ${{ secrets.OPHIM_BASE_URL || 'https://ophim1.com/v1/api' }}
           OPHIM_START_PAGE: ${{ inputs.start_page != '0' && inputs.start_page || env.OPHIM_START_PAGE || vars.OPHIM_START_PAGE || '1' }}
@@ -132,6 +133,7 @@ jobs:
         run: npm run build
         env:
           CLEAN_OLD_DATA: '0'
+          SUPABASE_USE_CHANGE_QUEUE: '1'
           TMDB_ONLY: '1'
           OPHIM_BASE_URL: ${{ secrets.OPHIM_BASE_URL || 'https://ophim1.com/v1/api' }}
           OPHIM_START_PAGE: ${{ inputs.start_page != '0' && inputs.start_page || env.OPHIM_START_PAGE || vars.OPHIM_START_PAGE || '1' }}

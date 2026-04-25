@@ -118,11 +118,6 @@ const COUNTRY_OPTIONS = [
   'Đức', 'Nga', 'Ấn Độ', 'Tây Ban Nha', 'Ý', 'Canada', 'Úc', 'Hồng Kông', 'Đài Loan',
 ];
 
-const UPDATE_OPTIONS = [
-  { value: 'NEW', label: 'NEW' },
-  { value: 'TIME-EXCLUSIVE', label: 'TIME-EXCLUSIVE' },
-];
-
 const normalizeLooseText = (input: any) => {
   const s = String(input ?? '').trim().toLowerCase();
   if (!s) return '';
@@ -424,7 +419,7 @@ export default function MovieEdit() {
         country: [],
         language: '',
         is_exclusive: false,
-        update: '',
+        update: 'NEW',
       });
       refreshSourcePreviews();
     }
@@ -647,48 +642,6 @@ export default function MovieEdit() {
         throw new Error('Thiếu id phim (không thể upload ảnh theo id)');
       }
 
-      const updateMode = String(values.update || '').trim().toUpperCase();
-      if (updateMode === 'TIME-EXCLUSIVE') {
-        if (isNew) {
-          throw new Error('TIME-EXCLUSIVE chỉ dùng khi cập nhật phim đã tồn tại');
-        }
-
-        const res = await fetch(`${apiBase}/api/movies?action=updateShowtimesExclusive`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
-          body: JSON.stringify({
-            id: movieId,
-            showtimes: String(values.showtimes || '').trim(),
-            is_exclusive: Boolean(values.is_exclusive),
-          }),
-        });
-
-        if (!res.ok) {
-          const err = await res.text();
-          throw new Error(err || `HTTP ${res.status}`);
-        }
-
-        const result = await res.json();
-        if (result.error) {
-          throw new Error(result.error);
-        }
-
-        // Trigger build to apply showtimes changes
-        try {
-          await fetch(`${apiBase}/api/trigger-build`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...(await getAdminApiAuthHeaders()) },
-            body: JSON.stringify({ reason: 'update_showtimes_exclusive', id: movieId }),
-          });
-        } catch (e) {
-          // ignore build trigger errors here; user can manually trigger
-        }
-
-        message.success('Đã cập nhật showtimes + exclusive và trigger build');
-        refreshSourcePreviews();
-        return;
-      }
-
       // Convert arrays to comma-separated strings
       const payload = {
         ...values,
@@ -699,6 +652,7 @@ export default function MovieEdit() {
         country: Array.isArray(values.country) ? values.country.join(',') : values.country,
         director: Array.isArray(values.director) ? values.director.join(',') : values.director,
         actor: Array.isArray(values.actor) ? values.actor.join(',') : values.actor,
+        update: 'NEW',
       };
 
       const res = await fetch(`${apiBase}/api/movies?action=save`, {
@@ -1018,14 +972,10 @@ export default function MovieEdit() {
                 <Form.Item
                   name="update"
                   label="Update"
-                  extra="Cột update (không bắt buộc). NEW: ép build coi phim thay đổi; sau build/update sẽ tự clear về trống."
+                  extra="Mặc định luôn ép NEW để build coi là phim thay đổi."
                 >
-                  <Select placeholder="Chọn update" allowClear>
-                    {UPDATE_OPTIONS.map((o) => (
-                      <Select.Option key={o.value} value={o.value}>
-                        {o.label}
-                      </Select.Option>
-                    ))}
+                  <Select value="NEW" disabled>
+                    <Select.Option value="NEW">NEW</Select.Option>
                   </Select>
                 </Form.Item>
 

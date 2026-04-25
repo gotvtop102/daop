@@ -22,6 +22,72 @@ export function isSupabaseMoviesConfigured() {
   return !!(movies.url && movies.key && episodes.url && episodes.key);
 }
 
+/**
+ * Change queue (cách 3):
+ * - Admin save movie / save episodes sẽ upsert vào bảng `movie_change_queue` (Movies project)
+ * - Build đọc danh sách này để chỉ fetch các phim thay đổi thay vì full library.
+ */
+export async function queueMovieChangeSb(input: { movie_id: string; slug?: string | null; reason?: string | null }) {
+  const moviesEnv = getMoviesEnv();
+  const movie_id = String(input?.movie_id || '').trim();
+  const slug = input?.slug != null ? String(input.slug || '').trim() : '';
+  const reason = input?.reason != null ? String(input.reason || '').trim() : '';
+  if (!movie_id) throw new Error('queueMovieChangeSb: missing movie_id');
+  if (!moviesEnv.key) throw new Error('queueMovieChangeSb: missing SUPABASE_MOVIES_SERVICE_ROLE_KEY');
+
+  const now = new Date().toISOString();
+  const row: Record<string, any> = { movie_id, processed: false, updated_at: now };
+  if (slug) row.slug = slug;
+  if (reason) row.reason = reason;
+
+  const res = await restFetchByScope('movies', `/movie_change_queue?on_conflict=movie_id`, {
+    method: 'POST',
+    key: moviesEnv.key,
+    headers: authHeaders(moviesEnv.key, 'resolution=merge-duplicates,return=minimal'),
+    body: JSON.stringify([row]),
+  });
+  if (!res.ok) throw await errFromRes(res);
+  return { ok: true };
+}
+
+export async function getMovieChangeQueueStatsSb() {
+  const moviesEnv = getMoviesEnv();
+  const key = moviesEnv.key;
+  const totalRes = await restFetchByScope('movies', `/movie_change_queue?select=movie_id`, {
+    method: 'HEAD',
+    key,
+    headers: authHeaders(key, 'count=exact'),
+  });
+  if (!totalRes.ok) throw await errFromRes(totalRes);
+  const total = parseContentRangeTotal(totalRes) ?? 0;
+
+  const pendingRes = await restFetchByScope('movies', `/movie_change_queue?select=movie_id&processed=eq.false`, {
+    method: 'HEAD',
+    key,
+    headers: authHeaders(key, 'count=exact'),
+  });
+  if (!pendingRes.ok) throw await errFromRes(pendingRes);
+  const pending = parseContentRangeTotal(pendingRes) ?? 0;
+
+  return {
+    total,
+    pending,
+    processed: Math.max(0, total - pending),
+  };
+}
+
+export async function clearMovieChangeQueueSb() {
+  const moviesEnv = getMoviesEnv();
+  const key = moviesEnv.key;
+  const res = await restFetchByScope('movies', `/movie_change_queue?movie_id=not.is.null`, {
+    method: 'DELETE',
+    key,
+    headers: authHeaders(key),
+  });
+  if (!res.ok) throw await errFromRes(res);
+  return { ok: true };
+}
+
 /** DB / export dùng text 0|1; Switch Ant cần boolean — chuỗi '0' là truthy trong JS nên phải parse. */
 export function parseBoolFlag(v: unknown): boolean {
   if (v === true || v === 1) return true;
