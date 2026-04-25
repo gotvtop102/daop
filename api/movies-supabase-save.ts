@@ -15,9 +15,9 @@ export async function saveMovieSb(movieData: any) {
   } else if (isNew && (movieData.modified == null || movieData.modified === '')) {
     movieData.modified = new Date().toISOString();
   }
-  if (isNew && !movieData.update) {
-    movieData.update = 'NEW';
-  }
+  // Theo yêu cầu: mọi lần lưu từ Admin đều ép update=NEW,
+  // kể cả khi không chỉnh sửa field nào trên form.
+  movieData.update = 'NEW';
 
   const { applyMovieR2Uploads } = await import('./movies-media.js');
   await applyMovieR2Uploads(movieData);

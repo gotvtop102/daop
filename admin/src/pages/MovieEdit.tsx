@@ -278,8 +278,52 @@ export default function MovieEdit() {
   const [r2ImgDomain, setR2ImgDomain] = useState<string>('');
   const [ophimImgDomain, setOphimImgDomain] = useState<string>('');
   const [configReady, setConfigReady] = useState<boolean>(false);
+  const [baselineSnapshot, setBaselineSnapshot] = useState<string>('');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { isAdmin } = useAdminRole();
   const isNew = id === 'new';
+
+  const normalizeForSnapshot = (values: any) => {
+    const asStr = (v: any) => String(v ?? '').trim();
+    const asNum = (v: any) => {
+      if (v == null || v === '') return '';
+      const n = Number(v);
+      return Number.isFinite(n) ? n : '';
+    };
+    const arrStr = (v: any) =>
+      (Array.isArray(v) ? v : [])
+        .map((x) => asStr(x))
+        .filter(Boolean)
+        .join(',');
+    return {
+      id: asStr(values?.id),
+      title: asStr(values?.title),
+      origin_name: asStr(values?.origin_name),
+      slug: asStr(values?.slug),
+      poster_url: asStr(values?.poster_url),
+      thumb_url: asStr(values?.thumb_url),
+      year: asNum(values?.year),
+      type: asStr(values?.type),
+      status: asStr(values?.status),
+      episode_current: asStr(values?.episode_current),
+      episode_total: asStr(values?.episode_total),
+      quality: asStr(values?.quality),
+      genre: arrStr(values?.genre),
+      country: arrStr(values?.country),
+      director: arrStr(values?.director),
+      actor: arrStr(values?.actor),
+      description: asStr(values?.description),
+      tmdb_id: asStr(values?.tmdb_id),
+      tmdb_type: asStr(values?.tmdb_type),
+      language: asStr(values?.language),
+      showtimes: asStr(values?.showtimes),
+      chieurap: !!values?.chieurap,
+      is_exclusive: !!values?.is_exclusive,
+      update: 'NEW',
+    };
+  };
+
+  const buildSnapshot = (values: any) => JSON.stringify(normalizeForSnapshot(values || {}));
 
   const refreshSourcePreviews = (next?: { poster?: any; thumb?: any }) => {
     const posterRaw = next && next.poster != null ? next.poster : form.getFieldValue('poster_url');
@@ -464,6 +508,18 @@ export default function MovieEdit() {
         chieurap: coerceBoolFlag(result.chieurap),
         is_exclusive: coerceBoolFlag(result.is_exclusive),
       });
+      const snap = buildSnapshot({
+        ...result,
+        genre: typeof result.genre === 'string' ? result.genre.split(',').filter(Boolean) : result.genre || [],
+        country: typeof result.country === 'string' ? result.country.split(',').filter(Boolean) : result.country || [],
+        director: typeof result.director === 'string' ? result.director.split(',').filter(Boolean) : result.director || [],
+        actor: typeof result.actor === 'string' ? result.actor.split(',').filter(Boolean) : result.actor || [],
+        year: result.year ? parseInt(result.year) : undefined,
+        chieurap: coerceBoolFlag(result.chieurap),
+        is_exclusive: coerceBoolFlag(result.is_exclusive),
+      });
+      setBaselineSnapshot(snap);
+      setHasUnsavedChanges(false);
 
       refreshSourcePreviews({ poster: result.poster_url || '', thumb: result.thumb_url || '' });
     } catch (e: any) {
@@ -635,6 +691,13 @@ export default function MovieEdit() {
     }
     setSaving(true);
     try {
+      if (!isNew) {
+        const currentSnapshot = buildSnapshot(values);
+        if (!baselineSnapshot || currentSnapshot === baselineSnapshot) {
+          message.info('Chưa có thay đổi nào để lưu.');
+          return;
+        }
+      }
       const apiBase = getApiBaseUrl();
 
       const movieId = isNew ? String(values.id || '').trim() : String(id || '').trim();
@@ -674,6 +737,11 @@ export default function MovieEdit() {
       message.success(isNew ? 'Đã thêm phim mới' : 'Đã cập nhật phim');
 
       refreshSourcePreviews();
+      if (!isNew) {
+        const currentSnapshot = buildSnapshot(values);
+        setBaselineSnapshot(currentSnapshot);
+        setHasUnsavedChanges(false);
+      }
 
       if (isNew) {
         navigate(`/movies/${values.type}`);
@@ -728,8 +796,8 @@ export default function MovieEdit() {
                 icon={<SaveOutlined />}
                 onClick={() => form.submit()}
                 loading={saving}
-                disabled={!isAdmin}
-                title={!isAdmin ? 'Chỉ admin mới được lưu.' : undefined}
+                disabled={!isAdmin || (!isNew && !hasUnsavedChanges)}
+                title={!isAdmin ? 'Chỉ admin mới được lưu.' : (!isNew && !hasUnsavedChanges ? 'Chưa có thay đổi để lưu.' : undefined)}
               >
                 Lưu
               </Button>
@@ -737,7 +805,16 @@ export default function MovieEdit() {
           </Col>
         </Row>
 
-        <Form form={form} layout="vertical" onFinish={handleSave}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSave}
+          onValuesChange={() => {
+            if (isNew) return;
+            const current = buildSnapshot(form.getFieldsValue(true));
+            setHasUnsavedChanges(!!baselineSnapshot && current !== baselineSnapshot);
+          }}
+        >
           <Row gutter={16}>
             <Col xs={24} lg={16}>
               <Card title="Lấy dữ liệu từ TMDB" style={{ marginBottom: 16 }}>
