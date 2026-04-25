@@ -202,6 +202,16 @@ export default function MovieList() {
 
   const filteredMovies = useMemo(() => movies, [movies]);
 
+  const openInNewTab = (path: string) => {
+    const target = String(path || '').trim();
+    if (!target) return;
+    const base = String(((import.meta as any).env?.BASE_URL) || '/');
+    const baseNorm = `/${base.replace(/^\/+|\/+$/g, '')}`.replace(/\/+/g, '/');
+    const pathNorm = target.startsWith('/') ? target : `/${target}`;
+    const finalPath = baseNorm === '/' ? pathNorm : `${baseNorm}${pathNorm}`;
+    window.open(finalPath, '_blank', 'noopener,noreferrer');
+  };
+
   const handleDelete = async (id: string) => {
     try {
       const base = getApiBaseUrl();
@@ -297,7 +307,7 @@ export default function MovieList() {
               icon={<EditOutlined />}
               size="small"
               onClick={() =>
-                navigate(
+                openInNewTab(
                   `/movies/edit/${record.id}?type=${
                     category === 'unbuilt' || category === 'duplicates'
                       ? (record.type || 'single')
@@ -314,7 +324,7 @@ export default function MovieList() {
               icon={<LinkOutlined />}
               size="small"
               onClick={() =>
-                navigate(
+                openInNewTab(
                   `/movies/episodes/${record.id}?type=${
                     category === 'unbuilt' || category === 'duplicates'
                       ? (record.type || 'single')
