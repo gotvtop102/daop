@@ -1827,7 +1827,7 @@ function buildMoviesFromSupabase(movieRows, epRows) {
   return movies;
 }
 
-async function fetchCustomMoviesFromSupabase(sinceTime = null) {
+async function fetchCustomMoviesFromSupabase(sinceTime = null, opts = {}) {
   const moviesUrl = String(process.env.SUPABASE_MOVIES_URL || process.env.VITE_SUPABASE_MOVIES_URL || '').trim();
   const moviesKey = String(process.env.SUPABASE_MOVIES_SERVICE_ROLE_KEY || '').trim();
   const episodesUrl = String(process.env.SUPABASE_EPISODES_URL || process.env.VITE_SUPABASE_EPISODES_URL || '').trim();
@@ -1840,7 +1840,8 @@ async function fetchCustomMoviesFromSupabase(sinceTime = null) {
 
     let modifiedIds = null;
     // Change queue: chỉ lấy id đã thay đổi (admin save) thay vì full fetch.
-    const useQueue = (process.env.SUPABASE_USE_CHANGE_QUEUE === '1' || process.env.SUPABASE_USE_CHANGE_QUEUE === 'true');
+    const disableQueue = !!(opts && opts.disableQueue);
+    const useQueue = !disableQueue && (process.env.SUPABASE_USE_CHANGE_QUEUE === '1' || process.env.SUPABASE_USE_CHANGE_QUEUE === 'true');
     if (useQueue) {
       try {
         const limit = Math.max(1, Math.min(5000, Number(process.env.SUPABASE_CHANGE_QUEUE_LIMIT || '800') || 800));
@@ -1971,8 +1972,8 @@ async function markChangeQueueProcessedBestEffort() {
 }
 
 /** 2. Đọc Supabase Admin (ưu tiên) hoặc Excel fallback */
-async function fetchCustomMovies(sinceTime = null) {
-  const fromDb = await fetchCustomMoviesFromSupabase(sinceTime);
+async function fetchCustomMovies(sinceTime = null, opts = {}) {
+  const fromDb = await fetchCustomMoviesFromSupabase(sinceTime, opts);
   if (fromDb !== null) return fromDb;
   const xlsxPath = path.join(ROOT, 'custom_movies.xlsx');
   if (await fs.pathExists(xlsxPath)) {
@@ -5014,8 +5015,41 @@ async function main() {
     }
   }
 
-  const fetchedCustom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies(customSinceTime));
+  let fetchedCustom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies(customSinceTime));
   console.log('   Custom count (fetched):', fetchedCustom.length);
+
+  // Safety fallback:
+  // - Chạy OPhim theo range (vd 20->1)
+  // - Không clean old data
+  // - Runner hiện tại không có thư viện build trước (prevMoviesById rỗng)
+  // - Queue/custom fetch rỗng
+  // => Nếu tiếp tục build sẽ chỉ còn phim trong range OPhim vừa fetch.
+  // Khi gặp case này, ép fallback sang full custom từ Supabase (bỏ queue) để giữ đầy đủ thư viện.
+  if (
+    !cleanOldData &&
+    isPartialOphimRange &&
+    (!prevMoviesById || prevMoviesById.size === 0) &&
+    (!fetchedCustom || fetchedCustom.length === 0)
+  ) {
+    console.warn(
+      '   [Safety] Partial OPhim range + no previous library + empty custom fetch. ' +
+      'Fallback to full Supabase custom (disable queue) to avoid data loss.'
+    );
+    fetchedCustom = await timeBuildPhase('2c. Safety fallback (full custom from Supabase)', () =>
+      fetchCustomMovies(null, { disableQueue: true })
+    );
+    console.log('   Custom count (fallback full):', fetchedCustom.length);
+
+    // Guard cứng: nếu fallback full vẫn rỗng thì dừng build để tránh ghi đè thư viện thành dữ liệu thiếu.
+    if (!fetchedCustom || fetchedCustom.length === 0) {
+      throw new Error(
+        'Safety guard: fallback full Supabase vẫn không có dữ liệu custom. ' +
+        'Dừng build để tránh làm mất phim cũ trên web. ' +
+        'Kiểm tra SUPABASE_MOVIES_URL/SUPABASE_MOVIES_SERVICE_ROLE_KEY, quyền truy cập bảng movies/movie_episodes, ' +
+        'hoặc chạy lại khi queue có dữ liệu.'
+      );
+    }
+  }
 
   // GỘP THƯ VIỆN: Nếu không phải clean build, gộp phim mới fetch với phim cũ đã có trong manifest
   let ophim = fetchedOphim || [];
