@@ -202,11 +202,6 @@ export default function MovieList() {
 
   const filteredMovies = useMemo(() => movies, [movies]);
 
-  const openInNewTab = (path: string) => {
-    const url = `${window.location.origin}${path}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
   const handleDelete = async (id: string) => {
     try {
       const base = getApiBaseUrl();
@@ -302,7 +297,7 @@ export default function MovieList() {
               icon={<EditOutlined />}
               size="small"
               onClick={() =>
-                openInNewTab(
+                navigate(
                   `/movies/edit/${record.id}?type=${
                     category === 'unbuilt' || category === 'duplicates'
                       ? (record.type || 'single')
@@ -319,7 +314,7 @@ export default function MovieList() {
               icon={<LinkOutlined />}
               size="small"
               onClick={() =>
-                openInNewTab(
+                navigate(
                   `/movies/episodes/${record.id}?type=${
                     category === 'unbuilt' || category === 'duplicates'
                       ? (record.type || 'single')
@@ -357,7 +352,7 @@ export default function MovieList() {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => openInNewTab(`/movies/edit/new?type=${category}`)}
+              onClick={() => navigate(`/movies/edit/new?type=${category}`)}
             >
               Thêm phim mới
             </Button>
