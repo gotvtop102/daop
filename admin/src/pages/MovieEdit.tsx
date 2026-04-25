@@ -780,13 +780,7 @@ export default function MovieEdit() {
               {!isNew && (
                 <Button
                   icon={<LinkOutlined />}
-                  onClick={() =>
-                    window.open(
-                      `${window.location.origin}/movies/episodes/${id}?type=${form.getFieldValue('type')}`,
-                      '_blank',
-                      'noopener,noreferrer'
-                    )
-                  }
+                  onClick={() => navigate(`/movies/episodes/${id}?type=${form.getFieldValue('type') || typeFromQuery || 'single'}`)}
                 >
                   Chỉnh sửa link
                 </Button>
