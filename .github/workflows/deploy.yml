@@ -23,10 +23,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Prune deploy-only large files
+        run: |
+          rm -f public/data/library-snapshot.json public/data/library-snapshot.json.gz || true
       - name: Deploy to Cloudflare Pages
+        continue-on-error: true
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '4.77.0'
+          wranglerVersion: '3.101.0'
           command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'daop' }} --commit-dirty=true
+      - name: Dump Wrangler logs (if any)
+        if: ${{ always() }}
+        run: |
+          echo "Wrangler logs (if present):"
+          ls -la "$HOME/.config/.wrangler/logs" 2>/dev/null || true
+          echo "---- tail logs ----"
+          for f in "$HOME/.config/.wrangler/logs"/wrangler-*.log; do
+            [ -f "$f" ] || continue
+            echo "::group::$f"
+            tail -n 200 "$f" || true
+            echo "::endgroup::"
+          done

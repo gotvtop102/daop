@@ -239,7 +239,9 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add public/data $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
+          rm -f public/data/library-snapshot.json public/data/library-snapshot.json.gz || true
+          git rm -f --ignore-unmatch public/data/library-snapshot.json public/data/library-snapshot.json.gz || true
+          git add public/data build-cache/library-snapshot.json.gz $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/_redirects public/_routes.json
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if git diff --staged --quiet; then

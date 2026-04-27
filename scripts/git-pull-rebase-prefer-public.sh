@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Pull --rebase; conflict trong public/* → giữ bản từ commit đang rebase (theirs).
-# Conflict ngoài public/ → abort rebase, exit 1.
+# Pull --rebase; conflict trong public/* hoặc build-cache/library-snapshot.json.gz
+# → giữ bản từ commit đang rebase (theirs). Conflict khác → abort rebase, exit 1.
 set -eu
 # pipefail không có trên /bin/sh; bật nếu shell hỗ trợ
 set -o pipefail 2>/dev/null || true
@@ -42,7 +42,7 @@ while [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; do
   OUTSIDE=
   while IFS= read -r f; do
     [ -z "$f" ] && continue
-    if [[ "$f" == public/* ]]; then
+  if [[ "$f" == public/* ]] || [[ "$f" == "build-cache/library-snapshot.json.gz" ]]; then
       git checkout --theirs -- "$f"
       git add -- "$f"
     else

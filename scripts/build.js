@@ -47,6 +47,9 @@ const ROOT = path.join(__dirname, '..');
 const PUBLIC_DATA = path.join(ROOT, 'public', 'data');
 const TMDB_PERSISTENCE_DIR = path.join(PUBLIC_DATA, 'tmdb');
 const ACTORS_DATA_DIR = path.join(PUBLIC_DATA, 'actors');
+const LIBRARY_SNAPSHOT_PATH = path.join(ROOT, 'build-cache', 'library-snapshot.json.gz');
+let PREV_LIBRARY_SOURCE = 'none';
+let PREV_LIBRARY_SNAPSHOT_FULL = false;
 const BATCH_SIZE = 120;
 const BATCH_MAX_BYTES_DEFAULT = 300_000;
 
@@ -1217,13 +1220,16 @@ async function loadPreviousBuiltMoviesById() {
   try {
     const manifestPath = path.join(PUBLIC_DATA, 'movies-manifest.json');
     const pubjsRoot = getPubjsOutputDir();
-    if (!(await fs.pathExists(manifestPath))) return new Map();
+    PREV_LIBRARY_SOURCE = 'none';
+    PREV_LIBRARY_SNAPSHOT_FULL = false;
     let list = [];
-    try {
-      const j = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
-      list = j.movies || [];
-    } catch {
-      return new Map();
+    if (await fs.pathExists(manifestPath)) {
+      try {
+        const j = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+        list = j.movies || [];
+      } catch {
+        list = [];
+      }
     }
     const byId = new Map();
     for (const row of list) {
@@ -1237,9 +1243,56 @@ async function loadPreviousBuiltMoviesById() {
         byId.set(idStr, m);
       } catch {}
     }
+    if (byId.size > 0) {
+      PREV_LIBRARY_SOURCE = 'pubjs';
+      console.log('   previous library source: pubjs-output + movies-manifest | count:', byId.size);
+      return byId;
+    }
+    // Fallback cho runner không có pubjs-output:
+    // đọc snapshot thư viện đã ghi ở lần build trước trong public/data.
+    if (await fs.pathExists(LIBRARY_SNAPSHOT_PATH)) {
+      try {
+        const zipped = await fs.readFile(LIBRARY_SNAPSHOT_PATH);
+        const raw = JSON.parse(gunzipSync(zipped).toString('utf8'));
+        const list = Array.isArray(raw?.movies) ? raw.movies : [];
+        PREV_LIBRARY_SNAPSHOT_FULL = !!raw?.is_full_library;
+        for (const m of list) {
+          const idStr = m && m.id != null ? String(m.id) : '';
+          if (!idStr) continue;
+          byId.set(idStr, m);
+        }
+        if (byId.size > 0) {
+          PREV_LIBRARY_SOURCE = 'snapshot';
+          console.log('   previous library source: library-snapshot | count:', byId.size);
+          console.log('   previous library snapshot full:', PREV_LIBRARY_SNAPSHOT_FULL ? 'yes' : 'no');
+          return byId;
+        }
+      } catch {
+        // ignore snapshot parse errors
+      }
+    }
+    console.log('   previous library source: none (empty)');
     return byId;
   } catch {
     return new Map();
+  }
+}
+
+function writeLibrarySnapshot(movies, opts = {}) {
+  try {
+    const list = Array.isArray(movies) ? movies : [];
+    const payload = {
+      updatedAt: new Date().toISOString(),
+      count: list.length,
+      is_full_library: !!opts?.isFullLibrary,
+      movies: list,
+    };
+    const raw = Buffer.from(JSON.stringify(payload), 'utf8');
+    const gz = gzipSync(raw, { level: 6 });
+    fs.ensureDirSync(path.dirname(LIBRARY_SNAPSHOT_PATH));
+    fs.writeFileSync(LIBRARY_SNAPSHOT_PATH, gz);
+  } catch (e) {
+    console.warn('   writeLibrarySnapshot failed (continue):', e && e.message ? e.message : e);
   }
 }
 
@@ -1363,11 +1416,12 @@ async function saveOphimIndex(index) {
   } catch {}
 }
 
-async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false) {
+async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false, opts = {}) {
+  const forceFullRange = !!(opts && opts.forceFullRange);
   const list = [];
-  const isPageRange = (OPHIM_START_PAGE > 1) || (OPHIM_END_PAGE > 0);
-  const effectiveMaxPages = isPageRange ? 0 : OPHIM_MAX_PAGES;
-  const effectiveMaxMovies = isPageRange ? 0 : OPHIM_MAX_MOVIES;
+  const isPageRange = !forceFullRange && ((OPHIM_START_PAGE > 1) || (OPHIM_END_PAGE > 0));
+  const effectiveMaxPages = forceFullRange ? 0 : (isPageRange ? 0 : OPHIM_MAX_PAGES);
+  const effectiveMaxMovies = forceFullRange ? 0 : (isPageRange ? 0 : OPHIM_MAX_MOVIES);
   const isPartialRange =
     isPageRange ||
     (effectiveMaxPages > 0) ||
@@ -1418,9 +1472,9 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
     }
     return count;
   }
-  let page = OPHIM_START_PAGE > 0 ? OPHIM_START_PAGE : 1;
+  let page = forceFullRange ? 1 : (OPHIM_START_PAGE > 0 ? OPHIM_START_PAGE : 1);
   let fetchedPages = 0;
-  const hasEnd = OPHIM_END_PAGE > 0;
+  const hasEnd = !forceFullRange && OPHIM_END_PAGE > 0;
   const targetEnd = hasEnd ? OPHIM_END_PAGE : Infinity;
   const step = hasEnd && page >= targetEnd ? -1 : 1;
   console.log(
@@ -1430,9 +1484,10 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
     'max_pages=', effectiveMaxPages,
     'max_movies=', effectiveMaxMovies,
     'direction=', (step === -1 ? 'backward' : 'forward'),
+    'force_full_range=', forceFullRange ? 1 : 0,
     'clean_old_data=', cleanOldData ? 1 : 0
   );
-  if (OPHIM_END_PAGE === 1 && OPHIM_END_PAGE_RAW != null && String(OPHIM_END_PAGE_RAW).trim() === '1') {
+  if (!forceFullRange && OPHIM_END_PAGE === 1 && OPHIM_END_PAGE_RAW != null && String(OPHIM_END_PAGE_RAW).trim() === '1') {
     console.warn(
       '   WARNING: OPHIM_END_PAGE=1 đang giới hạn fetch chỉ đến trang 1. ' +
       'Chỉ nên dùng khi bạn chủ đích fetch trang 1 (hoặc range về 1). ' +
@@ -1449,7 +1504,7 @@ async function fetchOPhimMovies(prevMoviesById, prevIndex, cleanOldData = false)
       break;
     }
     if (step === 1) {
-      if (OPHIM_END_PAGE > 0 && page > OPHIM_END_PAGE) {
+      if (!forceFullRange && OPHIM_END_PAGE > 0 && page > OPHIM_END_PAGE) {
         console.log('   OPhim: đạt giới hạn khoảng trang đến:', OPHIM_END_PAGE);
         break;
       }
@@ -4671,6 +4726,8 @@ async function main() {
         'filters.js',
         'filters.json',
         'repo_image_upload_state.json',
+        'library-snapshot.json',
+        'library-snapshot.json.gz',
         'last_modified.json',
         'last_build.json',
         'build_version.json',
@@ -4680,6 +4737,7 @@ async function main() {
       for (const f of filesToRemove) {
         await fs.remove(path.join(PUBLIC_DATA, f));
       }
+      await fs.remove(LIBRARY_SNAPSHOT_PATH).catch(() => {});
       await fs.remove(ACTORS_DATA_DIR).catch(() => {});
       // legacy: actors từng nằm ngay public/data/
       try {
@@ -4990,9 +5048,10 @@ async function main() {
   }
 
   console.log('1. Fetching OPhim...');
-  const fetchedOphim = await timeBuildPhase('1. OPhim (fetch list + detail)', () =>
+  let fetchedOphim = await timeBuildPhase('1. OPhim (fetch list + detail)', () =>
     fetchOPhimMovies(prevMoviesById, prevOphimIndex, cleanOldData)
   );
+  let usedFullOphimFallback = false;
   console.log('   OPhim count:', fetchedOphim.length);
 
   console.log('2. Fetching custom (Supabase / Excel)...');
@@ -5018,37 +5077,32 @@ async function main() {
   let fetchedCustom = await timeBuildPhase('2. Custom (Supabase / Excel)', () => fetchCustomMovies(customSinceTime));
   console.log('   Custom count (fetched):', fetchedCustom.length);
 
-  // Safety fallback:
+  // Safety guard (không fallback full Supabase):
   // - Chạy OPhim theo range (vd 20->1)
   // - Không clean old data
   // - Runner hiện tại không có thư viện build trước (prevMoviesById rỗng)
   // - Queue/custom fetch rỗng
   // => Nếu tiếp tục build sẽ chỉ còn phim trong range OPhim vừa fetch.
-  // Khi gặp case này, ép fallback sang full custom từ Supabase (bỏ queue) để giữ đầy đủ thư viện.
-  if (
+  // Theo yêu cầu: không lấy full từ Supabase khi không có custom NEW.
+  // Vì vậy dừng build sớm để tránh ghi đè dữ liệu cũ.
+  const needBootstrapFullFromOphim =
     !cleanOldData &&
     isPartialOphimRange &&
-    (!prevMoviesById || prevMoviesById.size === 0) &&
-    (!fetchedCustom || fetchedCustom.length === 0)
-  ) {
+    (!fetchedCustom || fetchedCustom.length === 0) &&
+    (
+      (!prevMoviesById || prevMoviesById.size === 0) ||
+      (PREV_LIBRARY_SOURCE === 'snapshot' && !PREV_LIBRARY_SNAPSHOT_FULL)
+    );
+  if (needBootstrapFullFromOphim) {
     console.warn(
-      '   [Safety] Partial OPhim range + no previous library + empty custom fetch. ' +
-      'Fallback to full Supabase custom (disable queue) to avoid data loss.'
+      '   [Safety] queue custom rỗng + thư viện cũ chưa đầy đủ trong khi chạy OPhim theo range. ' +
+      'Tự bootstrap full OPhim cho lần build này (không gọi full Supabase).'
     );
-    fetchedCustom = await timeBuildPhase('2c. Safety fallback (full custom from Supabase)', () =>
-      fetchCustomMovies(null, { disableQueue: true })
+    fetchedOphim = await timeBuildPhase('2c. Safety fallback (full OPhim)', () =>
+      fetchOPhimMovies(prevMoviesById, prevOphimIndex, cleanOldData, { forceFullRange: true })
     );
-    console.log('   Custom count (fallback full):', fetchedCustom.length);
-
-    // Guard cứng: nếu fallback full vẫn rỗng thì dừng build để tránh ghi đè thư viện thành dữ liệu thiếu.
-    if (!fetchedCustom || fetchedCustom.length === 0) {
-      throw new Error(
-        'Safety guard: fallback full Supabase vẫn không có dữ liệu custom. ' +
-        'Dừng build để tránh làm mất phim cũ trên web. ' +
-        'Kiểm tra SUPABASE_MOVIES_URL/SUPABASE_MOVIES_SERVICE_ROLE_KEY, quyền truy cập bảng movies/movie_episodes, ' +
-        'hoặc chạy lại khi queue có dữ liệu.'
-      );
-    }
+    usedFullOphimFallback = true;
+    console.log('   OPhim count (fallback full):', fetchedOphim.length);
   }
 
   // GỘP THƯ VIỆN: Nếu không phải clean build, gộp phim mới fetch với phim cũ đã có trong manifest
@@ -5159,6 +5213,13 @@ async function main() {
 
   const allMovies = timeBuildPhaseSync('4. merge movies (ophim + custom)', () => mergeMovies(ophim, custom));
   console.log('4. Total movies:', allMovies.length);
+  // Lưu snapshot đầy đủ để lần build sau có thể giữ dữ liệu cũ
+  // ngay cả khi runner thiếu pubjs-output và custom queue rỗng.
+  const snapshotIsFullLibrary =
+    !!usedFullOphimFallback ||
+    !isPartialOphimRange ||
+    (PREV_LIBRARY_SOURCE === 'snapshot' && PREV_LIBRARY_SNAPSHOT_FULL);
+  writeLibrarySnapshot(allMovies, { isFullLibrary: snapshotIsFullLibrary });
 
   console.log('4b. Fetching OPhim genres & countries...');
   const { genreNames, countryNames } = await timeBuildPhase('4b. OPhim genres + countries', () =>

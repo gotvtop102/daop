@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Sau git stash pop lỗi do conflict: với file public/* lấy nội dung từ stash, còn lại báo lỗi.
+# Sau git stash pop lỗi do conflict: với file public/* hoặc build-cache/library-snapshot.json.gz
+# lấy nội dung từ stash, còn lại báo lỗi.
 set -eu
 # pipefail không có trên /bin/sh; bật nếu shell hỗ trợ
 set -o pipefail 2>/dev/null || true
@@ -20,7 +21,7 @@ fi
 OUTSIDE=
 while IFS= read -r f; do
   [ -z "$f" ] && continue
-  if [[ "$f" == public/* ]]; then
+  if [[ "$f" == public/* ]] || [[ "$f" == "build-cache/library-snapshot.json.gz" ]]; then
     git checkout stash -- "$f"
     git add -- "$f"
   else

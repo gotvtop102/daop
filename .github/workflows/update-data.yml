@@ -182,8 +182,12 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          # Safety: remove legacy snapshots in public/data (Pages limit 25MB/file)
+          rm -f public/data/library-snapshot.json || true
+          rm -f public/data/library-snapshot.json.gz || true
+          git rm -f --ignore-unmatch public/data/library-snapshot.json public/data/library-snapshot.json.gz || true
           npm run check-public
-          git add public/data $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
+          git add public/data build-cache/library-snapshot.json.gz $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           # HTML (chu-de/, index.html, …) có ?v= sau injectFiltersJsCacheBustIntoHtml — phải commit cùng filters.js
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
@@ -224,8 +228,12 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          # Safety: remove legacy snapshots in public/data (Pages limit 25MB/file)
+          rm -f public/data/library-snapshot.json || true
+          rm -f public/data/library-snapshot.json.gz || true
+          git rm -f --ignore-unmatch public/data/library-snapshot.json public/data/library-snapshot.json.gz || true
           npm run check-public
-          git add public/data $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
+          git add public/data build-cache/library-snapshot.json.gz $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if ! git diff --staged --quiet; then
@@ -320,8 +328,12 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          # Safety: remove legacy snapshots in public/data (Pages limit 25MB/file)
+          rm -f public/data/library-snapshot.json || true
+          rm -f public/data/library-snapshot.json.gz || true
+          git rm -f --ignore-unmatch public/data/library-snapshot.json public/data/library-snapshot.json.gz || true
           npm run check-public
-          git add public/data $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
+          git add public/data build-cache/library-snapshot.json.gz $GIT_ADD_PUBLIC_IMAGES public/the-loai public/quoc-gia public/nam-phat-hanh public/sitemap.xml public/_redirects public/_routes.json
           find public -type f -name '*.html' -print0 | xargs -0 -r git add --
           git status
           if ! git diff --staged --quiet; then
