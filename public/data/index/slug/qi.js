@@ -1,0 +1,1 @@
+window.DAOP = window.DAOP || {};window.DAOP.slugIndex = window.DAOP.slugIndex || {};window.DAOP.slugIndex["qi"] = {"qifarah":{"id":"69e9cc5a91cc1b96d58a70d0","i":35330,"title":"Qifarah","origin_name":"Qifarah","slug":"qifarah","thumb":"https://cdn.jsdelivr.net/gh/gotvtop102/goimg102@main/public/thumbs/qi/qifarah.webp","year":2025,"type":"single","episode_current":"Trailer"}};
